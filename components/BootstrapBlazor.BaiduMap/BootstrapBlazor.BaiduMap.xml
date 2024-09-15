@@ -1,0 +1,74 @@
+<?xml version="1.0"?>
+<doc>
+    <assembly>
+        <name>BootstrapBlazor.BaiduMap</name>
+    </assembly>
+    <members>
+        <member name="T:BootstrapBlazor.Components.BaiduItem">
+            <summary>
+            Baidu定位数据类
+            </summary>
+        </member>
+        <member name="P:BootstrapBlazor.Components.BaiduItem.Status">
+            <summary>
+            状态
+            </summary>
+            <returns></returns>
+        </member>
+        <member name="P:BootstrapBlazor.Components.BaiduItem.Latitude">
+            <summary>
+            纬度
+            </summary>
+            <returns></returns>
+        </member>
+        <member name="P:BootstrapBlazor.Components.BaiduItem.Longitude">
+            <summary>
+            经度
+            </summary>
+            <returns></returns>
+        </member>
+        <member name="T:BootstrapBlazor.Components.BaiduMap">
+            <summary>
+            百度地图 BaiduMap 组件
+            </summary>
+        </member>
+        <member name="P:BootstrapBlazor.Components.BaiduMap.OnError">
+            <summary>
+            获得/设置 错误回调方法
+            </summary>
+        </member>
+        <member name="P:BootstrapBlazor.Components.BaiduMap.BaiduKey">
+            <summary>
+            获得/设置 BaiduKey<para></para>
+            为空则在 IConfiguration 服务获取 "BaiduKey" , 默认在 appsettings.json 文件配置
+            </summary>
+        </member>
+        <member name="P:BootstrapBlazor.Components.BaiduMap.Style">
+            <summary>
+            获得/设置 style
+            </summary>
+        </member>
+        <member name="P:BootstrapBlazor.Components.BaiduMap.ID">
+            <summary>
+            获得/设置 ID
+            </summary>
+        </member>
+        <member name="P:BootstrapBlazor.Components.BaiduMap.OnResult">
+            <summary>
+            获得/设置 定位结果回调方法
+            </summary>
+        </member>
+        <member name="M:BootstrapBlazor.Components.BaiduMap.GetLocation">
+            <summary>
+            获取定位
+            </summary>
+        </member>
+        <member name="M:BootstrapBlazor.Components.BaiduMap.GetResult(BootstrapBlazor.Components.BaiduItem)">
+            <summary>
+            定位完成回调方法
+            </summary>
+            <param name="geolocations"></param>
+            <returns></returns>
+        </member>
+    </members>
+</doc>

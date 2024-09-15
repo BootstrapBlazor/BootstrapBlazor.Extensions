@@ -1,0 +1,199 @@
+<?xml version="1.0"?>
+<doc>
+    <assembly>
+        <name>BootstrapBlazor.BaiduSpeech</name>
+    </assembly>
+    <members>
+        <member name="T:BootstrapBlazor.Components.BaiduSpeechOption">
+            <summary>
+            BaiduSpeechOptions 配置类
+            </summary>
+        </member>
+        <member name="P:BootstrapBlazor.Components.BaiduSpeechOption.AppId">
+            <summary>
+            获得/设置 Baidu AppId
+            </summary>
+        </member>
+        <member name="P:BootstrapBlazor.Components.BaiduSpeechOption.ApiKey">
+            <summary>
+            获得/设置 Baidu ApiKey
+            </summary>
+        </member>
+        <member name="P:BootstrapBlazor.Components.BaiduSpeechOption.Secret">
+            <summary>
+            获得/设置 Baidu 密钥
+            </summary>
+        </member>
+        <member name="P:BootstrapBlazor.Components.BaiduSpeechOption.Speed">
+            <summary>
+            获得/设置 语速 值范围 0 - 9 默认值 5
+            </summary>
+        </member>
+        <member name="T:BootstrapBlazor.Components.RecognizerServiceExtensions">
+            <summary>
+            RecognizerService 扩展方法
+            </summary>
+        </member>
+        <member name="M:BootstrapBlazor.Components.RecognizerServiceExtensions.RecognizeOnceAsync(BootstrapBlazor.Components.RecognizerService,System.Func{BootstrapBlazor.Components.RecognizerStatus,System.String,System.Threading.Tasks.Task},System.Nullable{System.Int32})">
+            <summary>
+            语音识别方法
+            </summary>
+            <param name="service"></param>
+            <param name="callback"></param>
+            <param name="autoRecoginzerElapsedMilliseconds">默认 5000 毫秒后自动识别，设置 0 时禁用</param>
+        </member>
+        <member name="M:BootstrapBlazor.Components.RecognizerServiceExtensions.RecognizeOnceAsync(BootstrapBlazor.Components.IRecognizerProvider,System.Func{BootstrapBlazor.Components.RecognizerStatus,System.String,System.Threading.Tasks.Task},System.Nullable{System.Int32})">
+            <summary>
+            语音识别方法
+            </summary>
+            <param name="provider"></param>
+            <param name="callback"></param>
+            <param name="autoRecoginzerElapsedMilliseconds">默认 5000 毫秒后自动识别，设置 0 时禁用</param>
+        </member>
+        <member name="M:BootstrapBlazor.Components.RecognizerServiceExtensions.CloseAsync(BootstrapBlazor.Components.RecognizerService,System.Func{BootstrapBlazor.Components.RecognizerStatus,System.String,System.Threading.Tasks.Task})">
+            <summary>
+            关闭语音识别方法
+            </summary>
+            <param name="service"></param>
+            <param name="callback"></param>
+            <returns></returns>
+        </member>
+        <member name="M:BootstrapBlazor.Components.RecognizerServiceExtensions.CloseAsync(BootstrapBlazor.Components.IRecognizerProvider,System.Func{BootstrapBlazor.Components.RecognizerStatus,System.String,System.Threading.Tasks.Task})">
+            <summary>
+            关闭语音识别方法
+            </summary>
+            <param name="provider"></param>
+            <param name="callback"></param>
+            <returns></returns>
+        </member>
+        <member name="T:BootstrapBlazor.Components.SynthesizerServiceExtensions">
+            <summary>
+            SynthesizerService 扩展操作类
+            </summary>
+        </member>
+        <member name="M:BootstrapBlazor.Components.SynthesizerServiceExtensions.SynthesizerOnceAsync(BootstrapBlazor.Components.SynthesizerService,System.String,System.Func{BootstrapBlazor.Components.SynthesizerStatus,System.Threading.Tasks.Task})">
+            <summary>
+            语音合成方法
+            </summary>
+            <param name="service"></param>
+            <param name="text"></param>
+            <param name="callback"></param>
+            <returns></returns>
+        </member>
+        <member name="M:BootstrapBlazor.Components.SynthesizerServiceExtensions.SynthesizerOnceAsync(BootstrapBlazor.Components.ISynthesizerProvider,System.String,System.Func{BootstrapBlazor.Components.SynthesizerStatus,System.Threading.Tasks.Task})">
+            <summary>
+            语音合成方法
+            </summary>
+            <param name="provider"></param>
+            <param name="text"></param>
+            <param name="callback"></param>
+            <returns></returns>
+        </member>
+        <member name="M:BootstrapBlazor.Components.SynthesizerServiceExtensions.CloseAsync(BootstrapBlazor.Components.SynthesizerService,System.Func{BootstrapBlazor.Components.SynthesizerStatus,System.Threading.Tasks.Task})">
+            <summary>
+            关闭语音合成方法
+            </summary>
+            <param name="service"></param>
+            <param name="callback"></param>
+            <returns></returns>
+        </member>
+        <member name="M:BootstrapBlazor.Components.SynthesizerServiceExtensions.CloseAsync(BootstrapBlazor.Components.ISynthesizerProvider,System.Func{BootstrapBlazor.Components.SynthesizerStatus,System.Threading.Tasks.Task})">
+            <summary>
+            关闭语音合成方法
+            </summary>
+            <param name="provider"></param>
+            <param name="callback"></param>
+            <returns></returns>
+        </member>
+        <member name="T:BootstrapBlazor.Components.BaiduRecognizerProvider">
+            <summary>
+            百度语音识别提供类
+            </summary>
+        </member>
+        <member name="M:BootstrapBlazor.Components.BaiduRecognizerProvider.#ctor(Microsoft.Extensions.Options.IOptionsMonitor{BootstrapBlazor.Components.BaiduSpeechOption},Microsoft.JSInterop.IJSRuntime,Microsoft.Extensions.Logging.ILogger{BootstrapBlazor.Components.BaiduRecognizerProvider})">
+            <summary>
+            构造函数
+            </summary>
+            <param name="options"></param>
+            <param name="runtime"></param>
+            <param name="logger"></param>
+        </member>
+        <member name="M:BootstrapBlazor.Components.BaiduRecognizerProvider.InvokeAsync(BootstrapBlazor.Components.RecognizerOption)">
+            <summary>
+            回调方法
+            </summary>
+            <param name="option"></param>
+            <returns></returns>
+            <exception cref="T:System.InvalidOperationException"></exception>
+        </member>
+        <member name="M:BootstrapBlazor.Components.BaiduRecognizerProvider.RecognizeCallback(BootstrapBlazor.Components.RecognizerStatus,System.Byte[])">
+            <summary>
+            RecognizeCallback 回调方法
+            </summary>
+        </member>
+        <member name="M:BootstrapBlazor.Components.BaiduRecognizerProvider.DisposeAsync(System.Boolean)">
+            <summary>
+            DisposeAsync 方法
+            </summary>
+            <param name="disposing"></param>
+        </member>
+        <member name="M:BootstrapBlazor.Components.BaiduRecognizerProvider.DisposeAsync">
+            <summary>
+            DisposeAsync 方法
+            </summary>
+            <returns></returns>
+        </member>
+        <member name="T:BootstrapBlazor.Components.BaiduSynthesizerProvider">
+            <summary>
+            百度语音合成提供类
+            </summary>
+        </member>
+        <member name="M:BootstrapBlazor.Components.BaiduSynthesizerProvider.#ctor(Microsoft.Extensions.Options.IOptionsMonitor{BootstrapBlazor.Components.BaiduSpeechOption},Microsoft.JSInterop.IJSRuntime,Microsoft.Extensions.Logging.ILogger{BootstrapBlazor.Components.BaiduSynthesizerProvider})">
+            <summary>
+            构造函数
+            </summary>
+            <param name="options"></param>
+            <param name="runtime"></param>
+            <param name="logger"></param>
+        </member>
+        <member name="M:BootstrapBlazor.Components.BaiduSynthesizerProvider.InvokeAsync(BootstrapBlazor.Components.SynthesizerOption)">
+            <summary>
+            
+            </summary>
+            <param name="option"></param>
+            <returns></returns>
+        </member>
+        <member name="M:BootstrapBlazor.Components.BaiduSynthesizerProvider.Callback(BootstrapBlazor.Components.SynthesizerStatus)">
+            <summary>
+            
+            </summary>
+            <param name="status"></param>
+            <returns></returns>
+        </member>
+        <member name="M:BootstrapBlazor.Components.BaiduSynthesizerProvider.DisposeAsync(System.Boolean)">
+            <summary>
+            DisposeAsync 方法
+            </summary>
+            <param name="disposing"></param>
+        </member>
+        <member name="M:BootstrapBlazor.Components.BaiduSynthesizerProvider.DisposeAsync">
+            <summary>
+            
+            </summary>
+            <returns></returns>
+        </member>
+        <member name="T:Microsoft.Extensions.DependencyInjection.ServiceCollectionExtension">
+            <summary>
+            BootstrapBlazor 服务扩展类
+            </summary>
+        </member>
+        <member name="M:Microsoft.Extensions.DependencyInjection.ServiceCollectionExtension.AddBootstrapBlazorBaiduSpeech(Microsoft.Extensions.DependencyInjection.IServiceCollection,System.Action{BootstrapBlazor.Components.BaiduSpeechOption})">
+            <summary>
+            增加 语音识别服务
+            </summary>
+            <param name="services"></param>
+            <param name="configOptions"></param>
+            <returns></returns>
+        </member>
+    </members>
+</doc>

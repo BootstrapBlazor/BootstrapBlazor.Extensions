@@ -1,0 +1,256 @@
+<?xml version="1.0"?>
+<doc>
+    <assembly>
+        <name>BootstrapBlazor.Sortable</name>
+    </assembly>
+    <members>
+        <member name="T:BootstrapBlazor.Components.SortableEvent">
+            <summary>
+            SortableEvent 类
+            </summary>
+        </member>
+        <member name="P:BootstrapBlazor.Components.SortableEvent.OldIndex">
+            <summary>
+            获得/设置 原始索引
+            </summary>
+        </member>
+        <member name="P:BootstrapBlazor.Components.SortableEvent.NewIndex">
+            <summary>
+            获得/设置 新索引
+            </summary>
+        </member>
+        <member name="P:BootstrapBlazor.Components.SortableEvent.Items">
+            <summary>
+            获得/设置 移动元素 <see cref="T:BootstrapBlazor.Components.SortableListItem"/> 集合
+            </summary>
+        </member>
+        <member name="T:BootstrapBlazor.Components.SortableList">
+            <summary>
+            SortableList 组件
+            </summary>
+        </member>
+        <member name="P:BootstrapBlazor.Components.SortableList.Option">
+            <summary>
+            获得/设置 配置项实例 <see cref="T:BootstrapBlazor.Components.SortableOption"/>
+            </summary>
+        </member>
+        <member name="P:BootstrapBlazor.Components.SortableList.ChildContent">
+            <summary>
+            获得/设置 子组件 必填项不可为空
+            </summary>
+        </member>
+        <member name="P:BootstrapBlazor.Components.SortableList.OnUpdate">
+            <summary>
+            获得/设置 元素更新回调方法
+            </summary>
+        </member>
+        <member name="P:BootstrapBlazor.Components.SortableList.OnRemove">
+            <summary>
+            获得/设置 元素更新回调方法
+            </summary>
+        </member>
+        <member name="M:BootstrapBlazor.Components.SortableList.InvokeInitAsync">
+            <summary>
+            <inheritdoc />
+            </summary>
+            <returns></returns>
+        </member>
+        <member name="M:BootstrapBlazor.Components.SortableList.TriggerUpdate(System.Collections.Generic.List{BootstrapBlazor.Components.SortableListItem})">
+            <summary>
+            JavaScript 调用触发节点更新方法
+            </summary>
+            <returns></returns>
+        </member>
+        <member name="M:BootstrapBlazor.Components.SortableList.TriggerRemove(System.Collections.Generic.List{BootstrapBlazor.Components.SortableListItem})">
+            <summary>
+            JavaScript 调用触发节点更新方法
+            </summary>
+            <returns></returns>
+        </member>
+        <member name="T:BootstrapBlazor.Components.SortableListItem">
+            <summary>
+            SortableListItem 类
+            </summary>
+        </member>
+        <member name="P:BootstrapBlazor.Components.SortableListItem.OldIndex">
+            <summary>
+            获得/设置 原始索引
+            </summary>
+        </member>
+        <member name="P:BootstrapBlazor.Components.SortableListItem.NewIndex">
+            <summary>
+            获得/设置 新索引
+            </summary>
+        </member>
+        <member name="T:BootstrapBlazor.Components.SortableOption">
+            <summary>
+            SortableOption 配置类
+            </summary>
+        </member>
+        <member name="P:BootstrapBlazor.Components.SortableOption.RootSelector">
+            <summary>
+            获得/设置 目标元素选择器
+            </summary>
+        </member>
+        <member name="P:BootstrapBlazor.Components.SortableOption.Group">
+            <summary>
+            or { name: "...", pull: [true, false, 'clone', array], put: [true, false, array] }
+            </summary>
+        </member>
+        <member name="P:BootstrapBlazor.Components.SortableOption.Clone">
+            <summary>
+            获得/设置 拖动时是否克隆元素 默认 null 未设置 不克隆
+            </summary>
+        </member>
+        <member name="P:BootstrapBlazor.Components.SortableOption.Putback">
+            <summary>
+            获得/设置 是否允许拖动回来 默认 null 未设置 允许
+            </summary>
+        </member>
+        <member name="P:BootstrapBlazor.Components.SortableOption.Sort">
+            <summary>
+            sorting inside list
+            </summary>
+        </member>
+        <member name="P:BootstrapBlazor.Components.SortableOption.Delay">
+            <summary>
+            time in milliseconds to define when the sorting should start
+            </summary>
+        </member>
+        <member name="P:BootstrapBlazor.Components.SortableOption.DelayOnTouchOnly">
+            <summary>
+            only delay if user is using touch
+            </summary>
+        </member>
+        <member name="P:BootstrapBlazor.Components.SortableOption.TouchStartThreshold">
+            <summary>
+            // px, how many pixels the point should move before cancelling a delayed drag event
+            </summary>
+        </member>
+        <member name="P:BootstrapBlazor.Components.SortableOption.Disabled">
+            <summary>
+            Disables the sortable if set to true.
+            </summary>
+        </member>
+        <member name="P:BootstrapBlazor.Components.SortableOption.Animation">
+            <summary>
+            ms, animation speed moving items when sorting, `0` — without animation
+            </summary>
+        </member>
+        <member name="P:BootstrapBlazor.Components.SortableOption.Easing">
+            <summary>
+            Easing for animation. Defaults to null. See https://easings.net/ for examples.
+            </summary>
+        </member>
+        <member name="P:BootstrapBlazor.Components.SortableOption.Handle">
+            <summary>
+            Drag handle selector within list items
+            </summary>
+        </member>
+        <member name="P:BootstrapBlazor.Components.SortableOption.Filter">
+            <summary>
+            Selectors that do not lead to dragging (String or Function)
+            </summary>
+        </member>
+        <member name="P:BootstrapBlazor.Components.SortableOption.PreventOnFilter">
+            <summary>
+            Call `event.preventDefault()` when triggered `filter`
+            </summary>
+        </member>
+        <member name="P:BootstrapBlazor.Components.SortableOption.Draggable">
+            <summary>
+            Specifies which items inside the element should be draggable
+            </summary>
+        </member>
+        <member name="P:BootstrapBlazor.Components.SortableOption.DataIdAttr">
+            <summary>
+            HTML attribute that is used by the `toArray()` method
+            </summary>
+        </member>
+        <member name="P:BootstrapBlazor.Components.SortableOption.GhostClass">
+            <summary>
+            Class name for the drop placeholder
+            </summary>
+        </member>
+        <member name="P:BootstrapBlazor.Components.SortableOption.ChosenClass">
+            <summary>
+            Class name for the chosen item
+            </summary>
+        </member>
+        <member name="P:BootstrapBlazor.Components.SortableOption.DragClass">
+            <summary>
+            Class name for the dragging item
+            </summary>
+        </member>
+        <member name="P:BootstrapBlazor.Components.SortableOption.SwapThreshold">
+            <summary>
+            Threshold of the swap zone
+            </summary>
+        </member>
+        <member name="P:BootstrapBlazor.Components.SortableOption.InvertSwap">
+            <summary>
+            Will always use inverted swap zone if set to true
+            </summary>
+        </member>
+        <member name="P:BootstrapBlazor.Components.SortableOption.InvertedSwapThreshold">
+            <summary>
+            Threshold of the inverted swap zone (will be set to swapThreshold value by default)
+            </summary>
+        </member>
+        <member name="P:BootstrapBlazor.Components.SortableOption.Direction">
+            <summary>
+            Direction of Sortable (will be detected automatically if not given)
+            </summary>
+        </member>
+        <member name="P:BootstrapBlazor.Components.SortableOption.ForceFallback">
+            <summary>
+            ignore the HTML5 DnD behaviour and force the fallback to kick in
+            </summary>
+        </member>
+        <member name="P:BootstrapBlazor.Components.SortableOption.FallbackClass">
+            <summary>
+            Class name for the cloned DOM Element when using forceFallback
+            </summary>
+        </member>
+        <member name="P:BootstrapBlazor.Components.SortableOption.FallbackOnBody">
+            <summary>
+            Appends the cloned DOM Element into the Document's Body
+            </summary>
+        </member>
+        <member name="P:BootstrapBlazor.Components.SortableOption.FallbackTolerance">
+            <summary>
+            Specify in pixels how far the mouse should move before it's considered as a drag.
+            </summary>
+        </member>
+        <member name="P:BootstrapBlazor.Components.SortableOption.DragoverBubble">
+            <summary>
+            DragoverBubble
+            </summary>
+        </member>
+        <member name="P:BootstrapBlazor.Components.SortableOption.RemoveCloneOnHide">
+            <summary>
+            Remove the clone element when it is not showing, rather than just hiding it
+            </summary>
+        </member>
+        <member name="P:BootstrapBlazor.Components.SortableOption.EmptyInsertThreshold">
+            <summary>
+            px, distance mouse must be from empty sortable to insert drag element into it
+            </summary>
+        </member>
+        <member name="P:BootstrapBlazor.Components.SortableOption.MultiDrag">
+            <summary>
+            获得/设置 是否允许多拖动 默认 null 未设置
+            </summary>
+        </member>
+        <member name="P:BootstrapBlazor.Components.SortableOption.Swap">
+            <summary>
+            获得/设置 是否交换拖动 默认 null 未设置
+            </summary>
+        </member>
+        <member name="P:BootstrapBlazor.Components.SortableOption.SwapClass">
+            <summary>
+            获得/设置 是否交换拖动项样式名称 默认 null 未设置
+            </summary>
+        </member>
+    </members>
+</doc>

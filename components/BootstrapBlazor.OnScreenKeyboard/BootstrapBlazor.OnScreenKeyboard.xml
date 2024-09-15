@@ -1,0 +1,249 @@
+<?xml version="1.0"?>
+<doc>
+    <assembly>
+        <name>BootstrapBlazor.OnScreenKeyboard</name>
+    </assembly>
+    <members>
+        <member name="T:BootstrapBlazor.Components.KeyboardKeysType">
+            <summary>
+            键盘语言布局
+            </summary>
+        </member>
+        <member name="T:BootstrapBlazor.Components.KeyboardType">
+            <summary>
+            键盘类型,全键盘 || 字母 || 小数字键盘
+            </summary>
+        </member>
+        <member name="F:BootstrapBlazor.Components.KeyboardType.all">
+            <summary>
+            全键盘
+            </summary>
+        </member>
+        <member name="F:BootstrapBlazor.Components.KeyboardType.keyboard">
+            <summary>
+            字母
+            </summary>
+        </member>
+        <member name="F:BootstrapBlazor.Components.KeyboardType.numpad">
+            <summary>
+            小数字键盘
+            </summary>
+        </member>
+        <member name="T:BootstrapBlazor.Components.KeyboardPlacement">
+            <summary>
+            对齐, 顶端 || 底部
+            </summary>
+        </member>
+        <member name="T:BootstrapBlazor.Components.KeyboardSpecialcharacters">
+            <summary>
+            特殊符号键盘类型, 默认 || 欧洲 || 自定义
+            </summary>
+        </member>
+        <member name="F:BootstrapBlazor.Components.KeyboardSpecialcharacters.all">
+            <summary>
+            默认
+            </summary>
+        </member>
+        <member name="F:BootstrapBlazor.Components.KeyboardSpecialcharacters.europe">
+            <summary>
+            欧洲
+            </summary>
+        </member>
+        <member name="F:BootstrapBlazor.Components.KeyboardSpecialcharacters.customer">
+            <summary>
+            自定义
+            </summary>
+        </member>
+        <member name="T:BootstrapBlazor.Components.KeyboardTheme">
+            <summary>
+            键盘主题, 浅色 || 暗黑 || 平板 || material ||oldschool
+            </summary>
+        </member>
+        <member name="F:BootstrapBlazor.Components.KeyboardTheme.light">
+            <summary>
+            浅色
+            </summary>
+        </member>
+        <member name="F:BootstrapBlazor.Components.KeyboardTheme.dark">
+            <summary>
+            暗黑
+            </summary>
+        </member>
+        <member name="F:BootstrapBlazor.Components.KeyboardTheme.flat">
+            <summary>
+            平板
+            </summary>
+        </member>
+        <member name="T:BootstrapBlazor.Components.KeyboardCssAnimationsStyle">
+            <summary>
+            打开或关闭键盘的 CSS 动画样式
+            </summary>
+        </member>
+        <member name="P:BootstrapBlazor.Components.KeyboardOption.keysArrayOfObjects">
+            <summary>
+            必需:必须为自定义键定义一个对象数组。<para></para>
+            提示：每个对象在键盘上创建一个行元素 (HTML)。<para></para>
+            例如 [{"key":"value"}, {"key":"value"}] => [{"0":"A","1":"B","2":"C" }, {"0":"D","1":"E","2":"F"}] 
+            </summary>
+        </member>
+        <member name="P:BootstrapBlazor.Components.KeyboardOption.KeyboardKeysType">
+            <summary>
+            键盘类型 <para></para>
+            arabic || english || french || german || hungarian || persian || russian || spanish || turkish
+            <para></para>仅当“keysArrayOfObjects”为“null”时才需要设置
+            </summary>
+        </member>
+        <member name="P:BootstrapBlazor.Components.KeyboardOption.keysJsonUrl">
+            <summary>
+            仅当“keysArrayOfObjects”为“null”时才需要。<para></para>
+            “kioskboard-keys-${langugage}.json”文件的路径必须设置为“keysJsonUrl”选项。（XMLHttpRequest 从 JSON 文件中获取密钥。）<para></para>
+            例如 '/Content/Plugins/KioskBoard/dist/kioskboard-keys-english.json' 
+            </summary>
+        </member>
+        <member name="P:BootstrapBlazor.Components.KeyboardOption.KeyboardSpecialcharacters">
+            <summary>
+            特殊符号键盘类型, 默认 || 欧洲 || 自定义
+            </summary>
+        </member>
+        <member name="P:BootstrapBlazor.Components.KeyboardOption.CustomerKeyboardSpecialcharacters">
+            <summary>
+            自定义特殊符号键盘 , 字符串数组覆盖内置的特殊字符。<para></para>
+            例如 ["#", "€", "%", "+", "-", "*"] 
+            </summary>
+        </member>
+        <member name="P:BootstrapBlazor.Components.KeyboardOption.keysSpecialCharsArrayOfStrings">
+            <summary> 
+            可选：自定义特殊符号键盘
+            </summary>
+        </member>
+        <member name="P:BootstrapBlazor.Components.KeyboardOption.keysNumpadArrayOfNumbers">
+            <summary> 
+            可选：可以设置一个数字数组来覆盖内置的小键盘键。（从 0 到 9，顺序不限。）
+            例如 [1, 2, 3, 4, 5, 6, 7, 8, 9, 0] 
+            </summary>
+        </member>
+        <member name="P:BootstrapBlazor.Components.KeyboardOption.language">
+             <summary> 
+            可选：自定义键的语言代码 (ISO 639-1)（用于语言支持）
+            <para></para> 例如 "de" || "en" || "fr" || "hu" || "tr" 等...
+             </summary>
+        </member>
+        <member name="P:BootstrapBlazor.Components.KeyboardOption.Theme">
+            <summary> 
+            键盘主题  <para></para>  "light" || "dark" || "flat" || "material" || "oldschool"
+            </summary>
+        </member>
+        <member name="P:BootstrapBlazor.Components.KeyboardOption.capsLockActive">
+            <summary> 
+            大写或小写锁定。默认false小写 
+            </summary>
+        </member>
+        <member name="P:BootstrapBlazor.Components.KeyboardOption.allowRealKeyboard">
+            <summary> 
+            允许或阻止真实/物理键盘的使用
+            <para></para>
+            此外，如果想要使用真实/物理键盘，“allowMobileKeyboard”选项也必须为“true”。
+            </summary>
+        </member>
+        <member name="P:BootstrapBlazor.Components.KeyboardOption.allowMobileKeyboard">
+            <summary>
+            允许或阻止使用移动键盘
+            </summary>
+        </member>
+        <member name="P:BootstrapBlazor.Components.KeyboardOption.cssAnimations">
+            <summary>
+            打开或关闭键盘的 CSS 动画
+            </summary>
+        </member>
+        <member name="P:BootstrapBlazor.Components.KeyboardOption.cssAnimationsDuration">
+            <summary>
+            CSS 动画持续时间(毫秒)
+            </summary>
+        </member>
+        <member name="P:BootstrapBlazor.Components.KeyboardOption.CssAnimationsStyle">
+            <summary>
+            打开或关闭键盘的 CSS 动画样式 => "slide" || "fade" 
+            </summary>
+        </member>
+        <member name="P:BootstrapBlazor.Components.KeyboardOption.keysAllowSpacebar">
+            <summary>
+            启用或禁用键盘上的空格键功能。
+            </summary>
+        </member>
+        <member name="P:BootstrapBlazor.Components.KeyboardOption.keysSpacebarText">
+            <summary>
+            空格键（空格键）的文本。不设置显示为"Space"
+            </summary>
+        </member>
+        <member name="P:BootstrapBlazor.Components.KeyboardOption.keysFontFamily">
+            <summary>
+            按键字体名称
+            </summary>
+        </member>
+        <member name="P:BootstrapBlazor.Components.KeyboardOption.keysFontSize">
+            <summary>
+            按键文字尺寸
+            </summary>
+        </member>
+        <member name="P:BootstrapBlazor.Components.KeyboardOption.keysFontWeight">
+            <summary>
+            按键文字粗细
+            </summary>
+        </member>
+        <member name="P:BootstrapBlazor.Components.KeyboardOption.keysIconSize">
+            <summary>
+            按键图标大小
+            </summary>
+        </member>
+        <member name="P:BootstrapBlazor.Components.KeyboardOption.autoScroll">
+            <summary>
+            将文档滚动到 input/textarea 元素的顶部或底部（通过放置选项）
+            </summary>
+        </member>
+        <member name="T:BootstrapBlazor.Components.OnScreenKeyboard">
+            <summary>
+            屏幕键盘 OnScreenKeyboard 组件基类
+            </summary>
+        </member>
+        <member name="P:BootstrapBlazor.Components.OnScreenKeyboard.ClassName">
+            <summary>
+            获得/设置 组件class名称
+            </summary>
+        </member>
+        <member name="P:BootstrapBlazor.Components.OnScreenKeyboard.KeyboardKeys">
+            <summary>
+            获得/设置 键盘语言布局
+            </summary>
+        </member>
+        <member name="P:BootstrapBlazor.Components.OnScreenKeyboard.Keyboard">
+            <summary>
+            获得/设置 键盘类型
+            </summary>
+        </member>
+        <member name="P:BootstrapBlazor.Components.OnScreenKeyboard.Placement">
+            <summary>
+            获得/设置 对齐
+            </summary>
+        </member>
+        <member name="P:BootstrapBlazor.Components.OnScreenKeyboard.Placeholder">
+            <summary>
+            获得/设置 占位符
+            </summary>
+        </member>
+        <member name="P:BootstrapBlazor.Components.OnScreenKeyboard.Specialcharacters">
+            <summary>
+            获得/设置 显示特殊字符切换按钮
+            </summary>
+        </member>
+        <member name="P:BootstrapBlazor.Components.OnScreenKeyboard.Option">
+            <summary>
+            获得/设置 键盘配置
+            </summary>
+        </member>
+        <member name="P:BootstrapBlazor.Components.OnScreenKeyboard.OnError">
+            <summary>
+            获得/设置 错误回调方法
+            </summary>
+        </member>
+    </members>
+</doc>

@@ -1,0 +1,229 @@
+<?xml version="1.0"?>
+<doc>
+    <assembly>
+        <name>BootstrapBlazor.MouseFollower</name>
+    </assembly>
+    <members>
+        <member name="T:BootstrapBlazor.Components.MouseFollower">
+            <summary>
+            MouseFollower 鼠标跟随器组件
+            </summary>
+        </member>
+        <member name="P:BootstrapBlazor.Components.MouseFollower.FollowerMode">
+            <summary>
+            获得/设置 MouseFollowerMode 模式
+            </summary>
+        </member>
+        <member name="P:BootstrapBlazor.Components.MouseFollower.GlobalMode">
+            <summary>
+            获得/设置 GlobalMode 全局模式
+            </summary>
+        </member>
+        <member name="P:BootstrapBlazor.Components.MouseFollower.Content">
+            <summary>
+            获得/设置 Content 文本，图标，图片路径，视频路径
+            </summary>
+        </member>
+        <member name="P:BootstrapBlazor.Components.MouseFollower.ChildContent">
+            <summary>
+            获得/设置 RenderFragment 实例
+            </summary>
+        </member>
+        <member name="P:BootstrapBlazor.Components.MouseFollower.Options">
+            <summary>
+            获得/设置 MouseFollowerOptions
+            </summary>
+        </member>
+        <member name="M:BootstrapBlazor.Components.MouseFollower.InvokeInitAsync">
+            <summary>
+            <inheritdoc/>
+            </summary>
+            <returns></returns>
+        </member>
+        <member name="T:BootstrapBlazor.Components.MouseFollowerMode">
+            <summary>
+            MouseFollower 显示模式枚举
+            </summary>
+        </member>
+        <member name="F:BootstrapBlazor.Components.MouseFollowerMode.Normal">
+            <summary>
+            Normal 默认模式
+            </summary>
+        </member>
+        <member name="F:BootstrapBlazor.Components.MouseFollowerMode.Text">
+            <summary>
+            Text 文本模式
+            </summary>
+        </member>
+        <member name="F:BootstrapBlazor.Components.MouseFollowerMode.Icon">
+            <summary>
+            Icon 图标模式
+            </summary>
+        </member>
+        <member name="F:BootstrapBlazor.Components.MouseFollowerMode.Image">
+            <summary>
+            Image 图片模式
+            </summary>
+        </member>
+        <member name="F:BootstrapBlazor.Components.MouseFollowerMode.Video">
+            <summary>
+            Video 视频模式
+            </summary>
+        </member>
+        <member name="T:BootstrapBlazor.Components.MouseFollowerOptions">
+            <summary>
+            MouseFollowerOptions
+            </summary>
+        </member>
+        <member name="P:BootstrapBlazor.Components.MouseFollowerOptions.ClassName">
+            <summary>
+            Cursor root element class name.
+            </summary>
+        </member>
+        <member name="P:BootstrapBlazor.Components.MouseFollowerOptions.InnerClassName">
+            <summary>
+            Inner element class name.
+            </summary>
+        </member>
+        <member name="P:BootstrapBlazor.Components.MouseFollowerOptions.TextClassName">
+            <summary>
+            Text element class name.
+            </summary>
+        </member>
+        <member name="P:BootstrapBlazor.Components.MouseFollowerOptions.MediaClassName">
+            <summary>
+            Media element class name.
+            </summary>
+        </member>
+        <member name="P:BootstrapBlazor.Components.MouseFollowerOptions.MediaBoxClassName">
+            <summary>
+            Media inner element class name.
+            </summary>
+        </member>
+        <member name="P:BootstrapBlazor.Components.MouseFollowerOptions.IconSvgClassName">
+            <summary>
+            SVG sprite class name.
+            </summary>
+        </member>
+        <member name="P:BootstrapBlazor.Components.MouseFollowerOptions.IconSvgNamePrefix">
+            <summary>
+            SVG sprite class name prefix of icon.
+            </summary>
+        </member>
+        <member name="P:BootstrapBlazor.Components.MouseFollowerOptions.IconSvgSrc">
+            <summary>
+            SVG sprite source. If you are not using SVG sprites leave this blank.
+            </summary>
+        </member>
+        <member name="P:BootstrapBlazor.Components.MouseFollowerOptions.DataAttr">
+            <summary>
+            Name of data attribute for changing cursor state directly in HTML markdown. Uses an event delegation.
+            </summary>
+        </member>
+        <member name="P:BootstrapBlazor.Components.MouseFollowerOptions.HiddenState">
+            <summary>
+            Hidden class name state.
+            </summary>
+        </member>
+        <member name="P:BootstrapBlazor.Components.MouseFollowerOptions.TextState">
+            <summary>
+            Text class name state.
+            </summary>
+        </member>
+        <member name="P:BootstrapBlazor.Components.MouseFollowerOptions.IconState">
+            <summary>
+            Icon class name state.
+            </summary>
+        </member>
+        <member name="P:BootstrapBlazor.Components.MouseFollowerOptions.ActiveState">
+            <summary>
+            Active (mousedown) class name state. Set false to disable.
+            </summary>
+        </member>
+        <member name="P:BootstrapBlazor.Components.MouseFollowerOptions.MediaState">
+            <summary>
+            Media (image/video) class name state.
+            </summary>
+        </member>
+        <member name="P:BootstrapBlazor.Components.MouseFollowerOptions.Visible">
+            <summary>
+            Is cursor visible by default.
+            </summary>
+        </member>
+        <member name="P:BootstrapBlazor.Components.MouseFollowerOptions.VisibleOnState">
+            <summary>
+            Automatically show/hide cursor when state added. Can be useful when implementing a hidden cursor follower.
+            </summary>
+        </member>
+        <member name="P:BootstrapBlazor.Components.MouseFollowerOptions.Speed">
+            <summary>
+            Cursor movement speed.
+            </summary>
+        </member>
+        <member name="P:BootstrapBlazor.Components.MouseFollowerOptions.Ease">
+            <summary>
+            Timing function of cursor movement. See gsap easing.
+            </summary>
+        </member>
+        <member name="P:BootstrapBlazor.Components.MouseFollowerOptions.Overwrite">
+            <summary>
+            Overwrite or remain cursor position when mousemove event happened. See gsap overwrite modes.
+            </summary>
+        </member>
+        <member name="P:BootstrapBlazor.Components.MouseFollowerOptions.Skewing">
+            <summary>
+            Default "skewing" factor.
+            </summary>
+        </member>
+        <member name="P:BootstrapBlazor.Components.MouseFollowerOptions.SkewingText">
+            <summary>
+            Skew effect factor in a text state. Set 0 to disable skew in this mode.
+            </summary>
+        </member>
+        <member name="P:BootstrapBlazor.Components.MouseFollowerOptions.SkewingIcon">
+            <summary>
+            Skew effect factor in a icon state. Set 0 to disable skew in this mode.
+            </summary>
+        </member>
+        <member name="P:BootstrapBlazor.Components.MouseFollowerOptions.SkewingMedia">
+            <summary>
+            Skew effect factor in a media (image/video) state. Set 0 to disable skew in this mode.
+            </summary>
+        </member>
+        <member name="P:BootstrapBlazor.Components.MouseFollowerOptions.SkewingDelta">
+            <summary>
+            Skew effect base delta. Set 0 to disable skew in this mode.
+            </summary>
+        </member>
+        <member name="P:BootstrapBlazor.Components.MouseFollowerOptions.SkewingDeltaMax">
+            <summary>
+            Skew effect max delta. Set 0 to disable skew in this mode.
+            </summary>
+        </member>
+        <member name="P:BootstrapBlazor.Components.MouseFollowerOptions.StickDelta">
+            <summary>
+            Stick effect delta.
+            </summary>
+        </member>
+        <member name="P:BootstrapBlazor.Components.MouseFollowerOptions.ShowTimeout">
+            <summary>
+            Delay before show. May be useful for the spawn animation to work properly.
+            </summary>
+        </member>
+        <member name="P:BootstrapBlazor.Components.MouseFollowerOptions.HideOnLeave">
+            <summary>
+            Hide the cursor when mouse leave container.
+            </summary>
+        </member>
+        <member name="P:BootstrapBlazor.Components.MouseFollowerOptions.HideTimeout">
+            <summary>
+            Hiding delay. Should be equal to the CSS hide animation time.
+            </summary>
+        </member>
+        <member name="P:BootstrapBlazor.Components.MouseFollowerOptions.HideMediaTimeout">
+            <summary>
+            Hiding delay. Should be equal to the CSS hide animation time.
+            </summary>
+        </member>
+    </members>
+</doc>

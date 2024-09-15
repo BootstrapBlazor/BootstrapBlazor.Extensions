@@ -1,0 +1,33 @@
+<?xml version="1.0"?>
+<doc>
+    <assembly>
+        <name>BootstrapBlazor.IconPark</name>
+    </assembly>
+    <members>
+        <member name="T:BootstrapBlazor.Components.ByteDanceIcon">
+            <summary>
+            ByteDanceIcon 组件
+            </summary>
+        </member>
+        <member name="P:BootstrapBlazor.Components.ByteDanceIcon.Name">
+            <summary>
+            获得/设置 图标名称
+            </summary>
+        </member>
+        <member name="P:BootstrapBlazor.Components.ByteDanceIcon.Href">
+            <summary>
+            获得 图标地址
+            </summary>
+        </member>
+        <member name="P:BootstrapBlazor.Components.ByteDanceIcon.ClassString">
+            <summary>
+            获得 样式字符串
+            </summary>
+        </member>
+        <member name="M:BootstrapBlazor.Components.ByteDanceIcon.OnParametersSet">
+            <summary>
+            <inheritdoc/>
+            </summary>
+        </member>
+    </members>
+</doc>

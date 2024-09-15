@@ -1,0 +1,358 @@
+<?xml version="1.0"?>
+<doc>
+    <assembly>
+        <name>BootstrapBlazor.TableExport</name>
+    </assembly>
+    <members>
+        <member name="T:BootstrapBlazor.Components.DefaultTableExport">
+            <summary>
+            构造函数
+            </summary>
+            <param name="serviceProvider"></param>
+        </member>
+        <member name="M:BootstrapBlazor.Components.DefaultTableExport.#ctor(System.IServiceProvider)">
+            <summary>
+            构造函数
+            </summary>
+            <param name="serviceProvider"></param>
+        </member>
+        <member name="M:BootstrapBlazor.Components.DefaultTableExport.ExportAsync``1(System.Collections.Generic.IEnumerable{``0},System.Collections.Generic.IEnumerable{BootstrapBlazor.Components.ITableColumn},System.String)">
+            <summary>
+            <inheritdoc/>
+            </summary>
+        </member>
+        <member name="M:BootstrapBlazor.Components.DefaultTableExport.ExportAsync``1(System.Collections.Generic.IEnumerable{``0},System.Collections.Generic.IEnumerable{BootstrapBlazor.Components.ITableColumn},BootstrapBlazor.Components.TableExportOptions,System.String)">
+            <summary>
+            <inheritdoc/>
+            </summary>
+        </member>
+        <member name="M:BootstrapBlazor.Components.DefaultTableExport.ExportExcelAsync``1(System.Collections.Generic.IEnumerable{``0},System.Collections.Generic.IEnumerable{BootstrapBlazor.Components.ITableColumn},System.String)">
+            <summary>
+            <inheritdoc/>
+            </summary>
+        </member>
+        <member name="M:BootstrapBlazor.Components.DefaultTableExport.ExportExcelAsync``1(System.Collections.Generic.IEnumerable{``0},System.Collections.Generic.IEnumerable{BootstrapBlazor.Components.ITableColumn},BootstrapBlazor.Components.TableExportOptions,System.String)">
+            <summary>
+            <inheritdoc/>
+            </summary>
+        </member>
+        <member name="M:BootstrapBlazor.Components.DefaultTableExport.ExportCsvAsync``1(System.Collections.Generic.IEnumerable{``0},System.Collections.Generic.IEnumerable{BootstrapBlazor.Components.ITableColumn},System.String)">
+            <summary>
+            <inheritdoc/>
+            </summary>
+        </member>
+        <member name="M:BootstrapBlazor.Components.DefaultTableExport.ExportCsvAsync``1(System.Collections.Generic.IEnumerable{``0},System.Collections.Generic.IEnumerable{BootstrapBlazor.Components.ITableColumn},BootstrapBlazor.Components.TableExportOptions,System.String)">
+            <summary>
+            <inheritdoc/>
+            </summary>
+        </member>
+        <member name="M:BootstrapBlazor.Components.DefaultTableExport.ExportPdfAsync``1(System.Collections.Generic.IEnumerable{``0},System.Collections.Generic.IEnumerable{BootstrapBlazor.Components.ITableColumn},System.String)">
+            <summary>
+            <inheritdoc/>
+            </summary>
+        </member>
+        <member name="M:BootstrapBlazor.Components.DefaultTableExport.ExportPdfAsync``1(System.Collections.Generic.IEnumerable{``0},System.Collections.Generic.IEnumerable{BootstrapBlazor.Components.ITableColumn},BootstrapBlazor.Components.TableExportOptions,System.String)">
+            <summary>
+            <inheritdoc/>
+            </summary>
+        </member>
+        <member name="M:BootstrapBlazor.Components.DefaultTableExport.ExportPdfAsync``1(System.Collections.Generic.IEnumerable{``0},System.Collections.Generic.IEnumerable{BootstrapBlazor.Components.ITableColumn},BootstrapBlazor.Components.TableExportOptions,System.String,System.Collections.Generic.IEnumerable{System.String})">
+            <summary>
+            <inheritdoc/>
+            </summary>
+        </member>
+        <member name="P:BootstrapBlazor.Components.ExportDataReader`1.Item(System.Int32)">
+            <summary>
+            <inheritdoc/>
+            </summary>
+            <param name="i"></param>
+            <returns></returns>
+        </member>
+        <member name="P:BootstrapBlazor.Components.ExportDataReader`1.Item(System.String)">
+            <summary>
+            <inheritdoc/>
+            </summary>
+            <param name="name"></param>
+            <returns></returns>
+        </member>
+        <member name="P:BootstrapBlazor.Components.ExportDataReader`1.FieldCount">
+            <summary>
+            <inheritdoc/>
+            </summary>
+        </member>
+        <member name="M:BootstrapBlazor.Components.ExportDataReader`1.GetName(System.Int32)">
+            <summary>
+            <inheritdoc/>
+            </summary>
+            <param name="i"></param>
+            <returns></returns>
+        </member>
+        <member name="M:BootstrapBlazor.Components.ExportDataReader`1.GetValue(System.Int32)">
+            <summary>
+            <inheritdoc/>
+            </summary>
+            <param name="i"></param>
+            <returns></returns>
+        </member>
+        <member name="M:BootstrapBlazor.Components.ExportDataReader`1.Read">
+            <summary>
+            <inheritdoc/>
+            </summary>
+            <returns></returns>
+        </member>
+        <member name="T:Microsoft.Extensions.DependencyInjection.TableExportServiceCollectionExtensions">
+            <summary>
+            BootstrapBlazor 服务扩展类
+            </summary>
+        </member>
+        <member name="M:Microsoft.Extensions.DependencyInjection.TableExportServiceCollectionExtensions.AddBootstrapBlazorTableExcelExport(Microsoft.Extensions.DependencyInjection.IServiceCollection)">
+            <summary>
+            增加 Table 数据导出服务
+            </summary>
+            <param name="services"></param>
+            <returns></returns>
+        </member>
+        <member name="M:Microsoft.Extensions.DependencyInjection.TableExportServiceCollectionExtensions.AddBootstrapBlazorTableExportService(Microsoft.Extensions.DependencyInjection.IServiceCollection)">
+            <summary>
+            增加 Table 数据导出服务
+            </summary>
+            <param name="services"></param>
+            <returns></returns>
+        </member>
+        <member name="T:MiniExcelLibs.MiniExcelDataReaderBase">
+            <summary>
+            IDataReader 实现类基类
+            </summary>
+        </member>
+        <member name="P:MiniExcelLibs.MiniExcelDataReaderBase.Item(System.Int32)">
+            <summary>
+            <inheritdoc/>
+            </summary>
+            <param name="i"></param>
+            <returns></returns>
+        </member>
+        <member name="P:MiniExcelLibs.MiniExcelDataReaderBase.Item(System.String)">
+            <summary>
+            <inheritdoc/>
+            </summary>
+            <param name="name"></param>
+            <returns></returns>
+        </member>
+        <member name="P:MiniExcelLibs.MiniExcelDataReaderBase.Depth">
+            <summary>
+            <inheritdoc/>
+            </summary>
+        </member>
+        <member name="P:MiniExcelLibs.MiniExcelDataReaderBase.IsClosed">
+            <summary>
+            <inheritdoc/>
+            </summary>
+        </member>
+        <member name="P:MiniExcelLibs.MiniExcelDataReaderBase.RecordsAffected">
+            <summary>
+            <inheritdoc/>
+            </summary>
+        </member>
+        <member name="P:MiniExcelLibs.MiniExcelDataReaderBase.FieldCount">
+            <summary>
+            <inheritdoc/>
+            </summary>
+        </member>
+        <member name="M:MiniExcelLibs.MiniExcelDataReaderBase.GetBoolean(System.Int32)">
+            <summary>
+            <inheritdoc/>
+            </summary>
+            <param name="i"></param>
+            <returns></returns>
+        </member>
+        <member name="M:MiniExcelLibs.MiniExcelDataReaderBase.GetByte(System.Int32)">
+            <summary>
+            <inheritdoc/>
+            </summary>
+            <param name="i"></param>
+            <returns></returns>
+        </member>
+        <member name="M:MiniExcelLibs.MiniExcelDataReaderBase.GetBytes(System.Int32,System.Int64,System.Byte[],System.Int32,System.Int32)">
+            <summary>
+            <inheritdoc/>
+            </summary>
+            <param name="i"></param>
+            <param name="fieldOffset"></param>
+            <param name="buffer"></param>
+            <param name="bufferOffset"></param>
+            <param name="length"></param>
+            <returns></returns>
+        </member>
+        <member name="M:MiniExcelLibs.MiniExcelDataReaderBase.GetChar(System.Int32)">
+            <summary>
+            <inheritdoc/>
+            </summary>
+            <param name="i"></param>
+            <returns></returns>
+        </member>
+        <member name="M:MiniExcelLibs.MiniExcelDataReaderBase.GetChars(System.Int32,System.Int64,System.Char[],System.Int32,System.Int32)">
+            <summary>
+            <inheritdoc/>
+            </summary>
+            <param name="i"></param>
+            <param name="fieldOffset"></param>
+            <param name="buffer"></param>
+            <param name="bufferOffset"></param>
+            <param name="length"></param>
+            <returns></returns>
+        </member>
+        <member name="M:MiniExcelLibs.MiniExcelDataReaderBase.GetData(System.Int32)">
+            <summary>
+            <inheritdoc/>
+            </summary>
+            <param name="i"></param>
+            <returns></returns>
+        </member>
+        <member name="M:MiniExcelLibs.MiniExcelDataReaderBase.GetDataTypeName(System.Int32)">
+            <summary>
+            <inheritdoc/>
+            </summary>
+            <param name="i"></param>
+            <returns></returns>
+        </member>
+        <member name="M:MiniExcelLibs.MiniExcelDataReaderBase.GetDateTime(System.Int32)">
+            <summary>
+            <inheritdoc/>
+            </summary>
+            <param name="i"></param>
+            <returns></returns>
+        </member>
+        <member name="M:MiniExcelLibs.MiniExcelDataReaderBase.GetDecimal(System.Int32)">
+            <summary>
+            <inheritdoc/>
+            </summary>
+            <param name="i"></param>
+            <returns></returns>
+        </member>
+        <member name="M:MiniExcelLibs.MiniExcelDataReaderBase.GetDouble(System.Int32)">
+            <summary>
+            <inheritdoc/>
+            </summary>
+            <param name="i"></param>
+            <returns></returns>
+        </member>
+        <member name="M:MiniExcelLibs.MiniExcelDataReaderBase.GetFieldType(System.Int32)">
+            <summary>
+            <inheritdoc/>
+            </summary>
+            <param name="i"></param>
+            <returns></returns>
+        </member>
+        <member name="M:MiniExcelLibs.MiniExcelDataReaderBase.GetFloat(System.Int32)">
+            <summary>
+            <inheritdoc/>
+            </summary>
+            <param name="i"></param>
+            <returns></returns>
+        </member>
+        <member name="M:MiniExcelLibs.MiniExcelDataReaderBase.GetGuid(System.Int32)">
+            <summary>
+            <inheritdoc/>
+            </summary>
+            <param name="i"></param>
+            <returns></returns>
+        </member>
+        <member name="M:MiniExcelLibs.MiniExcelDataReaderBase.GetInt16(System.Int32)">
+            <summary>
+            <inheritdoc/>
+            </summary>
+            <param name="i"></param>
+            <returns></returns>
+        </member>
+        <member name="M:MiniExcelLibs.MiniExcelDataReaderBase.GetInt32(System.Int32)">
+            <summary>
+            <inheritdoc/>
+            </summary>
+            <param name="i"></param>
+            <returns></returns>
+        </member>
+        <member name="M:MiniExcelLibs.MiniExcelDataReaderBase.GetInt64(System.Int32)">
+            <summary>
+            <inheritdoc/>
+            </summary>
+            <param name="i"></param>
+            <returns></returns>
+        </member>
+        <member name="M:MiniExcelLibs.MiniExcelDataReaderBase.GetOrdinal(System.String)">
+            <summary>
+            <inheritdoc/>
+            </summary>
+            <param name="name"></param>
+            <returns></returns>
+        </member>
+        <member name="M:MiniExcelLibs.MiniExcelDataReaderBase.GetSchemaTable">
+            <summary>
+            <inheritdoc/>
+            </summary>
+            <returns></returns>
+        </member>
+        <member name="M:MiniExcelLibs.MiniExcelDataReaderBase.GetString(System.Int32)">
+            <summary>
+            <inheritdoc/>
+            </summary>
+            <param name="i"></param>
+            <returns></returns>
+        </member>
+        <member name="M:MiniExcelLibs.MiniExcelDataReaderBase.GetValues(System.Object[])">
+            <summary>
+            <inheritdoc/>
+            </summary>
+            <param name="values"></param>
+            <returns></returns>
+        </member>
+        <member name="M:MiniExcelLibs.MiniExcelDataReaderBase.IsDBNull(System.Int32)">
+            <summary>
+            <inheritdoc/>
+            </summary>
+            <param name="i"></param>
+            <returns></returns>
+        </member>
+        <member name="M:MiniExcelLibs.MiniExcelDataReaderBase.NextResult">
+            <summary>
+            <inheritdoc/>
+            </summary>
+            <returns></returns>
+        </member>
+        <member name="M:MiniExcelLibs.MiniExcelDataReaderBase.GetName(System.Int32)">
+            <summary>
+            <inheritdoc/>
+            </summary>
+            <param name="i"></param>
+            <returns></returns>
+        </member>
+        <member name="M:MiniExcelLibs.MiniExcelDataReaderBase.GetValue(System.Int32)">
+            <summary>
+            <inheritdoc/>
+            </summary>
+            <param name="i"></param>
+            <returns></returns>
+        </member>
+        <member name="M:MiniExcelLibs.MiniExcelDataReaderBase.Read">
+            <summary>
+            <inheritdoc/>
+            </summary>
+            <returns></returns>
+        </member>
+        <member name="M:MiniExcelLibs.MiniExcelDataReaderBase.Close">
+            <summary>
+            <inheritdoc/>
+            </summary>
+        </member>
+        <member name="M:MiniExcelLibs.MiniExcelDataReaderBase.Dispose(System.Boolean)">
+            <summary>
+            <inheritdoc/>
+            </summary>
+            <param name="disposing"></param>
+        </member>
+        <member name="M:MiniExcelLibs.MiniExcelDataReaderBase.Dispose">
+            <summary>
+            <inheritdoc/>
+            </summary>
+        </member>
+    </members>
+</doc>

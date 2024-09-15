@@ -1,0 +1,218 @@
+<?xml version="1.0"?>
+<doc>
+    <assembly>
+        <name>BootstrapBlazor.PdfReader</name>
+    </assembly>
+    <members>
+        <member name="T:BootstrapBlazor.Components.EnumPageMode">
+            <summary>
+            页面模式
+            </summary>
+        </member>
+        <member name="F:BootstrapBlazor.Components.EnumPageMode.Thumbs">
+            <summary>
+            缩略图 / SidebarView.THUMBS;
+            </summary>
+        </member>
+        <member name="F:BootstrapBlazor.Components.EnumPageMode.Outline">
+            <summary>
+            大纲 / SidebarView.OUTLINE , non-standard
+            </summary>
+        </member>
+        <member name="F:BootstrapBlazor.Components.EnumPageMode.Attachments">
+            <summary>
+            附件 / SidebarView.ATTACHMENTS , non-standard
+            </summary>
+        </member>
+        <member name="F:BootstrapBlazor.Components.EnumPageMode.Layers">
+            <summary>
+            图层 / SidebarView.LAYERS , non-standard
+            </summary> 
+        </member>
+        <member name="F:BootstrapBlazor.Components.EnumPageMode.None">
+            <summary>
+            SidebarView.NONE;
+            </summary>
+        </member>
+        <member name="T:BootstrapBlazor.Components.EnumZoomMode">
+            <summary>
+            缩放模式
+            </summary>
+        </member>
+        <member name="F:BootstrapBlazor.Components.EnumZoomMode.Auto">
+            <summary>
+            自动缩放
+            </summary>
+        </member>
+        <member name="F:BootstrapBlazor.Components.EnumZoomMode.PageActual">
+            <summary>
+            实际大小
+            </summary>
+        </member>
+        <member name="F:BootstrapBlazor.Components.EnumZoomMode.PageFit">
+            <summary>
+            适合页面
+            </summary>
+        </member>
+        <member name="F:BootstrapBlazor.Components.EnumZoomMode.PageWidth">
+            <summary>
+            适合页宽
+            </summary>
+        </member>
+        <member name="T:BootstrapBlazor.Components.EnumExtensions">
+            <summary>
+            Enum 扩展方法
+            </summary>
+        </member>
+        <member name="M:BootstrapBlazor.Components.EnumExtensions.GetEnumName(System.Enum)">
+            <summary>
+            重写Enum ToString（）
+            </summary>
+            <param name="en"></param>
+            <returns></returns>
+        </member>
+        <member name="T:BootstrapBlazor.Components.PdfReader">
+            <summary>
+            Blazor Pdf Reader PDF阅读器 组件 
+            </summary>
+        </member>
+        <member name="P:BootstrapBlazor.Components.PdfReader.Stream">
+            <summary>
+            获得/设置 用于渲染的文件流,为空则用 FileName 参数读取文件
+            </summary>
+        </member>
+        <member name="P:BootstrapBlazor.Components.PdfReader.FileName">
+            <summary>
+            获得/设置 PDF文件URL, 'http' 开头自动使用流模式读取
+            </summary>
+        </member>
+        <member name="P:BootstrapBlazor.Components.PdfReader.StreamMode">
+            <summary>
+            获得/设置 使用流化模式,可跨域读取文件. 默认为 false
+            </summary>
+        </member>
+        <member name="P:BootstrapBlazor.Components.PdfReader.UrlBase">
+            <summary>
+            [已过时,统一使用 FileName 简化参数] 获得/设置 PDF文件基础路径, (使用流化模式才需要设置)
+            </summary>
+        </member>
+        <member name="P:BootstrapBlazor.Components.PdfReader.Width">
+            <summary>
+            获得/设置 宽 单位(px|%) 默认 100%
+            </summary>
+        </member>
+        <member name="P:BootstrapBlazor.Components.PdfReader.Height">
+            <summary>
+            获得/设置 高 单位(px|%) 默认 500px
+            </summary>
+        </member>
+        <member name="P:BootstrapBlazor.Components.PdfReader.StyleString">
+            <summary>
+            获得/设置 组件外观 Css Style
+            </summary>
+        </member>
+        <member name="P:BootstrapBlazor.Components.PdfReader.Page">
+            <summary>
+            获得/设置 页码
+            </summary> 
+        </member>
+        <member name="P:BootstrapBlazor.Components.PdfReader.Navpanes">
+            <summary>
+            获得/设置 显示导航窗格
+            </summary> 
+        </member>
+        <member name="P:BootstrapBlazor.Components.PdfReader.Toolbar">
+            <summary>
+            获得/设置 显示工具栏
+            </summary> 
+        </member>
+        <member name="P:BootstrapBlazor.Components.PdfReader.Statusbar">
+            <summary>
+            获得/设置 显示状态栏
+            </summary> 
+        </member>
+        <member name="P:BootstrapBlazor.Components.PdfReader.View">
+            <summary>
+            [已过时,使用 Zoom 代替] 获得/设置 视图模式, 
+            </summary>
+        </member>
+        <member name="P:BootstrapBlazor.Components.PdfReader.Pagemode">
+            <summary>
+            获得/设置 页面模式
+            </summary>
+        </member>
+        <member name="P:BootstrapBlazor.Components.PdfReader.Search">
+            <summary>
+            获得/设置 查询关键字
+            </summary>
+        </member>
+        <member name="P:BootstrapBlazor.Components.PdfReader.Zoom">
+            <summary>
+            获得/设置 缩放模式 默认为 自动
+            </summary>
+        </member>
+        <member name="P:BootstrapBlazor.Components.PdfReader.ViewerBase">
+            <summary>
+            获得/设置 浏览器路径
+            </summary> 
+        </member>
+        <member name="P:BootstrapBlazor.Components.PdfReader.ReadOnly">
+            <summary>
+            获得/设置 禁用复制/打印/下载
+            </summary> 
+        </member>
+        <member name="P:BootstrapBlazor.Components.PdfReader.Watermark">
+            <summary>
+            获得/设置 水印内容
+            </summary> 
+        </member>
+        <member name="P:BootstrapBlazor.Components.PdfReader.Debug">
+            <summary>
+            Debug
+            </summary>
+        </member>
+        <member name="M:BootstrapBlazor.Components.PdfReader.Refresh">
+            <summary>
+            刷新组件
+            </summary>
+            <returns></returns>
+        </member>
+        <member name="M:BootstrapBlazor.Components.PdfReader.NavigateToPage(System.Int32)">
+            <summary>
+            跳转页码
+            </summary>
+            <param name="page">页码</param>
+            <returns></returns>
+        </member>
+        <member name="M:BootstrapBlazor.Components.PdfReader.Refresh(System.Int32)">
+            <summary>
+            刷新组件
+            </summary>
+            <param name="page">页码</param>
+            <returns></returns>
+        </member>
+        <member name="M:BootstrapBlazor.Components.PdfReader.Refresh(System.String,System.Nullable{System.Int32},System.Nullable{BootstrapBlazor.Components.EnumPageMode},System.Nullable{BootstrapBlazor.Components.EnumZoomMode},System.Nullable{System.Boolean},System.String)">
+            <summary>
+            刷新组件
+            </summary>
+            <param name="search">查询关键字</param>
+            <param name="page">页码</param>
+            <param name="pagemode">页面模式</param>
+            <param name="zoom">缩放模式</param>
+            <param name="readOnly">禁用复制/打印/下载</param>
+            <param name="watermark">水印内容</param>
+            <returns></returns>
+        </member>
+        <member name="M:BootstrapBlazor.Components.PdfReader.ShowPdf(System.IO.Stream)">
+            <summary>
+            打开 stream
+            </summary>
+        </member>
+        <member name="M:BootstrapBlazor.Components.PdfReader.DisposeAsync">
+            <summary>
+            <inheritdoc/>
+            </summary>
+            <returns></returns>
+        </member>
+    </members>
+</doc>

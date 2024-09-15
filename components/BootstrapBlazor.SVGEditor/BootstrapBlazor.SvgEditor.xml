@@ -1,0 +1,43 @@
+<?xml version="1.0"?>
+<doc>
+    <assembly>
+        <name>BootstrapBlazor.SvgEditor</name>
+    </assembly>
+    <members>
+        <member name="T:BootstrapBlazor.Components.SvgEditor">
+            <summary>
+            SvgEditor component
+            </summary>
+        </member>
+        <member name="P:BootstrapBlazor.Components.SvgEditor.PreContent">
+            <summary>
+            获得/设置 首次加载内容
+            </summary>
+        </member>
+        <member name="P:BootstrapBlazor.Components.SvgEditor.OnSaveChanged">
+            <summary>
+            获得/设置 保存编辑器内容回调
+            </summary>
+        </member>
+        <member name="M:BootstrapBlazor.Components.SvgEditor.InvokeInitAsync">
+            <summary>
+            <inheritdoc/>
+            </summary>
+            <returns></returns>
+        </member>
+        <member name="M:BootstrapBlazor.Components.SvgEditor.UpdateAsync(System.String)">
+            <summary>
+            更新内容方法
+            </summary>
+            <param name="content"></param>
+            <returns></returns>
+        </member>
+        <member name="M:BootstrapBlazor.Components.SvgEditor.GetContent(System.String)">
+            <summary>
+            获得内容方法 由 JavaScript 调用
+            </summary>
+            <param name="value"></param>
+            <returns></returns>
+        </member>
+    </members>
+</doc>

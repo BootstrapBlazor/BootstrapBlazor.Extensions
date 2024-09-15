@@ -1,0 +1,31 @@
+<?xml version="1.0"?>
+<doc>
+    <assembly>
+        <name>BootstrapBlazor.TagHelper</name>
+    </assembly>
+    <members>
+        <member name="M:BootstrapBlazor.Components.DefaultVersionService.GetVersion">
+            <summary>
+            <inheritdoc/>
+            </summary>
+            <returns></returns>
+        </member>
+        <member name="M:BootstrapBlazor.Components.DefaultVersionService.GetVersion(System.String)">
+            <summary>
+            <inheritdoc/>
+            </summary>
+            <returns></returns>
+        </member>
+        <member name="T:Microsoft.Extensions.DependencyInjection.ServiceCollectionExtensions">
+            <summary>
+            IWebHostEnvironment 扩展方法
+            </summary>
+        </member>
+        <member name="M:Microsoft.Extensions.DependencyInjection.ServiceCollectionExtensions.AddBootstrapAppendVersionService(Microsoft.Extensions.DependencyInjection.IServiceCollection)">
+            <summary>
+            添加 AzureOpenAIService 服务
+            </summary>
+            <param name="services"></param>
+        </member>
+    </members>
+</doc>

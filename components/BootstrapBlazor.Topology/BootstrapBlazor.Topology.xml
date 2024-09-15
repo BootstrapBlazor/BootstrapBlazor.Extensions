@@ -1,0 +1,144 @@
+<?xml version="1.0"?>
+<doc>
+    <assembly>
+        <name>BootstrapBlazor.Topology</name>
+    </assembly>
+    <members>
+        <member name="T:BootstrapBlazor.Components.Topology">
+            <summary>
+            Topology 组件类
+            </summary>
+        </member>
+        <member name="P:BootstrapBlazor.Components.Topology.Content">
+            <summary>
+            获得/设置 JSON 文件内容
+            </summary>
+        </member>
+        <member name="P:BootstrapBlazor.Components.Topology.Interval">
+            <summary>
+            获得/设置 推送数据间隔时间 最小值 100 默认 2000 毫秒
+            </summary>
+        </member>
+        <member name="P:BootstrapBlazor.Components.Topology.OnQueryAsync">
+            <summary>
+            获得/设置 获取推送数据回调委托方法 默认 null 赋值后开启轮训模式
+            </summary>
+        </member>
+        <member name="P:BootstrapBlazor.Components.Topology.OnBeforePushData">
+            <summary>
+            获得/设置 开始推送数据前回调方法
+            </summary>
+        </member>
+        <member name="P:BootstrapBlazor.Components.Topology.IsSupportTouch">
+            <summary>
+            获得/设置 是否支持树莓派触屏浏览器
+            </summary>
+            <remarks></remarks>
+        </member>
+        <member name="P:BootstrapBlazor.Components.Topology.IsFitView">
+            <summary>
+            获得/设置 是否自适应屏幕显示
+            </summary>
+            <remarks></remarks>
+        </member>
+        <member name="P:BootstrapBlazor.Components.Topology.IsCenterView">
+            <summary>
+            获得/设置 是否居中显示可视区域
+            </summary>
+            <remarks></remarks>
+        </member>
+        <member name="P:BootstrapBlazor.Components.Topology.IsDisableHover">
+            <summary>
+            获得/设置 是否禁用鼠标悬浮效果 默认 false
+            </summary>
+        </member>
+        <member name="M:BootstrapBlazor.Components.Topology.InvokeInitAsync">
+            <summary>
+            <inheritdoc/>
+            </summary>
+            <returns></returns>
+        </member>
+        <member name="M:BootstrapBlazor.Components.Topology.PushData">
+            <summary>
+            开始推送数据方法
+            </summary>
+            <returns></returns>
+        </member>
+        <member name="M:BootstrapBlazor.Components.Topology.PushData(System.Collections.Generic.IEnumerable{BootstrapBlazor.Components.TopologyItem})">
+            <summary>
+            推送数据到客户端
+            </summary>
+            <param name="items"></param>
+            <returns></returns>
+        </member>
+        <member name="M:BootstrapBlazor.Components.Topology.Scale(System.Int32,System.Boolean,System.Boolean)">
+            <summary>
+            重置视图 缩放比例 默认 1 即 100%
+            </summary>
+            <param name="rate"></param>
+            <param name="isCenterView"></param>
+            <param name="isFitView"></param>
+            <returns></returns>
+        </member>
+        <member name="M:BootstrapBlazor.Components.Topology.Reset(System.Boolean,System.Boolean)">
+            <summary>
+            重置视图 自适应大小并且居中显示
+            </summary>
+            <param name="isCenterView"></param>
+            <param name="isFitView"></param>
+            <returns></returns>
+        </member>
+        <member name="M:BootstrapBlazor.Components.Topology.Resize(System.Nullable{System.Int32},System.Nullable{System.Int32})">
+            <summary>
+            重置可视化引擎大小
+            </summary>
+            <returns></returns>
+        </member>
+        <member name="M:BootstrapBlazor.Components.Topology.DisposeAsync(System.Boolean)">
+            <summary>
+            DisposeAsync 方法
+            </summary>
+            <param name="disposing"></param>
+        </member>
+        <member name="T:BootstrapBlazor.Components.TopologyItem">
+            <summary>
+            Topology 数据项实体类
+            </summary>
+        </member>
+        <member name="P:BootstrapBlazor.Components.TopologyItem.ID">
+            <summary>
+            获得/设置 对象 Id
+            </summary>
+        </member>
+        <member name="P:BootstrapBlazor.Components.TopologyItem.Tag">
+            <summary>
+            获得/设置 对象关联 Tag 位号值
+            </summary>
+        </member>
+        <member name="P:BootstrapBlazor.Components.TopologyItem.Text">
+            <summary>
+            获得/设置 显示文字
+            </summary>
+        </member>
+        <member name="P:BootstrapBlazor.Components.TopologyItem.ShowChild">
+            <summary>
+            获得/设置 组合组件状态切换值 一般从 0 开始
+            </summary>
+        </member>
+        <member name="P:BootstrapBlazor.Components.TopologyItem.TextColor">
+            <summary>
+            获得/设置 显示文字颜色
+            </summary>
+        </member>
+        <member name="P:BootstrapBlazor.Components.TopologyItem.Background">
+            <summary>
+            获得/设置 背景颜色
+            </summary>
+        </member>
+        <member name="P:BootstrapBlazor.Components.TopologyItem.Title">
+            <summary>
+            获得/设置 对象 title 属性一般用于 tooltip 显示
+            </summary>
+        </member>
+    </members>
+</doc>

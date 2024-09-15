@@ -1,0 +1,119 @@
+<?xml version="1.0"?>
+<doc>
+    <assembly>
+        <name>BootstrapBlazor.DataAccess.EntityFrameworkCore</name>
+    </assembly>
+    <members>
+        <member name="T:BootstrapBlazor.DataAccess.EntityFrameworkCore.DefaultDataService`1">
+            <summary>
+            Entity Framework ORM 的 IDataService 接口实现
+            </summary>
+        </member>
+        <member name="M:BootstrapBlazor.DataAccess.EntityFrameworkCore.DefaultDataService`1.#ctor(System.Func{BootstrapBlazor.Components.IEntityFrameworkCoreDataService,Microsoft.EntityFrameworkCore.DbContext})">
+            <summary>
+            构造函数
+            </summary>
+        </member>
+        <member name="M:BootstrapBlazor.DataAccess.EntityFrameworkCore.DefaultDataService`1.AddAsync(`0)">
+            <summary>
+            增加方法
+            </summary>
+            <param name="model"></param>
+            <returns></returns>
+        </member>
+        <member name="M:BootstrapBlazor.DataAccess.EntityFrameworkCore.DefaultDataService`1.CancelAsync">
+            <summary>
+            取消更新方法
+            </summary>
+            <returns></returns>
+        </member>
+        <member name="M:BootstrapBlazor.DataAccess.EntityFrameworkCore.DefaultDataService`1.EditAsync(System.Object)">
+            <summary>
+            编辑方法
+            </summary>
+            <returns></returns>
+        </member>
+        <member name="M:BootstrapBlazor.DataAccess.EntityFrameworkCore.DefaultDataService`1.DeleteAsync(System.Collections.Generic.IEnumerable{`0})">
+            <summary>
+            删除方法
+            </summary>
+            <param name="models"></param>
+            <returns></returns>
+        </member>
+        <member name="M:BootstrapBlazor.DataAccess.EntityFrameworkCore.DefaultDataService`1.SaveAsync(`0,BootstrapBlazor.Components.ItemChangedType)">
+            <summary>
+            保存方法
+            </summary>
+            <param name="model"></param>
+            <param name="changedType"></param>
+            <returns></returns>
+        </member>
+        <member name="M:BootstrapBlazor.DataAccess.EntityFrameworkCore.DefaultDataService`1.QueryAsync(BootstrapBlazor.Components.QueryPageOptions)">
+            <summary>
+            查询方法
+            </summary>
+            <param name="option"></param>
+            <returns></returns>
+        </member>
+        <member name="T:BootstrapBlazor.DataAccess.EntityFrameworkCore.IQueryableExtensions">
+            <summary>
+            IQueryable 扩展方法
+            </summary>
+        </member>
+        <member name="M:BootstrapBlazor.DataAccess.EntityFrameworkCore.IQueryableExtensions.Where``1(System.Linq.IQueryable{``0},System.Linq.Expressions.Expression{System.Func{``0,System.Boolean}},System.Boolean)">
+            <summary>
+            条件
+            </summary>
+            <typeparam name="T"></typeparam>
+            <param name="queryable"></param>
+            <param name="condition"></param>
+            <param name="predicate"></param>
+            <returns></returns>
+        </member>
+        <member name="M:BootstrapBlazor.DataAccess.EntityFrameworkCore.IQueryableExtensions.Sort``1(System.Linq.IQueryable{``0},System.String,BootstrapBlazor.Components.SortOrder,System.Boolean)">
+            <summary>
+            排序
+            </summary>
+            <typeparam name="T"></typeparam>
+            <param name="queryable"></param>
+            <param name="sortName"></param>
+            <param name="sortOrder"></param>
+            <param name="condition"></param>
+            <returns></returns>
+        </member>
+        <member name="M:BootstrapBlazor.DataAccess.EntityFrameworkCore.IQueryableExtensions.Page``1(System.Linq.IQueryable{``0},System.Int32,System.Int32)">
+            <summary>
+            分页
+            </summary>
+            <typeparam name="T"></typeparam>
+            <param name="queryable"></param>
+            <param name="skipCount"></param>
+            <param name="maxResultCount"></param>
+            <returns></returns>
+        </member>
+        <member name="M:BootstrapBlazor.DataAccess.EntityFrameworkCore.IQueryableExtensions.Count``1(System.Linq.IQueryable{``0},System.Int32@)">
+            <summary>
+            总数
+            </summary>
+            <typeparam name="T"></typeparam>
+            <param name="queryable"></param>
+            <param name="totalCount"></param>
+            <returns></returns>
+        </member>
+        <member name="T:Microsoft.Extensions.DependencyInjection.EFCoreServiceCollectionExtensions">
+            <summary>
+            BootstrapBlazor EFCore 服务扩展类
+            </summary>
+        </member>
+        <member name="M:Microsoft.Extensions.DependencyInjection.EFCoreServiceCollectionExtensions.AddEntityFrameworkCore``1(Microsoft.Extensions.DependencyInjection.IServiceCollection,System.Action{Microsoft.EntityFrameworkCore.DbContextOptionsBuilder},Microsoft.Extensions.DependencyInjection.ServiceLifetime,Microsoft.Extensions.DependencyInjection.ServiceLifetime)">
+            <summary>
+            增加 Entity Framework 数据库操作服务
+            </summary>
+            <param name="services"></param>
+            <param name="optionsAction"></param>
+            <param name="contextLifetime"></param>
+            <param name="optionsLifetime"></param>
+            <returns></returns>
+        </member>
+    </members>
+</doc>

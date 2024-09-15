@@ -1,0 +1,200 @@
+<?xml version="1.0"?>
+<doc>
+    <assembly>
+        <name>BootstrapBlazor.Markdown</name>
+    </assembly>
+    <members>
+        <member name="T:BootstrapBlazor.Components.InitialEditType">
+            <summary>
+            初始化编辑器显示界面
+            </summary>
+        </member>
+        <member name="F:BootstrapBlazor.Components.InitialEditType.Markdown">
+            <summary>
+            Markdown 界面
+            </summary>
+        </member>
+        <member name="F:BootstrapBlazor.Components.InitialEditType.Wysiwyg">
+            <summary>
+            所见即所得界面
+            </summary>
+        </member>
+        <member name="T:BootstrapBlazor.Components.Markdown">
+            <summary>
+            Markdown 组件
+            </summary>
+        </member>
+        <member name="P:BootstrapBlazor.Components.Markdown.Height">
+            <summary>
+            获得/设置 控件高度，默认300px
+            </summary>
+        </member>
+        <member name="P:BootstrapBlazor.Components.Markdown.MinHeight">
+            <summary>
+            获得/设置 控件最小高度，默认200px
+            </summary>
+        </member>
+        <member name="P:BootstrapBlazor.Components.Markdown.InitialEditType">
+            <summary>
+            获得/设置 初始化时显示的界面，markdown 界面，所见即所得界面
+            </summary>
+        </member>
+        <member name="P:BootstrapBlazor.Components.Markdown.PreviewStyle">
+            <summary>
+            获得/设置 预览模式，Tab 页预览，分栏预览 默认分栏预览 Vertical
+            </summary>
+        </member>
+        <member name="P:BootstrapBlazor.Components.Markdown.Language">
+            <summary>
+            获得/设置 语言，默认为简体中文，如果改变，需要自行引入语言包
+            </summary>
+        </member>
+        <member name="P:BootstrapBlazor.Components.Markdown.Placeholder">
+            <summary>
+            获得/设置 提示信息
+            </summary>
+        </member>
+        <member name="P:BootstrapBlazor.Components.Markdown.Html">
+            <summary>
+            获得/设置 组件 Html 代码
+            </summary>
+        </member>
+        <member name="P:BootstrapBlazor.Components.Markdown.HtmlChanged">
+            <summary>
+            获得/设置 组件 Html 代码回调
+            </summary>
+        </member>
+        <member name="P:BootstrapBlazor.Components.Markdown.IsViewer">
+            <summary>
+            获取/设置 组件是否为浏览器模式
+            </summary>
+        </member>
+        <member name="P:BootstrapBlazor.Components.Markdown.IsDark">
+            <summary>
+            获取/设置 组件是否为为暗黑主题，默认为false
+            </summary>
+        </member>
+        <member name="P:BootstrapBlazor.Components.Markdown.EnableHighlight">
+            <summary>
+            启用代码高亮插件，需引入对应的css js，默认为false
+            </summary>
+        </member>
+        <member name="P:BootstrapBlazor.Components.Markdown.Element">
+            <summary>
+            获得/设置 DOM 元素实例
+            </summary>
+        </member>
+        <member name="M:BootstrapBlazor.Components.Markdown.GetClassString">
+            <summary>
+            获得 组件样式
+            </summary>
+        </member>
+        <member name="M:BootstrapBlazor.Components.Markdown.OnInitialized">
+            <summary>
+            OnInitialized 方法
+            </summary>
+        </member>
+        <member name="M:BootstrapBlazor.Components.Markdown.InvokeInitAsync">
+            <summary>
+            <inheritdoc/>
+            </summary>
+            <returns></returns>
+        </member>
+        <member name="M:BootstrapBlazor.Components.Markdown.Update(System.String[])">
+            <summary>
+            更新组件值方法
+            </summary>
+            <param name="vals"></param>
+            <returns></returns>
+        </member>
+        <member name="M:BootstrapBlazor.Components.Markdown.SetValue(System.String)">
+            <summary>
+            <inheritdoc/>
+            </summary>
+            <returns></returns>
+        </member>
+        <member name="M:BootstrapBlazor.Components.Markdown.DoMethodAsync(System.String,System.Object[])">
+            <summary>
+            执行方法
+            </summary>
+            <param name="method"></param>
+            <param name="parameters"></param>
+            <returns></returns>
+        </member>
+        <member name="T:BootstrapBlazor.Components.MarkdownOption">
+            <summary>
+            Markdown组件设置项
+            </summary>
+        </member>
+        <member name="P:BootstrapBlazor.Components.MarkdownOption.InitialEditType">
+            <summary>
+            获得/设置 编辑器呈现界面：markdown,wysiwyg(所见即所得)
+            </summary>
+        </member>
+        <member name="P:BootstrapBlazor.Components.MarkdownOption.PreviewStyle">
+            <summary>
+            获得/设置 预览方式：vertical(分栏), tab(tab页)
+            </summary>
+        </member>
+        <member name="P:BootstrapBlazor.Components.MarkdownOption.Height">
+            <summary>
+            获得/设置 高度：px值，默认300px
+            </summary>
+        </member>
+        <member name="P:BootstrapBlazor.Components.MarkdownOption.MinHeight">
+            <summary>
+            获得/设置 最小高度：px值，默认200px
+            </summary>
+        </member>
+        <member name="P:BootstrapBlazor.Components.MarkdownOption.Language">
+            <summary>
+            获得/设置 语言，默认为英文，如果改变，需要自行引入语言包
+            </summary>
+        </member>
+        <member name="P:BootstrapBlazor.Components.MarkdownOption.Placeholder">
+            <summary>
+            获得/设置 提示信息
+            </summary>
+        </member>
+        <member name="P:BootstrapBlazor.Components.MarkdownOption.InitialValue">
+            <summary>
+            获得/设置 Markdown 内容
+            </summary>
+        </member>
+        <member name="P:BootstrapBlazor.Components.MarkdownOption.Viewer">
+            <summary>
+            是否为浏览器模式
+            </summary>
+        </member>
+        <member name="P:BootstrapBlazor.Components.MarkdownOption.Theme">
+            <summary>
+            获得/设置 主题类型
+            </summary>
+        </member>
+        <member name="P:BootstrapBlazor.Components.MarkdownOption.EnableHighlight">
+            <summary>
+            获得/设置 是否启用代码高亮
+            </summary>
+        </member>
+        <member name="P:BootstrapBlazor.Components.MarkdownOption.Autofocus">
+            <summary>
+            获得/设置 是否自动获取焦点
+            </summary>
+        </member>
+        <member name="T:BootstrapBlazor.Components.PreviewStyle">
+            <summary>
+            预览方式
+            </summary>
+        </member>
+        <member name="F:BootstrapBlazor.Components.PreviewStyle.Vertical">
+            <summary>
+            左右树形预览
+            </summary>
+        </member>
+        <member name="F:BootstrapBlazor.Components.PreviewStyle.Tab">
+            <summary>
+            tab页预览
+            </summary>
+        </member>
+    </members>
+</doc>

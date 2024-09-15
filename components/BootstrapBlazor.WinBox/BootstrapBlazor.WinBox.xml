@@ -1,0 +1,468 @@
+<?xml version="1.0"?>
+<doc>
+    <assembly>
+        <name>BootstrapBlazor.WinBox</name>
+    </assembly>
+    <members>
+        <member name="T:BootstrapBlazor.Components.WinBoxServiceExtensions">
+            <summary>
+            <see cref="T:BootstrapBlazor.Components.WinBoxService"/> 扩展方法
+            </summary>
+        </member>
+        <member name="M:BootstrapBlazor.Components.WinBoxServiceExtensions.Show``1(BootstrapBlazor.Components.WinBoxService,System.String,System.Collections.Generic.IDictionary{System.String,System.Object},BootstrapBlazor.Components.WinBoxOption)">
+            <summary>
+            <see cref="T:BootstrapBlazor.Components.WinBoxService"/> 扩展方法
+            </summary>
+            <typeparam name="TComponent">内容组件</typeparam>
+            <param name="service"><see cref="T:BootstrapBlazor.Components.WinBoxService"/> 实例</param>
+            <param name="title">指定窗口标题</param>
+            <param name="parameters">指定组件参数集合</param>
+            <param name="option">额外参数集合</param>
+        </member>
+        <member name="M:BootstrapBlazor.Components.WinBoxServiceExtensions.Show(BootstrapBlazor.Components.WinBoxService,System.String,System.Type,System.Collections.Generic.IDictionary{System.String,System.Object},BootstrapBlazor.Components.WinBoxOption)">
+            <summary>
+            <see cref="T:BootstrapBlazor.Components.WinBoxService"/> 扩展方法
+            </summary>
+            <param name="service"><see cref="T:BootstrapBlazor.Components.WinBoxService"/> 实例</param>
+            <param name="title">指定窗口标题</param>
+            <param name="type">指定内容组件类型</param>
+            <param name="parameters">指定组件参数集合</param>
+            <param name="option">额外参数集合</param>
+        </member>
+        <member name="M:BootstrapBlazor.Components.WinBoxServiceExtensions.ShowModal``1(BootstrapBlazor.Components.WinBoxService,System.String,System.Collections.Generic.IDictionary{System.String,System.Object},BootstrapBlazor.Components.WinBoxOption)">
+            <summary>
+            <see cref="T:BootstrapBlazor.Components.WinBoxService"/> 扩展方法
+            </summary>
+            <typeparam name="TComponent">内容组件</typeparam>
+            <param name="service"><see cref="T:BootstrapBlazor.Components.WinBoxService"/> 实例</param>
+            <param name="title">指定窗口标题</param>
+            <param name="parameters">指定组件参数集合</param>
+            <param name="option">额外参数集合</param>
+        </member>
+        <member name="M:BootstrapBlazor.Components.WinBoxServiceExtensions.ShowModal(BootstrapBlazor.Components.WinBoxService,System.String,System.Type,System.Collections.Generic.IDictionary{System.String,System.Object},BootstrapBlazor.Components.WinBoxOption)">
+            <summary>
+            <see cref="T:BootstrapBlazor.Components.WinBoxService"/> 扩展方法
+            </summary>
+            <param name="service"><see cref="T:BootstrapBlazor.Components.WinBoxService"/> 实例</param>
+            <param name="title">指定窗口标题</param>
+            <param name="type">指定内容组件类型</param>
+            <param name="parameters">指定组件参数集合</param>
+            <param name="option">额外参数集合</param>
+        </member>
+        <member name="T:BootstrapBlazor.Components.WinBox">
+            <summary>
+            WinBox 组件
+            </summary>
+        </member>
+        <member name="P:BootstrapBlazor.Components.WinBox.WinBoxService">
+            <summary>
+            DialogServices 服务实例
+            </summary>
+        </member>
+        <member name="M:BootstrapBlazor.Components.WinBox.OnInitialized">
+            <summary>
+            OnInitialized 方法
+            </summary>
+        </member>
+        <member name="M:BootstrapBlazor.Components.WinBox.OnAfterRenderAsync(System.Boolean)">
+            <summary>
+            <inheritdoc/>
+            </summary>
+            <param name="firstRender"></param>
+            <returns></returns>
+        </member>
+        <member name="M:BootstrapBlazor.Components.WinBox.OnClose(System.String)">
+            <summary>
+            弹窗关闭回调方法由 JavaScript 调用
+            </summary>
+            <param name="id"></param>
+            <returns></returns>
+        </member>
+        <member name="M:BootstrapBlazor.Components.WinBox.OnCreate(System.String)">
+            <summary>
+            弹窗关闭回调方法由 JavaScript 调用
+            </summary>
+            <param name="id"></param>
+            <returns></returns>
+        </member>
+        <member name="M:BootstrapBlazor.Components.WinBox.OnShow(System.String)">
+            <summary>
+            弹窗关闭回调方法由 JavaScript 调用
+            </summary>
+            <param name="id"></param>
+            <returns></returns>
+        </member>
+        <member name="M:BootstrapBlazor.Components.WinBox.OnHide(System.String)">
+            <summary>
+            弹窗关闭回调方法由 JavaScript 调用
+            </summary>
+            <param name="id"></param>
+            <returns></returns>
+        </member>
+        <member name="M:BootstrapBlazor.Components.WinBox.OnFocus(System.String)">
+            <summary>
+            弹窗关闭回调方法由 JavaScript 调用
+            </summary>
+            <param name="id"></param>
+            <returns></returns>
+        </member>
+        <member name="M:BootstrapBlazor.Components.WinBox.OnBlur(System.String)">
+            <summary>
+            弹窗关闭回调方法由 JavaScript 调用
+            </summary>
+            <param name="id"></param>
+            <returns></returns>
+        </member>
+        <member name="M:BootstrapBlazor.Components.WinBox.OnFullscreen(System.String)">
+            <summary>
+            弹窗关闭回调方法由 JavaScript 调用
+            </summary>
+            <param name="id"></param>
+            <returns></returns>
+        </member>
+        <member name="M:BootstrapBlazor.Components.WinBox.OnRestore(System.String)">
+            <summary>
+            弹窗关闭回调方法由 JavaScript 调用
+            </summary>
+            <param name="id"></param>
+            <returns></returns>
+        </member>
+        <member name="M:BootstrapBlazor.Components.WinBox.OnMaximize(System.String)">
+            <summary>
+            弹窗关闭回调方法由 JavaScript 调用
+            </summary>
+            <param name="id"></param>
+            <returns></returns>
+        </member>
+        <member name="M:BootstrapBlazor.Components.WinBox.OnMinimize(System.String)">
+            <summary>
+            弹窗关闭回调方法由 JavaScript 调用
+            </summary>
+            <param name="id"></param>
+            <returns></returns>
+        </member>
+        <member name="M:BootstrapBlazor.Components.WinBox.DisposeAsync(System.Boolean)">
+            <summary>
+            <inheritdoc/>
+            </summary>
+            <param name="disposing"></param>
+        </member>
+        <member name="T:BootstrapBlazor.Components.WinBoxCloseButton">
+            <summary>
+            WinBox 组件关闭弹窗按钮组件
+            </summary>
+        </member>
+        <member name="P:BootstrapBlazor.Components.WinBoxCloseButton.Color">
+            <summary>
+            获得/设置 按钮颜色
+            </summary>
+        </member>
+        <member name="M:BootstrapBlazor.Components.WinBoxCloseButton.OnParametersSet">
+            <summary>
+            <inheritdoc/>
+            </summary>
+        </member>
+        <member name="M:BootstrapBlazor.Components.WinBoxCloseButton.HandlerClick">
+            <summary>
+            <inheritdoc/>
+            </summary>
+            <returns></returns>
+        </member>
+        <member name="T:BootstrapBlazor.Components.WinBoxOption">
+            <summary>
+            WinBox 弹窗配置类
+            </summary>
+        </member>
+        <member name="P:BootstrapBlazor.Components.WinBoxOption.Index">
+            <summary>
+            Set the initial z-index of the window to this value (will be increased automatically when unfocused/focused).
+            </summary>
+        </member>
+        <member name="P:BootstrapBlazor.Components.WinBoxOption.Id">
+            <summary>
+            Set a unique id to the window. Used to define custom styles in css, query elements by context or just to identify the corresponding window instance. If no ID was set it will automatically create one for you.
+            </summary>
+        </member>
+        <member name="P:BootstrapBlazor.Components.WinBoxOption.Root">
+            <summary>
+            获得/设置 弹窗容器根节点 默认 body
+            </summary>
+        </member>
+        <member name="P:BootstrapBlazor.Components.WinBoxOption.Class">
+            <summary>
+            Add one or more class names to the window (multiple class names as array or separated with whitespaces e.g. "class-a class-b"). Used to define custom styles in css, query elements by context (also within CSS) or just to tag the corresponding window instance.
+            </summary>
+        </member>
+        <member name="P:BootstrapBlazor.Components.WinBoxOption.Title">
+            <summary>
+            The window title.
+            </summary>
+        </member>
+        <member name="P:BootstrapBlazor.Components.WinBoxOption.Background">
+            <summary>
+            Set the background of the window (supports all CSS styles which are also supported by the style-attribute "background", e.g. colors, transparent colors, hsl, gradients, background images)
+            </summary>
+        </member>
+        <member name="P:BootstrapBlazor.Components.WinBoxOption.Border">
+            <summary>
+            Set the border width of the window (supports all the browsers css units).
+            </summary>
+        </member>
+        <member name="P:BootstrapBlazor.Components.WinBoxOption.Header">
+            <summary>
+            
+            </summary>
+        </member>
+        <member name="P:BootstrapBlazor.Components.WinBoxOption.Icon">
+            <summary>
+            Make the title bar icon visible and set the image source to this url.
+            </summary>
+        </member>
+        <member name="P:BootstrapBlazor.Components.WinBoxOption.Modal">
+            <summary>
+            Shows the window as modal.
+            </summary>
+        </member>
+        <member name="P:BootstrapBlazor.Components.WinBoxOption.Max">
+            <summary>
+            Automatically toggles the window into maximized state when created.
+            </summary>
+        </member>
+        <member name="P:BootstrapBlazor.Components.WinBoxOption.Min">
+            <summary>
+            Automatically toggles the window into minimized state when created.
+            </summary>
+        </member>
+        <member name="P:BootstrapBlazor.Components.WinBoxOption.Hidden">
+            <summary>
+            Automatically toggles the window into hidden state when created.
+            </summary>
+        </member>
+        <member name="P:BootstrapBlazor.Components.WinBoxOption.Width">
+            <summary>
+            Set the initial width/height of the window (supports units "px" and "%").
+            </summary>
+        </member>
+        <member name="P:BootstrapBlazor.Components.WinBoxOption.Height">
+            <summary>
+            Set the initial width/height of the window (supports units "px" and "%").
+            </summary>
+        </member>
+        <member name="P:BootstrapBlazor.Components.WinBoxOption.MinHeight">
+            <summary>
+            Set the minimal width/height of the window (supports units "px" and "%"). Should be at least the height of the window header title bar.
+            </summary>
+        </member>
+        <member name="P:BootstrapBlazor.Components.WinBoxOption.MinWidth">
+            <summary>
+            Set the minimal width/height of the window (supports units "px" and "%"). Should be at least the height of the window header title bar.
+            </summary>
+        </member>
+        <member name="P:BootstrapBlazor.Components.WinBoxOption.MaxHeight">
+            <summary>
+            Set the maximum width/height of the window (supports units "px" and "%").
+            </summary>
+        </member>
+        <member name="P:BootstrapBlazor.Components.WinBoxOption.MaxWidth">
+            <summary>
+            Set the maximum width/height of the window (supports units "px" and "%").
+            </summary>
+        </member>
+        <member name="P:BootstrapBlazor.Components.WinBoxOption.AutoSize">
+            <summary>
+            Automatically size the window to fit the window contents.
+            </summary>
+        </member>
+        <member name="P:BootstrapBlazor.Components.WinBoxOption.X">
+            <summary>
+            Set the initial position of the window (supports: "right" for x-axis, "bottom" for y-axis, "center" for both, units "px" and "%" for both).
+            </summary>
+        </member>
+        <member name="P:BootstrapBlazor.Components.WinBoxOption.Y">
+            <summary>
+            Set the initial position of the window (supports: "right" for x-axis, "bottom" for y-axis, "center" for both, units "px" and "%" for both).
+            </summary>
+        </member>
+        <member name="P:BootstrapBlazor.Components.WinBoxOption.Top">
+            <summary>
+            Set or limit the viewport of the window's available area (supports units "px" and "%"). Also used for custom splitscreen configurations.
+            </summary>
+        </member>
+        <member name="P:BootstrapBlazor.Components.WinBoxOption.Right">
+            <summary>
+            Set or limit the viewport of the window's available area (supports units "px" and "%"). Also used for custom splitscreen configurations.
+            </summary>
+        </member>
+        <member name="P:BootstrapBlazor.Components.WinBoxOption.Bottom">
+            <summary>
+            Set or limit the viewport of the window's available area (supports units "px" and "%"). Also used for custom splitscreen configurations.
+            </summary>
+        </member>
+        <member name="P:BootstrapBlazor.Components.WinBoxOption.Left">
+            <summary>
+            Set or limit the viewport of the window's available area (supports units "px" and "%"). Also used for custom splitscreen configurations.
+            </summary>
+        </member>
+        <member name="P:BootstrapBlazor.Components.WinBoxOption.Url">
+            <summary>
+            Open URL inside the window (loaded via iframe).
+            </summary>
+        </member>
+        <member name="P:BootstrapBlazor.Components.WinBoxOption.Html">
+            <summary>
+            Set the innerHTML of the window body.
+            </summary>
+        </member>
+        <member name="P:BootstrapBlazor.Components.WinBoxOption.Overflow">
+            <summary>
+            Allow the window to move outside the viewport borders on left, right and bottom (default is "false").
+            </summary>
+        </member>
+        <member name="P:BootstrapBlazor.Components.WinBoxOption.ContentTemplate">
+            <summary>
+            获得/设置 子组件模板 默认 null
+            </summary>
+        </member>
+        <member name="P:BootstrapBlazor.Components.WinBoxOption.OnCreateAsync">
+            <summary>
+            获得/设置 创建弹窗回调方法 默认 null
+            </summary>
+        </member>
+        <member name="P:BootstrapBlazor.Components.WinBoxOption.OnShowAsync">
+            <summary>
+            获得/设置 弹窗可见回调方法 默认 null
+            </summary>
+        </member>
+        <member name="P:BootstrapBlazor.Components.WinBoxOption.OnHideAsync">
+            <summary>
+            获得/设置 隐藏弹窗回调方法 默认 null
+            </summary>
+        </member>
+        <member name="P:BootstrapBlazor.Components.WinBoxOption.OnFocusAsync">
+            <summary>
+            获得/设置 弹窗获得焦点回调方法 默认 null
+            </summary>
+        </member>
+        <member name="P:BootstrapBlazor.Components.WinBoxOption.OnBlurAsync">
+            <summary>
+            获得/设置 弹窗失去焦点回调方法 默认 null
+            </summary>
+        </member>
+        <member name="P:BootstrapBlazor.Components.WinBoxOption.OnFullscreenAsync">
+            <summary>
+            获得/设置 弹窗全屏回调方法 默认 null
+            </summary>
+        </member>
+        <member name="P:BootstrapBlazor.Components.WinBoxOption.OnRestoreAsync">
+            <summary>
+            获得/设置 恢复弹窗回调方法 默认 null
+            </summary>
+        </member>
+        <member name="P:BootstrapBlazor.Components.WinBoxOption.OnMaximizeAsync">
+            <summary>
+            获得/设置 最大化弹窗回调方法 默认 null
+            </summary>
+        </member>
+        <member name="P:BootstrapBlazor.Components.WinBoxOption.OnMinimizeAsync">
+            <summary>
+            获得/设置 最小化弹窗回调方法 默认 null
+            </summary>
+        </member>
+        <member name="P:BootstrapBlazor.Components.WinBoxOption.OnCloseAsync">
+            <summary>
+            获得/设置 关闭弹窗回调方法 默认 null
+            </summary>
+        </member>
+        <member name="T:BootstrapBlazor.Components.WinBoxService">
+            <summary>
+            WinBox 弹窗服务
+            </summary>
+        </member>
+        <member name="P:BootstrapBlazor.Components.WinBoxService.Cache">
+            <summary>
+            获得 回调委托缓存集合
+            </summary>
+        </member>
+        <member name="M:BootstrapBlazor.Components.WinBoxService.Invoke(BootstrapBlazor.Components.WinBoxOption,System.String,Microsoft.AspNetCore.Components.ComponentBase)">
+            <summary>
+            异步回调方法
+            </summary>
+            <param name="option"></param>
+            <param name="method"></param>
+            <param name="component"></param>
+            <returns></returns>
+        </member>
+        <member name="M:BootstrapBlazor.Components.WinBoxService.Show(BootstrapBlazor.Components.WinBoxOption)">
+            <summary>
+            显示 WinBox 方法
+            </summary>
+            <param name="option">弹窗配置信息实体类</param>
+        </member>
+        <member name="M:BootstrapBlazor.Components.WinBoxService.Close(BootstrapBlazor.Components.WinBoxOption)">
+            <summary>
+            关闭 WinBox 方法
+            </summary>
+            <param name="option">弹窗配置信息实体类</param>
+        </member>
+        <member name="M:BootstrapBlazor.Components.WinBoxService.Minimize(BootstrapBlazor.Components.WinBoxOption)">
+            <summary>
+            最小化方法
+            </summary>
+            <returns></returns>
+        </member>
+        <member name="M:BootstrapBlazor.Components.WinBoxService.Maximize(BootstrapBlazor.Components.WinBoxOption)">
+            <summary>
+            最大化方法
+            </summary>
+            <returns></returns>
+        </member>
+        <member name="M:BootstrapBlazor.Components.WinBoxService.Restore(BootstrapBlazor.Components.WinBoxOption)">
+            <summary>
+            最大化方法
+            </summary>
+            <returns></returns>
+        </member>
+        <member name="M:BootstrapBlazor.Components.WinBoxService.SetIcon(BootstrapBlazor.Components.WinBoxOption)">
+            <summary>
+            设置图标方法
+            </summary>
+            <returns></returns>
+        </member>
+        <member name="M:BootstrapBlazor.Components.WinBoxService.SetTitle(BootstrapBlazor.Components.WinBoxOption)">
+            <summary>
+            设置标题方法
+            </summary>
+            <returns></returns>
+        </member>
+        <member name="M:BootstrapBlazor.Components.WinBoxService.Stack">
+            <summary>
+            窗口排列方法
+            </summary>
+            <returns></returns>
+        </member>
+        <member name="M:BootstrapBlazor.Components.WinBoxService.Register(Microsoft.AspNetCore.Components.ComponentBase,System.Func{BootstrapBlazor.Components.WinBoxOption,System.String,System.Threading.Tasks.Task})">
+            <summary>
+            注册弹窗事件
+            </summary>
+            <param name="key"></param>
+            <param name="callback"></param>
+        </member>
+        <member name="M:BootstrapBlazor.Components.WinBoxService.UnRegister(Microsoft.AspNetCore.Components.ComponentBase)">
+            <summary>
+            注销弹窗事件
+            </summary>
+        </member>
+        <member name="T:Microsoft.Extensions.DependencyInjection.ServiceCollectionExtensions">
+            <summary>
+            BootstrapBlazor 服务扩展类
+            </summary>
+        </member>
+        <member name="M:Microsoft.Extensions.DependencyInjection.ServiceCollectionExtensions.AddBootstrapBlazorWinBoxService(Microsoft.Extensions.DependencyInjection.IServiceCollection)">
+            <summary>
+            增加 语音识别服务
+            </summary>
+            <param name="services"></param>
+            <returns></returns>
+        </member>
+    </members>
+</doc>

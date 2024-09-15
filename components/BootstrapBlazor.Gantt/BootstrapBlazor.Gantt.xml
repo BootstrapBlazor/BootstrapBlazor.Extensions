@@ -1,0 +1,204 @@
+<?xml version="1.0"?>
+<doc>
+    <assembly>
+        <name>BootstrapBlazor.Gantt</name>
+    </assembly>
+    <members>
+        <member name="T:BootstrapBlazor.Components.Gantt">
+            <summary>
+            甘特图组件
+            </summary>
+        </member>
+        <member name="P:BootstrapBlazor.Components.Gantt.Items">
+            <summary>
+            获得或设置 甘特图数据源
+            </summary>
+        </member>
+        <member name="P:BootstrapBlazor.Components.Gantt.Option">
+            <summary>
+            获得或设置 甘特图配置项
+            </summary>
+        </member>
+        <member name="P:BootstrapBlazor.Components.Gantt.OnClick">
+            <summary>
+            获得或设置 点击事件
+            </summary>
+        </member>
+        <member name="P:BootstrapBlazor.Components.Gantt.OnDataChanged">
+            <summary>
+            获得或设置 任务时间改变事件
+            </summary>
+        </member>
+        <member name="P:BootstrapBlazor.Components.Gantt.OnProgressChanged">
+            <summary>
+            获得或设置 任务进度改变事件
+            </summary>
+        </member>
+        <member name="M:BootstrapBlazor.Components.Gantt.OnParametersSet">
+            <summary>
+            <inheritdoc/>
+            </summary>
+        </member>
+        <member name="M:BootstrapBlazor.Components.Gantt.InvokeInitAsync">
+            <summary>
+            <inheritdoc/>
+            </summary>
+        </member>
+        <member name="M:BootstrapBlazor.Components.Gantt.OnGanttClick(BootstrapBlazor.Components.GanttItem)">
+            <summary>
+            
+            </summary>
+            <param name="item"></param>
+            <returns></returns>
+        </member>
+        <member name="M:BootstrapBlazor.Components.Gantt.OnGanttProgressChange(BootstrapBlazor.Components.GanttItem,System.Int32)">
+            <summary>
+            
+            </summary>
+            <param name="item"></param>
+            <param name="progress"></param>
+            <returns></returns>
+        </member>
+        <member name="M:BootstrapBlazor.Components.Gantt.OnGanttDataChange(BootstrapBlazor.Components.GanttItem,System.String,System.String)">
+            <summary>
+            
+            </summary>
+            <param name="item"></param>
+            <param name="start"></param>
+            <param name="end"></param>
+            <returns></returns>
+        </member>
+        <member name="M:BootstrapBlazor.Components.Gantt.ChangeVieMode(System.String)">
+            <summary>
+            改变甘特图视图
+            </summary>
+            <param name="mode"></param>
+            <returns></returns>
+        </member>
+        <member name="T:BootstrapBlazor.Components.GanttItem">
+            <summary>
+            GanttItem 类
+            </summary>
+        </member>
+        <member name="P:BootstrapBlazor.Components.GanttItem.Id">
+            <summary>
+            获得或设置 任务编号
+            </summary>
+        </member>
+        <member name="P:BootstrapBlazor.Components.GanttItem.Name">
+            <summary>
+            获得或设置 任务名称
+            </summary>
+        </member>
+        <member name="P:BootstrapBlazor.Components.GanttItem.Start">
+            <summary>
+             获得或设置 任务开始时间
+            </summary>
+        </member>
+        <member name="P:BootstrapBlazor.Components.GanttItem.End">
+            <summary>
+             获得或设置 任务结束时间
+            </summary>
+        </member>
+        <member name="P:BootstrapBlazor.Components.GanttItem.Progress">
+            <summary>
+             获得或设置 任务进度
+            </summary>
+        </member>
+        <member name="P:BootstrapBlazor.Components.GanttItem.Dependencies">
+            <summary>
+            获得或设置 任务依赖
+            </summary>
+        </member>
+        <member name="T:BootstrapBlazor.Components.GanttOption">
+            <summary>
+            GanttOption 配置类
+            </summary>
+        </member>
+        <member name="P:BootstrapBlazor.Components.GanttOption.HeaderHeight">
+            <summary>
+            
+            </summary>
+        </member>
+        <member name="P:BootstrapBlazor.Components.GanttOption.ColumnWidth">
+            <summary>
+            
+            </summary>
+        </member>
+        <member name="P:BootstrapBlazor.Components.GanttOption.Step">
+            <summary>
+            
+            </summary>
+        </member>
+        <member name="P:BootstrapBlazor.Components.GanttOption.BarHeight">
+            <summary>
+            
+            </summary>
+        </member>
+        <member name="P:BootstrapBlazor.Components.GanttOption.BarCornerRadius">
+            <summary>
+            
+            </summary>
+        </member>
+        <member name="P:BootstrapBlazor.Components.GanttOption.ArrowCurve">
+            <summary>
+            
+            </summary>
+        </member>
+        <member name="P:BootstrapBlazor.Components.GanttOption.Padding">
+            <summary>
+            
+            </summary>
+        </member>
+        <member name="P:BootstrapBlazor.Components.GanttOption.ViewMode">
+            <summary>
+            
+            </summary>
+        </member>
+        <member name="P:BootstrapBlazor.Components.GanttOption.DateFormat">
+            <summary>
+            
+            </summary>
+        </member>
+        <member name="P:BootstrapBlazor.Components.GanttOption.Language">
+            <summary>
+            
+            </summary>
+        </member>
+        <member name="T:BootstrapBlazor.Components.GanttViewMode">
+            <summary>
+            GanttViewMode 枚举
+            </summary>
+        </member>
+        <member name="F:BootstrapBlazor.Components.GanttViewMode.QUARTER_DAY">
+            <summary>
+            
+            </summary>
+        </member>
+        <member name="F:BootstrapBlazor.Components.GanttViewMode.HALF_DAY">
+            <summary>
+            
+            </summary>
+        </member>
+        <member name="F:BootstrapBlazor.Components.GanttViewMode.DAY">
+            <summary>
+            
+            </summary>
+        </member>
+        <member name="F:BootstrapBlazor.Components.GanttViewMode.WEEK">
+            <summary>
+            
+            </summary>
+        </member>
+        <member name="F:BootstrapBlazor.Components.GanttViewMode.MONTH">
+            <summary>
+            
+            </summary>
+        </member>
+        <member name="F:BootstrapBlazor.Components.GanttViewMode.YEAR">
+            <summary>
+            
+            </summary>
+        </member>
+    </members>
+</doc>

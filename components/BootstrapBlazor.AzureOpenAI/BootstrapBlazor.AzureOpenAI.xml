@@ -1,0 +1,114 @@
+<?xml version="1.0"?>
+<doc>
+    <assembly>
+        <name>BootstrapBlazor.AzureOpenAI</name>
+    </assembly>
+    <members>
+        <member name="T:Microsoft.Extensions.DependencyInjection.BootstrapBlazorAzureOpenAIServiceExtensions">
+            <summary>
+            BootstrapBlazor 服务扩展类
+            </summary>
+        </member>
+        <member name="M:Microsoft.Extensions.DependencyInjection.BootstrapBlazorAzureOpenAIServiceExtensions.AddBootstrapBlazorAzureOpenAIService(Microsoft.Extensions.DependencyInjection.IServiceCollection)">
+            <summary>
+            添加 AzureOpenAIService 服务
+            </summary>
+            <param name="services"></param>
+        </member>
+        <member name="T:BootstrapBlazor.Components.AzureOpenAIChatMessage">
+            <summary>
+            消息体
+            </summary>
+        </member>
+        <member name="P:BootstrapBlazor.Components.AzureOpenAIChatMessage.Role">
+            <summary>
+            获得/设置 角色
+            </summary>
+        </member>
+        <member name="P:BootstrapBlazor.Components.AzureOpenAIChatMessage.Content">
+            <summary>
+            获得/设置 聊天助手内容
+            </summary>
+        </member>
+        <member name="P:BootstrapBlazor.Components.AzureOpenAIChatMessage.Time">
+            <summary>
+            获得 响应时间戳
+            </summary>
+        </member>
+        <member name="T:BootstrapBlazor.Components.AzureOpenAIOption">
+            <summary>
+            Azure OpenAI 配置类
+            </summary>
+        </member>
+        <member name="P:BootstrapBlazor.Components.AzureOpenAIOption.Endpoint">
+            <summary>
+            获得/设置 Key
+            </summary>
+        </member>
+        <member name="P:BootstrapBlazor.Components.AzureOpenAIOption.Key">
+            <summary>
+            获得/设置 Key
+            </summary>
+        </member>
+        <member name="P:BootstrapBlazor.Components.AzureOpenAIOption.DeploymentName">
+            <summary>
+            获得/设置 部署名称
+            </summary>
+        </member>
+        <member name="M:BootstrapBlazor.Components.AzureOpenAIService.#ctor(Microsoft.Extensions.Options.IOptions{BootstrapBlazor.Components.AzureOpenAIOption})">
+            <summary>
+            构造函数
+            </summary>
+            <param name="options"></param>
+        </member>
+        <member name="M:BootstrapBlazor.Components.AzureOpenAIService.GetChatCompletionsAsync(System.String,System.Threading.CancellationToken)">
+            <summary>
+            <inheritdoc/>
+            </summary>
+            <param name="context"></param>
+            <param name="cancellationToken"></param>
+            <returns></returns>
+        </member>
+        <member name="M:BootstrapBlazor.Components.AzureOpenAIService.GetChatCompletionsStreamingAsync(System.String,System.Threading.CancellationToken)">
+            <summary>
+            <inheritdoc/>
+            </summary>
+            <param name="context"></param>
+            <param name="cancellationToken"></param>
+            <returns></returns>
+        </member>
+        <member name="M:BootstrapBlazor.Components.AzureOpenAIService.CreateNewTopic">
+            <summary>
+            <inheritdoc/>
+            </summary>
+            <returns></returns>
+        </member>
+        <member name="T:BootstrapBlazor.Components.IAzureOpenAIService">
+            <summary>
+            IAzureOpenAIService 接口
+            </summary>
+        </member>
+        <member name="M:BootstrapBlazor.Components.IAzureOpenAIService.GetChatCompletionsAsync(System.String,System.Threading.CancellationToken)">
+            <summary>
+            获得聊天响应集合
+            </summary>
+            <param name="context"></param>
+            <param name="cancellationToken"></param>
+            <returns></returns>
+        </member>
+        <member name="M:BootstrapBlazor.Components.IAzureOpenAIService.GetChatCompletionsStreamingAsync(System.String,System.Threading.CancellationToken)">
+            <summary>
+            获得聊天响应集合流
+            </summary>
+            <param name="context"></param>
+            <param name="cancellationToken"></param>
+            <returns></returns>
+        </member>
+        <member name="M:BootstrapBlazor.Components.IAzureOpenAIService.CreateNewTopic">
+            <summary>
+            创建话题
+            </summary>
+            <returns></returns>
+        </member>
+    </members>
+</doc>

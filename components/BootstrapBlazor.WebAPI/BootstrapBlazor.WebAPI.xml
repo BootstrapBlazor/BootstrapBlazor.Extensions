@@ -1,0 +1,192 @@
+<?xml version="1.0"?>
+<doc>
+    <assembly>
+        <name>BootstrapBlazor.WebAPI</name>
+    </assembly>
+    <members>
+        <member name="T:BootstrapBlazor.Components.BatteryStatus">
+            <summary>
+            电池信息类
+            </summary>
+        </member>
+        <member name="P:BootstrapBlazor.Components.BatteryStatus.charging">
+            <summary>
+            正在充电
+            </summary>
+            <returns></returns>
+        </member>
+        <member name="P:BootstrapBlazor.Components.BatteryStatus.chargingTime">
+            <summary>
+            电池充满时间[秒]
+            </summary>
+            <returns></returns>
+        </member>
+        <member name="P:BootstrapBlazor.Components.BatteryStatus.dischargingTime">
+            <summary>
+            电量剩余[秒]
+            </summary>
+            <returns></returns>
+        </member>
+        <member name="P:BootstrapBlazor.Components.BatteryStatus.level">
+             <summary>
+            电量等级%
+             </summary>
+        </member>
+        <member name="T:BootstrapBlazor.Components.Capture">
+            <summary>
+            Capture 组件基类
+            </summary>
+        </member>
+        <member name="P:BootstrapBlazor.Components.Capture.Element">
+            <summary>
+            UI界面元素的引用对象
+            </summary>
+        </member>
+        <member name="P:BootstrapBlazor.Components.Capture.ShowUI">
+            <summary>
+            获得/设置 显示内置UI
+            </summary>
+        </member>
+        <member name="P:BootstrapBlazor.Components.Capture.Debug">
+            <summary>
+            获得/设置 显示log
+            </summary>
+        </member>
+        <member name="M:BootstrapBlazor.Components.Capture.GetCapture">
+            <summary>
+            截屏
+            </summary>
+        </member>
+        <member name="P:BootstrapBlazor.Components.Capture.OnError">
+            <summary>
+            获得/设置 错误回调方法
+            </summary>
+        </member>
+        <member name="P:BootstrapBlazor.Components.Capture.OnCaptureResult">
+            <summary>
+            获得/设置 截屏回调方法
+            </summary>
+        </member>
+        <member name="M:BootstrapBlazor.Components.Capture.GetCaptureResult(System.Object)">
+            <summary>
+            截屏完成回调方法
+            </summary>
+            <param name="image"></param>
+            <returns></returns>
+        </member>
+        <member name="M:BootstrapBlazor.Components.Capture.GetError(System.String)">
+            <summary>
+            错误回调方法
+            </summary>
+            <param name="error"></param>
+            <returns></returns>
+        </member>
+        <member name="T:BootstrapBlazor.Components.CaptureOptions">
+            <summary>
+            截屏
+            </summary>
+        </member>
+        <member name="P:BootstrapBlazor.Components.CaptureOptions.charging">
+            <summary>
+            正在充电
+            </summary>
+            <returns></returns>
+        </member>
+        <member name="P:BootstrapBlazor.Components.CaptureOptions.chargingTime">
+            <summary>
+            电池充满时间[秒]
+            </summary>
+            <returns></returns>
+        </member>
+        <member name="P:BootstrapBlazor.Components.CaptureOptions.dischargingTime">
+            <summary>
+            电量剩余[秒]
+            </summary>
+            <returns></returns>
+        </member>
+        <member name="P:BootstrapBlazor.Components.CaptureOptions.level">
+             <summary>
+            电量等级%
+             </summary>
+        </member>
+        <member name="T:BootstrapBlazor.Components.NetworkInfoStatus">
+            <summary>
+            网络信息类
+            </summary>
+        </member>
+        <member name="P:BootstrapBlazor.Components.NetworkInfoStatus.type">
+            <summary>
+            连接方式
+            </summary>
+            <returns></returns>
+        </member>
+        <member name="P:BootstrapBlazor.Components.NetworkInfoStatus.effectiveType">
+            <summary>
+            类型
+            </summary>
+            <returns></returns>
+        </member>
+        <member name="P:BootstrapBlazor.Components.NetworkInfoStatus.downlink">
+            <summary>
+            下行Mb/s
+            </summary>
+            <returns></returns>
+        </member>
+        <member name="P:BootstrapBlazor.Components.NetworkInfoStatus.downlinkMax">
+            <summary>
+            最大下行Mb/s
+            </summary>
+            <returns></returns>
+        </member>
+        <member name="P:BootstrapBlazor.Components.NetworkInfoStatus.rtt">
+            <summary>
+            RTT[ms]
+            </summary>
+            <returns></returns>
+        </member>
+        <member name="T:BootstrapBlazor.Components.WebApi">
+            <summary>
+            WebApi 组件基类
+            </summary>
+        </member>
+        <member name="M:BootstrapBlazor.Components.WebApi.GetBattery">
+            <summary>
+            获取电量
+            </summary>
+        </member>
+        <member name="P:BootstrapBlazor.Components.WebApi.OnError">
+            <summary>
+            获得/设置 错误回调方法
+            </summary>
+        </member>
+        <member name="P:BootstrapBlazor.Components.WebApi.OnBatteryResult">
+            <summary>
+            获得/设置 电池信息回调方法
+            </summary>
+        </member>
+        <member name="M:BootstrapBlazor.Components.WebApi.GetBatteryResult(BootstrapBlazor.Components.BatteryStatus)">
+            <summary>
+            获取电池信息完成回调方法
+            </summary>
+            <param name="batteryStatus"></param>
+            <returns></returns>
+        </member>
+        <member name="M:BootstrapBlazor.Components.WebApi.GetNetworkInfo">
+            <summary>
+            获取网络信息
+            </summary>
+        </member>
+        <member name="P:BootstrapBlazor.Components.WebApi.OnNetworkInfoResult">
+            <summary>
+            获得/设置 网络信息回调方法
+            </summary>
+        </member>
+        <member name="M:BootstrapBlazor.Components.WebApi.GetNetworkInfoResult(BootstrapBlazor.Components.NetworkInfoStatus)">
+            <summary>
+            获取网络信息完成回调方法
+            </summary>
+            <param name="networkInfoStatus"></param>
+            <returns></returns>
+        </member>
+    </members>
+</doc>

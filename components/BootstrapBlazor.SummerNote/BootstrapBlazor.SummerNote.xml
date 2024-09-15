@@ -1,0 +1,152 @@
+<?xml version="1.0"?>
+<doc>
+    <assembly>
+        <name>BootstrapBlazor.SummerNote</name>
+    </assembly>
+    <members>
+        <member name="T:BootstrapBlazor.Components.Editor">
+            <summary>
+            Editor 组件基类
+            </summary>
+        </member>
+        <member name="P:BootstrapBlazor.Components.Editor.EditClassString">
+            <summary>
+            获得 Editor 样式
+            </summary>
+        </member>
+        <member name="P:BootstrapBlazor.Components.Editor.PlaceHolder">
+            <summary>
+            获得/设置 Placeholder 提示消息
+            </summary>
+        </member>
+        <member name="P:BootstrapBlazor.Components.Editor.IsEditor">
+            <summary>
+            获得/设置 是否直接显示为富文本编辑框
+            </summary>
+        </member>
+        <member name="P:BootstrapBlazor.Components.Editor.Height">
+            <summary>
+            获得/设置 设置组件高度 默认高度为 80px
+            </summary>
+        </member>
+        <member name="P:BootstrapBlazor.Components.Editor.ToolbarItems">
+            <summary>
+            获得/设置 富文本框工具栏工具，默认为空使用默认值
+            </summary>
+        </member>
+        <member name="P:BootstrapBlazor.Components.Editor.CustomerToolbarButtons">
+            <summary>
+            获得/设置 自定义按钮
+            </summary>
+        </member>
+        <member name="P:BootstrapBlazor.Components.Editor.ShowSubmit">
+            <summary>
+            获得/设置 是否显示工具栏提交按钮 默认 true 显示
+            </summary>
+            <remarks>工具栏提交按钮在工具栏最后位置，此按钮设计上是避免编辑内容变化时频繁提交代码到服务器，点击提交按钮后再发送到服务器，禁用此按钮时每次更新内容均提交代码到服务器端</remarks>
+        </member>
+        <member name="P:BootstrapBlazor.Components.Editor.Value">
+            <summary>
+            获得/设置 组件值
+            </summary>
+        </member>
+        <member name="P:BootstrapBlazor.Components.Editor.Language">
+            <summary>
+            获得/设置 语言，默认为 null 自动判断，内置中英文额外语言包需要自行引入语言包
+            </summary>
+        </member>
+        <member name="P:BootstrapBlazor.Components.Editor.LanguageUrl">
+            <summary>
+            获得/设置 语言扩展脚本路径 默认 null 如加载德语可设置为 
+            </summary>
+        </member>
+        <member name="P:BootstrapBlazor.Components.Editor.ValueChanged">
+            <summary>
+            获得/设置 组件值变化后的回调委托
+            </summary>
+        </member>
+        <member name="P:BootstrapBlazor.Components.Editor.OnValueChanged">
+            <summary>
+            获得/设置 组件值变化后的回调委托
+            </summary>
+        </member>
+        <member name="P:BootstrapBlazor.Components.Editor.OnClickButton">
+            <summary>
+            获取/设置 插件点击时的回调委托
+            </summary>
+        </member>
+        <member name="M:BootstrapBlazor.Components.Editor.OnInitialized">
+            <summary>
+            <inheritdoc/>
+            </summary>
+        </member>
+        <member name="M:BootstrapBlazor.Components.Editor.OnParametersSet">
+            <summary>
+            <inheritdoc/>
+            </summary>
+        </member>
+        <member name="M:BootstrapBlazor.Components.Editor.OnAfterRenderAsync(System.Boolean)">
+            <summary>
+            <inheritdoc/>
+            </summary>
+            <param name="firstRender"></param>
+            <returns></returns>
+        </member>
+        <member name="M:BootstrapBlazor.Components.Editor.InvokeInitAsync">
+            <summary>
+            <inheritdoc/>
+            </summary>
+            <returns></returns>
+        </member>
+        <member name="M:BootstrapBlazor.Components.Editor.Update(System.String)">
+            <summary>
+            Update 方法
+            </summary>
+            <param name="value"></param>
+        </member>
+        <member name="M:BootstrapBlazor.Components.Editor.GetToolBar">
+            <summary>
+            获取编辑器的 toolbar
+            </summary>
+            <returns>toolbar</returns>
+        </member>
+        <member name="M:BootstrapBlazor.Components.Editor.GetPluginAttributes">
+            <summary>
+            获取插件信息
+            </summary>
+            <returns></returns>
+        </member>
+        <member name="M:BootstrapBlazor.Components.Editor.ClickPluginItem(System.String)">
+            <summary>
+            插件点击事件
+            </summary>
+            <param name="pluginItemName">插件名</param>
+            <returns>插件回调的文本</returns>
+        </member>
+        <member name="M:BootstrapBlazor.Components.Editor.DoMethodAsync(System.String,System.Object[])">
+            <summary>
+            执行 editor 的方法
+            </summary>
+        </member>
+        <member name="T:BootstrapBlazor.Components.EditorToolbarButton">
+            <summary>
+            富文本框插件信息
+            </summary>
+        </member>
+        <member name="P:BootstrapBlazor.Components.EditorToolbarButton.ButtonName">
+            <summary>
+            获取或设置 插件名称
+            </summary>
+        </member>
+        <member name="P:BootstrapBlazor.Components.EditorToolbarButton.IconClass">
+            <summary>
+            获取或设置 插件图标
+            </summary>
+        </member>
+        <member name="P:BootstrapBlazor.Components.EditorToolbarButton.Tooltip">
+            <summary>
+            获取或设置 插件的提示信息
+            </summary>
+        </member>
+    </members>
+</doc>
