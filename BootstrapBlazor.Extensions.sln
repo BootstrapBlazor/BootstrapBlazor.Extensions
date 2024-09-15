@@ -120,10 +120,7 @@ EndProject
 Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "configurations", "configurations", "{3A0D5F7E-6701-437A-9EE7-05516FBCEA1B}"
 	ProjectSection(SolutionItems) = preProject
 		Directory.Build.props = Directory.Build.props
-		Base.props = Base.props
 		exclusion.dic = exclusion.dic
-		Frameworks.props = Frameworks.props
-		Logo.props = Logo.props
 		SourceLink.targets = SourceLink.targets
 	EndProjectSection
 EndProject

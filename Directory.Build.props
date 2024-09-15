@@ -1,9 +1,24 @@
 <Project>
 
-  <Import Project=".\Base.props" />
-  <Import Project=".\Frameworks.props" />
-  <Import Project=".\Logo.props" />
-  <Import Project=".\SourceLink.targets" />
+  <PropertyGroup>
+    <Copyright>Argo Zhang</Copyright>
+    <Authors>Argo Zhang(argo@live.ca)</Authors>
+    <Company>Longbow</Company>
+    <SignAssembly>true</SignAssembly>
+    <AssemblyOriginatorKeyFile>$(MSBuildThisFileDirectory)\keys\Longbow.Utility.snk</AssemblyOriginatorKeyFile>
+    <Nullable>enable</Nullable>
+    <ImplicitUsings>enable</ImplicitUsings>
+  </PropertyGroup>
+
+  <PropertyGroup>
+    <LangVersion>latest</LangVersion>
+    <AccelerateBuildsInVisualStudio>true</AccelerateBuildsInVisualStudio>
+    <SuppressNETCoreSdkPreviewMessage>true</SuppressNETCoreSdkPreviewMessage>
+  </PropertyGroup>
+
+  <PropertyGroup>
+    <TargetFrameworks>net6.0;net7.0;net8.0</TargetFrameworks>
+  </PropertyGroup>
 
   <PropertyGroup>
     <RootNamespace>BootstrapBlazor.Components</RootNamespace>
@@ -18,8 +33,20 @@
     <DocumentationFile>$(MSBuildProjectName).xml</DocumentationFile>
   </PropertyGroup>
 
+  <PropertyGroup>
+    <PackageIcon>logo.png</PackageIcon>
+  </PropertyGroup>
+
+  <ItemGroup>
+    <None Include="logo.png" Pack="true" PackagePath="" />
+  </ItemGroup>
+
   <ItemGroup>
     <SupportedPlatform Include="browser" />
+  </ItemGroup>
+
+  <ItemGroup>
+    <Using Include="System.Diagnostics.CodeAnalysis"/>
   </ItemGroup>
 
   <PropertyGroup>
