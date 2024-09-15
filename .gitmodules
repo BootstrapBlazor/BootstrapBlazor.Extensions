@@ -1,3 +1,6 @@
 [submodule "src/BootstrapBlazor.SignaturePad"]
 	path = src/BootstrapBlazor.SignaturePad
 	url = git@github.com:BootstrapBlazor/BootstrapBlazor.SignaturePad.git
+[submodule "src/BootstrapBlazor.FileViewer"]
+	path = src/BootstrapBlazor.FileViewer
+	url = git@github.com:BootstrapBlazor/BootstrapBlazor.FileViewer.git
