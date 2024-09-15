@@ -1,0 +1,55 @@
+﻿@namespace BootstrapBlazor.Components
+@using Microsoft.AspNetCore.Components.Forms
+
+@if (ShowUI)
+{
+    <div>
+        <br />
+        @if (ShowUI_Capture)
+        {
+            <label for="cam" class="input-label">
+                @OcrCaptureButtonText
+            </label>
+            <InputFile id="cam" OnChange="OnChange" class="sr-only" accept='image/*' capture />
+        }
+
+        <label for="roll" class="input-label">
+            @OcrButtonText
+        </label>
+        <InputFile id="roll" OnChange="OnChange" class="sr-only" accept='image/*' />
+    </div>
+}
+@if (Debug)
+{
+    <pre data-action="log" class="border border-success" style="width: 90%; max-width: 550px; ">@log2</pre>
+    <hr style="max-width:550px;" />
+    <textarea rows="2" cols="20" data-action="barcode" class="border border-success" style="height: 200px; width: 90%; max-width: 550px; ">@log</textarea>
+    <br />
+}
+
+@if (ShowUI_Url)
+{
+    <label>输入URL识别在线图片</label>
+    <br />
+    <input @bind-value="URL" @bind-value:event="oninput" style="width: 90%; max-width: 550px; " />
+    <br />
+    <img src="@URL" style="height: 100px; width: 100px; " />
+    <hr style="width: 90%; max-width: 550px; " />
+    <button class="btn btn-outline-secondary" onclick="@(async() =>await GetOCR())">@OcrUrlButtonText</button>
+}
+@if (AnalyzeImage)
+{
+    <button class="btn btn-outline-secondary" onclick="@(async() =>await OcrGO())">文本识别</button>
+}
+@if (AnalyzeImage)
+{
+    <button class="btn btn-outline-secondary" onclick="@(async() =>await AnalyzeImageGo())">分析图像</button>
+}
+@if (DetectObjects)
+{
+    <button class="btn btn-outline-secondary" onclick="@(async() =>await DetectObjectsGO())">检测对象</button>
+}
+@if (DetectDomainSpecific)
+{
+    <button class="btn btn-outline-secondary" onclick="@(async() =>await DetectDomainSpecificGo())">检测地标/名人</button>
+}

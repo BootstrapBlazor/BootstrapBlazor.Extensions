@@ -1,0 +1,105 @@
+﻿.signature-pad {
+    position: relative;
+    display: flex;
+    flex-direction: column;
+    font-size: 10px;
+    width: 100%;
+    height: 400px;
+    border: 1px solid var(--bs-border-color);
+    background-color: #fff;
+    box-shadow: 0 1px 4px rgba(0, 0, 0, 0.27), 0 0 40px rgba(0, 0, 0, 0.08) inset;
+    border-radius: var(--bs-border-radius, 4px);
+    padding: 1rem;
+}
+
+    .signature-pad .signature-pad-body {
+        flex: 1;
+        width: 100%;
+        border: 1px solid var(--bs-border-color);
+        border-radius: var(--bs-border-radius, 4px);
+        position: relative;
+        display: flex;
+        overflow: hidden;
+    }
+
+        .signature-pad .signature-pad-body canvas {
+            flex: 1;
+            height: 100%;
+            width: 100%;
+            border-radius: var(--bs-border-radius, 4px);
+            box-shadow: 0 0 5px rgba(0, 0, 0, 0.02) inset;
+        }
+
+.signature-pad-footer {
+    color: #C3C3C3;
+    text-align: center;
+    font-size: 1.2em;
+    margin-top: 8px;
+}
+
+.signature-pad-actions {
+    display: flex;
+    justify-content: space-between;
+    margin-top: 8px;
+}
+
+    .signature-pad-actions button:not(:first-child) {
+        margin-left: .5rem;
+    }
+
+@media (max-width: 640.98px) {
+    .signature-pad-body-responsive {
+        justify-content: start;
+        align-items: start;
+        height: 100vh;
+        width: 100%;
+        padding: 0;
+        position: fixed;
+        top: 0;
+        left: 0;
+    }
+
+    .signature-pad {
+        padding: 0;
+        max-height: 100%;
+    }
+
+    .btn-responsive {
+        transform: rotate(90deg);
+    }
+
+    .signature-pad--footer-responsive {
+        height: 90px;
+        padding: 16px;
+    }
+
+    .signature-pad--actions-responsive {
+        position: fixed;
+        bottom: 32px;
+    }
+
+    .description-responsive {
+        transform: rotate(90deg);
+        position: fixed;
+        bottom: 39px;
+        right: 65px;
+        width: 62px;
+        height: 24px;
+    }
+}
+
+@media (max-height: 640.98px) {
+    .signature-pad-body-responsive {
+        height: 100vh;
+        width: 100vw;
+        padding: 0;
+        position: fixed;
+        top: 0;
+        left: 0;
+    }
+
+    .signature-pad {
+        padding: 0;
+        max-height: 100%;
+    }
+}

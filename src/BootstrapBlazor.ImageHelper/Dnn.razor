@@ -1,0 +1,58 @@
+﻿@namespace BootstrapBlazor.Components.CV2
+
+<div @ref="Element">
+
+    <pre> @Status</pre>
+    <pre> @Message</pre>
+    <pre id="@Options.ErrorOutputDom"></pre>
+    <p id="@Options.StatusDom"> </p>
+    <div class="row g-3">
+        <div>
+            <label class="btn btn-primary" for="@Options.CaptureDom">拍照</label><input type="file" class="sr-only" id="@Options.CaptureDom" name="file" accept="image/*" capture />
+            <label class="btn btn-primary" for="@Options.FileInputDom">图片</label><input type="file" class="sr-only" id="@Options.FileInputDom" name="file" accept="image/*" />
+            &nbsp;
+            @if (IsOpenCVReady)
+            {
+                if (ChildContent != null)
+                {
+                    @ChildContent
+                }
+                else
+                {
+                    <Button Text="检测物体" OnClickWithoutRender="ObjDetection" /> 
+                    @*<Button Text="摄像头" OnClickWithoutRender="Camera" IsDisabled="@IsCameraBusy" />*@
+                    <Button Id="@Options.StartAndStopDom" Text="无" IsDisabled="@(!IsCameraBusy)" />
+                    <Button Text="人脸识别" OnClickWithoutRender="FaceDetection" />
+                    <Button Text="运动检测" OnClickWithoutRender="PoseEstimation" />
+                    <Button Text="语义分割" OnClickWithoutRender="SemanticSegmentation" />
+                }
+            }
+        </div>
+        <div class="inputoutput col-12 col-sm-6">
+            <canvas id="@Options.ImageDataDom"
+                    width="600"
+                    height="600"
+                    class="canvas" />
+            <canvas id="@Options.CanvasOutputDom" width="600" height="600" class="canvas"></canvas>
+            <video id="@Options.VideoInputDom"
+                   width=640
+                   height=480
+                   data-action="video"
+                   class="video"
+                   muted
+                   webkit-playsinline
+                   playsinline
+                   x-webkit-airplay="allow"
+                   x5-video-player-type="h5"
+                   x5-video-player-fullscreen="true"
+                   x5-video-orientation="portraint">
+                Video stream not available.
+            </video>
+            <div data-action="@Options.SourceSelectPanelDom" style="display:none">
+                <label for="@Options.SourceSelectDom">@Options.SelectDeviceBtnTitle:</label>
+                <select data-action="@Options.SourceSelectDom" style="max-width:100%" class="form-select form-control">
+                </select>
+            </div>
+        </div>
+    </div>
+</div>

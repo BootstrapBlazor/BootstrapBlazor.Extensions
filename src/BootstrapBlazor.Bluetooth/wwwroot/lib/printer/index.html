@@ -1,0 +1,48 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <title>Web蓝牙打印机</title>
+    <meta charset="utf-8">
+    <meta name="codelab" content="getting-started-w-web-serial">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <link rel="stylesheet" href="style.css">
+    <script src="script.js" defer></script>
+    <script src="gbk.min.js" defer></script>
+  </head>  
+  <body>
+    <header class="header">
+      <h1>Web蓝牙打印机</h1>
+    </header>
+    <main class="main">
+      <div id="notSupported" class="hidden notSupported">
+        噢, <b>Web Serial</b> 不支持此设备
+      </div>
+      <div id="notSupportedUsb" class="hidden notSupported">
+        噢, <b>Usb</b> 不支持此设备
+      </div> 
+      <div id="notSupportedBattery" class="hidden notSupported">
+        噢, <b>GetBattery</b> 不支持此设备
+      </div> 
+      <div id="notSupportedBluetooth" class="hidden notSupported">
+        噢, <b>bluetooth</b> 不支持此设备
+      </div> 
+      <br>
+      <button id="butConnect" type="button">连接</button>
+      <button id="comConnect" type="button">连接Com</button>
+      <button id="disconnect">断开</button>
+      <button id="reconnect">重连</button>
+      <br/>
+      <div id='tools'>
+      <button id='butwrite' type="button">写入Replace</button>
+      <button id='butwrite2' type="button">打印条码</button>
+      <button id='butwriteR' type="button">打印小票</button>
+      <button id='butwriteQr' type="button">打印QR码</button>
+      </div>
+      <br>
+      <textarea  rows="2" cols="20" id="barcode" style="height:200px;width:100%;"></textarea>
+      <pre id="log"></pre>
+
+    </main>
+  </body>
+</html>

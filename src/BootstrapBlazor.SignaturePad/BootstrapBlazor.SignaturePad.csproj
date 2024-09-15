@@ -1,0 +1,50 @@
+﻿<Project Sdk="Microsoft.NET.Sdk.Razor">
+    <PropertyGroup>
+        <TargetFrameworks>net6.0;net7.0;net8.0</TargetFrameworks>
+        <Nullable>enable</Nullable>
+        <ImplicitUsings>enable</ImplicitUsings>
+    </PropertyGroup>
+
+    <PropertyGroup>
+        <Version>8.0.2</Version>
+        <PackageProjectUrl>https://github.com/densen2014/BootstrapBlazor.SignaturePad</PackageProjectUrl>
+        <RepositoryUrl>https://github.com/densen2014/BootstrapBlazor.SignaturePad</RepositoryUrl>
+        <RepositoryType>git</RepositoryType>
+        <PackageTags>Bootstrap Blazor SignaturePad Components</PackageTags>
+        <Description>Bootstrap UI signaturePad components experience</Description>
+        <AssemblyName>BootstrapBlazor.SignaturePad</AssemblyName>
+        <RootNamespace>BootstrapBlazor.SignaturePad</RootNamespace>
+        <AssemblyOriginatorKeyFile>..\keys\Longbow.Utility.snk</AssemblyOriginatorKeyFile>
+        <SignAssembly>True</SignAssembly>
+    </PropertyGroup>
+
+    <ItemGroup>
+        <Content Remove="Locales\en.json" />
+        <Content Remove="Locales\zh.json" />
+    </ItemGroup>
+
+    <ItemGroup>
+        <EmbeddedResource Include="Locales\en.json" />
+        <EmbeddedResource Include="Locales\zh.json" />
+    </ItemGroup>
+
+    <ItemGroup Condition="'$(TargetFramework)' == 'net6.0'">
+        <PackageReference Include="Microsoft.AspNetCore.Components.Web" Version="6.0.10" />
+        <PackageReference Include="Microsoft.Extensions.Localization.Abstractions" Version="6.0.10" />
+    </ItemGroup>
+
+    <ItemGroup Condition="'$(TargetFramework)' == 'net7.0'">
+        <PackageReference Include="Microsoft.AspNetCore.Components.Web" Version="7.0" />
+        <PackageReference Include="Microsoft.Extensions.Localization.Abstractions" Version="7.0" />
+    </ItemGroup>
+
+    <ItemGroup Condition="'$(TargetFramework)' == 'net8.0'">
+        <PackageReference Include="Microsoft.AspNetCore.Components.Web" Version="8.0" />
+        <PackageReference Include="Microsoft.Extensions.Localization.Abstractions" Version="8.0" />
+    </ItemGroup>
+
+    <ItemGroup>
+        <PackageReference Include="BootstrapBlazor" Version="8.0.0" />
+    </ItemGroup>
+
+</Project>

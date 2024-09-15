@@ -1,0 +1,41 @@
+﻿@namespace BootstrapBlazor.Components
+
+<PlayAudio @ref="PlayAudio" />
+
+<div class="row g-3">
+    <div class="col-12">
+        <Search IsAutoFocus
+                IsOnInputTrigger
+                ShowClearButton
+                ClearButtonColor="Color.Danger"
+                ShowLabel="true"
+                Items="Items"
+                @bind-Value="InputText"
+                PlaceHolder="@PlaceHolderText"
+                OnEscAsync="OnEscAsync"
+                OnClear="OnEscAsync"
+                OnValueChanged="OnValueChanged" />
+    </div>
+    <div class="col-12" style="height:20px">
+    </div>
+    <div class="col-12">
+        <CheckboxList @bind-Value="@SelectedEnumValues" />
+    </div>
+    @if (Result != null && Result.Any())
+    {
+        foreach (var item in Result)
+        {
+            <div class="col-4">
+                <p>@item.DisplayName</p>
+                <Textarea Value="@item.text" rows="2" />
+                <Button IsOutline="true" Size="Size.Small" Color="Color.Info" ButtonStyle="ButtonStyle.Circle" OnClick="(async ()=>await OnPlay(item.text,item.to))" Icon="fa-fw fa-solid fa-play" />
+            </div>
+        }
+    }
+</div>
+
+@if (!string.IsNullOrEmpty(ErrorMessage))
+{
+    <p>@ErrorMessage</p>
+}
+

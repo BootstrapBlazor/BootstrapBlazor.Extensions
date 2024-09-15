@@ -1,0 +1,42 @@
+﻿@namespace BootstrapBlazor.Components
+
+<Tab>
+    <TabItem Text="常规">
+        <div class="row g-3">
+            <div class="col-12">
+                <BootstrapInputGroup>
+                    <BootstrapInput IsAutoFocus ShowLabel="true" TValue="string" PlaceHolder="@PlaceHolderText" OnEnterAsync="OnEnterAsync" OnEscAsync="OnEscAsync" @bind-Value="InputText" />
+                    <Button Text="转换" OnClick="OnPlay" Icon="fa-fw fa-solid fa-play" />
+                </BootstrapInputGroup>
+            </div>
+            <div class="col-6">
+                <Select Color="Color.Primary" Items="ItemsVoiceName" @bind-Value="@SelectedVoiceName" ShowLabel="true" />
+            </div>
+            <div class="col-6">
+                <Select Color="Color.Primary" Items="ItemsVoiceStyle" @bind-Value="@SelectedVoiceStyle" ShowLabel="true" />
+            </div>
+
+        </div>
+    </TabItem>
+    <TabItem Text="示例">
+        <div class="row g-3">
+            <div class="col-12">
+                <BootstrapInputGroup>
+                    <Button Text="测试" OnClick="OnPlaySSML" Icon="fa-fw fa-solid fa-play" />
+                    <Select Color="Color.Primary" Items="ItemsSSML" @bind-Value="@ItemSSML" ShowLabel="true" />
+                </BootstrapInputGroup>
+            </div>
+            <div class="col-12">
+                <Textarea @bind-Value="ItemSSML" rows="20" />
+            </div>
+        </div>
+    </TabItem>
+</Tab>
+
+<div @ref="Element" />
+
+@if (!string.IsNullOrEmpty(ErrorMessage))
+{
+    <p>@ErrorMessage</p>
+}
+

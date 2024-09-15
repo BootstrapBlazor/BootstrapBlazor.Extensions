@@ -1,0 +1,59 @@
+﻿@namespace BootstrapBlazor.Components
+
+<div @ref="Element">
+
+    <pre> @Status</pre>
+    <pre> @Message</pre>
+    <pre id="@Options.ErrorOutputDom"></pre>
+
+    <div class="row g-3">
+        <div col-12 col-sm-6>
+            <label class="btn btn-primary" for="@Options.CaptureDom">拍照</label><input type="file" class="sr-only" id="@Options.CaptureDom" name="file" accept="image/*" capture />
+            <label class="btn btn-primary" for="@Options.FileInputDom">图片</label><input type="file" class="sr-only" id="@Options.FileInputDom" name="file" accept="image/*" />
+            &nbsp;
+            @if (IsOpenCVReady)
+            {
+                <Button Text="扫码" OnClickWithoutRender="Scan" IsDisabled="@IsCameraBusy" />
+                <Button Text="重试解码" OnClickWithoutRender="Decode" />
+                <Button Id="@Options.StartAndStopDom" Text="无" IsDisabled="@(!IsCameraBusy)" />
+                if (ChildContent != null)
+                {
+                    @ChildContent
+                }
+                else
+                {
+                    <Button Text="应用" OnClickWithoutRender="Apply" />
+                    <Switch Width="75" ShowInnerText="true" OnInnerText="单次解码" OffInnerText="连续解码" @bind-Value="@Options.DecodeOnce" />
+                    <Switch Width="75" ShowInnerText="true" OnInnerText="居中剪裁" OffInnerText="不剪裁" @bind-Value="@Options.AutoCaputeCrop" />
+                    <Switch Width="75" ShowInnerText="true" OnInnerText="自动重试" OffInnerText="不重试" @bind-Value="@Options.AutoCaputeCrop" />
+                    <Switch Width="75" ShowInnerText="true" OnInnerText="调试" OffInnerText="禁用调试" @bind-Value="@Options.Debug" />
+                }
+            }
+        </div>
+        <div class="inputoutput col-12 col-sm-6">
+            <canvas id="@Options.ImageDataDom"
+                    width="400"
+                    height="400"
+                    class="canvas" />
+            <video id="@Options.VideoInputDom"
+                   width=640
+                   height=480
+                   data-action="video"
+                   class="video"
+                   muted
+                   webkit-playsinline
+                   playsinline
+                   x-webkit-airplay="allow"
+                   x5-video-player-type="h5"
+                   x5-video-player-fullscreen="true"
+                   x5-video-orientation="portraint">
+                Video stream not available.
+            </video>
+            <div data-action="@Options.SourceSelectPanelDom" style="display:none">
+                <label for="@Options.SourceSelectDom">@Options.SelectDeviceBtnTitle:</label>
+                <select data-action="@Options.SourceSelectDom" style="max-width:100%" class="form-select form-control">
+                </select>
+            </div>
+        </div>
+    </div>
+</div>

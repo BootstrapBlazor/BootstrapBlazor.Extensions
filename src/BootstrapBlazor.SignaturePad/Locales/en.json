@@ -1,0 +1,14 @@
+﻿{
+  "BootstrapBlazor.Components.SignaturePad": {
+    "SignAboveLabel": "Sign above label",
+    "ClearBtnTitle": "Clear",
+    "SignatureAlertText": "Please provide a signature first",
+    "ChangeColorBtnTitle": "Change color",
+    "UndoBtnTitle": "Undo",
+    "CloseBtnTitle": "Close",
+    "SaveBase64BtnTitle": "OK",
+    "SavePNGBtnTitle": "PNG",
+    "SaveJPGBtnTitle": "JPG",
+    "SaveSVGBtnTitle": "SVG"
+  }
+}

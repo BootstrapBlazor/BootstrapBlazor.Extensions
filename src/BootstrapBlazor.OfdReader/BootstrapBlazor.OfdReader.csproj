@@ -1,0 +1,58 @@
+<Project Sdk="Microsoft.NET.Sdk.Razor">
+    <PropertyGroup>
+        <TargetFrameworks>net6.0;net7.0;net8.0</TargetFrameworks>
+        <Nullable>enable</Nullable>
+        <ImplicitUsings>enable</ImplicitUsings>
+    </PropertyGroup>
+
+    <PropertyGroup>
+        <Version>0.0.1</Version>
+        <PackageProjectUrl>https://github.com/densen2014/BootstrapBlazor.OfdReader</PackageProjectUrl>
+        <RepositoryUrl>https://github.com/densen2014/BootstrapBlazor.OfdReader</RepositoryUrl>
+        <RepositoryType>git</RepositoryType>
+        <PackageTags>Bootstrap Blazor Ofd Reader Ofd阅读器 组件 </PackageTags>
+        <Description>Bootstrap UI Ofd Reader components experience</Description>
+        <AssemblyName>BootstrapBlazor.OfdReader</AssemblyName>
+        <RootNamespace>BootstrapBlazor.OfdReader</RootNamespace>
+        <AssemblyOriginatorKeyFile>..\keys\Longbow.Utility.snk</AssemblyOriginatorKeyFile>
+         <SignAssembly>True</SignAssembly>
+        <OutputPath>..\..\..\Bin</OutputPath>
+    </PropertyGroup>
+
+    <ItemGroup Condition="'$(TargetFramework)' == 'net6.0'">
+        <PackageReference Include="Microsoft.AspNetCore.Components.Web" Version="6.0.10" />
+    </ItemGroup>
+
+    <ItemGroup Condition="'$(TargetFramework)' == 'net7.0'">
+        <PackageReference Include="Microsoft.AspNetCore.Components.Web" Version="7.0" />
+    </ItemGroup>
+
+    <ItemGroup Condition="'$(TargetFramework)' == 'net8.0'">
+        <PackageReference Include="Microsoft.AspNetCore.Components.Web" Version="8.0" />
+    </ItemGroup>
+    
+    <!-- 通过移除正常的引用并替换成固定版本的引用，达到无论如何更新都无法生效的目的。 -->
+    <Target Condition="'$(TargetFramework)' == 'net6.0'" Name="ReferenceStaticLegacyPackage" BeforeTargets="CollectPackageReferences">
+        <ItemGroup>
+            <PackageReference Remove="Microsoft.AspNetCore.Components.Web" />
+            <PackageReference Include="Microsoft.AspNetCore.Components.Web" Version="6.0" />
+        </ItemGroup>
+    </Target>
+    <ItemGroup>
+      <Compile Remove="wwwroot\images\**" />
+      <Compile Remove="wwwroot\npm\**" />
+      <Content Remove="wwwroot\images\**" />
+      <Content Remove="wwwroot\npm\**" />
+      <EmbeddedResource Remove="wwwroot\images\**" />
+      <EmbeddedResource Remove="wwwroot\npm\**" />
+      <None Remove="wwwroot\fonts\**" />
+      <None Remove="wwwroot\images\**" />
+      <None Remove="wwwroot\npm\**" />
+    </ItemGroup>
+    <ItemGroup>
+      <Content Remove="wwwroot\app2.js" />
+      <Content Remove="wwwroot\base_viewer.js" />
+      <Content Remove="wwwroot\index2.html" />
+      <Content Remove="wwwroot\viewer.css" />
+    </ItemGroup>
+</Project>

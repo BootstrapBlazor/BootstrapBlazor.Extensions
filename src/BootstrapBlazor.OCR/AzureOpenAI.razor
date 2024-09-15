@@ -1,0 +1,30 @@
+﻿@namespace BootstrapBlazor.Components
+
+<div class="row g-3">
+    <div class="col-12" style="overflow: scroll;">
+    <RadioList IsButton="true" @bind-Value="@SelectedEnumItem" />
+</div>
+    <div class="col-12" @ref="Element">
+        <Textarea Id="@ID" Value="@ResultText" rows="20" />
+    </div>
+    <div class="col-12">
+        @if (ResultImage is not null)
+        {
+            <p>
+                <img src="@ResultImage" style="max-width:520px;max-height:520px;overflow :scroll;" />
+            </p>
+        }
+    </div>
+    <div class="col-12">
+        <BootstrapInputGroup>
+            <BootstrapInput IsAutoFocus ShowLabel="true" TValue="string" PlaceHolder="@PlaceHolderText" OnEnterAsync="OnEnterAsync" OnEscAsync="OnEscAsync" @bind-Value="InputText" />
+            <Button Text="Clear" OnClick="OnClear" Icon="fa-fw fa-solid fa-trash" />
+        </BootstrapInputGroup>
+    </div>
+</div>
+
+@if (!string.IsNullOrEmpty(ErrorMessage))
+{
+    <p>@ErrorMessage</p>
+}
+

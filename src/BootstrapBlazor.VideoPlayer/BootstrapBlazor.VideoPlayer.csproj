@@ -1,0 +1,42 @@
+<Project Sdk="Microsoft.NET.Sdk.Razor">
+    <PropertyGroup>
+        <TargetFrameworks>net6.0;net7.0;net8.0</TargetFrameworks>
+        <Nullable>enable</Nullable>
+        <ImplicitUsings>enable</ImplicitUsings>
+    </PropertyGroup>
+
+    <PropertyGroup>
+        <Version>8.0.7</Version>
+        <PackageProjectUrl>https://github.com/densen2014/BootstrapBlazor.VideoPlayer</PackageProjectUrl>
+        <RepositoryUrl>https://github.com/densen2014/BootstrapBlazor.VideoPlayer</RepositoryUrl>
+        <RepositoryType>git</RepositoryType>
+        <PackageTags>Bootstrap Blazor VideoPlayer 视频播放器 组件 </PackageTags>
+        <Description>Bootstrap UI VideoPlayer components experience</Description>
+        <AssemblyName>BootstrapBlazor.VideoPlayer</AssemblyName>
+        <RootNamespace>BootstrapBlazor.VideoPlayer</RootNamespace>
+        <AssemblyOriginatorKeyFile>..\keys\Longbow.Utility.snk</AssemblyOriginatorKeyFile>
+        <SignAssembly>True</SignAssembly>
+        <OutputPath>..\..\..\Bin</OutputPath>
+    </PropertyGroup>
+
+    <ItemGroup Condition="'$(TargetFramework)' == 'net6.0'">
+        <PackageReference Include="Microsoft.AspNetCore.Components.Web" Version="6.0.0" />
+    </ItemGroup>
+
+    <ItemGroup Condition="'$(TargetFramework)' == 'net7.0'">
+        <PackageReference Include="Microsoft.AspNetCore.Components.Web" Version="7.0.0" />
+    </ItemGroup>
+
+    <ItemGroup Condition="'$(TargetFramework)' == 'net8.0'">
+        <PackageReference Include="Microsoft.AspNetCore.Components.Web" Version="8.0.0" />
+    </ItemGroup>
+
+    <ItemGroup>
+        <Content Remove="wwwroot\lang\*.json" />
+        <None Include="wwwroot\lang\*.json" />
+    </ItemGroup>
+
+    <ItemGroup>
+        <PackageReference Include="BootstrapBlazor" Version="8.0.0" />
+    </ItemGroup>
+</Project>

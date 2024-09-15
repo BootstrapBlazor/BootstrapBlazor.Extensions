@@ -1,0 +1,29 @@
+﻿@namespace BootstrapBlazor.Components
+@using Microsoft.AspNetCore.Components.Forms
+
+@code{
+    string id = Guid.NewGuid().ToString("N");
+}
+<div class="@CssClass">
+
+    <label for="@id" class="@(CssClass!=null?"":"input-label")" style="@Style">@UploadButtonText</label>
+
+    @if (Capture && CaptureUser)
+    {
+        <InputFile id="@id" OnChange="OnChange" class="sr-only" accept="@(ImageOnly ? "image/*" : Accept)" capture="user" />
+    }
+    else if (Capture)
+    {
+        <InputFile id="@id" OnChange="OnChange" class="sr-only" accept="@(ImageOnly ? "image/*" : Accept)" capture />
+    }
+    else if (Multiple)
+    {
+        <InputFile id="@id" OnChange="OnChange" class="sr-only" accept="@(ImageOnly ? "image/*" : Accept)" multiple />
+    }
+    else
+    {
+        <InputFile id="@id" OnChange="OnChange" class="sr-only" accept="@(ImageOnly ? "image/*" : Accept)" />
+    }
+
+
+</div>

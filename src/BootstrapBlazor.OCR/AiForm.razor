@@ -1,0 +1,37 @@
+﻿@namespace BootstrapBlazor.Components
+@using Microsoft.AspNetCore.Components.Forms
+
+@if (ShowUI)
+{
+    <div>
+        <br />
+
+        <label for="cam" class="input-label">
+            拍照分析
+        </label>
+        <InputFile id="cam" OnChange="OnChange" class="sr-only" accept='image/*' capture />
+
+        <label for="roll" class="input-label">
+            文件分析
+        </label>
+        <InputFile id="roll" OnChange="OnChange" class="sr-only" accept='image/*' />
+    </div>
+}
+@if (Debug)
+{
+<pre data-action="log" class="border border-success" style="width: 90%; max-width: 550px; ">@log2</pre>
+}
+
+@if (ShowUI)
+{
+    <hr style="max-width:550px;" />
+    <textarea rows="2" cols="20" data-action="barcode" class="border border-success" style="height: 200px; width: 90%; max-width: 550px; ">@log</textarea>
+    <br />
+    <label>输入URL识别在线图片</label>
+    <br />
+    <input @bind-value="url" @bind-value:event="oninput" style="width: 90%; max-width: 550px; " />
+    <br />
+    <img src="@url" style="height: 100px; width: 100px; " />
+    <hr style="width: 90%; max-width: 550px; " />
+    <button class="btn btn-outline-secondary" onclick="@(async() =>await GetOCR())">@OcrButtonText</button>
+}

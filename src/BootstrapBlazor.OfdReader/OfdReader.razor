@@ -1,0 +1,16 @@
+﻿@namespace BootstrapBlazor.Components
+
+@if (Debug)
+{
+    <p>@(Url??UrlDebug)</p>
+}
+@if (!string.IsNullOrEmpty(ErrorMessage))
+{
+    <p>@ErrorMessage</p>
+}
+
+<iframe @ref="Element"
+        allow="fullscreen"
+        style="@($"border: none; width: {Width}; height: {Height};{StyleString}")"
+        src=@Url />
+ 

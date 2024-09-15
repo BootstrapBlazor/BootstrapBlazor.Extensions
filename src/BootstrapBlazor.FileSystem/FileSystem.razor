@@ -1,0 +1,39 @@
+﻿@namespace BootstrapBlazor.Components
+
+@if (ButtonNewFile != null)
+{
+    <button onclick="@NewFile" class="btn btn-primary">@ButtonNewFile</button>
+}
+@if (ButtonGetFileText != null)
+{
+    <button onclick="@GetFileText" class="btn btn-primary">@ButtonGetFileText</button>
+}
+@if (ButtonGetFile != null)
+{
+    <button onclick="@GetFileStream" class="btn btn-primary">@ButtonGetFile</button>
+}
+@if (ButtonGetDir != null)
+{
+    <button onclick="@GetDir" class="btn btn-primary">@ButtonGetDir</button>
+}
+@if (FileHandle != null)
+{
+    <button onclick="@VerifyPermission" class="btn btn-primary">@ButtonVerifyPermission</button>
+    @if (ButtonSaveFile != null)
+    {
+        <br />
+        <textarea style="width:80%;height:30vh;" onchange="@HandleOnChange" value="@FileText"></textarea>
+        <br />
+        <button onclick="@SaveFile" class="btn btn-primary">@ButtonSaveFile</button>
+    }
+}
+@if (Debug)
+{
+    <div style="background-color:black;color:white;margin:5px;font-size:small;">
+        <b>调试信息</b>
+        <pre>
+            @FileText
+            @if (OnInfo == null) @msg
+        </pre>
+    </div>
+}

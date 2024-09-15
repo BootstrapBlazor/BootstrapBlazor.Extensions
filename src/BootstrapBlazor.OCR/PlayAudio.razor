@@ -1,0 +1,9 @@
+﻿@namespace BootstrapBlazor.Components
+
+<div @ref="Element" />
+
+@if (!string.IsNullOrEmpty(ErrorMessage))
+{
+    <p>@ErrorMessage</p>
+}
+

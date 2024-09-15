@@ -1,0 +1,19 @@
+﻿@namespace BootstrapBlazor.Components
+
+@if (UseBuiltinImageDiv)
+{
+    <div class="docs-galley mb-3" style="height: @Height;width:@Width; ">
+        <ul id="@Options.id" class="docs-pictures clearfix">
+            @{
+                var i = 0;
+                foreach (var item in Images)
+                {
+                    var alt = (Alts != null && Alts.Any() && Alts.Count > i) ? Alts[i] : (item.Split('/').Last());
+                    <li><img src="@item" alt="@alt"></li>
+                    i++;
+                }
+            }
+        </ul>
+    </div>
+}
+<link href="/_content/BootstrapBlazor.Viewer/lib/viewerjs/viewer.min.css" rel="stylesheet" />

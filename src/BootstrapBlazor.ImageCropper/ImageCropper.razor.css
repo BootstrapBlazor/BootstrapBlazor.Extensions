@@ -1,0 +1,19 @@
+﻿
+.containerTop {
+    max-width: 640px;
+}
+
+img {
+    max-width: 100%;
+}
+
+.cropper-view-box,
+.cropper-face {
+    background-color: black;
+    opacity: 1;
+}
+
+.label {
+    cursor: pointer;
+}
+ 

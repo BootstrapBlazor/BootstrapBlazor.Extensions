@@ -1,0 +1,204 @@
+﻿@namespace BootstrapBlazor.Components
+
+@{
+    bool isSimpleText = (SelectedEnumItem == EnumOpenAiModel.ChatGpt || SelectedEnumItem == EnumOpenAiModel.ChatGpt4 || SelectedEnumItem == EnumOpenAiModel.Completions || SelectedEnumItem == EnumOpenAiModel.ChatGptAiHomeAssistant || SelectedEnumItem == EnumOpenAiModel.Chatbot || SelectedEnumItem == EnumOpenAiModel.DALLE);
+}
+<div class="row mt-3 g-3">
+    <div class="col-12">
+        <Select Color="Color.Primary" @bind-Value="@SelectedEnumItem" />
+    </div>
+    <div class="col-12" @ref="Element">
+        @if (isSimpleText && SelectedEnumItem != EnumOpenAiModel.DALLE)
+        {
+            <Textarea Id="@ID" Value="@ResultText" rows="@(Size==BreakPoint.Small || Size == BreakPoint.ExtraSmall?8:15)" />
+        }
+        else
+        {
+            <Textarea Id="@ID" Value="@ResultText" rows="@(Size==BreakPoint.Small || Size == BreakPoint.ExtraSmall?3:8)" />
+        }
+    </div>
+    <div class="col-12">
+        @if (ResultImage is not null)
+        {
+            <p>
+                <img src="@ResultImage" style="max-width:80%;max-height:520px;overflow :scroll;" />
+            </p>
+        }
+    </div>
+    <Responsive OnBreakPointChanged="OnBreakPointChanged" />
+    <div class="col-12">
+        @if (SingleLine || (AutoMultiLine && isSimpleText))
+        {
+            <BootstrapInputGroup>
+                <BootstrapInput IsAutoFocus ShowLabel="true" TValue="string" PlaceHolder="@PlaceHolderText" OnEnterAsync="OnEnterAsync" OnEscAsync="OnEscAsync" @bind-Value="InputText" />
+                <Button Text="@(Size == BreakPoint.ExtraSmall?"":"Enter")" OnClick="OnEnter" Icon="fa-fw fa-solid fa-paper-plane" />
+                <Button Text="@(Size == BreakPoint.ExtraSmall?"":"Clear")" OnClick="OnClear" Icon="fa-fw fa-solid fa-trash" />
+                <Button OnClick="OpenDrawer" Icon="fa-fw fa-solid fa-cog" />
+                @if (EnableSpeech && !(Size == BreakPoint.Small || Size == BreakPoint.ExtraSmall))
+                {
+                    <Button Text="@(Size==BreakPoint.Small || Size == BreakPoint.ExtraSmall?"":"Talk")" OnClick="OnTalk" Icon="fa-fw fa-solid fa-commenting" IsAsync />
+                    <Button OnClick="OnPlay" Icon="fa-fw fa-solid fa-play" IsAsync />
+                    <Button OnClick="OnStop" Icon="fa-fw fa-solid fa-stop" IsAsync />
+                }
+            </BootstrapInputGroup>
+            <BootstrapInputGroup class="mt-2">
+                @if (EnableSpeech && (Size == BreakPoint.Small || Size == BreakPoint.ExtraSmall))
+                {
+                    <Button Text="@(Size==BreakPoint.Small || Size == BreakPoint.ExtraSmall?"":"Talk")" OnClick="OnTalk" Icon="fa-fw fa-solid fa-commenting" IsAsync />
+                    <Button OnClick="OnPlay" Icon="fa-fw fa-solid fa-play" IsAsync />
+                    <Button OnClick="OnStop" Icon="fa-fw fa-solid fa-stop" IsAsync />
+                }
+            </BootstrapInputGroup>
+        }
+        else
+        {
+            <Textarea ShowLabel="true" @bind-Value="InputText" placeholder="@PlaceHolderText" rows="@(Size==BreakPoint.Small || Size == BreakPoint.ExtraSmall?3:5)" />
+            <br />
+            <BootstrapInputGroup>
+                <Button Text="@(Size == BreakPoint.ExtraSmall?"":"Enter")" OnClick="OnEnter" Icon="fa-fw fa-solid fa-paper-plane" />
+                <Button Text="@(Size == BreakPoint.ExtraSmall?"":"Clear")" OnClick="OnClear" Icon="fa-fw fa-solid fa-trash" />
+                @if (EnableSpeech)
+                {
+                    <Button Text="@(Size==BreakPoint.Small || Size == BreakPoint.ExtraSmall?"":"Talk")" OnClick="OnTalk" Icon="fa-fw fa-solid fa-commenting" IsAsync />
+                    <Button OnClick="OnPlay" Icon="fa-fw fa-solid fa-play" IsAsync />
+                    <Button OnClick="OnStop" Icon="fa-fw fa-solid fa-stop" IsAsync />
+                }
+                <Button OnClick="OpenDrawer" Icon="fa-fw fa-solid fa-cog" />
+            </BootstrapInputGroup>
+
+        }
+    </div>
+    @if (EnableSpeech)
+    {
+        <div class="col-12">
+            @*@if (Size == BreakPoint.Small || Size == BreakPoint.ExtraSmall || Size == BreakPoint.Medium)
+                {
+                    <BootstrapInputGroup>
+                        <Button Text="识别" OnClick="OnTalk" Icon="fa-fw fa-solid fa-commenting" IsAsync />
+                        <Button Text="播放" OnClick="OnPlay" Icon="fa-fw fa-solid fa-play" IsAsync />
+                        <Button Text="停止" OnClick="OnStop" Icon="fa-fw fa-solid fa-stop" IsAsync />
+                    </BootstrapInputGroup>
+                }*@
+            @if (WebSpeech != null && WebSpeech.IsBusy)
+            {
+                <Spinner />
+            }
+            <WebSpeech @ref="WebSpeech" OnResult="@OnResult" OnIsBusy="@OnIsBusy" OnError="@OnError" />
+        </div>
+    }
+</div>
+
+<Drawer Placement="Placement.Left" @bind-IsOpen="@IsBackdropOpen" IsBackdrop="true" OnClickBackdrop="Save">
+    <div class="m-3">
+        @if (ShowOptions)
+        {
+            <GroupBox Title="参数" class="mt-2">
+                <div class="row g-3">
+                    <div class="col-12">
+                        <Select Color="Color.Primary" Items="ItemsMaxToken" @bind-Value="@SelectedMaxTokens" ShowLabel="true" DisplayText="MaxToken 生成的最大令牌数" />
+                    </div>
+                    <div class="col-12">
+                        <Select Color="Color.Primary" Items="ItemsTemperature" @bind-Value="@SelectedTemperature" ShowLabel="true" DisplayText="Temperature 模型的输出的多样性" />
+                    </div>
+                </div>
+                <div class="row mt-2 g-3">
+                    <div class="col-12">
+                        <Switch ShowLabel="true" @bind-Value="@SingleLine" OnValueChanged="_=>OnValueChanged()" />
+                    </div>
+                    <div class="col-12">
+                        <Switch ShowLabel="true" @bind-Value="@AutoMultiLine" OnValueChanged="_=>OnValueChanged()"/>
+                    </div>
+                </div>
+            </GroupBox>
+        }
+
+        @if (EnableSpeech)
+        {
+            <GroupBox Title="语音设置" class="mt-5">
+                <div class="row g-3">
+                    <div class="col-4">
+                        <Select Color="Color.Primary" @bind-Value="@EnumSpeechRecognLanguage" OnSelectedItemChanged="OnPlayLanguageChanged" IsDisabled="!IsInited" />
+                    </div>
+                    <div class="col-8">
+                        <BootstrapInput @bind-Value="@SpeechRecognLanguage" />
+                    </div>
+                </div>
+                <div class="row g-3">
+                    <div class="col-12">
+                        <Switch ShowLabel="true" @bind-Value="@SpeechRecognContinuous" />
+                    </div>
+                    <div class="col-12">
+                        <Switch ShowLabel="true" @bind-Value="@AutoSent" />
+                    </div>
+                    <div class="col-12">
+                        <Switch ShowLabel="true" @bind-Value="@AutoSpeak" />
+                    </div>
+                    <div class="col-12">
+                        <Switch ShowLabel="true" @bind-Value="@Options.Continuous" />
+                    </div>
+                    <div class="col-12">
+                        <Switch ShowLabel="true" @bind-Value="@Options.InterimResults" />
+                    </div>
+                </div>
+            </GroupBox>
+
+            <GroupBox Title="语音合成" class="mt-5">
+                <div class="row g-3">
+                    <div class="col-12">
+                        @if (WebVoiceList != null && WebVoiceList.Any())
+                        {
+                            <select class="form-select" @onchange="((e)=>OnSelectLangChange(e))">
+                                @if (string.IsNullOrEmpty(PlayLanguage))
+                                {
+                                    <option value="@SpeechRecognLanguage" selected>@SpeechRecognLanguage</option>
+                                }
+                                @foreach (var voice in WebVoiceList)
+                                {
+                                    if (voice.Name == PlayLanguage)
+                                    {
+                                        <option value="@voice.VoiceURI" selected>@($"{(voice.LocalService ? "" : "*")}{voice.Name} ({voice.Lang})")</option>
+                                    }
+                                    else
+                                    {
+                                        <option value="@voice.VoiceURI">@($"{(voice.LocalService ? "" : "*")}{voice.Name} ({voice.Lang})")</option>
+                                    }
+                                }
+                            </select>
+                        }
+                    </div>
+                    <div class="col-12">
+                        速率
+                        <input type="range" min="0.1" max="10" step="0.1" @bind-value="OptionsTTS.Rate" />
+                    </div>
+                    <div class="col-12">
+                        音高
+                        <input type="range" min="0" max="2" step="0.1" @bind-value="OptionsTTS.Picth">
+                    </div>
+                    <div class="col-12">
+                        音量
+                        <input type="range" min="0" max="1" step="0.01" @bind-value="OptionsTTS.Volume" />
+                    </div>
+                    <div class="col-12">
+                        <BootstrapInputGroup>
+                            <Button Text="测试" OnClick="OnPlay" Icon="fa-fw fa-solid fa-play" IsAsync />
+                            <Button Text="停止" OnClick="SpeechStop" Icon="fa-fw fa-solid fa-stop" IsAsync />
+                            <Button Text="语音列表" OnClick="GetVoiceList" IsAsync />
+                        </BootstrapInputGroup>
+                    </div>
+                </div>
+            </GroupBox>
+
+        }
+
+
+        <div class="m-3">
+            <Button Text="关闭" Color="Color.Secondary" OnClick="Save" Icon="fa-fw fa-solid fa-close" />
+        </div>
+    </div>
+</Drawer>
+
+@if (!string.IsNullOrEmpty(ErrorMessage))
+{
+    <p>@ErrorMessage</p>
+}
+

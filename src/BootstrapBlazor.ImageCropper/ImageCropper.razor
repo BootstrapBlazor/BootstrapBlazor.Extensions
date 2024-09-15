@@ -1,0 +1,28 @@
+﻿@namespace BootstrapBlazor.Components
+
+<link href="@CssPath" rel="stylesheet">
+
+<div @ref="Element">
+
+    <div class="containerTop">
+        <div>
+            <img class="@CssClass" data-action="image" src="@Url" alt="Picture">
+        </div>
+        @if (DefaultButton)
+        {
+            <div class="input-group">
+                <button type="button" onclick="@(() => Crop())" class="btn btn-primary">@ConfirmBtnTitle</button>
+                <button type="button" onclick="@(() => Reset())" class="btn btn-primary">@ResetBtnTitle</button>
+            </div>
+        }
+        @if (Preview)
+        {
+            <h3>@PreviewTitle</h3>
+            <div data-action="result"></div>
+        }
+
+
+    </div>
+
+</div>
+

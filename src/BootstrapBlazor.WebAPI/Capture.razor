@@ -1,0 +1,43 @@
+﻿@namespace BootstrapBlazor.Components
+
+@if (ShowUI)
+{
+    <div @ref="Element">
+
+        <div data-action="camera" class="camera">
+            <video data-action="video" class="video"
+                   muted
+                   webkit-playsinline
+                   playsinline
+                   x-webkit-airplay="allow"
+                   x5-video-player-type="h5"
+                   x5-video-player-fullscreen="true"
+                   x5-video-orientation="portraint">
+                Video stream not available.
+            </video>
+            @if (ShowCaptureButton)
+            {
+                <button data-action="startbutton" class="startbutton">@CaptureBtnTitle</button>
+            }
+        </div>
+
+        <div data-action="sourceSelectPanel" style="display:none">
+            <label for="sourceSelect">@SelectDeviceBtnTitle:</label>
+            <select data-action="sourceSelect" style="max-width:100%" class="form-select form-control">
+            </select>
+        </div>
+
+        <canvas data-action="canvas" class="canvas"> </canvas>
+        @if (ShowResult)
+        {
+
+            <div class="output">
+                <img data-action="photo" class="photo" alt="屏幕截图结果." />
+            </div>
+        }
+    </div>
+}
+@if (Debug)
+{
+    <pre data-action="log" class="photo"></pre>
+}

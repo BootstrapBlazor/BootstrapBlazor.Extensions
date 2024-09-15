@@ -1,0 +1,50 @@
+﻿@namespace BootstrapBlazor.Components
+@inherits BootstrapModuleComponentBase
+@attribute [JSModuleAutoLoader("./_content/BootstrapBlazor.SignaturePad/SignaturePad.razor.js", JSObjectReference = true)]
+
+<div @attributes="@AdditionalAttributes" id="@Id" class="@ClassString">
+    <div class="signature-pad-body">
+        <canvas></canvas>
+    </div>
+    <div class="signature-pad-footer">
+        @if (!string.IsNullOrEmpty(SignAboveLabel))
+        {
+            <div class="description">@SignAboveLabel</div>
+        }
+        <div class="signature-pad-actions">
+            <div>
+                <button type="button" class="@BtnCssClass" data-action="clear">@ClearBtnTitle</button>
+                @if (EnableChangeColorBtn)
+                {
+                    <button type="button" class="@BtnCssClass" data-action="change-color">@ChangeColorBtnTitle</button>
+                }
+                @if (EnableUndoBtn)
+                {
+                    <button type="button" class="@BtnCssClass" data-action="undo">@UndoBtnTitle</button>
+                }
+                @if (Responsive && OnClose != null)
+                {
+                    <button type="button" class="@BtnCssClass" data-action="close">@CloseBtnTitle</button>
+                }
+            </div>
+            <div>
+                @if (EnableSaveBase64Btn)
+                {
+                    <button type="button" class="@BtnSaveCssClass" data-action="save-base64">@SaveBase64BtnTitle</button>
+                }
+                @if (EnableSavePNGBtn)
+                {
+                    <button type="button" class="@BtnSaveCssClass" data-action="save-png">@SavePNGBtnTitle</button>
+                }
+                @if (EnableSaveJPGBtn)
+                {
+                    <button type="button" class="@BtnSaveCssClass" data-action="save-jpg">@SaveJPGBtnTitle</button>
+                }
+                @if (EnableSaveSVGBtn)
+                {
+                    <button type="button" class="@BtnSaveCssClass" data-action="save-svg">@SaveSVGBtnTitle</button>
+                }
+            </div>
+        </div>
+    </div>
+</div>

@@ -1,0 +1,15 @@
+﻿@namespace BootstrapBlazor.Components
+
+@if (ShowSpeechInfo)
+{
+    <p>语音变色器</p>
+
+    <p class="hints"></p>
+    <div>
+        <p class="output"><em>...诊断信息</em></p>
+    </div>
+
+}
+<div @ref="Element" style="visibility:hidden">
+    <button type="button" data-action="speakBtn" class="btn btn-primary">初始化</button>
+</div> 
