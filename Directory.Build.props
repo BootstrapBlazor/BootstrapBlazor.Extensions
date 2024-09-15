@@ -2,7 +2,7 @@
 
   <PropertyGroup>
     <Copyright>Argo Zhang</Copyright>
-    <Authors>Argo Zhang(argo@live.ca)</Authors>
+    <Authors>Argo Zhang(argo@live.ca);Alex Chow(zhouchuanglin@gmail.com)</Authors>
     <Company>Longbow</Company>
     <SignAssembly>true</SignAssembly>
     <AssemblyOriginatorKeyFile>$(MSBuildThisFileDirectory)\keys\Longbow.Utility.snk</AssemblyOriginatorKeyFile>
