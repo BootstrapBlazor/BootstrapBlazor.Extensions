@@ -1,0 +1,3 @@
+[submodule "src/BootstrapBlazor.SignaturePad"]
+	path = src/BootstrapBlazor.SignaturePad
+	url = git@github.com:BootstrapBlazor/BootstrapBlazor.SignaturePad.git
