@@ -1,0 +1,26 @@
+<Project>
+
+  <Import Project="..\Directory.Build.props" />
+
+  <PropertyGroup>
+    <IsPackable>false</IsPackable>
+    <IsTestProject>true</IsTestProject>
+    <DocumentationFile></DocumentationFile>
+    <PackageIcon></PackageIcon>
+  </PropertyGroup>
+
+  <PropertyGroup>
+    <TargetFrameworks>net8.0</TargetFrameworks>
+  </PropertyGroup>
+
+  <ItemGroup>
+    <Using Include="BootstrapBlazor.Components"/>
+    <Using Include="Bunit"/>
+    <Using Include="Microsoft.AspNetCore.Components"/>
+    <Using Include="System.Diagnostics.CodeAnalysis"/>
+    <Using Include="UnitTest.Core"/>
+    <Using Include="Xunit"/>
+    <Using Include="Xunit.Abstractions"/>
+  </ItemGroup>
+
+</Project>
