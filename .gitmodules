@@ -4,3 +4,6 @@
 [submodule "src/BootstrapBlazor.FileViewer"]
 	path = src/BootstrapBlazor.FileViewer
 	url = git@github.com:BootstrapBlazor/BootstrapBlazor.FileViewer.git
+[submodule "src/BootstrapBlazor.VideoPlayer"]
+	path = src/BootstrapBlazor.VideoPlayer
+	url = git@github.com:BootstrapBlazor/BootstrapBlazor.VideoPlayer.git
