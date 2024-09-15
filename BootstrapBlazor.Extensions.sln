@@ -134,6 +134,10 @@ Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "BootstrapBlazor.DataAccess.
 EndProject
 Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "BootstrapBlazor.DataAccess.SqlSugar", "extensions\BootstrapBlazor.DataAccess.SqlSugar\BootstrapBlazor.DataAccess.SqlSugar.csproj", "{750E2849-EA95-4849-A7E7-09920E30765D}"
 EndProject
+Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "middelware", "middelware", "{BB06AD5B-3F2B-4B59-A135-36AF999A614F}"
+EndProject
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "BootstrapBlazor.Middleware", "Middleware\BootstrapBlazor.Middleware\BootstrapBlazor.Middleware.csproj", "{DB4927E4-7897-4422-BA45-A8E683ED209A}"
+EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
 		Debug|Any CPU = Debug|Any CPU
@@ -380,6 +384,10 @@ Global
 		{750E2849-EA95-4849-A7E7-09920E30765D}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{750E2849-EA95-4849-A7E7-09920E30765D}.Release|Any CPU.ActiveCfg = Release|Any CPU
 		{750E2849-EA95-4849-A7E7-09920E30765D}.Release|Any CPU.Build.0 = Release|Any CPU
+		{DB4927E4-7897-4422-BA45-A8E683ED209A}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{DB4927E4-7897-4422-BA45-A8E683ED209A}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{DB4927E4-7897-4422-BA45-A8E683ED209A}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{DB4927E4-7897-4422-BA45-A8E683ED209A}.Release|Any CPU.Build.0 = Release|Any CPU
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE
@@ -445,6 +453,7 @@ Global
 		{9BFFB509-9B57-4FE7-B2A1-4D6AFEEE0067} = {7B29E81D-92DE-46C8-8EDC-1B48C8F12BC2}
 		{2E338270-C302-4E13-A681-7F80E1BEE158} = {7B29E81D-92DE-46C8-8EDC-1B48C8F12BC2}
 		{750E2849-EA95-4849-A7E7-09920E30765D} = {7B29E81D-92DE-46C8-8EDC-1B48C8F12BC2}
+		{DB4927E4-7897-4422-BA45-A8E683ED209A} = {BB06AD5B-3F2B-4B59-A135-36AF999A614F}
 	EndGlobalSection
 	GlobalSection(ExtensibilityGlobals) = postSolution
 		SolutionGuid = {D5EB1960-6F30-4CE1-B375-EAE1F787D6FF}
