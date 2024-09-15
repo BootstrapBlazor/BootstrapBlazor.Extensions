@@ -1,23 +1,29 @@
 <Project>
 
+  <Import Project=".\Base.props" />
+  <Import Project=".\Frameworks.props" />
+  <Import Project=".\Logo.props" />
+  <Import Project=".\SourceLink.targets" />
+
   <PropertyGroup>
-    <Copyright>Argo Zhang</Copyright>
-    <Authors>Argo Zhang(argo@live.ca)</Authors>
-    <Company>Longbow</Company>
-    <SignAssembly>true</SignAssembly>
-    <AssemblyOriginatorKeyFile>$(MSBuildThisFileDirectory)src\keys\Longbow.Utility.snk</AssemblyOriginatorKeyFile>
-    <Nullable>enable</Nullable>
-    <ImplicitUsings>enable</ImplicitUsings>
+    <RootNamespace>BootstrapBlazor.Components</RootNamespace>
+    <IsPackable>true</IsPackable>
   </PropertyGroup>
 
   <PropertyGroup>
-    <LangVersion>latest</LangVersion>
-    <AccelerateBuildsInVisualStudio>true</AccelerateBuildsInVisualStudio>
-    <SuppressNETCoreSdkPreviewMessage>true</SuppressNETCoreSdkPreviewMessage>
+    <RepositoryUrl>https://github.com/dotnetcore/BootstrapBlazor.git</RepositoryUrl>
+    <PackageProjectUrl>https://www.blazor.zone</PackageProjectUrl>
+    <RepositoryType>github</RepositoryType>
+    <PackageLicenseExpression>Apache-2.0</PackageLicenseExpression>
+    <DocumentationFile>$(MSBuildProjectName).xml</DocumentationFile>
   </PropertyGroup>
 
   <ItemGroup>
-    <Using Include="System.Diagnostics.CodeAnalysis"/>
+    <SupportedPlatform Include="browser" />
   </ItemGroup>
+
+  <PropertyGroup>
+    <NoWarn>NETSDK1138;CS8002</NoWarn>
+  </PropertyGroup>
 
 </Project>

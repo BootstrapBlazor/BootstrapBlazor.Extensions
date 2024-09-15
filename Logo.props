@@ -1,0 +1,11 @@
+<Project>
+
+  <PropertyGroup>
+    <PackageIcon>logo.png</PackageIcon>
+  </PropertyGroup>
+
+  <ItemGroup>
+    <None Include="logo.png" Pack="true" PackagePath="" />
+  </ItemGroup>
+
+</Project>
