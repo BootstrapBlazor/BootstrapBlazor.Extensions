@@ -16,11 +16,11 @@
   </ItemGroup>
 
   <ItemGroup>
-    <Using Remove="UnitTest.Core" />
+    <ProjectReference Include="..\..\src\components\BootstrapBlazor.Holiday\BootstrapBlazor.Holiday.csproj" />
   </ItemGroup>
 
   <ItemGroup>
-    <ProjectReference Include="..\..\components\BootstrapBlazor.Holiday\BootstrapBlazor.Holiday.csproj" />
+    <Using Remove="UnitTest.Core" />
   </ItemGroup>
 
 </Project>

@@ -1,4 +1,4 @@
-﻿<Project Sdk="Microsoft.NET.Sdk">
+<Project Sdk="Microsoft.NET.Sdk">
 
   <ItemGroup>
     <PackageReference Include="bunit" Version="1.31.3" />
@@ -15,11 +15,11 @@
   </ItemGroup>
 
   <ItemGroup>
-    <Using Include="Microsoft.Extensions.DependencyInjection" />
+    <ProjectReference Include="..\..\src\components\BootstrapBlazor.SummerNote\BootstrapBlazor.SummerNote.csproj" />
   </ItemGroup>
 
   <ItemGroup>
-    <ProjectReference Include="..\..\components\BootstrapBlazor.SummerNote\BootstrapBlazor.SummerNote.csproj" />
+    <Using Include="Microsoft.Extensions.DependencyInjection" />
   </ItemGroup>
 
 </Project>
