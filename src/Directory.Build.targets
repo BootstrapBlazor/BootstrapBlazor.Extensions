@@ -1,0 +1,11 @@
+<Project>
+
+  <Target Name="CopyLogo" AfterTargets="Build" Condition="'$(TargetFramework)' == 'net8.0'">
+    <Message Text="Copy logo assets ..." Importance="high"></Message>
+    <Copy SourceFiles="$(MSBuildThisFileDirectory)logo.png" DestinationFiles="$(MSBuildProjectDirectory)\logo.png" SkipUnchangedFiles="true" ></Copy>
+
+    <Message Text="Copy readme assets ..." Importance="high"></Message>
+    <Copy SourceFiles="$(MSBuildThisFileDirectory)readme.md" DestinationFiles="$(MSBuildProjectDirectory)\readme.md" SkipUnchangedFiles="true" ></Copy>
+  </Target>
+
+</Project>

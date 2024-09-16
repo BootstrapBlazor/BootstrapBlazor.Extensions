@@ -147,7 +147,9 @@ Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "src", "src", "{A48E5EAB-6EF
 EndProject
 Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "props", "props", "{FF8B3A19-60DC-4802-9FA0-9FE670C7D565}"
 	ProjectSection(SolutionItems) = preProject
+		src\.gitignore = src\.gitignore
 		src\Directory.Build.props = src\Directory.Build.props
+		src\Directory.Build.targets = src\Directory.Build.targets
 		src\Frameworks.props = src\Frameworks.props
 		src\Logo.props = src\Logo.props
 		src\readme.md = src\readme.md
