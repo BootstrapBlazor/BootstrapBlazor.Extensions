@@ -75,6 +75,12 @@ const initSortable = (id, element, invoke, op) => {
 
     if (op.triggerRemove) {
         op.onRemove = event => {
+            if (event.pullMode === 'clone') {
+                event.clone.remove();
+                event.item.remove();
+                event.from.insertBefore(event.item, event.from.childNodes[event.oldIndex]);
+            }
+
             const items = [];
             if (op.multiDrag) {
                 event.oldIndicies.forEach((v, index) => {
