@@ -1,0 +1,27 @@
+<Project>
+
+  <Import Project="..\Directory.Build.props" />
+  <Import Project=".\Frameworks.props" />
+  <Import Project=".\Logo.props" />
+  <Import Project=".\SourceLink.targets" />
+
+  <PropertyGroup>
+    <IsPackable>true</IsPackable>
+    <RepositoryUrl>https://github.com/BootstrapBlazor/BootstrapBlazor.Extensions?wt.mc_id=DT-MVP-5004174</RepositoryUrl>
+    <PackageProjectUrl>https://www.blazor.zone</PackageProjectUrl>
+    <RepositoryType>github</RepositoryType>
+    <PackageLicenseExpression>Apache-2.0</PackageLicenseExpression>
+    <DocumentationFile>$(MSBuildProjectName).xml</DocumentationFile>
+    <PackageReadmeFile>$(MSBuildThisFileDirectory)readme.md</PackageReadmeFile>
+    <PackageReleaseNotes>https://github.com/dotnetcore/BootstrapBlazor/releases?wt.mc_id=DT-MVP-5004174</PackageReleaseNotes>
+  </PropertyGroup>
+
+  <ItemGroup>
+    <SupportedPlatform Include="browser" />
+  </ItemGroup>
+
+  <PropertyGroup>
+    <NoWarn>NETSDK1138;CS8002</NoWarn>
+  </PropertyGroup>
+
+</Project>

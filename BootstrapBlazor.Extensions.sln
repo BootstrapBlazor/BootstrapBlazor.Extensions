@@ -5,144 +5,154 @@ VisualStudioVersion = 17.11.35303.130
 MinimumVisualStudioVersion = 10.0.40219.1
 Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "components", "components", "{FF1089BE-C704-4374-B629-C57C08E1798F}"
 EndProject
-Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "BootstrapBlazor.BaiduMap", "components\BootstrapBlazor.BaiduMap\BootstrapBlazor.BaiduMap.csproj", "{22C6D47A-F770-4813-B363-F2C90455E870}"
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "BootstrapBlazor.BaiduMap", "src\components\BootstrapBlazor.BaiduMap\BootstrapBlazor.BaiduMap.csproj", "{22C6D47A-F770-4813-B363-F2C90455E870}"
 EndProject
-Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "BootstrapBlazor.BarcodeGenerator", "components\BootstrapBlazor.BarcodeGenerator\BootstrapBlazor.BarcodeGenerator.csproj", "{0E6F09A3-61C4-4945-9DC8-5E00CE547DBD}"
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "BootstrapBlazor.BarcodeGenerator", "src\components\BootstrapBlazor.BarcodeGenerator\BootstrapBlazor.BarcodeGenerator.csproj", "{0E6F09A3-61C4-4945-9DC8-5E00CE547DBD}"
 EndProject
-Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "BootstrapBlazor.Bluetooth", "components\BootstrapBlazor.Bluetooth\BootstrapBlazor.Bluetooth.csproj", "{6E287657-5A6D-42CA-999C-459C0AAA1806}"
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "BootstrapBlazor.Bluetooth", "src\components\BootstrapBlazor.Bluetooth\BootstrapBlazor.Bluetooth.csproj", "{6E287657-5A6D-42CA-999C-459C0AAA1806}"
 EndProject
-Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "BootstrapBlazor.FileSystem", "components\BootstrapBlazor.FileSystem\BootstrapBlazor.FileSystem.csproj", "{203B9DE4-201C-4223-AD0E-4823777AB9A7}"
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "BootstrapBlazor.FileSystem", "src\components\BootstrapBlazor.FileSystem\BootstrapBlazor.FileSystem.csproj", "{203B9DE4-201C-4223-AD0E-4823777AB9A7}"
 EndProject
-Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "BootstrapBlazor.FileViewer", "components\BootstrapBlazor.FileViewer\BootstrapBlazor.FileViewer.csproj", "{3EBD90E6-5237-4BB0-9C14-CC1FC5956A1B}"
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "BootstrapBlazor.FileViewer", "src\components\BootstrapBlazor.FileViewer\BootstrapBlazor.FileViewer.csproj", "{3EBD90E6-5237-4BB0-9C14-CC1FC5956A1B}"
 EndProject
-Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "BootstrapBlazor.Geolocation", "components\BootstrapBlazor.Geolocation\BootstrapBlazor.Geolocation.csproj", "{3D57D565-3FDB-4975-8785-DC62C3AB8058}"
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "BootstrapBlazor.Geolocation", "src\components\BootstrapBlazor.Geolocation\BootstrapBlazor.Geolocation.csproj", "{3D57D565-3FDB-4975-8785-DC62C3AB8058}"
 EndProject
-Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "BootstrapBlazor.ImageCropper", "components\BootstrapBlazor.ImageCropper\BootstrapBlazor.ImageCropper.csproj", "{079E4289-E2C6-47A9-98C2-9193F8A5D415}"
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "BootstrapBlazor.ImageCropper", "src\components\BootstrapBlazor.ImageCropper\BootstrapBlazor.ImageCropper.csproj", "{079E4289-E2C6-47A9-98C2-9193F8A5D415}"
 EndProject
-Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "BootstrapBlazor.ImageHelper", "components\BootstrapBlazor.ImageHelper\BootstrapBlazor.ImageHelper.csproj", "{BF6F0A50-93DA-4F40-9936-933FEBF3B5CA}"
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "BootstrapBlazor.ImageHelper", "src\components\BootstrapBlazor.ImageHelper\BootstrapBlazor.ImageHelper.csproj", "{BF6F0A50-93DA-4F40-9936-933FEBF3B5CA}"
 EndProject
-Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "BootstrapBlazor.Maps", "components\BootstrapBlazor.Maps\BootstrapBlazor.Maps.csproj", "{A6FE7E0D-04EB-4E74-9C28-0B0920BEF7D4}"
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "BootstrapBlazor.Maps", "src\components\BootstrapBlazor.Maps\BootstrapBlazor.Maps.csproj", "{A6FE7E0D-04EB-4E74-9C28-0B0920BEF7D4}"
 EndProject
-Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "BootstrapBlazor.MindMap", "components\BootstrapBlazor.MindMap\BootstrapBlazor.MindMap.csproj", "{72D0DB26-0437-499F-ACD6-4F90EA8513ED}"
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "BootstrapBlazor.MindMap", "src\components\BootstrapBlazor.MindMap\BootstrapBlazor.MindMap.csproj", "{72D0DB26-0437-499F-ACD6-4F90EA8513ED}"
 EndProject
-Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "BootstrapBlazor.OCR", "components\BootstrapBlazor.OCR\BootstrapBlazor.OCR.csproj", "{F979AFA9-E3CF-43DF-A7EA-3C63213D3C72}"
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "BootstrapBlazor.OCR", "src\components\BootstrapBlazor.OCR\BootstrapBlazor.OCR.csproj", "{F979AFA9-E3CF-43DF-A7EA-3C63213D3C72}"
 EndProject
-Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "BootstrapBlazor.OfdReader", "components\BootstrapBlazor.OfdReader\BootstrapBlazor.OfdReader.csproj", "{C1BD1FA6-BFD5-42E3-ADB5-4D4BA51653BA}"
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "BootstrapBlazor.OfdReader", "src\components\BootstrapBlazor.OfdReader\BootstrapBlazor.OfdReader.csproj", "{C1BD1FA6-BFD5-42E3-ADB5-4D4BA51653BA}"
 EndProject
-Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "BootstrapBlazor.OnScreenKeyboard", "components\BootstrapBlazor.OnScreenKeyboard\BootstrapBlazor.OnScreenKeyboard.csproj", "{21A163D4-DC81-4B87-BA1B-9B5F48D66587}"
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "BootstrapBlazor.OnScreenKeyboard", "src\components\BootstrapBlazor.OnScreenKeyboard\BootstrapBlazor.OnScreenKeyboard.csproj", "{21A163D4-DC81-4B87-BA1B-9B5F48D66587}"
 EndProject
-Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "BootstrapBlazor.OpenAI", "components\BootstrapBlazor.OpenAI.GPT3\BootstrapBlazor.OpenAI.csproj", "{4E88785F-AD6A-4B57-BEC1-89F63A51BB63}"
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "BootstrapBlazor.OpenAI", "src\components\BootstrapBlazor.OpenAI.GPT3\BootstrapBlazor.OpenAI.csproj", "{4E88785F-AD6A-4B57-BEC1-89F63A51BB63}"
 EndProject
-Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "BootstrapBlazor.PdfReader", "components\BootstrapBlazor.PdfReader\BootstrapBlazor.PdfReader.csproj", "{D84EF7E9-2A5E-4EA8-BC2B-54289276A16D}"
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "BootstrapBlazor.PdfReader", "src\components\BootstrapBlazor.PdfReader\BootstrapBlazor.PdfReader.csproj", "{D84EF7E9-2A5E-4EA8-BC2B-54289276A16D}"
 EndProject
-Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "BootstrapBlazor.SignaturePad", "components\BootstrapBlazor.SignaturePad\BootstrapBlazor.SignaturePad.csproj", "{CC30AFF5-305E-43C8-B230-1A82AE3041F2}"
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "BootstrapBlazor.SignaturePad", "src\components\BootstrapBlazor.SignaturePad\BootstrapBlazor.SignaturePad.csproj", "{CC30AFF5-305E-43C8-B230-1A82AE3041F2}"
 EndProject
-Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "BootstrapBlazor.VideoPlayer", "components\BootstrapBlazor.VideoPlayer\BootstrapBlazor.VideoPlayer.csproj", "{CE85D4DD-6F4A-49AF-B575-2429FC545E7B}"
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "BootstrapBlazor.VideoPlayer", "src\components\BootstrapBlazor.VideoPlayer\BootstrapBlazor.VideoPlayer.csproj", "{CE85D4DD-6F4A-49AF-B575-2429FC545E7B}"
 EndProject
-Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "BootstrapBlazor.Viewer", "components\BootstrapBlazor.Viewer\BootstrapBlazor.Viewer.csproj", "{98BF777B-3AC1-4169-8633-F69D9A6EB275}"
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "BootstrapBlazor.Viewer", "src\components\BootstrapBlazor.Viewer\BootstrapBlazor.Viewer.csproj", "{98BF777B-3AC1-4169-8633-F69D9A6EB275}"
 EndProject
-Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "BootstrapBlazor.WebAPI", "components\BootstrapBlazor.WebAPI\BootstrapBlazor.WebAPI.csproj", "{AB6EE78F-B778-42BA-91AB-234AC4F60C16}"
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "BootstrapBlazor.WebAPI", "src\components\BootstrapBlazor.WebAPI\BootstrapBlazor.WebAPI.csproj", "{AB6EE78F-B778-42BA-91AB-234AC4F60C16}"
 EndProject
-Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "BootstrapBlazor.AntDesignIcon", "components\BootstrapBlazor.AntDesignIcon\BootstrapBlazor.AntDesignIcon.csproj", "{7FFCC03C-147B-4257-A035-2A31A807F173}"
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "BootstrapBlazor.AntDesignIcon", "src\components\BootstrapBlazor.AntDesignIcon\BootstrapBlazor.AntDesignIcon.csproj", "{7FFCC03C-147B-4257-A035-2A31A807F173}"
 EndProject
-Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "BootstrapBlazor.AzureOpenAI", "components\BootstrapBlazor.AzureOpenAI\BootstrapBlazor.AzureOpenAI.csproj", "{C546E031-1A92-409F-8E9C-4FD9A15FC042}"
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "BootstrapBlazor.AzureOpenAI", "src\components\BootstrapBlazor.AzureOpenAI\BootstrapBlazor.AzureOpenAI.csproj", "{C546E031-1A92-409F-8E9C-4FD9A15FC042}"
 EndProject
-Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "BootstrapBlazor.AzureSpeech", "components\BootstrapBlazor.AzureSpeech\BootstrapBlazor.AzureSpeech.csproj", "{26DEC31C-40C2-4F3B-9A9D-2BEA313AA59C}"
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "BootstrapBlazor.AzureSpeech", "src\components\BootstrapBlazor.AzureSpeech\BootstrapBlazor.AzureSpeech.csproj", "{26DEC31C-40C2-4F3B-9A9D-2BEA313AA59C}"
 EndProject
-Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "BootstrapBlazor.AzureTranslator", "components\BootstrapBlazor.AzureTranslator\BootstrapBlazor.AzureTranslator.csproj", "{65181D1B-AD7C-4223-B230-6AB95EC1DA19}"
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "BootstrapBlazor.AzureTranslator", "src\components\BootstrapBlazor.AzureTranslator\BootstrapBlazor.AzureTranslator.csproj", "{65181D1B-AD7C-4223-B230-6AB95EC1DA19}"
 EndProject
-Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "BootstrapBlazor.BaiduOcr", "components\BootstrapBlazor.BaiduOcr\BootstrapBlazor.BaiduOcr.csproj", "{FBC02566-6622-43DC-B105-A0C95E9D94EB}"
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "BootstrapBlazor.BaiduOcr", "src\components\BootstrapBlazor.BaiduOcr\BootstrapBlazor.BaiduOcr.csproj", "{FBC02566-6622-43DC-B105-A0C95E9D94EB}"
 EndProject
-Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "BootstrapBlazor.BaiduSpeech", "components\BootstrapBlazor.BaiduSpeech\BootstrapBlazor.BaiduSpeech.csproj", "{14EBAC86-E192-4BFA-80C1-91F91BDDE6A4}"
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "BootstrapBlazor.BaiduSpeech", "src\components\BootstrapBlazor.BaiduSpeech\BootstrapBlazor.BaiduSpeech.csproj", "{14EBAC86-E192-4BFA-80C1-91F91BDDE6A4}"
 EndProject
-Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "BootstrapBlazor.BarCode", "components\BootstrapBlazor.BarCode\BootstrapBlazor.BarCode.csproj", "{A5F1444E-D86F-4740-BADD-EF042193FD92}"
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "BootstrapBlazor.BarCode", "src\components\BootstrapBlazor.BarCode\BootstrapBlazor.BarCode.csproj", "{A5F1444E-D86F-4740-BADD-EF042193FD92}"
 EndProject
-Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "BootstrapBlazor.BootstrapIcon", "components\BootstrapBlazor.BootstrapIcon\BootstrapBlazor.BootstrapIcon.csproj", "{C78E90E8-47EC-4A1E-A108-D0CD018CE417}"
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "BootstrapBlazor.BootstrapIcon", "src\components\BootstrapBlazor.BootstrapIcon\BootstrapBlazor.BootstrapIcon.csproj", "{C78E90E8-47EC-4A1E-A108-D0CD018CE417}"
 EndProject
-Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "BootstrapBlazor.BootstrapIcon.Extensions", "components\BootstrapBlazor.BootstrapIcon.Extensions\BootstrapBlazor.BootstrapIcon.Extensions.csproj", "{9881C559-4DD1-48A7-B02C-5516FE06B513}"
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "BootstrapBlazor.BootstrapIcon.Extensions", "src\components\BootstrapBlazor.BootstrapIcon.Extensions\BootstrapBlazor.BootstrapIcon.Extensions.csproj", "{9881C559-4DD1-48A7-B02C-5516FE06B513}"
 EndProject
-Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "BootstrapBlazor.Chart", "components\BootstrapBlazor.Chart\BootstrapBlazor.Chart.csproj", "{A9D480F3-7D56-4E82-A71A-3378DE18A2D2}"
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "BootstrapBlazor.Chart", "src\components\BootstrapBlazor.Chart\BootstrapBlazor.Chart.csproj", "{A9D480F3-7D56-4E82-A71A-3378DE18A2D2}"
 EndProject
-Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "BootstrapBlazor.CherryMarkdown", "components\BootstrapBlazor.CherryMarkdown\BootstrapBlazor.CherryMarkdown.csproj", "{A6B947E9-450C-45D7-BDC0-AE3C12D3FBA3}"
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "BootstrapBlazor.CherryMarkdown", "src\components\BootstrapBlazor.CherryMarkdown\BootstrapBlazor.CherryMarkdown.csproj", "{A6B947E9-450C-45D7-BDC0-AE3C12D3FBA3}"
 EndProject
-Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "BootstrapBlazor.CodeEditor", "components\BootstrapBlazor.CodeEditor\BootstrapBlazor.CodeEditor.csproj", "{80A0135B-6F5B-4CB0-90F5-0060D241136A}"
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "BootstrapBlazor.CodeEditor", "src\components\BootstrapBlazor.CodeEditor\BootstrapBlazor.CodeEditor.csproj", "{80A0135B-6F5B-4CB0-90F5-0060D241136A}"
 EndProject
-Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "BootstrapBlazor.Core", "components\BootstrapBlazor.Core\BootstrapBlazor.Core.csproj", "{A2163EE1-9F38-425A-97B1-C4CDAD6E6DAD}"
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "BootstrapBlazor.Core", "src\components\BootstrapBlazor.Core\BootstrapBlazor.Core.csproj", "{A2163EE1-9F38-425A-97B1-C4CDAD6E6DAD}"
 EndProject
-Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "BootstrapBlazor.Dock", "components\BootstrapBlazor.Dock\BootstrapBlazor.Dock.csproj", "{B0D2BBC7-D1BB-4F7C-ADE0-59BEBF3BB5D0}"
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "BootstrapBlazor.Dock", "src\components\BootstrapBlazor.Dock\BootstrapBlazor.Dock.csproj", "{B0D2BBC7-D1BB-4F7C-ADE0-59BEBF3BB5D0}"
 EndProject
-Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "BootstrapBlazor.DockView", "components\BootstrapBlazor.DockView\BootstrapBlazor.DockView.csproj", "{4B71D8F7-CF9C-44CE-B371-45FBFEE0FB6E}"
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "BootstrapBlazor.DockView", "src\components\BootstrapBlazor.DockView\BootstrapBlazor.DockView.csproj", "{4B71D8F7-CF9C-44CE-B371-45FBFEE0FB6E}"
 EndProject
-Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "BootstrapBlazor.DriverJs", "components\BootstrapBlazor.DriverJs\BootstrapBlazor.DriverJs.csproj", "{F538D58D-58B1-4BA2-A933-E91AC168F568}"
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "BootstrapBlazor.DriverJs", "src\components\BootstrapBlazor.DriverJs\BootstrapBlazor.DriverJs.csproj", "{F538D58D-58B1-4BA2-A933-E91AC168F568}"
 EndProject
-Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "BootstrapBlazor.ElementIcon", "components\BootstrapBlazor.ElementIcon\BootstrapBlazor.ElementIcon.csproj", "{BB03EAB9-9B5F-49E2-87CC-E61A06AF2DE7}"
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "BootstrapBlazor.ElementIcon", "src\components\BootstrapBlazor.ElementIcon\BootstrapBlazor.ElementIcon.csproj", "{BB03EAB9-9B5F-49E2-87CC-E61A06AF2DE7}"
 EndProject
-Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "BootstrapBlazor.FloatingUI", "components\BootstrapBlazor.FloatingUI\BootstrapBlazor.FloatingUI.csproj", "{309D35E1-8B17-4488-93BC-D6B301B1F853}"
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "BootstrapBlazor.FloatingUI", "src\components\BootstrapBlazor.FloatingUI\BootstrapBlazor.FloatingUI.csproj", "{309D35E1-8B17-4488-93BC-D6B301B1F853}"
 EndProject
-Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "BootstrapBlazor.FontAwesome", "components\BootstrapBlazor.FontAwesome\BootstrapBlazor.FontAwesome.csproj", "{CC7C4278-BC2E-49D0-BE18-BF8D28EFE6E7}"
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "BootstrapBlazor.FontAwesome", "src\components\BootstrapBlazor.FontAwesome\BootstrapBlazor.FontAwesome.csproj", "{CC7C4278-BC2E-49D0-BE18-BF8D28EFE6E7}"
 EndProject
-Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "BootstrapBlazor.Gantt", "components\BootstrapBlazor.Gantt\BootstrapBlazor.Gantt.csproj", "{BB7FBAC6-0F98-4443-B3A0-B7D0F4164D20}"
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "BootstrapBlazor.Gantt", "src\components\BootstrapBlazor.Gantt\BootstrapBlazor.Gantt.csproj", "{BB7FBAC6-0F98-4443-B3A0-B7D0F4164D20}"
 EndProject
-Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "BootstrapBlazor.Holiday", "components\BootstrapBlazor.Holiday\BootstrapBlazor.Holiday.csproj", "{162A2C8E-767C-41A7-9020-729E79C4F1F9}"
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "BootstrapBlazor.Holiday", "src\components\BootstrapBlazor.Holiday\BootstrapBlazor.Holiday.csproj", "{162A2C8E-767C-41A7-9020-729E79C4F1F9}"
 EndProject
-Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "BootstrapBlazor.Html2Pdf", "components\BootstrapBlazor.Html2Pdf\BootstrapBlazor.Html2Pdf.csproj", "{E386EBD8-0028-42B7-8473-F26014C0E326}"
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "BootstrapBlazor.Html2Pdf", "src\components\BootstrapBlazor.Html2Pdf\BootstrapBlazor.Html2Pdf.csproj", "{E386EBD8-0028-42B7-8473-F26014C0E326}"
 EndProject
-Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "BootstrapBlazor.Html2Pdf.iText", "components\BootstrapBlazor.Html2Pdf.iText\BootstrapBlazor.Html2Pdf.iText.csproj", "{26452C1D-8FBB-419A-9667-01C34B7C6AC4}"
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "BootstrapBlazor.Html2Pdf.iText", "src\components\BootstrapBlazor.Html2Pdf.iText\BootstrapBlazor.Html2Pdf.iText.csproj", "{26452C1D-8FBB-419A-9667-01C34B7C6AC4}"
 EndProject
-Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "BootstrapBlazor.IconPark", "components\BootstrapBlazor.IconPark\BootstrapBlazor.IconPark.csproj", "{8B374E31-BBC3-4765-82C7-E124C4E1E731}"
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "BootstrapBlazor.IconPark", "src\components\BootstrapBlazor.IconPark\BootstrapBlazor.IconPark.csproj", "{8B374E31-BBC3-4765-82C7-E124C4E1E731}"
 EndProject
-Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "BootstrapBlazor.Live2DDisplay", "components\BootstrapBlazor.Live2DDisplay\BootstrapBlazor.Live2DDisplay.csproj", "{496554A7-52B0-4E01-9CF3-08F0A2B2FCD8}"
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "BootstrapBlazor.Live2DDisplay", "src\components\BootstrapBlazor.Live2DDisplay\BootstrapBlazor.Live2DDisplay.csproj", "{496554A7-52B0-4E01-9CF3-08F0A2B2FCD8}"
 EndProject
-Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "BootstrapBlazor.Markdown", "components\BootstrapBlazor.Markdown\BootstrapBlazor.Markdown.csproj", "{7C875492-41A2-401D-90B1-161BCD5103DC}"
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "BootstrapBlazor.Markdown", "src\components\BootstrapBlazor.Markdown\BootstrapBlazor.Markdown.csproj", "{7C875492-41A2-401D-90B1-161BCD5103DC}"
 EndProject
-Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "BootstrapBlazor.MaterialDesign", "components\BootstrapBlazor.MaterialDesign\BootstrapBlazor.MaterialDesign.csproj", "{126D5C86-2C33-4E79-A762-DBEA6E7A779E}"
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "BootstrapBlazor.MaterialDesign", "src\components\BootstrapBlazor.MaterialDesign\BootstrapBlazor.MaterialDesign.csproj", "{126D5C86-2C33-4E79-A762-DBEA6E7A779E}"
 EndProject
-Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "BootstrapBlazor.MaterialDesign.Extensions", "components\BootstrapBlazor.MaterialDesign.Extensions\BootstrapBlazor.MaterialDesign.Extensions.csproj", "{FE0E98BE-0C24-4C41-BFF6-E031630F5AA7}"
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "BootstrapBlazor.MaterialDesign.Extensions", "src\components\BootstrapBlazor.MaterialDesign.Extensions\BootstrapBlazor.MaterialDesign.Extensions.csproj", "{FE0E98BE-0C24-4C41-BFF6-E031630F5AA7}"
 EndProject
-Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "BootstrapBlazor.MouseFollower", "components\BootstrapBlazor.MouseFollower\BootstrapBlazor.MouseFollower.csproj", "{7DD55FF1-54BF-4B4C-9B74-603C79D9EC07}"
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "BootstrapBlazor.MouseFollower", "src\components\BootstrapBlazor.MouseFollower\BootstrapBlazor.MouseFollower.csproj", "{7DD55FF1-54BF-4B4C-9B74-603C79D9EC07}"
 EndProject
-Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "BootstrapBlazor.Player", "components\BootstrapBlazor.Player\BootstrapBlazor.Player.csproj", "{2D0F834A-522F-4CF3-A6BB-BC2585D8505E}"
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "BootstrapBlazor.Player", "src\components\BootstrapBlazor.Player\BootstrapBlazor.Player.csproj", "{2D0F834A-522F-4CF3-A6BB-BC2585D8505E}"
 EndProject
-Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "BootstrapBlazor.Sortable", "components\BootstrapBlazor.Sortable\BootstrapBlazor.Sortable.csproj", "{9F61C73D-EFF4-4226-ADEF-4B32F03AA371}"
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "BootstrapBlazor.Sortable", "src\components\BootstrapBlazor.Sortable\BootstrapBlazor.Sortable.csproj", "{9F61C73D-EFF4-4226-ADEF-4B32F03AA371}"
 EndProject
-Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "BootstrapBlazor.Splitting", "components\BootstrapBlazor.Splitting\BootstrapBlazor.Splitting.csproj", "{4D0A145A-029E-4DD9-841F-302E8B2AB143}"
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "BootstrapBlazor.Splitting", "src\components\BootstrapBlazor.Splitting\BootstrapBlazor.Splitting.csproj", "{4D0A145A-029E-4DD9-841F-302E8B2AB143}"
 EndProject
-Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "BootstrapBlazor.SummerNote", "components\BootstrapBlazor.SummerNote\BootstrapBlazor.SummerNote.csproj", "{150033CC-28E8-47B2-9704-F6203964B5F1}"
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "BootstrapBlazor.SummerNote", "src\components\BootstrapBlazor.SummerNote\BootstrapBlazor.SummerNote.csproj", "{150033CC-28E8-47B2-9704-F6203964B5F1}"
 EndProject
-Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "BootstrapBlazor.TableExport", "components\BootstrapBlazor.TableExport\BootstrapBlazor.TableExport.csproj", "{AC89886C-4216-4D20-B8DD-CFEAFC6AB2C8}"
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "BootstrapBlazor.TableExport", "src\components\BootstrapBlazor.TableExport\BootstrapBlazor.TableExport.csproj", "{AC89886C-4216-4D20-B8DD-CFEAFC6AB2C8}"
 EndProject
-Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "BootstrapBlazor.TagHelper", "components\BootstrapBlazor.TagHelper\BootstrapBlazor.TagHelper.csproj", "{45F1D4EB-AFB6-484B-90D3-DB684B76E693}"
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "BootstrapBlazor.TagHelper", "src\components\BootstrapBlazor.TagHelper\BootstrapBlazor.TagHelper.csproj", "{45F1D4EB-AFB6-484B-90D3-DB684B76E693}"
 EndProject
-Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "BootstrapBlazor.Topology", "components\BootstrapBlazor.Topology\BootstrapBlazor.Topology.csproj", "{2D702BA7-AB23-46BD-9F54-7F7E28322790}"
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "BootstrapBlazor.Topology", "src\components\BootstrapBlazor.Topology\BootstrapBlazor.Topology.csproj", "{2D702BA7-AB23-46BD-9F54-7F7E28322790}"
 EndProject
-Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "BootstrapBlazor.WinBox", "components\BootstrapBlazor.WinBox\BootstrapBlazor.WinBox.csproj", "{A8113292-7E73-417A-8E23-9F69F5577816}"
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "BootstrapBlazor.WinBox", "src\components\BootstrapBlazor.WinBox\BootstrapBlazor.WinBox.csproj", "{A8113292-7E73-417A-8E23-9F69F5577816}"
 EndProject
 Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "configurations", "configurations", "{3A0D5F7E-6701-437A-9EE7-05516FBCEA1B}"
 	ProjectSection(SolutionItems) = preProject
 		Directory.Build.props = Directory.Build.props
 		exclusion.dic = exclusion.dic
-		SourceLink.targets = SourceLink.targets
 	EndProjectSection
 EndProject
 Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "extensions", "extensions", "{7B29E81D-92DE-46C8-8EDC-1B48C8F12BC2}"
 EndProject
-Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "BootstrapBlazor.DataAccess.EntityFrameworkCore", "extensions\BootstrapBlazor.DataAccess.EntityFrameworkCore\BootstrapBlazor.DataAccess.EntityFrameworkCore.csproj", "{2662E3C2-F511-4DE0-AA72-FE453031993F}"
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "BootstrapBlazor.DataAccess.EntityFrameworkCore", "src\extensions\BootstrapBlazor.DataAccess.EntityFrameworkCore\BootstrapBlazor.DataAccess.EntityFrameworkCore.csproj", "{2662E3C2-F511-4DE0-AA72-FE453031993F}"
 EndProject
-Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "BootstrapBlazor.DataAccess.FreeSql", "extensions\BootstrapBlazor.DataAccess.FreeSql\BootstrapBlazor.DataAccess.FreeSql.csproj", "{9BFFB509-9B57-4FE7-B2A1-4D6AFEEE0067}"
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "BootstrapBlazor.DataAccess.FreeSql", "src\extensions\BootstrapBlazor.DataAccess.FreeSql\BootstrapBlazor.DataAccess.FreeSql.csproj", "{9BFFB509-9B57-4FE7-B2A1-4D6AFEEE0067}"
 EndProject
-Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "BootstrapBlazor.DataAccess.PetaPoco", "extensions\BootstrapBlazor.DataAccess.PetaPoco\BootstrapBlazor.DataAccess.PetaPoco.csproj", "{2E338270-C302-4E13-A681-7F80E1BEE158}"
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "BootstrapBlazor.DataAccess.PetaPoco", "src\extensions\BootstrapBlazor.DataAccess.PetaPoco\BootstrapBlazor.DataAccess.PetaPoco.csproj", "{2E338270-C302-4E13-A681-7F80E1BEE158}"
 EndProject
-Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "BootstrapBlazor.DataAccess.SqlSugar", "extensions\BootstrapBlazor.DataAccess.SqlSugar\BootstrapBlazor.DataAccess.SqlSugar.csproj", "{750E2849-EA95-4849-A7E7-09920E30765D}"
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "BootstrapBlazor.DataAccess.SqlSugar", "src\extensions\BootstrapBlazor.DataAccess.SqlSugar\BootstrapBlazor.DataAccess.SqlSugar.csproj", "{750E2849-EA95-4849-A7E7-09920E30765D}"
 EndProject
 Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "middelware", "middelware", "{BB06AD5B-3F2B-4B59-A135-36AF999A614F}"
 EndProject
-Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "BootstrapBlazor.Middleware", "Middleware\BootstrapBlazor.Middleware\BootstrapBlazor.Middleware.csproj", "{DB4927E4-7897-4422-BA45-A8E683ED209A}"
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "BootstrapBlazor.Middleware", "src\Middleware\BootstrapBlazor.Middleware\BootstrapBlazor.Middleware.csproj", "{DB4927E4-7897-4422-BA45-A8E683ED209A}"
 EndProject
 Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "test", "test", "{B6A98ADE-D26A-4D0B-8978-AB7AC915F5AE}"
 EndProject
 Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "UnitTestEditor", "test\UnitTestEditor\UnitTestEditor.csproj", "{37979C83-5E5F-4525-85D7-DA20B27F831F}"
 EndProject
 Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "UnitTestHoliday", "test\UnitTestHoliday\UnitTestHoliday.csproj", "{22594AD2-3E36-4984-949C-8B578B402EDE}"
+EndProject
+Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "src", "src", "{A48E5EAB-6EFB-4A78-810E-A3E79CF749F5}"
+EndProject
+Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "props", "props", "{FF8B3A19-60DC-4802-9FA0-9FE670C7D565}"
+	ProjectSection(SolutionItems) = preProject
+		src\Directory.Build.props = src\Directory.Build.props
+		src\Frameworks.props = src\Frameworks.props
+		src\Logo.props = src\Logo.props
+		src\readme.md = src\readme.md
+		src\SourceLink.targets = src\SourceLink.targets
+	EndProjectSection
 EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
@@ -407,6 +417,7 @@ Global
 		HideSolutionNode = FALSE
 	EndGlobalSection
 	GlobalSection(NestedProjects) = preSolution
+		{FF1089BE-C704-4374-B629-C57C08E1798F} = {A48E5EAB-6EFB-4A78-810E-A3E79CF749F5}
 		{22C6D47A-F770-4813-B363-F2C90455E870} = {FF1089BE-C704-4374-B629-C57C08E1798F}
 		{0E6F09A3-61C4-4945-9DC8-5E00CE547DBD} = {FF1089BE-C704-4374-B629-C57C08E1798F}
 		{6E287657-5A6D-42CA-999C-459C0AAA1806} = {FF1089BE-C704-4374-B629-C57C08E1798F}
@@ -463,13 +474,16 @@ Global
 		{45F1D4EB-AFB6-484B-90D3-DB684B76E693} = {FF1089BE-C704-4374-B629-C57C08E1798F}
 		{2D702BA7-AB23-46BD-9F54-7F7E28322790} = {FF1089BE-C704-4374-B629-C57C08E1798F}
 		{A8113292-7E73-417A-8E23-9F69F5577816} = {FF1089BE-C704-4374-B629-C57C08E1798F}
+		{7B29E81D-92DE-46C8-8EDC-1B48C8F12BC2} = {A48E5EAB-6EFB-4A78-810E-A3E79CF749F5}
 		{2662E3C2-F511-4DE0-AA72-FE453031993F} = {7B29E81D-92DE-46C8-8EDC-1B48C8F12BC2}
 		{9BFFB509-9B57-4FE7-B2A1-4D6AFEEE0067} = {7B29E81D-92DE-46C8-8EDC-1B48C8F12BC2}
 		{2E338270-C302-4E13-A681-7F80E1BEE158} = {7B29E81D-92DE-46C8-8EDC-1B48C8F12BC2}
 		{750E2849-EA95-4849-A7E7-09920E30765D} = {7B29E81D-92DE-46C8-8EDC-1B48C8F12BC2}
+		{BB06AD5B-3F2B-4B59-A135-36AF999A614F} = {A48E5EAB-6EFB-4A78-810E-A3E79CF749F5}
 		{DB4927E4-7897-4422-BA45-A8E683ED209A} = {BB06AD5B-3F2B-4B59-A135-36AF999A614F}
 		{37979C83-5E5F-4525-85D7-DA20B27F831F} = {B6A98ADE-D26A-4D0B-8978-AB7AC915F5AE}
 		{22594AD2-3E36-4984-949C-8B578B402EDE} = {B6A98ADE-D26A-4D0B-8978-AB7AC915F5AE}
+		{FF8B3A19-60DC-4802-9FA0-9FE670C7D565} = {A48E5EAB-6EFB-4A78-810E-A3E79CF749F5}
 	EndGlobalSection
 	GlobalSection(ExtensibilityGlobals) = postSolution
 		SolutionGuid = {D5EB1960-6F30-4CE1-B375-EAE1F787D6FF}

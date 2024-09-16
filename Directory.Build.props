@@ -1,9 +1,9 @@
 <Project>
 
   <PropertyGroup>
-    <Copyright>Argo Zhang</Copyright>
+    <Copyright>BootstrapBlazor</Copyright>
     <Authors>Argo Zhang(argo@live.ca);Alex Chow(zhouchuanglin@gmail.com)</Authors>
-    <Company>Longbow</Company>
+    <Company>BootstrapBlazor</Company>
     <SignAssembly>true</SignAssembly>
     <AssemblyOriginatorKeyFile>$(MSBuildThisFileDirectory)\keys\Longbow.Utility.snk</AssemblyOriginatorKeyFile>
     <Nullable>enable</Nullable>
@@ -16,41 +16,8 @@
     <SuppressNETCoreSdkPreviewMessage>true</SuppressNETCoreSdkPreviewMessage>
   </PropertyGroup>
 
-  <PropertyGroup>
-    <TargetFrameworks>net6.0;net7.0;net8.0</TargetFrameworks>
-  </PropertyGroup>
-
-  <PropertyGroup>
-    <RootNamespace>BootstrapBlazor.Components</RootNamespace>
-    <IsPackable>true</IsPackable>
-  </PropertyGroup>
-
-  <PropertyGroup>
-    <RepositoryUrl>https://github.com/dotnetcore/BootstrapBlazor.git</RepositoryUrl>
-    <PackageProjectUrl>https://www.blazor.zone</PackageProjectUrl>
-    <RepositoryType>github</RepositoryType>
-    <PackageLicenseExpression>Apache-2.0</PackageLicenseExpression>
-    <DocumentationFile>$(MSBuildProjectName).xml</DocumentationFile>
-  </PropertyGroup>
-
-  <PropertyGroup>
-    <PackageIcon>logo.png</PackageIcon>
-  </PropertyGroup>
-
-  <ItemGroup>
-    <None Include="logo.png" Pack="true" PackagePath="" />
-  </ItemGroup>
-
-  <ItemGroup>
-    <SupportedPlatform Include="browser" />
-  </ItemGroup>
-
   <ItemGroup>
     <Using Include="System.Diagnostics.CodeAnalysis"/>
   </ItemGroup>
-
-  <PropertyGroup>
-    <NoWarn>NETSDK1138;CS8002</NoWarn>
-  </PropertyGroup>
 
 </Project>
