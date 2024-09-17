@@ -69,8 +69,8 @@ public partial class SortableList
                 @event.NewIndex = items[0].NewIndex;
             }
             @event.Items.AddRange(items);
-            await Task.Delay(200);
             await OnUpdate(@event);
+            StateHasChanged();
         }
     }
 
@@ -91,6 +91,7 @@ public partial class SortableList
             }
             @event.Items.AddRange(items);
             await OnRemove(@event);
+            StateHasChanged();
         }
     }
 
