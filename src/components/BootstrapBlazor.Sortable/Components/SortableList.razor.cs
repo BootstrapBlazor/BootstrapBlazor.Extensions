@@ -37,6 +37,12 @@ public partial class SortableList
     [Parameter]
     public Func<SortableEvent, Task>? OnRemove { get; set; }
 
+    /// <summary>
+    /// 获得/设置 元素增加回调方法
+    /// </summary>
+    [Parameter]
+    public Func<SortableEvent, Task>? OnAdd { get; set; }
+
     private string? ClassString => CssBuilder.Default("bb-sortable")
         .AddClassFromAttributes(AdditionalAttributes)
         .Build();
@@ -45,7 +51,7 @@ public partial class SortableList
     /// <inheritdoc />
     /// </summary>
     /// <returns></returns>
-    protected override Task InvokeInitAsync() => InvokeVoidAsync("init", Id, Interop, Option, OnUpdate != null, OnRemove != null);
+    protected override Task InvokeInitAsync() => InvokeVoidAsync("init", Id, Interop, Option, OnUpdate != null, OnRemove != null, OnAdd != null);
 
     /// <summary>
     /// JavaScript 调用触发节点更新方法
@@ -63,8 +69,8 @@ public partial class SortableList
                 @event.NewIndex = items[0].NewIndex;
             }
             @event.Items.AddRange(items);
-            await Task.Delay(200);
             await OnUpdate(@event);
+            StateHasChanged();
         }
     }
 
@@ -85,6 +91,29 @@ public partial class SortableList
             }
             @event.Items.AddRange(items);
             await OnRemove(@event);
+            StateHasChanged();
+        }
+    }
+
+    /// <summary>
+    /// JavaScript 调用触发节点更新方法 
+    /// </summary>
+    /// <returns></returns>
+    [JSInvokable]
+    public async Task TriggerAdd(List<SortableListItem> items)
+    {
+        if (OnAdd != null)
+        {
+            var @event = new SortableEvent();
+            if (items.Count == 1)
+            {
+                @event.OldIndex = items[0].OldIndex;
+                @event.NewIndex = items[0].NewIndex;
+            }
+            @event.FromId = items.FirstOrDefault()?.FromId;
+            @event.Items.AddRange(items);
+            await OnAdd(@event);
+            StateHasChanged();
         }
     }
 }

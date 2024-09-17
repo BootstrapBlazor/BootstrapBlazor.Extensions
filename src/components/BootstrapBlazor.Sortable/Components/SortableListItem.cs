@@ -10,6 +10,12 @@ namespace BootstrapBlazor.Components;
 public class SortableListItem
 {
     /// <summary>
+    /// 获得/设置 原始项所属容器 Id
+    /// </summary>
+    [NotNull]
+    public string? FromId { get; set; }
+
+    /// <summary>
     /// 获得/设置 原始索引
     /// </summary>
     public int OldIndex { get; set; }
