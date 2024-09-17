@@ -1,7 +1,7 @@
 ﻿import Sortable from '../sortable.esm.js'
 import Data from '../../BootstrapBlazor/modules/data.js'
 
-export function init(id, invoke, options, triggerUpdate, triggerRemove) {
+export function init(id, invoke, options, triggerUpdate, triggerRemove, triggerAdd) {
     const el = document.getElementById(id);
     if (el === null) {
         return;
@@ -10,6 +10,7 @@ export function init(id, invoke, options, triggerUpdate, triggerRemove) {
     const op = getOptions(options);
     op.triggerUpdate = triggerUpdate;
     op.triggerRemove = triggerRemove;
+    op.triggerAdd = triggerAdd;
 
     let element = el;
     if (op.rootSelector) {
@@ -91,6 +92,26 @@ const initSortable = (id, element, invoke, op) => {
                 items.push({ oldIndex: event.oldIndex, newIndex: event.newIndex });
             }
             invoke.invokeMethodAsync('TriggerRemove', items);
+        }
+    }
+
+    if (op.triggerAdd) {
+        op.onAdd = event => {
+            console.log('onAdd', event);
+
+            var closestParent = event.from.closest('.bb-sortable');
+            if (closestParent) {
+                const items = [];
+                if (op.multiDrag) {
+                    event.oldIndicies.forEach((v, index) => {
+                        items.push({ OldIndex: v.index, NewIndex: event.newIndicies[index].index, FromId: closestParent.id });
+                    });
+                }
+                else {
+                    items.push({ oldIndex: event.oldIndex, newIndex: event.newIndex, FromId: closestParent.id });
+                }
+                invoke.invokeMethodAsync('TriggerAdd', items);
+            }
         }
     }
 
