@@ -1,8 +1,6 @@
-﻿// ********************************** 
-// Densen Informatica 中讯科技 
-// 作者：Alex Chow
-// e-mail:zhouchuanglin@gmail.com 
-// **********************************
+﻿// Copyright (c) Argo Zhang (argo@163.com). All rights reserved.
+// Licensed under the Apache License, Version 2.0. See License.txt in the project root for license information.
+// Website: https://www.blazor.zone or https://argozhang.github.io/
 
 using System.Text.Json.Serialization;
 
@@ -13,14 +11,49 @@ namespace BootstrapBlazor.Components;
 /// </summary>
 public enum KeyboardKeysType
 {
+    /// <summary>
+    /// 
+    /// </summary>
     arabic,
+
+    /// <summary>
+    /// 
+    /// </summary>
     english,
+
+    /// <summary>
+    /// 
+    /// </summary>
     french,
+
+    /// <summary>
+    /// 
+    /// </summary>
     german,
+
+    /// <summary>
+    /// 
+    /// </summary>
     hungarian,
+
+    /// <summary>
+    /// 
+    /// </summary>
     persian,
+
+    /// <summary>
+    /// 
+    /// </summary>
     russian,
+
+    /// <summary>
+    /// 
+    /// </summary>
     spanish,
+
+    /// <summary>
+    /// 
+    /// </summary>
     turkish
 }
 
@@ -50,7 +83,14 @@ public enum KeyboardType
 /// </summary>
 public enum KeyboardPlacement
 {
+    /// <summary>
+    /// 
+    /// </summary>
     bottom,
+
+    /// <summary>
+    /// 
+    /// </summary>
     top
 }
 
@@ -95,7 +135,14 @@ public enum KeyboardTheme
     /// </summary>
     flat,
 
+    /// <summary>
+    /// 
+    /// </summary>
     material,
+
+    /// <summary>
+    /// 
+    /// </summary>
     oldschool
 }
 
@@ -111,17 +158,17 @@ public enum KeyboardCssAnimationsStyle
     oldschool
 }
 
+/// <summary>
+/// 
+/// </summary>
 public class KeyboardOption
 {
-
     /// <summary>
     /// 必需:必须为自定义键定义一个对象数组。<para></para>
     /// 提示：每个对象在键盘上创建一个行元素 (HTML)。<para></para>
     /// 例如 [{"key":"value"}, {"key":"value"}] => [{"0":"A","1":"B","2":"C" }, {"0":"D","1":"E","2":"F"}] 
     /// </summary>
     public List<Dictionary<string, string>>? keysArrayOfObjects { get; set; } = null;
-
-
 
     /// <summary>
     /// 键盘类型 <para></para>
@@ -131,8 +178,6 @@ public class KeyboardOption
     [JsonIgnore]
     public KeyboardKeysType KeyboardKeysType { get; set; } = KeyboardKeysType.english;
 
-
-
     /// <summary>
     /// 仅当“keysArrayOfObjects”为“null”时才需要。<para></para>
     /// “kioskboard-keys-${langugage}.json”文件的路径必须设置为“keysJsonUrl”选项。（XMLHttpRequest 从 JSON 文件中获取密钥。）<para></para>
@@ -140,15 +185,11 @@ public class KeyboardOption
     /// </summary>
     public string? keysJsonUrl { get => keysArrayOfObjects == null ? $"./_content/BootstrapBlazor.OnScreenKeyboard/lib/kioskboard/kioskboard-keys-{KeyboardKeysType}.json" : null; }
 
-
-
     /// <summary>
     /// 特殊符号键盘类型, 默认 || 欧洲 || 自定义
     /// </summary>
     [JsonIgnore]
     public KeyboardSpecialcharacters KeyboardSpecialcharacters { get; set; } = KeyboardSpecialcharacters.all;
-
-
 
     /// <summary>
     /// 自定义特殊符号键盘 , 字符串数组覆盖内置的特殊字符。<para></para>
@@ -158,8 +199,6 @@ public class KeyboardOption
     public string[]? CustomerKeyboardSpecialcharacters { get; set; }
 
     private string[] KeyboardSpecialcharactersEurope { get; set; } = { "#", "€", "Ñ" };
-
-
 
     /// <summary> 
     /// 可选：自定义特殊符号键盘
@@ -172,15 +211,11 @@ public class KeyboardOption
              null);
     }
 
-
-
     /// <summary> 
     /// 可选：可以设置一个数字数组来覆盖内置的小键盘键。（从 0 到 9，顺序不限。）
     /// 例如 [1, 2, 3, 4, 5, 6, 7, 8, 9, 0] 
     /// </summary>
     public string? keysNumpadArrayOfNumbers { get; set; } = null;
-
-
 
     /// <summary> 
     ///可选：自定义键的语言代码 (ISO 639-1)（用于语言支持）
@@ -188,23 +223,21 @@ public class KeyboardOption
     /// </summary>
     public string language { get; set; } = "en";
 
-
-
     /// <summary> 
     /// 键盘主题  <para></para>  "light" || "dark" || "flat" || "material" || "oldschool"
     /// </summary>
     [JsonIgnore]
     public KeyboardTheme Theme { get; set; } = KeyboardTheme.light;
+
+    /// <summary>
+    /// 
+    /// </summary>
     public string theme { get => Theme.ToString(); }
 
-
-
     /// <summary> 
-    /// 大写或小写锁定。默认false小写 
+    /// 大写或小写锁定。默认 false 小写 
     /// </summary>
     public bool capsLockActive { get; set; } = false;
-
-
 
     /// <summary> 
     /// 允许或阻止真实/物理键盘的使用
@@ -212,8 +245,6 @@ public class KeyboardOption
     /// 此外，如果想要使用真实/物理键盘，“allowMobileKeyboard”选项也必须为“true”。
     /// </summary>
     public bool allowRealKeyboard { get; set; } = true;
-
-
 
     /// <summary>
     /// 允许或阻止使用移动键盘
@@ -235,6 +266,10 @@ public class KeyboardOption
     /// </summary>
     [JsonIgnore]
     public KeyboardCssAnimationsStyle CssAnimationsStyle { get; set; } = KeyboardCssAnimationsStyle.slide;
+
+    /// <summary>
+    /// 
+    /// </summary>
     public string cssAnimationsStyle { get => CssAnimationsStyle.ToString(); }
 
     /// <summary>

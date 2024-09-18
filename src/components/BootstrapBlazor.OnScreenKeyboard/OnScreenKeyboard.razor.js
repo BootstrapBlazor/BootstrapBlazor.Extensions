@@ -1,29 +1,7 @@
-﻿export function addScript(url) {
-    let scriptsIncluded = false;
-    let scriptTags = document.querySelectorAll('head > script');
-    scriptTags.forEach(scriptTag => {
-        if (scriptTag) {
-            let srcAttribute = scriptTag.getAttribute('src');
-            if (srcAttribute && srcAttribute.startsWith(url)) {
-                scriptsIncluded = true;
-                return true;
-            }
-        }
-    });
+﻿import { addScript } from '../BootstrapBlazor/modules/utility.js'
 
-    if (scriptsIncluded) { //Prevent adding JS scripts to page multiple times.
-        //if (window.KioskBoard)
-        return true;
-    }
+export async function init(className, option) {
+    await addScript('./_content/BootstrapBlazor.OnScreenKeyboard/lib/kioskboard/kioskboard-aio-2.3.0.min.js');
 
-    let script = document.createElement('script');
-    script.src = url;
-    document.head.appendChild(script);
-    return false;
-
-}
-
-export function init(className, option) {
-    console.info(className, option);
-    KioskBoard.run('.' + className, option);
+    KioskBoard.run(`.${className}`, option);
 }

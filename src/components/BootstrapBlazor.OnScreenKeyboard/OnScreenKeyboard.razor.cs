@@ -1,29 +1,18 @@
-﻿// ********************************** 
-// Densen Informatica 中讯科技 
-// 作者：Alex Chow
-// e-mail:zhouchuanglin@gmail.com 
-// **********************************
+﻿// Copyright (c) Argo Zhang (argo@163.com). All rights reserved.
+// Licensed under the Apache License, Version 2.0. See License.txt in the project root for license information.
+// Website: https://www.blazor.zone or https://argozhang.github.io/
 
 using Microsoft.AspNetCore.Components;
-using Microsoft.JSInterop;
-using System.Diagnostics.CodeAnalysis;
 
 namespace BootstrapBlazor.Components;
 
 /// <summary>
 /// 屏幕键盘 OnScreenKeyboard 组件基类
 /// </summary>
-public partial class OnScreenKeyboard : IAsyncDisposable
+public partial class OnScreenKeyboard
 {
-    [Inject]
-    [NotNull]
-    private IJSRuntime? JSRuntime { get; set; }
-
-    private IJSObjectReference? ModuleBase { get; set; }
-    private IJSObjectReference? Module { get; set; }
-
     /// <summary>
-    /// 获得/设置 组件class名称
+    /// 获得/设置 组件 class 名称
     /// </summary>
     [Parameter]
     public string ClassName { get; set; } = "virtualkeyboard";
@@ -64,53 +53,23 @@ public partial class OnScreenKeyboard : IAsyncDisposable
     [Parameter]
     public KeyboardOption? Option { get; set; } = new KeyboardOption();
 
-    protected override async Task OnAfterRenderAsync(bool firstRender)
-    {
-        try
-        {
-            if (firstRender)
-            {
-                ModuleBase = await JSRuntime.InvokeAsync<IJSObjectReference>("import", "./_content/BootstrapBlazor.OnScreenKeyboard/OnScreenKeyboard.razor.js" + "?v=" + System.Reflection.Assembly.GetExecutingAssembly().GetName().Version);
-                await ModuleBase.InvokeVoidAsync("addScript", "./_content/BootstrapBlazor.OnScreenKeyboard/lib/kioskboard/kioskboard-aio-2.3.0.min.js");
-
-                Option ??= new KeyboardOption();
-                if (KeyboardKeys != null) Option.KeyboardKeysType = KeyboardKeys!.Value;
-                try
-                {
-                    Module = await ModuleBase.InvokeAsync<IJSObjectReference>("init", ClassName, Option);
-                }
-                catch (Exception)
-                {
-                    await Task.Delay(200);
-                    Module = await ModuleBase.InvokeAsync<IJSObjectReference>("init", ClassName, Option);
-                }
-            }
-        }
-        catch (Exception e)
-        {
-            if (OnError != null) await OnError.Invoke(e.Message);
-        }
-    }
-
-    async ValueTask IAsyncDisposable.DisposeAsync()
-    {
-        if (Module != null)
-        {
-            await Module.DisposeAsync();
-        }
-
-        if (ModuleBase is not null)
-        {
-            await ModuleBase.DisposeAsync();
-        }
-    }
-
-
     /// <summary>
     /// 获得/设置 错误回调方法
     /// </summary>
     [Parameter]
     public Func<string, Task>? OnError { get; set; }
 
-
+    /// <summary>
+    /// <inheritdoc/>
+    /// </summary>
+    /// <returns></returns>
+    protected override async Task InvokeInitAsync()
+    {
+        Option ??= new KeyboardOption();
+        if (KeyboardKeys != null)
+        {
+            Option.KeyboardKeysType = KeyboardKeys.Value;
+        }
+        await InvokeVoidAsync("init", ClassName, Option);
+    }
 }
