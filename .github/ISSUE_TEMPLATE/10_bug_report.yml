@@ -8,7 +8,7 @@ body:
 - type: checkboxes
   attributes:
     label: Is there an existing issue for this?
-    description: Please search to see if an issue already exists for the bug you encountered ([BootstrapBlazor/issues](https://github.com/dotnetcore/BootstrapBlazor/issues?q=is%3Aissue)).
+    description: Please search to see if an issue already exists for the bug you encountered ([BootstrapBlazor.Extensions/issues](https://github.com/BootstrapBlazor/BootstrapBlazor.Extensions/issues?q=is%3Aissue&wt.mc_id=DT-MVP-5004174)).
     options:
     - label: I have searched the existing issues
       required: true
@@ -40,7 +40,7 @@ body:
   attributes:
     label: Steps To Reproduce
     description: |
-      We ❤ code! Point us to a [minimalistic project which reproduces this issue (repro)](https://github.com/dotnetcore/BootstrapBlazor/blob/main/docs/repro.md) hosted in a public GitHub repo.
+      We ❤ code! Point us to a [minimalistic project which reproduces this issue (repro)](https://github.com/BootstrapBlazor/BootstrapBlazor.Extensions/blob/main/docs/repro.md) hosted in a public GitHub repo.
       
       We will close this issue if:
       - The repro project you share with us is complex. We can't investigate custom projects, so don't point us to such, please.
