@@ -1,0 +1,29 @@
+name: Package to Nuget
+
+on:
+  push:
+    branches:
+      - pack
+      - hotfix
+
+jobs:
+  pack:
+    runs-on: ubuntu-latest
+    
+    steps:
+    - uses: actions/checkout@v4
+
+    - name: Setup .NET Core SDK
+      uses: actions/setup-dotnet@v4
+      with:
+        dotnet-version: 8.0.x
+
+    - name: Publish to Nuget
+      env: 
+        NUGET_API_KEY: ${{secrets.NUGET_API_KEY}}
+        Bundle: True
+
+      run: |
+        dotnet build src/BootstrapBlazor
+        dotnet pack src/BootstrapBlazor -c Release -o publish
+        dotnet nuget push publish/BootstrapBlazor.*.nupkg -s https://api.nuget.org/v3/index.json -k $NUGET_API_KEY --skip-duplicate

@@ -2,7 +2,7 @@
 
   <PropertyGroup>
     <Copyright>BootstrapBlazor</Copyright>
-    <Authors>Argo Zhang(argo@live.ca);Alex Chow(zhouchuanglin@gmail.com)</Authors>
+    <Authors>Argo(argo@live.ca);BootstrapBlazor(a@blazor.zone)</Authors>
     <Company>BootstrapBlazor</Company>
     <SignAssembly>true</SignAssembly>
     <AssemblyOriginatorKeyFile>$(MSBuildThisFileDirectory)\keys\Longbow.Utility.snk</AssemblyOriginatorKeyFile>

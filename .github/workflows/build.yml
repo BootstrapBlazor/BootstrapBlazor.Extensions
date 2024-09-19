@@ -1,0 +1,37 @@
+name: Build project
+
+on:
+  push:
+    branches:
+      - master
+      - main
+      - dev
+
+jobs:
+  build:
+    runs-on: ubuntu-latest
+    
+    steps:
+    - uses: actions/checkout@v4
+
+    - name: Setup .NET Core SDK
+      uses: actions/setup-dotnet@v4
+      with:
+        dotnet-version: 8.0.x
+
+    - name: Build
+      env: 
+        NUGET_API_KEY: ${{secrets.NUGET_API_KEY}}
+        Bundle: True
+      run: |
+        dotnet restore src/BootstrapBlazor --no-cache
+        dotnet build src/BootstrapBlazor
+
+    - name: Test
+      run: |
+        dotnet test test/UnitTest --collect:"XPlat Code Coverage"
+
+    - name: Upload to Codecov
+      uses: codecov/codecov-action@v4
+      with:
+        token: ${{ secrets.CODECOV_TOKEN }}
