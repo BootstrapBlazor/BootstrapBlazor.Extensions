@@ -1,0 +1,25 @@
+name: Build docker image
+
+on:
+  push:
+    branches:
+      - dev-dockerfile
+
+jobs:
+  docker:
+    runs-on: ubuntu-latest
+
+    steps:
+    - uses: actions/checkout@v4
+    - name: Login to Docker Hub
+      uses: docker/login-action@v1
+      with:
+        username: ${{ secrets.DOCKERHUB_USERNAME }}
+        password: ${{ secrets.DOCKERHUB_TOKEN }}
+
+    - name: Build and push Docker images
+      uses: docker/build-push-action@v2.7.0
+      with:
+          file: src/BootstrapBlazor.Server/Dockerfile
+          push: true
+          tags: argozhang/blazor:latest

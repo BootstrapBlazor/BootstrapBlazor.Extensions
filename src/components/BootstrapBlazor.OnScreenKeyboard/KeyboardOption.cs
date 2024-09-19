@@ -151,10 +151,29 @@ public enum KeyboardTheme
 /// </summary>
 public enum KeyboardCssAnimationsStyle
 {
+    /// <summary>
+    /// 
+    /// </summary>
     slide,
+
+    /// <summary>
+    /// 
+    /// </summary>
     fade,
+
+    /// <summary>
+    /// 
+    /// </summary>
     flat,
+
+    /// <summary>
+    /// 
+    /// </summary>
     material,
+
+    /// <summary>
+    /// 
+    /// </summary>
     oldschool
 }
 
