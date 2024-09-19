@@ -1,0 +1,7 @@
+﻿@namespace BootstrapBlazor.Components
+@inherits BootstrapModuleComponentBase
+@attribute [JSModuleAutoLoader("./_content/BootstrapBlazor.BarcodeGenerator/BarcodeGenerator.razor.js", JSObjectReference = true)]
+
+<span @ref="Element">
+    <svg data-action="barcode"></svg> 
+</span>

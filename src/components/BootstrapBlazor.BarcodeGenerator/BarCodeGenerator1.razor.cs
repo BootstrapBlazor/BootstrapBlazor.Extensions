@@ -1,19 +1,16 @@
-﻿// ********************************** 
-// Densen Informatica 中讯科技 
-// 作者：Alex Chow
-// e-mail:zhouchuanglin@gmail.com 
-// **********************************
+﻿// Copyright (c) Argo Zhang (argo@163.com). All rights reserved.
+// Licensed under the Apache License, Version 2.0. See License.txt in the project root for license information.
+// Website: https://www.blazor.zone or https://argozhang.github.io/
 
 using Microsoft.AspNetCore.Components;
 using Microsoft.JSInterop;
-using System.Diagnostics.CodeAnalysis;
 
 namespace BootstrapBlazor.Components;
 
 /// <summary>
-/// 条码生成器 BarCodes
+/// 条码生成器组件
 /// </summary>
-public partial class BarCodeGenerator : IAsyncDisposable
+public partial class BarCodeGenerator
 {
     [Inject]
     [NotNull]
@@ -32,7 +29,7 @@ public partial class BarCodeGenerator : IAsyncDisposable
     /// 条码类型/ Barcode type
     /// </summary>
     [Parameter]
-    public EnumBarcodeType? Type { get; set; } 
+    public EnumBarcodeType? Type { get; set; }
 
     /// <summary>
     /// 条码值/ Barcode value
@@ -65,7 +62,7 @@ public partial class BarCodeGenerator : IAsyncDisposable
         try
         {
             if (!firstRender) return;
-            FirstRender=false;
+            FirstRender = false;
             Instance = DotNetObjectReference.Create(this);
             Module = await JSRuntime.InvokeAsync<IJSObjectReference>("import", "./_content/BootstrapBlazor.BarcodeGenerator/BarCodeGenerator.razor.js" + "?v=" + System.Reflection.Assembly.GetExecutingAssembly().GetName().Version);
             await GenerateBarcode();
@@ -103,7 +100,7 @@ public partial class BarCodeGenerator : IAsyncDisposable
         if (options != null)
             Options = options;
 
-        if (!string.IsNullOrWhiteSpace(Value) || Options.Value!=null)
+        if (!string.IsNullOrWhiteSpace(Value) || Options.Value != null)
         {
             try
             {
