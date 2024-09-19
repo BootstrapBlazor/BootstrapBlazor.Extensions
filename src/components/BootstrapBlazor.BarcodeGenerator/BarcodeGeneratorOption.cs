@@ -1,8 +1,6 @@
-﻿// ********************************** 
-// Densen Informatica 中讯科技 
-// 作者：Alex Chow
-// e-mail:zhouchuanglin@gmail.com 
-// **********************************
+﻿// Copyright (c) Argo Zhang (argo@163.com). All rights reserved.
+// Licensed under the Apache License, Version 2.0. See License.txt in the project root for license information.
+// Website: https://www.blazor.zone or https://argozhang.github.io/
 
 using System.ComponentModel;
 using System.ComponentModel.DataAnnotations;
@@ -64,7 +62,7 @@ public class BarcodeGeneratorOption
     [DisplayName("字体式样")]
     //[JsonConverter(typeof(JsonStringEnumConverter))]
     [JsonIgnore(Condition = JsonIgnoreCondition.WhenWritingDefault)]
-    public EnumBarcodeFontOption FontOptions { get; set; }= EnumBarcodeFontOption.normal;
+    public EnumBarcodeFontOption FontOptions { get; set; } = EnumBarcodeFontOption.normal;
 
     /// <summary>
     /// 字体,默认值："monospace"等宽 / default: "monospace"
@@ -111,14 +109,14 @@ public class BarcodeGeneratorOption
     /// </summary>
     [DisplayName("背景色")]
     [JsonIgnore(Condition = JsonIgnoreCondition.WhenWritingDefault)]
-    public string Background { get; set; }= "#ffffff";
+    public string Background { get; set; } = "#ffffff";
 
     /// <summary>
     /// 线条颜色,默认值：'#000000' (CSS color)
     /// </summary>
     [DisplayName("线条颜色")]
     [JsonIgnore(Condition = JsonIgnoreCondition.WhenWritingDefault)]
-    public string LineColor { get; set; }= "#000000";
+    public string LineColor { get; set; } = "#000000";
 
     /// <summary>
     /// 间距,默认值：10
@@ -164,7 +162,7 @@ public class BarcodeGeneratorOption
     /// 底线平整 (仅EAN8/EAN13) / Only for EAN8/EAN13
     /// </summary>
     [DisplayName("底线平整 (仅EAN8/EAN13)")]
-    public bool Flat { get; set; } 
+    public bool Flat { get; set; }
 
 
 }
