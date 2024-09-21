@@ -1,8 +1,10 @@
-﻿@if (ShowUI)
+﻿@inherits BootstrapModuleComponentBase
+@attribute [JSModuleAutoLoader("./_content/BootstrapBlazor.MindMap/MindMap.razor.js", JSObjectReference = true)]
+
+@if (ShowUI)
 {
-    <div @ref="Element">
+    <div id="@Id">
         <div data-action="mindMapContainer" class="mindMapDiv" style="@StyleCss"></div>
     </div>
 }
 
- 

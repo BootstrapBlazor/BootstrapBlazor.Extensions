@@ -1,9 +1,9 @@
-﻿import MindMap from "/_content/BootstrapBlazor.MindMap/simpleMindMap.esm.min.js"
+﻿import MindMap from "./_content/BootstrapBlazor.MindMap/simpleMindMap.esm.min.js"
 
 var mindMap = null;
-var optionsCache = null; 
+var optionsCache = null;
 
-export function Init(element, data,options) {
+export function Init(id, data, options) {
 
     var el = element.querySelector("[data-action=mindMapContainer]");
 
@@ -29,8 +29,8 @@ export function Init(element, data,options) {
 
 }
 
-export function Export(instance, type = 'png', isDownload = true, fileName = 'temp', withConfig = true) {  
-    var ret=mindMap.export(type, isDownload, fileName, withConfig)
+export function Export(instance, type = 'png', isDownload = true, fileName = 'temp', withConfig = true) {
+    var ret = mindMap.export(type, isDownload, fileName, withConfig)
     if (!isDownload) instance.invokeMethodAsync('ReceiveData', ret);
 }
 
@@ -63,7 +63,7 @@ export function SetTheme(theme) {
 export function SetLayout(layout) {
     if (optionsCache.layout == undefined || optionsCache.layout != layout) {
         optionsCache.layout = layout;
-    mindMap.setLayout(layout);
+        mindMap.setLayout(layout);
     }
 }
 

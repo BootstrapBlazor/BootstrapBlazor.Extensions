@@ -1,32 +1,17 @@
-﻿// ********************************** 
-// Densen Informatica 中讯科技 
-// 作者：Alex Chow
-// e-mail:zhouchuanglin@gmail.com 
-// **********************************
+﻿// Copyright (c) Argo Zhang (argo@163.com). All rights reserved.
+// Licensed under the Apache License, Version 2.0. See License.txt in the project root for license information.
+// Website: https://www.blazor.zone or https://argozhang.github.io/
 
 using Microsoft.AspNetCore.Components;
 using Microsoft.JSInterop;
-using System.Diagnostics.CodeAnalysis;
 
-namespace BootstrapBlazor.Components.MindMaps;
+namespace BootstrapBlazor.Components;
 
 /// <summary>
-/// 思维导图 MindMap<para>开发文档 https://wanglin2.github.io/mind-map/#/doc/zh/introduction/?WT.mc_id=DT-MVP-5005078</para>
+/// 思维导图 MindMap
 /// </summary>
-public partial class MindMap : IAsyncDisposable
+public partial class MindMap
 {
-    [Inject]
-    [NotNull]
-    private IJSRuntime? JSRuntime { get; set; }
-
-    private IJSObjectReference? Module { get; set; }
-    private DotNetObjectReference<MindMap>? Instance { get; set; }
-
-    /// <summary>
-    /// UI界面元素的引用对象
-    /// </summary>
-    public ElementReference Element { get; set; }
-
     /// <summary>
     /// 获得/设置 错误回调方法
     /// </summary>
@@ -56,7 +41,7 @@ public partial class MindMap : IAsyncDisposable
     /// 选项
     /// </summary>
     [Parameter]
-    public MindMapOption Options { get; set; } = new();
+    public MindMapOption? Options { get; set; }
 
     private MindMapOption OptionsCache { get; set; } = new();
 
@@ -78,15 +63,17 @@ public partial class MindMap : IAsyncDisposable
 
     private MindMapNode? DataCache { get; set; }
 
+    /// <summary>
+    /// <inheritdoc/>
+    /// </summary>
+    /// <param name="firstRender"></param>
+    /// <returns></returns>
     protected override async Task OnAfterRenderAsync(bool firstRender)
     {
         try
         {
             if (firstRender)
             {
-                Module = await JSRuntime.InvokeAsync<IJSObjectReference>("import", "./_content/BootstrapBlazor.MindMap/MindMap.razor.js" + "?v=" + System.Reflection.Assembly.GetExecutingAssembly().GetName().Version);
-                Instance = DotNetObjectReference.Create(this);
-                await Module!.InvokeVoidAsync("Init", Element, Data, Options);
                 DataCache = Data;
             }
 
@@ -107,32 +94,12 @@ public partial class MindMap : IAsyncDisposable
         }
     }
 
-    protected override async Task OnParametersSetAsync()
-    {
-        await Task.CompletedTask;
-    }
-
-    async ValueTask IAsyncDisposable.DisposeAsync()
-    {
-        Instance?.Dispose();
-        if (Module is not null)
-        {
-            await Module.DisposeAsync();
-        }
-    }
-
     /// <summary>
     /// 下载为文件
     /// </summary>
     public virtual async Task Export(string Type = "png", bool IsDownload = true, string FileName = "temp", bool WithConfig = true)
     {
-        try
-        {
-            await Module!.InvokeVoidAsync("Export", Instance, Type, IsDownload, FileName, WithConfig);
-        }
-        catch
-        {
-        }
+        await Module!.InvokeVoidAsync("Export", Instance, Type, IsDownload, FileName, WithConfig);
     }
 
     /// <summary>
@@ -140,13 +107,7 @@ public partial class MindMap : IAsyncDisposable
     /// </summary>
     public virtual async Task GetData(bool FullData = true)
     {
-        try
-        {
-            await Module!.InvokeVoidAsync("GetData", Instance, FullData);
-        }
-        catch
-        {
-        }
+        await Module!.InvokeVoidAsync("GetData", Instance, FullData);
     }
 
     /// <summary>
