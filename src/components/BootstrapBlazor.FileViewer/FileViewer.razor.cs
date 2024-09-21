@@ -1,8 +1,6 @@
-﻿// ********************************** 
-// Densen Informatica 中讯科技 
-// 作者：Alex Chow
-// e-mail:zhouchuanglin@gmail.com 
-// **********************************
+﻿// Copyright (c) Argo Zhang (argo@163.com). All rights reserved.
+// Licensed under the Apache License, Version 2.0. See License.txt in the project root for license information.
+// Website: https://www.blazor.zone or https://argozhang.github.io/
 
 using ce.office.extension;
 using DocumentFormat.OpenXml.Spreadsheet;
@@ -15,11 +13,6 @@ namespace BootstrapBlazor.Components;
 /// </summary>
 public partial class FileViewer
 {
-    /// <summary>
-    /// UI界面元素的引用对象
-    /// </summary>
-    private ElementReference Element { get; set; }
-
     /// <summary>
     /// 获得/设置 Excel/Word 文件路径或者URL
     /// </summary>
@@ -66,7 +59,7 @@ public partial class FileViewer
     /// 获得/设置 无数据提示文本,默认为 无数据
     /// </summary>
     [Parameter]
-    public string NodataString { get; set; } = "无数据";
+    public string NoDataString { get; set; } = "无数据";
 
     /// <summary>
     /// 获得/设置 载入中提示文本,默认为 载入中...
@@ -76,6 +69,11 @@ public partial class FileViewer
 
     private string? ErrorMessage { get; set; }
 
+    /// <summary>
+    /// <inheritdoc/>
+    /// </summary>
+    /// <param name="firstRender"></param>
+    /// <returns></returns>
     protected override async Task OnAfterRenderAsync(bool firstRender)
     {
         if (firstRender)
@@ -168,15 +166,11 @@ public partial class FileViewer
                     File.Delete(tempFile);
                 }
             }
-
         }
         catch (Exception e)
         {
             ErrorMessage = e.Message + e.StackTrace;
             StateHasChanged();
         }
-
     }
-
-
 }
