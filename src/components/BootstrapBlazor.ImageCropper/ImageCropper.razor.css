@@ -7,13 +7,17 @@ img {
     max-width: 100%;
 }
 
-.cropper-view-box,
+/*.cropper-view-box,
 .cropper-face {
     background-color: black;
     opacity: 1;
+}*/
+
+::deep .containerTop[data-crop-shape='round'] .cropper-view-box,
+::deep .containerTop[data-crop-shape='round'] .cropper-face {
+    border-radius: 50%;
 }
 
 .label {
     cursor: pointer;
 }
- 

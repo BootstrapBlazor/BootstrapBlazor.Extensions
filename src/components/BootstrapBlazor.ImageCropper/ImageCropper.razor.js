@@ -2,10 +2,33 @@
 let opt = null;
 let inst = null;
 let result = null;
+let isRound = false;
+
+function getRoundCanvas(sourceCanvas) {
+    var canvas = document.createElement('canvas');
+    var context = canvas.getContext('2d');
+    var width = sourceCanvas.width;
+    var height = sourceCanvas.height;
+    canvas.width = width;
+    canvas.height = height;
+    context.imageSmoothingEnabled = true;
+    context.drawImage(sourceCanvas, 0, 0, width, height);
+    context.globalCompositeOperation = 'destination-in';
+    context.beginPath();
+    var centerX = width / 2;
+    var centerY = height / 2;
+    var radiusX = width / 2;
+    var radiusY = height / 2;
+    context.ellipse(centerX, centerY, radiusX, radiusY, 0, 0, 2 * Math.PI, false);
+    context.fill();
+    return canvas;
+}
 
 export async function init(instance, element, options) {
     inst = instance;
     opt = options;
+
+    isRound = element.querySelector("[data-crop-shape=round]") != null;
 
     var image = element.querySelector("[data-action=image]");
     result = element.querySelector("[data-action=result]");
@@ -16,6 +39,9 @@ export async function init(instance, element, options) {
 export async function crop() {
     cropper.crop();
     let resultData = cropper.getCroppedCanvas();
+    if (isRound) {
+        resultData = getRoundCanvas(resultData);
+    }
     if (result) {
         result.innerHTML = '';
         result.appendChild(resultData);

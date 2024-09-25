@@ -121,8 +121,17 @@ public partial class ImageCropper : IAsyncDisposable
     private string? Id { get; set; }
     private string? ErrorMessage { get; set; }
 
+    /// <summary>
+    /// 获取/设置 裁剪选项
+    /// </summary>
     [Parameter]
     public CropperOption Options { get; set; } = new();
+
+    /// <summary>
+    /// 获取/设置 裁剪形状（矩形/圆形）
+    /// </summary>
+    [Parameter]
+    public CropShape CropShape { get; set; } = CropShape.Rectangle;
 
     /// <summary>
     /// <inheritdoc/>
@@ -383,7 +392,7 @@ public partial class ImageCropper : IAsyncDisposable
             await Module.InvokeVoidAsync("destroyMod");
             await Module.DisposeAsync();
         }
-        GC.SuppressFinalize(this); 
+        GC.SuppressFinalize(this);
     }
 
 }
