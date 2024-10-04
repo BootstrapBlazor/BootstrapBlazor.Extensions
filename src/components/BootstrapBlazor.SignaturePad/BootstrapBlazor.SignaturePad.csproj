@@ -6,11 +6,25 @@
 
   <PropertyGroup>
     <PackageTags>Bootstrap Blazor WebAssembly wasm UI Components SignaturePad</PackageTags>
-    <Description>Bootstrap UI components extensions of SignaturePad</Description>
+    <Description>Bootstrap UI components extensions of Plyr</Description>
   </PropertyGroup>
 
   <ItemGroup>
+    <Content Remove="Locales\en.json" />
+    <Content Remove="Locales\zh.json" />
+  </ItemGroup>
+
+  <ItemGroup>
+    <EmbeddedResource Include="Locales\en.json" />
+    <EmbeddedResource Include="Locales\zh.json" />
+  </ItemGroup>
+
+  <ItemGroup>
     <PackageReference Include="BootstrapBlazor" Version="8.0.0" />
+  </ItemGroup>
+
+  <ItemGroup>
+    <Using Include="Microsoft.JSInterop" />
   </ItemGroup>
 
 </Project>
