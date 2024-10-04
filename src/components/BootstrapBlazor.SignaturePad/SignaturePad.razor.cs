@@ -1,13 +1,10 @@
-﻿// ********************************** 
-// Densen Informatica 中讯科技 
-// 作者：Alex Chow
-// e-mail:zhouchuanglin@gmail.com 
-// **********************************
+﻿// Copyright (c) Argo Zhang (argo@163.com). All rights reserved.
+// Licensed under the Apache License, Version 2.0. See License.txt in the project root for license information.
+// Website: https://www.blazor.zone or https://argozhang.github.io/
 
 using Microsoft.AspNetCore.Components;
 using Microsoft.Extensions.Localization;
 using Microsoft.JSInterop;
-using System.Diagnostics.CodeAnalysis;
 
 namespace BootstrapBlazor.Components;
 
@@ -82,7 +79,7 @@ public partial class SignaturePad
     public string? CloseBtnTitle { get; set; }
 
     /// <summary>
-    /// 保存为base64按钮文本/Save as Base64 button title
+    /// 保存为 base64 按钮文本 Save as Base64 button title
     /// </summary>
     [Parameter]
     [NotNull]
@@ -131,7 +128,7 @@ public partial class SignaturePad
     public bool EnableAlertJS { get; set; } = true;
 
     /// <summary>
-    /// 启用保存为base64按钮/Enable save as Base64 button
+    /// 启用保存为 base64 按钮 Enable save as Base64 button
     /// </summary>
     [Parameter]
     [NotNull]
@@ -185,7 +182,7 @@ public partial class SignaturePad
     public bool Responsive { get; set; }
 
     /// <summary>
-    /// 组件背景/backgroundColor
+    /// 组件背景 backgroundColor
     /// </summary>
     [Parameter]
     public string? BackgroundColor { get; set; }
@@ -206,20 +203,18 @@ public partial class SignaturePad
     {
         base.OnParametersSet();
 
-        SignAboveLabel ??= LocalizerLabel(nameof(SignAboveLabel), "在框内签名");
-        ClearBtnTitle ??= LocalizerLabel(nameof(ClearBtnTitle), "清除");
-        SignatureAlertText ??= LocalizerLabel(nameof(SignatureAlertText), "请先签名");
-        ChangeColorBtnTitle ??= LocalizerLabel(nameof(ChangeColorBtnTitle), "换颜色");
-        UndoBtnTitle ??= LocalizerLabel(nameof(UndoBtnTitle), "撤消");
-        CloseBtnTitle ??= LocalizerLabel(nameof(CloseBtnTitle), "关闭");
-        SaveBase64BtnTitle ??= LocalizerLabel(nameof(SaveBase64BtnTitle), "确定");
-        SavePNGBtnTitle ??= LocalizerLabel(nameof(SavePNGBtnTitle), "PNG");
-        SaveJPGBtnTitle ??= LocalizerLabel(nameof(SaveJPGBtnTitle), "JPG");
-        SaveSVGBtnTitle ??= LocalizerLabel(nameof(SaveSVGBtnTitle), "SVG");
+        SignAboveLabel ??= Localizer[nameof(SignAboveLabel)];
+        ClearBtnTitle ??= Localizer[nameof(ClearBtnTitle)];
+        SignatureAlertText ??= Localizer[nameof(SignatureAlertText)];
+        ChangeColorBtnTitle ??= Localizer[nameof(ChangeColorBtnTitle)];
+        UndoBtnTitle ??= Localizer[nameof(UndoBtnTitle)];
+        CloseBtnTitle ??= Localizer[nameof(CloseBtnTitle)];
+        SaveBase64BtnTitle ??= Localizer[nameof(SaveBase64BtnTitle)];
+        SavePNGBtnTitle ??= Localizer[nameof(SavePNGBtnTitle)];
+        SaveJPGBtnTitle ??= Localizer[nameof(SaveJPGBtnTitle)];
+        SaveSVGBtnTitle ??= Localizer[nameof(SaveSVGBtnTitle)];
         BackgroundColor ??= "rgb(255, 255, 255)";
     }
-
-    private string LocalizerLabel(string key, string fallback) => Localizer[key].ResourceNotFound ? fallback : Localizer[key];
 
     /// <summary>
     /// <inheritdoc/>
