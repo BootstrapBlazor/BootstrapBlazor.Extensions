@@ -4,13 +4,10 @@ Summary of the changes (Less than 80 chars)
 
 ## Description
 
-{Detail}
-
-Fixes #{bug number} (in this specific format)
+fixes #{bug number} (in this specific format)
 
 ## Customer Impact
 
-{Justification}
 
 ## Regression?
 
@@ -37,3 +34,11 @@ Fixes #{bug number} (in this specific format)
 - [ ] Yes
 - [ ] No
 - [ ] N/A
+
+## ☑️ Self Check before Merge
+
+⚠️ Please check all items below before review. ⚠️
+
+- [ ] Doc is updated/provided or not needed
+- [ ] Demo is updated/provided or not needed
+- [ ] Merge the latest code from the main branch
