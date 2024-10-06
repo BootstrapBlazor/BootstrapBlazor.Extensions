@@ -73,7 +73,7 @@ public partial class Topology
 
     private CancellationTokenSource? CancelToken { get; set; }
 
-    private string? ClassString => CssBuilder.Default("bb-topology")
+    private string? ClassString => CssBuilder.Default("bb-topology w-100 h-100")
         .AddClassFromAttributes(AdditionalAttributes)
         .Build();
 
