@@ -9,7 +9,7 @@ using System.Text.Json.Serialization;
 namespace BootstrapBlazor.Components;
 
 /// <summary>
-/// 播放器选项
+/// 裁剪选项
 /// </summary>
 public class CropperOption
 {
