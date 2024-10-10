@@ -1,7 +1,7 @@
 <Project Sdk="Microsoft.NET.Sdk.Razor">
 
   <PropertyGroup>
-    <Version>8.1.0</Version>
+    <Version>8.1.1</Version>
   </PropertyGroup>
 
   <PropertyGroup>
@@ -9,6 +9,10 @@
     <Description>Bootstrap UI components extensions of Baidu Ocr</Description>
     <RootNamespace>BootstrapBlazor.Components</RootNamespace>
   </PropertyGroup>
+
+  <ItemGroup Condition="'$(TargetFramework)' != 'net6.0'">
+    <PackageReference Include="Newtonsoft.Json" Version="13.0.3" />
+  </ItemGroup>
 
   <ItemGroup>
     <PackageReference Include="Baidu.AI" Version="4.15.15" />
