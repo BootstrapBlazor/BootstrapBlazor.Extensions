@@ -1,7 +1,7 @@
 <Project Sdk="Microsoft.NET.Sdk.Razor">
 
   <PropertyGroup>
-    <Version>8.1.0</Version>
+    <Version>8.1.1</Version>
   </PropertyGroup>
 
   <PropertyGroup>
@@ -12,6 +12,9 @@
   <ItemGroup>
     <PackageReference Include="BootstrapBlazor" Version="8.0.0" />
     <PackageReference Include="ce.office.extension" Version="2.0.0" />
+    <PackageReference Include="SharpZipLib" Version="1.4.2" />
+    <PackageReference Include="System.Drawing.Common" Version="8.0.10" />
+    <PackageReference Include="System.Text.Json" Version="8.0.5" />
   </ItemGroup>
 
   <ItemGroup>
