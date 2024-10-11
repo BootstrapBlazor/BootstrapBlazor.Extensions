@@ -3,22 +3,23 @@ import Data from '../../../BootstrapBlazor/modules/data.js'
 import EventHandler from "../../../BootstrapBlazor/modules/event-handler.js"
 
 export async function init(id, interop, options) {
+    const editor = {};
+    Data.set(id, editor);
+
     await addScript('./_content/BootstrapBlazor.CodeEditor/monaco-editor/min/vs/loader.min.js')
 
     const init = container => {
-        var body = container.querySelector(".code-editor-body");
 
         // Hide the Progress Ring
         monaco.editor.onDidCreateEditor((e) => {
-            var progress = container.querySelector(".spinner");
+            const progress = container.querySelector(".spinner");
             if (progress && progress.style) {
                 progress.style.display = "none";
             }
         });
 
-        const editor = {}
-
         // Create the Monaco Editor
+        const body = container.querySelector(".code-editor-body");
         editor.editor = monaco.editor.create(body, {
             ariaLabel: "online code editor",
             value: options.value,
@@ -30,21 +31,17 @@ export async function init(id, interop, options) {
 
         // Catch when the editor lost the focus (didType to immediate)
         editor.editor.onDidBlurEditorText((e) => {
-            var code = editor.editor.getValue();
+            const code = editor.editor.getValue();
             interop.invokeMethodAsync("UpdateValueAsync", code);
         });
 
         monaco.editor.setModelLanguage(monaco.editor.getModels()[0], options.language)
-
-        editor.interop = interop;
 
         editor.editor.layout();
 
         EventHandler.on(window, "resize", () => {
             editor.editor.layout();
         });
-
-        Data.set(id, editor);
     }
 
     // require is provided by loader.min.js.
@@ -53,13 +50,13 @@ export async function init(id, interop, options) {
     });
 
     require(["vs/editor/editor.main"], () => {
-        const handler = setInterval(() => {
+        editor.handler = setInterval(() => {
             var container = document.getElementById(id);
-            console.log(container.offsetHeight);
-
             if (container.offsetHeight > 0) {
-                clearInterval(handler);
+                clearInterval(editor.handler);
                 init(container);
+                editor.handler = null;
+                delete editor.handler;
             }
         }, 50);
     });
@@ -79,6 +76,12 @@ export function monacoSetOptions(id, options) {
 }
 
 export function dispose(id) {
+    const editor = Data.get(id);
     Data.remove(id);
     EventHandler.off(window, "resize");
+
+    const { handler } = editor;
+    if (handler) {
+        clearInterval(handler);
+    }
 }
