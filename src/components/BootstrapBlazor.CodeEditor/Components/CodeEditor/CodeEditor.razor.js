@@ -5,13 +5,7 @@ import EventHandler from "../../../BootstrapBlazor/modules/event-handler.js"
 export async function init(id, interop, options) {
     await addScript('./_content/BootstrapBlazor.CodeEditor/monaco-editor/min/vs/loader.min.js')
 
-    // require is provided by loader.min.js.
-    require.config({
-        paths: { 'vs': options.path }
-    });
-
-    require(["vs/editor/editor.main"], () => {
-        var container = document.getElementById(id);
+    const init = container => {
         var body = container.querySelector(".code-editor-body");
 
         // Hide the Progress Ring
@@ -50,7 +44,24 @@ export async function init(id, interop, options) {
             editor.editor.layout();
         });
 
-        Data.set(id, editor)
+        Data.set(id, editor);
+    }
+
+    // require is provided by loader.min.js.
+    require.config({
+        paths: { 'vs': options.path }
+    });
+
+    require(["vs/editor/editor.main"], () => {
+        const handler = setInterval(() => {
+            var container = document.getElementById(id);
+            console.log(container.offsetHeight);
+
+            if (container.offsetHeight > 0) {
+                clearInterval(handler);
+                init(container);
+            }
+        }, 50);
     });
 }
 
