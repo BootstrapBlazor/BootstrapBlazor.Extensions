@@ -2,27 +2,6 @@
 import Data from '../BootstrapBlazor/modules/data.js'
 import { addLink } from '../BootstrapBlazor/modules/utility.js'
 
-function getRoundCanvas(sourceCanvas) {
-    var canvas = document.createElement('canvas');
-    var context = canvas.getContext('2d');
-    var width = sourceCanvas.width;
-    var height = sourceCanvas.height;
-    canvas.width = width;
-    canvas.height = height;
-    context.imageSmoothingEnabled = true;
-    context.drawImage(sourceCanvas, 0, 0, width, height);
-    context.globalCompositeOperation = 'destination-in';
-    context.beginPath();
-    var centerX = width / 2;
-    var centerY = height / 2;
-    var radiusX = width / 2;
-    var radiusY = height / 2;
-    context.ellipse(centerX, centerY, radiusX, radiusY, 0, 0, 2 * Math.PI, false);
-    context.fill();
-    sourceCanvas = null;
-    return canvas;
-}
-
 export async function init(id, options) {
     await addLink("./_content/BootstrapBlazor.ImageCropper/cropper.bundle.css");
 
@@ -45,7 +24,8 @@ export function dispose(id) {
         cropper.destroy();
     }
 }
-export function crop(id, isRound = false) {
+
+export function crop(id, isRound = false, radius = null) {
     let ret = null;
     const cropper = Data.get(id);
     if (cropper != null) {
@@ -117,4 +97,25 @@ export async function disable(id) {
     if (el) {
         el.classList.add("disabled");
     }
+}
+
+const getRoundCanvas = sourceCanvas => {
+    var canvas = document.createElement('canvas');
+    var context = canvas.getContext('2d');
+    var width = sourceCanvas.width;
+    var height = sourceCanvas.height;
+    canvas.width = width;
+    canvas.height = height;
+    context.imageSmoothingEnabled = true;
+    context.drawImage(sourceCanvas, 0, 0, width, height);
+    context.globalCompositeOperation = 'destination-in';
+    context.beginPath();
+    var centerX = width / 2;
+    var centerY = height / 2;
+    var radiusX = width / 2;
+    var radiusY = height / 2;
+    context.ellipse(centerX, centerY, radiusX, radiusY, 0, 0, 2 * Math.PI, false);
+    context.fill();
+    sourceCanvas = null;
+    return canvas;
 }

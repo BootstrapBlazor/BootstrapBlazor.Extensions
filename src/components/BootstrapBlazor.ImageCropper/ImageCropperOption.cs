@@ -15,13 +15,15 @@ public class ImageCropperOption
     /// <summary>
     /// Define the view mode of the cropper
     /// </summary>
-    public ImageCropperViewMode ViewMode { get; set; } = ImageCropperViewMode.CropBoxNotToExceedTheSizeCanvas;
+    [JsonIgnore(Condition = JsonIgnoreCondition.WhenWritingNull)]
+    public ImageCropperViewMode? ViewMode { get; set; }
 
     /// <summary>
     /// Define the dragging mode of the cropper
     /// </summary>
     [JsonEnumConverter(true)]
-    public ImageCropperDragMode DragMode { get; set; } = ImageCropperDragMode.Crop;
+    [JsonIgnore(Condition = JsonIgnoreCondition.WhenWritingNull)]
+    public ImageCropperDragMode? DragMode { get; set; }
 
     /// <summary>
     /// Define the initial aspect ratio of the crop box
@@ -37,164 +39,164 @@ public class ImageCropperOption
     public int? AspectRatio { get; set; }
 
     /// <summary>
-    /// Re-render the cropper when resizing the window
+    /// Re-render the cropper when resizing the window. default tue
     /// </summary>
-    [JsonIgnore(Condition = JsonIgnoreCondition.WhenWritingDefault)]
-    public bool Responsive { get; set; } = true;
+    [JsonIgnore(Condition = JsonIgnoreCondition.WhenWritingNull)]
+    public bool? Responsive { get; set; }
 
     /// <summary>
-    /// Restore the cropped area after resizing the window
+    /// Restore the cropped area after resizing the window. default tue
     /// </summary>
-    [JsonIgnore(Condition = JsonIgnoreCondition.WhenWritingDefault)]
-    public bool Restore { get; set; } = true;
+    [JsonIgnore(Condition = JsonIgnoreCondition.WhenWritingNull)]
+    public bool? Restore { get; set; }
 
     /// <summary>
-    /// Check if the current image is a cross-origin image
+    /// Check if the current image is a cross-origin image. default tue
     /// </summary>
-    [JsonIgnore(Condition = JsonIgnoreCondition.WhenWritingDefault)]
-    public bool CheckCrossOrigin { get; set; } = true;
+    [JsonIgnore(Condition = JsonIgnoreCondition.WhenWritingNull)]
+    public bool? CheckCrossOrigin { get; set; }
 
     /// <summary>
-    /// Check the current image's Exif Orientation information. Note that only a JPEG image may contain Exif Orientation information
+    /// Check the current image's Exif Orientation information. Note that only a JPEG image may contain Exif Orientation information. default tue
     /// </summary>
-    [JsonIgnore(Condition = JsonIgnoreCondition.WhenWritingDefault)]
-    public bool CheckOrientation { get; set; } = true;
+    [JsonIgnore(Condition = JsonIgnoreCondition.WhenWritingNull)]
+    public bool? CheckOrientation { get; set; }
 
     /// <summary>
-    /// 在图像上方和裁剪框下方显示黑色模态框
+    /// 在图像上方和裁剪框下方显示黑色模态框. default tue
     /// </summary>
-    [JsonIgnore(Condition = JsonIgnoreCondition.WhenWritingDefault)]
-    public bool Modal { get; set; } = true;
+    [JsonIgnore(Condition = JsonIgnoreCondition.WhenWritingNull)]
+    public bool? Modal { get; set; }
 
     /// <summary>
-    /// 显示裁剪框上方的虚线
+    /// 显示裁剪框上方的虚线. default tue
     /// </summary>
-    [JsonIgnore(Condition = JsonIgnoreCondition.WhenWritingDefault)]
-    public bool Guides { get; set; } = true;
+    [JsonIgnore(Condition = JsonIgnoreCondition.WhenWritingNull)]
+    public bool? Guides { get; set; }
 
     /// <summary>
-    /// 在裁剪框上方显示中心指示器
+    /// 在裁剪框上方显示中心指示器. default tue
     /// </summary>
-    [JsonIgnore(Condition = JsonIgnoreCondition.WhenWritingDefault)]
-    public bool Center { get; set; } = true;
+    [JsonIgnore(Condition = JsonIgnoreCondition.WhenWritingNull)]
+    public bool? Center { get; set; }
 
     /// <summary>
-    /// 在裁剪框上方显示白色模态（突出显示裁剪框）
+    /// 在裁剪框上方显示白色模态（突出显示裁剪框）. default tue
     /// </summary>
-    [JsonIgnore(Condition = JsonIgnoreCondition.WhenWritingDefault)]
-    public bool Highlight { get; set; } = true;
+    [JsonIgnore(Condition = JsonIgnoreCondition.WhenWritingNull)]
+    public bool? Highlight { get; set; }
 
     /// <summary>
     /// 显示容器的网格背景, 默认 true 关闭
     /// </summary>
-    [JsonIgnore(Condition = JsonIgnoreCondition.WhenWritingDefault)]
-    public bool Background { get; set; } = true;
+    [JsonIgnore(Condition = JsonIgnoreCondition.WhenWritingNull)]
+    public bool? Background { get; set; }
 
     /// <summary>
-    /// Enable to crop the image automatically when initialized
+    /// Enable to crop the image automatically when initialized. default tue
     /// </summary>
-    [JsonIgnore(Condition = JsonIgnoreCondition.WhenWritingDefault)]
-    public bool AutoCrop { get; set; } = true;
+    [JsonIgnore(Condition = JsonIgnoreCondition.WhenWritingNull)]
+    public bool? AutoCrop { get; set; }
 
     /// <summary>
-    /// It should be a number between 0 and 1. Define the automatic cropping area size (percentage)
+    /// It should be a number between 0 and 1. Define the automatic cropping area size (percentage) default is 0.8f
     /// </summary>
-    [JsonIgnore(Condition = JsonIgnoreCondition.WhenWritingDefault)]
-    public float AutoCropArea { get; set; } = 0.8f;
+    [JsonIgnore(Condition = JsonIgnoreCondition.WhenWritingNull)]
+    public float? AutoCropArea { get; set; }
 
     /// <summary>
-    /// Enable to move the image
+    /// Enable to move the image. default tue
     /// </summary>
-    [JsonIgnore(Condition = JsonIgnoreCondition.WhenWritingDefault)]
-    public bool Movable { get; set; } = true;
+    [JsonIgnore(Condition = JsonIgnoreCondition.WhenWritingNull)]
+    public bool? Movable { get; set; }
 
     /// <summary>
-    /// Enable to rotate the image
+    /// Enable to rotate the image. default tue
     /// </summary>
-    [JsonIgnore(Condition = JsonIgnoreCondition.WhenWritingDefault)]
-    public bool Rotatable { get; set; } = true;
+    [JsonIgnore(Condition = JsonIgnoreCondition.WhenWritingNull)]
+    public bool? Rotatable { get; set; }
 
     /// <summary>
-    /// Enable to scale the image
+    /// Enable to scale the image. default tue
     /// </summary>
-    [JsonIgnore(Condition = JsonIgnoreCondition.WhenWritingDefault)]
-    public bool Scalable { get; set; } = true;
+    [JsonIgnore(Condition = JsonIgnoreCondition.WhenWritingNull)]
+    public bool? Scalable { get; set; }
 
     /// <summary>
-    /// Enable to zoom the image
+    /// Enable to zoom the image. default tue
     /// </summary>
-    [JsonIgnore(Condition = JsonIgnoreCondition.WhenWritingDefault)]
-    public bool Zoomable { get; set; } = true;
+    [JsonIgnore(Condition = JsonIgnoreCondition.WhenWritingNull)]
+    public bool? Zoomable { get; set; }
 
     /// <summary>
-    /// Enable to zoom the image by dragging touch
+    /// Enable to zoom the image by dragging touch. default tue
     /// </summary>
-    [JsonIgnore(Condition = JsonIgnoreCondition.WhenWritingDefault)]
-    public bool ZoomOnTouch { get; set; } = true;
+    [JsonIgnore(Condition = JsonIgnoreCondition.WhenWritingNull)]
+    public bool? ZoomOnTouch { get; set; }
 
     /// <summary>
-    /// Enable to zoom the image by mouse wheeling
+    /// Enable to zoom the image by mouse wheeling. default tue
     /// </summary>
-    [JsonIgnore(Condition = JsonIgnoreCondition.WhenWritingDefault)]
-    public bool ZoomOnWheel { get; set; } = true;
+    [JsonIgnore(Condition = JsonIgnoreCondition.WhenWritingNull)]
+    public bool? ZoomOnWheel { get; set; }
 
     /// <summary>
     /// Define zoom ratio when zooming the image by mouse wheeling
     /// </summary>
-    [JsonIgnore(Condition = JsonIgnoreCondition.WhenWritingDefault)]
-    public float WheelZoomRatio { get; set; } = 0.1f;
+    [JsonIgnore(Condition = JsonIgnoreCondition.WhenWritingNull)]
+    public float? WheelZoomRatio { get; set; }
 
     /// <summary>
-    /// Enable to move the crop box by dragging
+    /// Enable to move the crop box by dragging. default tue
     /// </summary>
-    [JsonIgnore(Condition = JsonIgnoreCondition.WhenWritingDefault)]
-    public bool CropBoxMovable { get; set; } = true;
+    [JsonIgnore(Condition = JsonIgnoreCondition.WhenWritingNull)]
+    public bool? CropBoxMovable { get; set; }
 
     /// <summary>
-    /// Enable to resize the crop box by dragging
+    /// Enable to resize the crop box by dragging. default tue
     /// </summary>
-    [JsonIgnore(Condition = JsonIgnoreCondition.WhenWritingDefault)]
-    public bool CropBoxResizable { get; set; } = true;
+    [JsonIgnore(Condition = JsonIgnoreCondition.WhenWritingNull)]
+    public bool? CropBoxResizable { get; set; }
 
     /// <summary>
-    /// Enable to toggle drag mode between "crop" and "move" when clicking twice on the cropper
+    /// Enable to toggle drag mode between "crop" and "move" when clicking twice on the cropper. default tue
     /// </summary>
-    [JsonIgnore(Condition = JsonIgnoreCondition.WhenWritingDefault)]
-    public bool ToggleDragModeOnDblclick { get; set; } = true;
+    [JsonIgnore(Condition = JsonIgnoreCondition.WhenWritingNull)]
+    public bool? ToggleDragModeOnDblclick { get; set; }
 
     /// <summary>
-    /// 裁剪框的最小高度
+    /// 裁剪框的最小高度 默认值 0
     /// </summary>
-    [JsonIgnore(Condition = JsonIgnoreCondition.WhenWritingDefault)]
-    public int MinCanvasHeight { get; set; } = 0;
+    [JsonIgnore(Condition = JsonIgnoreCondition.WhenWritingNull)]
+    public int? MinCanvasHeight { get; set; }
 
     /// <summary>
-    /// 裁剪框的最小宽度
+    /// 裁剪框的最小宽度 默认值 0
     /// </summary>
-    [JsonIgnore(Condition = JsonIgnoreCondition.WhenWritingDefault)]
-    public int MinCanvasWidth { get; set; } = 0;
+    [JsonIgnore(Condition = JsonIgnoreCondition.WhenWritingNull)]
+    public int? MinCanvasWidth { get; set; }
 
     /// <summary>
-    /// 容器的最小宽度
+    /// 容器的最小宽度 默认值 100
     /// </summary>
-    [JsonIgnore(Condition = JsonIgnoreCondition.WhenWritingDefault)]
-    public int MinContainerHeight { get; set; } = 100;
+    [JsonIgnore(Condition = JsonIgnoreCondition.WhenWritingNull)]
+    public int? MinContainerHeight { get; set; }
 
     /// <summary>
-    /// 容器的最小宽度
+    /// 容器的最小宽度 默认值 200
     /// </summary>
-    [JsonIgnore(Condition = JsonIgnoreCondition.WhenWritingDefault)]
-    public int MinContainerWidth { get; set; } = 200;
+    [JsonIgnore(Condition = JsonIgnoreCondition.WhenWritingNull)]
+    public int? MinContainerWidth { get; set; }
 
     /// <summary>
-    /// 画布的最小高度
+    /// 画布的最小高度 默认值 0
     /// </summary>
-    [JsonIgnore(Condition = JsonIgnoreCondition.WhenWritingDefault)]
-    public int MinCropBoxHeight { get; set; } = 0;
+    [JsonIgnore(Condition = JsonIgnoreCondition.WhenWritingNull)]
+    public int? MinCropBoxHeight { get; set; }
 
     /// <summary>
-    /// 画布的最小宽度
+    /// 画布的最小宽度 默认值 0
     /// </summary>
-    [JsonIgnore(Condition = JsonIgnoreCondition.WhenWritingDefault)]
-    public int MinCropBoxWidth { get; set; } = 0;
+    [JsonIgnore(Condition = JsonIgnoreCondition.WhenWritingNull)]
+    public int? MinCropBoxWidth { get; set; }
 }

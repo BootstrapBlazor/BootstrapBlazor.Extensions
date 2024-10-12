@@ -85,10 +85,9 @@ public partial class ImageCropper
     /// <summary>
     /// 剪裁方法 自动触发 <see cref="OnCropAsync"/> 回调方法
     /// </summary>
-    /// <returns>base64</returns>
-    public async Task<string?> Crop()
+    public async Task<string?> Crop(bool isRound = false, string? radius = null)
     {
-        var result = await InvokeAsync<string?>("crop", Id);
+        var result = await InvokeAsync<string?>("crop", Id, isRound, radius);
         if (!string.IsNullOrEmpty(result))
         {
             if (OnCropAsync != null)
