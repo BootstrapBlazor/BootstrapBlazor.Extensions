@@ -19,6 +19,7 @@ function getRoundCanvas(sourceCanvas) {
     var radiusY = height / 2;
     context.ellipse(centerX, centerY, radiusX, radiusY, 0, 0, 2 * Math.PI, false);
     context.fill();
+    sourceCanvas = null;
     return canvas;
 }
 
