@@ -45,6 +45,7 @@ export function dispose(id) {
     }
 }
 export function crop(id, isRound = false) {
+    let ret = null;
     const cropper = Data.get(id);
     if (cropper != null) {
         cropper.crop();
@@ -52,8 +53,10 @@ export function crop(id, isRound = false) {
         if (isRound) {
             resultData = getRoundCanvas(resultData);
         }
-        return resultData.toDataURL("image/jpeg", 0.8);
+        ret = resultData.toDataURL("image/jpeg", 0.8);
+        resultData = null;
     }
+    return ret;
 }
 
 export function replace(id, url) {
