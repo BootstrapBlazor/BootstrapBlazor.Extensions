@@ -18,6 +18,12 @@ public partial class ImageCropper
     public string? Url { get; set; }
 
     /// <summary>
+    /// 获取/设置 是否被禁用 默认 false
+    /// </summary>
+    [Parameter]
+    public bool IsDisabled { get; set; }
+
+    /// <summary>
     /// 获得/设置 剪裁结果回调方法
     /// </summary>
     [Parameter]
@@ -39,6 +45,36 @@ public partial class ImageCropper
         .AddClass("is-round", CropperShape == ImageCropperShape.Round)
         .AddClassFromAttributes(AdditionalAttributes)
         .Build();
+
+    private bool _isDisabled;
+
+    /// <summary>
+    /// <inheritdoc/>
+    /// </summary>
+    /// <param name="firstRender"></param>
+    /// <returns></returns>
+    protected override async Task OnAfterRenderAsync(bool firstRender)
+    {
+        await base.OnAfterRenderAsync(firstRender);
+
+        if (firstRender)
+        {
+            _isDisabled = IsDisabled;
+        }
+
+        if (_isDisabled != IsDisabled)
+        {
+            _isDisabled = IsDisabled;
+            if (IsDisabled)
+            {
+                await Disable();
+            }
+            else
+            {
+                await Enable();
+            }
+        }
+    }
 
     /// <summary>
     /// <inheritdoc/>
@@ -87,13 +123,23 @@ public partial class ImageCropper
     /// 组件可用
     /// </summary>
     /// <returns></returns>
-    public Task Enable() => InvokeVoidAsync("enable", Id);
+    public Task Enable()
+    {
+        IsDisabled = false;
+        _isDisabled = false;
+        return InvokeVoidAsync("enable", Id);
+    }
 
     /// <summary>
     /// 禁用组件
     /// </summary>
     /// <returns></returns>
-    public Task Disable() => InvokeVoidAsync("disable", Id);
+    public Task Disable()
+    {
+        IsDisabled = true;
+        _isDisabled = true;
+        return InvokeVoidAsync("disable", Id);
+    }
 
     /// <summary>
     /// 清空图像

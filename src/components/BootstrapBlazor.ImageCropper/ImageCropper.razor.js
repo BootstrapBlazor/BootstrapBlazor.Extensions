@@ -96,11 +96,21 @@ export async function enable(id) {
     if (cropper != null) {
         cropper.enable();
     }
+
+    const el = document.getElementById(id);
+    if (el) {
+        el.classList.remove("disabled");
+    }
 }
 
 export async function disable(id) {
     const cropper = Data.get(id);
     if (cropper != null) {
         cropper.disable();
+    }
+
+    const el = document.getElementById(id);
+    if (el) {
+        el.classList.add("disabled");
     }
 }
