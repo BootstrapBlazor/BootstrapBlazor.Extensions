@@ -80,7 +80,7 @@ public partial class ImageCropper
     /// <inheritdoc/>
     /// </summary>
     /// <returns></returns>
-    protected override Task InvokeInitAsync() => InvokeVoidAsync("init", Id, Options);
+    protected override Task InvokeInitAsync() => InvokeVoidAsync("init", Id, Options ?? new());
 
     /// <summary>
     /// 剪裁方法 自动触发 <see cref="OnCropAsync"/> 回调方法
