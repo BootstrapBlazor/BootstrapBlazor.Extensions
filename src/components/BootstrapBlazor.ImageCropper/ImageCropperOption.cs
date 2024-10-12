@@ -190,7 +190,6 @@ public class ImageCropperOption
     /// 可缩放
     /// </summary>
     public bool Zoomable { get; set; } = true;
-
 }
 
 /// <summary>

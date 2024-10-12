@@ -1,4 +1,4 @@
-﻿import Cropper from 'cropper.esm.js'
+﻿import Cropper from './cropper.esm.js'
 import Data from '../BootstrapBlazor/modules/data.js'
 import { addLink } from '../BootstrapBlazor/modules/utility.js'
 
@@ -22,7 +22,7 @@ function getRoundCanvas(sourceCanvas) {
     return canvas;
 }
 
-export async function init(id, invoke, options) {
+export async function init(id, options) {
     await addLink("./_content/BootstrapBlazor.ImageCropper/cropper.bundle.css");
 
     const el = document.getElementById(id);
@@ -33,25 +33,33 @@ export async function init(id, invoke, options) {
     const image = el.querySelector(".bb-cropper-image");
     const cropper = new Cropper(image, options);
 
-    Data.set(id, { cropper, invoke, });
+    Data.set(id, cropper);
 }
 
-export async function crop() {
-    cropper.crop();
-    let resultData = cropper.getCroppedCanvas();
-    if (isRound) {
-        resultData = getRoundCanvas(resultData);
+export async function crop(id, isRound = false) {
+    const cropper = Data.get(id);
+    if (cropper != null) {
+        cropper.crop();
+        let resultData = cropper.getCroppedCanvas();
+        if (isRound) {
+            resultData = getRoundCanvas(resultData);
+        }
+        return resultData.toDataURL("image/jpeg", 0.8);
     }
-    if (result) {
-        result.innerHTML = '';
-        result.appendChild(resultData);
-    }
-    //inst.invokeMethodAsync("GetResult", resultDataUrl);
-    return resultData.toDataURL("image/jpeg", 0.8);
 }
 
-export async function replace(url) {
-    cropper.replace(url);
+export function replace(id, url) {
+    const cropper = Data.get(id);
+    if (cropper != null) {
+        cropper.replace(url);
+    }
+}
+
+export async function reset(id) {
+    const cropper = Data.get(id);
+    if (cropper != null) {
+        cropper.reset();
+    }
 }
 
 export async function setData(data) {
@@ -64,10 +72,6 @@ export async function setDragMode(mode) {
 
 export async function rotate(angle) {
     cropper.rotate(angle);
-}
-
-export async function reset() {
-    cropper.reset();
 }
 
 export async function clear() {

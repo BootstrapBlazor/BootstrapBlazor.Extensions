@@ -44,15 +44,15 @@ public partial class ImageCropper
     /// <inheritdoc/>
     /// </summary>
     /// <returns></returns>
-    protected override Task InvokeInitAsync() => InvokeVoidAsync("init", Id, Interop, Options);
+    protected override Task InvokeInitAsync() => InvokeVoidAsync("init", Id, Options);
 
     /// <summary>
-    /// 剪裁方法 返回 base64 字符串
+    /// 剪裁方法 自动触发 <see cref="OnCropAsync"/> 回调方法
     /// </summary>
     /// <returns>base64</returns>
     public async Task<string?> Crop()
     {
-        var result = await InvokeAsync<string?>(Id, "crop");
+        var result = await InvokeAsync<string?>("crop", Id);
         if (!string.IsNullOrEmpty(result))
         {
             if (OnCropAsync != null)
@@ -64,11 +64,17 @@ public partial class ImageCropper
     }
 
     /// <summary>
-    /// 替换图片
+    /// 替换图片方法
     /// </summary>
     /// <param name="url"></param>
     /// <returns></returns>
-    public async Task Replace(string url) => await Module!.InvokeVoidAsync("replace", url);
+    public async Task Replace(string url) => await InvokeVoidAsync("replace", Id, url);
+
+    /// <summary>
+    /// 重置图片方法
+    /// </summary>
+    /// <returns></returns>
+    public async Task Reset() => await InvokeVoidAsync("reset", Id);
 
     /// <summary>
     /// 使用新数据更改裁剪区域的位置和大小（基于原始图像）,注意：此方法仅在选项值viewMode大于或等于时可用1
@@ -95,12 +101,6 @@ public partial class ImageCropper
     /// </summary>
     /// <returns></returns>
     public async Task Disable() => await Module!.InvokeVoidAsync("disable");
-
-    /// <summary>
-    /// 复位图像
-    /// </summary>
-    /// <returns></returns>
-    public async Task Reset() => await Module!.InvokeVoidAsync("reset");
 
     /// <summary>
     /// 清空图像
