@@ -7,7 +7,7 @@ namespace BootstrapBlazor.Components;
 /// <summary>
 /// 裁切形状
 /// </summary>
-public enum CropShape
+public enum ImageCropperShape
 {
     /// <summary>
     /// 矩形

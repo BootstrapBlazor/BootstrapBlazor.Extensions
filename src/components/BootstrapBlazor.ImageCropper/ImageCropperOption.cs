@@ -1,8 +1,6 @@
-﻿// ********************************** 
-// Densen Informatica 中讯科技 
-// 作者：Alex Chow
-// e-mail:zhouchuanglin@gmail.com 
-// **********************************
+﻿// Copyright (c) Argo Zhang (argo@163.com). All rights reserved.
+// Licensed under the Apache License, Version 2.0. See License.txt in the project root for license information.
+// Website: https://www.blazor.zone or https://argozhang.github.io/
 
 using System.Text.Json.Serialization;
 
@@ -11,9 +9,8 @@ namespace BootstrapBlazor.Components;
 /// <summary>
 /// 裁剪选项
 /// </summary>
-public class CropperOption
+public class ImageCropperOption
 {
-
     /// <summary>
     /// 定义自动裁剪区域大小（百分比）,默认值：（0.8图像的 80%）
     /// </summary>
@@ -62,7 +59,9 @@ public class CropperOption
     public bool CropBoxResizable { get; set; } = true;
 
     public object? Cropend { get; set; }
+
     public object? Cropmove { get; set; }
+
     public object? Cropstart { get; set; }
 
     /// <summary>
@@ -174,6 +173,7 @@ public class CropperOption
     public CropperViewMode ViewModes { get; set; } = CropperViewMode.crop_box_not_to_exceed_the_size_canvas;
 
     public float WheelZoomRatio { get; set; } = 0.1f;
+
     public int? Zoom { get; set; }
 
     /// <summary>
@@ -232,5 +232,4 @@ public enum CropperViewMode
     /// 限制最小画布尺寸以填充容器。如果画布和容器的比例不同，则容器将无法以某一维度容纳整个画布
     /// </summary>
     fit_container_width,
-
 }

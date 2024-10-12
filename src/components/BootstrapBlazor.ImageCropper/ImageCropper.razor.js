@@ -1,8 +1,6 @@
-﻿let cropper = null;
-let opt = null;
-let inst = null;
-let result = null;
-let isRound = false;
+﻿import Cropper from 'cropper.esm.js'
+import Data from '../BootstrapBlazor/modules/data.js'
+import { addLink } from '../BootstrapBlazor/modules/utility.js'
 
 function getRoundCanvas(sourceCanvas) {
     var canvas = document.createElement('canvas');
@@ -24,16 +22,18 @@ function getRoundCanvas(sourceCanvas) {
     return canvas;
 }
 
-export async function init(instance, element, options) {
-    inst = instance;
-    opt = options;
+export async function init(id, invoke, options) {
+    await addLink("./_content/BootstrapBlazor.ImageCropper/cropper.bundle.css");
 
-    isRound = element.querySelector("[data-crop-shape=round]") != null;
+    const el = document.getElementById(id);
+    if (el === null) {
+        return;
+    }
 
-    var image = element.querySelector("[data-action=image]");
-    result = element.querySelector("[data-action=result]");
-    cropper = new Cropper(image, options);
+    const image = el.querySelector(".bb-cropper-image");
+    const cropper = new Cropper(image, options);
 
+    Data.set(id, { cropper, invoke, });
 }
 
 export async function crop() {
@@ -62,8 +62,8 @@ export async function setDragMode(mode) {
     cropper.setDragMode(mode);
 }
 
-export async function rotate() {
-    cropper.rotate(90);
+export async function rotate(angle) {
+    cropper.rotate(angle);
 }
 
 export async function reset() {
@@ -90,6 +90,5 @@ export function destroyMod() {
     if (undefined !== cropper && null !== cropper) {
         cropper.destroy();
         cropper = null;
-        console.log('destroy');
     }
 }
