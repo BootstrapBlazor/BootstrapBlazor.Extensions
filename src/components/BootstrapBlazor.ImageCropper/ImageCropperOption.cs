@@ -199,4 +199,16 @@ public class ImageCropperOption
     /// </summary>
     [JsonIgnore(Condition = JsonIgnoreCondition.WhenWritingNull)]
     public int? MinCropBoxWidth { get; set; }
+
+    /// <summary>
+    /// 是否圆角处理 默认 false
+    /// </summary>
+    [JsonIgnore(Condition = JsonIgnoreCondition.WhenWritingNull)]
+    public bool? IsRound { get; set; }
+
+    /// <summary>
+    /// 获得/设置 圆角 radius 值 
+    /// </summary>
+    [JsonIgnore(Condition = JsonIgnoreCondition.WhenWritingNull)]
+    public string? Radius { get; set; }
 }

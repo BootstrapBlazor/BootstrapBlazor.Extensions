@@ -11,9 +11,19 @@ export async function init(id, options) {
     }
 
     const image = el.querySelector(".bb-cropper-image");
-    const cropper = new Cropper(image, options);
+    const cropper = new Cropper(image, getOptions(options));
 
     Data.set(id, cropper);
+}
+
+const getOptions = op => {
+    const options = {
+        ...(op || {})
+    }
+    if (options.isRound === true) {
+        options.aspectRatio = 1;
+    }
+    return options;
 }
 
 export function dispose(id) {
@@ -25,16 +35,17 @@ export function dispose(id) {
     }
 }
 
-export function crop(id, isRound = false, radius = null) {
+export function crop(id) {
     let ret = null;
     const cropper = Data.get(id);
     if (cropper != null) {
+        const { isRound } = cropper.options;
         cropper.crop();
         let resultData = cropper.getCroppedCanvas();
         if (isRound) {
             resultData = getRoundCanvas(resultData);
         }
-        ret = resultData.toDataURL("image/jpeg", 0.8);
+        ret = resultData.toDataURL();
         resultData = null;
     }
     return ret;
@@ -104,18 +115,16 @@ const getRoundCanvas = sourceCanvas => {
     var context = canvas.getContext('2d');
     var width = sourceCanvas.width;
     var height = sourceCanvas.height;
+
     canvas.width = width;
     canvas.height = height;
     context.imageSmoothingEnabled = true;
     context.drawImage(sourceCanvas, 0, 0, width, height);
     context.globalCompositeOperation = 'destination-in';
     context.beginPath();
-    var centerX = width / 2;
-    var centerY = height / 2;
-    var radiusX = width / 2;
-    var radiusY = height / 2;
-    context.ellipse(centerX, centerY, radiusX, radiusY, 0, 0, 2 * Math.PI, false);
+    context.arc(width / 2, height / 2, Math.min(width, height) / 2, 0, 2 * Math.PI, true);
     context.fill();
+
     sourceCanvas = null;
     return canvas;
 }
