@@ -68,56 +68,43 @@ public partial class ImageCropper
     /// </summary>
     /// <param name="url"></param>
     /// <returns></returns>
-    public async Task Replace(string url) => await InvokeVoidAsync("replace", Id, url);
+    public Task Replace(string url) => InvokeVoidAsync("replace", Id, url);
 
     /// <summary>
     /// 重置图片方法
     /// </summary>
     /// <returns></returns>
-    public async Task Reset() => await InvokeVoidAsync("reset", Id);
+    public Task Reset() => InvokeVoidAsync("reset", Id);
 
     /// <summary>
-    /// 使用新数据更改裁剪区域的位置和大小（基于原始图像）,注意：此方法仅在选项值viewMode大于或等于时可用1
+    /// 更改拖动模式 可以通过双击裁剪器来切换“裁剪”和“移动”模式, 参数为可选 : 'none'，'crop'，'move'
     /// </summary>
-    /// <param name="data"></param>
+    /// <param name="mode"></param>
     /// <returns></returns>
-    public async Task SetData(object data) => await Module!.InvokeVoidAsync("setData", data);
-
-    /// <summary>
-    /// 更改拖动模式,可以通过双击裁剪器来切换“裁剪”和“移动”模式, 参数为可选 : 'none'，'crop'，'move'
-    /// </summary>
-    /// <param name="data"></param>
-    /// <returns></returns>
-    public async Task SetDragMode(string? mode) => await Module!.InvokeVoidAsync("setDragMode", mode);
+    public Task SetDragMode(string? mode) => InvokeVoidAsync("setDragMode", Id, mode);
 
     /// <summary>
     /// 组件可用
     /// </summary>
     /// <returns></returns>
-    public async Task Enable() => await Module!.InvokeVoidAsync("enable");
+    public Task Enable() => InvokeVoidAsync("enable", Id);
 
     /// <summary>
     /// 禁用组件
     /// </summary>
     /// <returns></returns>
-    public async Task Disable() => await Module!.InvokeVoidAsync("disable");
+    public Task Disable() => InvokeVoidAsync("disable", Id);
 
     /// <summary>
     /// 清空图像
     /// </summary>
     /// <returns></returns>
-    public async Task Clear() => await Module!.InvokeVoidAsync("clear");
-
-    /// <summary>
-    /// 销毁
-    /// </summary>
-    /// <returns></returns>
-    public async Task Destroy() => await Module!.InvokeVoidAsync("destroy");
+    public Task Clear() => InvokeVoidAsync("clear", Id);
 
     /// <summary>
     /// 旋转图片方法
     /// </summary>
     /// <param name="angle">旋转角度</param>
     /// <returns></returns>
-    public async Task Rotate(int angle) => await InvokeVoidAsync(Id, "rotate", angle);
+    public async Task Rotate(int angle) => await InvokeVoidAsync("rotate", Id, angle);
 }

@@ -36,7 +36,15 @@ export async function init(id, options) {
     Data.set(id, cropper);
 }
 
-export async function crop(id, isRound = false) {
+export function dispose(id) {
+    const cropper = Data.get(id);
+    Data.remove(id);
+
+    if (cropper != null) {
+        cropper.destroy();
+    }
+}
+export function crop(id, isRound = false) {
     const cropper = Data.get(id);
     if (cropper != null) {
         cropper.crop();
@@ -55,44 +63,44 @@ export function replace(id, url) {
     }
 }
 
-export async function reset(id) {
+export function reset(id) {
     const cropper = Data.get(id);
     if (cropper != null) {
         cropper.reset();
     }
 }
 
-export async function setData(data) {
-    cropper.setData(data);
+export function setDragMode(id, mode) {
+    const cropper = Data.get(id);
+    if (cropper != null) {
+        cropper.setDragMode(mode);
+    }
 }
 
-export async function setDragMode(mode) {
-    cropper.setDragMode(mode);
+export function rotate(id, angle) {
+    const cropper = Data.get(id);
+    if (cropper != null) {
+        cropper.rotate(angle);
+    }
 }
 
-export async function rotate(angle) {
-    cropper.rotate(angle);
+export function clear(id) {
+    const cropper = Data.get(id);
+    if (cropper != null) {
+        cropper.clear();
+    }
 }
 
-export async function clear() {
-    cropper.clear();
+export async function enable(id) {
+    const cropper = Data.get(id);
+    if (cropper != null) {
+        cropper.enable();
+    }
 }
 
-export async function destroy() {
-    cropper.destroy();
-}
-
-export async function enable() {
-    cropper.enable();
-}
-
-export async function disable() {
-    cropper.disable();
-}
-
-export function destroyMod() {
-    if (undefined !== cropper && null !== cropper) {
-        cropper.destroy();
-        cropper = null;
+export async function disable(id) {
+    const cropper = Data.get(id);
+    if (cropper != null) {
+        cropper.disable();
     }
 }
