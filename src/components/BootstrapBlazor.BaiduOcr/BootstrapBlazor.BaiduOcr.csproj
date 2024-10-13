@@ -1,7 +1,7 @@
 <Project Sdk="Microsoft.NET.Sdk.Razor">
 
   <PropertyGroup>
-    <Version>8.1.1</Version>
+    <Version>8.1.2</Version>
   </PropertyGroup>
 
   <PropertyGroup>
@@ -10,13 +10,10 @@
     <RootNamespace>BootstrapBlazor.Components</RootNamespace>
   </PropertyGroup>
 
-  <ItemGroup Condition="'$(TargetFramework)' != 'net6.0'">
-    <PackageReference Include="Newtonsoft.Json" Version="13.0.3" />
-  </ItemGroup>
-
   <ItemGroup>
     <PackageReference Include="Baidu.AI" Version="4.15.15" />
-    <PackageReference Include="BootstrapBlazor" Version="8.0.0" />
+    <PackageReference Include="BootstrapBlazor" Version="8.10.2" />
+    <PackageReference Include="Newtonsoft.Json" Version="13.0.3" />
   </ItemGroup>
 
 </Project>
