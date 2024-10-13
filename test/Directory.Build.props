@@ -13,7 +13,6 @@
 
   <ItemGroup>
     <Using Include="BootstrapBlazor.Components"/>
-    <Using Include="Bunit"/>
     <Using Include="Microsoft.AspNetCore.Components"/>
     <Using Include="Microsoft.Extensions.DependencyInjection" />
     <Using Include="System.Diagnostics.CodeAnalysis"/>
