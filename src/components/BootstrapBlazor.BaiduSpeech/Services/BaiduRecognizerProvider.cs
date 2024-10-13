@@ -85,10 +85,13 @@ public class BaiduRecognizerProvider : IRecognizerProvider, IAsyncDisposable
                     if (err_no == 0)
                     {
                         var sb = new StringBuilder();
-                        var text = result["result"].ToArray();
-                        foreach (var item in text)
+                        var text = result["result"]?.ToArray();
+                        if (text != null)
                         {
-                            sb.Append(item.ToString());
+                            foreach (var item in text)
+                            {
+                                sb.Append(item.ToString());
+                            }
                         }
                         data = sb.ToString();
                         Logger.LogInformation("recognizer: {data}", data);
