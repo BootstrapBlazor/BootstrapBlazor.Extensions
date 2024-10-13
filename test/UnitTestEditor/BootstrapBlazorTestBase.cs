@@ -4,7 +4,7 @@
 
 using Microsoft.Extensions.Configuration;
 
-namespace UnitTest.Core;
+namespace UnitTestEditor;
 
 public class BootstrapBlazorTestBase : IDisposable
 {
