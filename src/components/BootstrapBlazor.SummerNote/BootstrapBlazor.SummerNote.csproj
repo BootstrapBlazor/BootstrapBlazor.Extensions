@@ -10,10 +10,6 @@
   </PropertyGroup>
 
   <ItemGroup>
-    <None Include="wwwroot\css\editor.css" />
-  </ItemGroup>
-
-  <ItemGroup>
     <PackageReference Include="BootstrapBlazor" Version="8.10.2" />
   </ItemGroup>
 
