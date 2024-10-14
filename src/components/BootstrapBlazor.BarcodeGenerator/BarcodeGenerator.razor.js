@@ -1,15 +1,16 @@
-﻿import '/_content/BootstrapBlazor.BarcodeGenerator/JsBarcode.all.min.js';
+﻿import './JsBarcode.all.min.js';
 
-export function Gen(instance, element, options) {
-    var ele = element.querySelector("[data-action=barcode]");
-
-    if (options.fontOption) {
-        if (options.fontOption == "normal")
-            options.fontOption = "";
-        else if (options.fontOption == "bold_italic")
-            options.fontOption = "bold italic";
+export function generate(id, value, options) {
+    const el = document.getElementById(id);
+    if (el === null) {
+        return;
     }
 
-    JsBarcode(ele, options.value, options);
-    return ele.innerHTML// .toDataURL("image/jpeg", 0.8);
+    if (typeof (JsBarcode) !== 'function') {
+        console.error('import JsBarcode failed');
+    }
+
+    const svg = el.querySelector("svg");
+    JsBarcode(svg, value, options);
+    return svg.outerHTML;
 }
