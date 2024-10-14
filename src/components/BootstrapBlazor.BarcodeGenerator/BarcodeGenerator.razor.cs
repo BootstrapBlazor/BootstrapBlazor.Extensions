@@ -3,137 +3,82 @@
 // Website: https://www.blazor.zone or https://argozhang.github.io/
 
 using Microsoft.AspNetCore.Components;
-using Microsoft.JSInterop;
 
 namespace BootstrapBlazor.Components;
 
 /// <summary>
 /// 条码生成器组件
 /// </summary>
-public partial class BarCodeGenerator
+public partial class BarcodeGenerator
 {
-    [Inject]
-    [NotNull]
-    private IJSRuntime? JSRuntime { get; set; }
-
-    private IJSObjectReference? Module { get; set; }
-
-    private DotNetObjectReference<BarCodeGenerator>? Instance { get; set; }
+    private string? _value;
+    private BarcodeGeneratorOption _options = new();
 
     /// <summary>
-    /// UI界面元素的引用对象
-    /// </summary>
-    public ElementReference Element { get; set; }
-
-    /// <summary>
-    /// 条码类型/ Barcode type
-    /// </summary>
-    [Parameter]
-    public EnumBarcodeType? Type { get; set; }
-
-    /// <summary>
-    /// 条码值/ Barcode value
+    /// 获得/设置 条码值
     /// </summary>
     [Parameter]
     public string? Value { get; set; }
 
     /// <summary>
-    /// 选项
+    /// 获得/设置 <see cref="BarcodeGeneratorOption"/> 实例值
     /// </summary>
     [Parameter]
-    public BarcodeGeneratorOption Options { get; set; } = new();
+    public BarcodeGeneratorOption? Options { get; set; }
 
     /// <summary>
-    /// 条码生成(svg)回调方法/ Barcode generated(svg) callback method
+    /// 获得/设置 条码生成回调方法
     /// </summary>
     [Parameter]
-    public Func<string, Task>? OnResult { get; set; }
+    public Func<string?, Task>? OnCompletedAsync { get; set; }
+
+    private string? ClassString => CssBuilder.Default("bb-barcode")
+        .AddClassFromAttributes(AdditionalAttributes)
+        .Build();
 
     /// <summary>
-    /// 错误回调方法/Error callback method
+    /// <inheritdoc/>
     /// </summary>
-    [Parameter]
-    public Func<string, Task>? OnError { get; set; }
-
-    private bool FirstRender { get; set; } = true;
-
     protected override async Task OnAfterRenderAsync(bool firstRender)
     {
-        try
+        await base.OnAfterRenderAsync(firstRender);
+
+        var render = false;
+        if (_value != Value)
         {
-            if (!firstRender) return;
-            FirstRender = false;
-            Instance = DotNetObjectReference.Create(this);
-            Module = await JSRuntime.InvokeAsync<IJSObjectReference>("import", "./_content/BootstrapBlazor.BarcodeGenerator/BarCodeGenerator.razor.js" + "?v=" + System.Reflection.Assembly.GetExecutingAssembly().GetName().Version);
-            await GenerateBarcode();
-
+            _value = Value;
+            render = true;
         }
-        catch (Exception e)
+        if (_options.DifferAndAssign(Options))
         {
-            if (OnError != null) await OnError.Invoke(e.Message);
+            render = true;
         }
 
-    }
-
-    protected override async Task OnParametersSetAsync()
-    {
-        if (FirstRender) return;
-        await GenerateBarcode();
-    }
-
-    [JSInvokable]
-    public async Task GetError(string err)
-    {
-        if (OnError != null) await OnError.Invoke(err);
+        if (render)
+        {
+            var result = await GenerateBarCode(Value, Options);
+            if (OnCompletedAsync != null)
+            {
+                await OnCompletedAsync(result);
+            }
+        }
     }
 
     /// <summary>
-    /// 生成条码/ Generate barcode
+    /// 生成条码方法
     /// </summary>
-    /// <param name="input"></param>
+    /// <param name="value"></param>
     /// <param name="options"></param>
     /// <returns></returns>
-    public async Task GenerateBarcode(string? input = null, BarcodeGeneratorOption? options = null)
+    public async Task<string?> Generate(string? value = null, BarcodeGeneratorOption? options = null)
     {
-        if (input != null)
-            Value = input;
-        if (options != null)
-            Options = options;
-
-        if (!string.IsNullOrWhiteSpace(Value) || Options.Value != null)
+        if (_value != value)
         {
-            try
-            {
-                if (Type != null)
-                    Options.Type = Type.Value;
-                if (Value != null)
-                    Options.Value = Value;
-                var res = await Module!.InvokeAsync<string>("Gen", Instance, Element, Options);
-                if (OnResult != null)
-                    await OnResult.Invoke(res);
-            }
-            catch (Exception ex)
-            {
-                Console.WriteLine(ex.Message);
-            }
-
+            _value = Value = value;
         }
+
+        return await GenerateBarCode(_value, options);
     }
 
-    [JSInvokable]
-    public async Task GetResult(string err)
-    {
-        if (OnResult != null)
-            await OnResult.Invoke(err);
-    }
-
-    async ValueTask IAsyncDisposable.DisposeAsync()
-    {
-        if (Module is not null)
-        {
-            await Module.DisposeAsync();
-        }
-        Instance?.Dispose();
-    }
-
+    private Task<string?> GenerateBarCode(string? value, BarcodeGeneratorOption? options = null) => InvokeAsync<string?>("generate", Id, value, options);
 }
