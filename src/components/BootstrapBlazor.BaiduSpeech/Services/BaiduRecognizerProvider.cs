@@ -79,21 +79,27 @@ public class BaiduRecognizerProvider : IRecognizerProvider, IAsyncDisposable
             await Task.Run(() =>
             {
                 var result = Client.Recognize(bytes, "wav", 16000);
-                var err_no = result.Value<int>("err_no");
-                if (err_no == 0)
+                if (result != null)
                 {
-                    var sb = new StringBuilder();
-                    var text = result["result"].ToArray();
-                    foreach (var item in text)
+                    var err_no = result.Value<int>("err_no");
+                    if (err_no == 0)
                     {
-                        sb.Append(item.ToString());
+                        var sb = new StringBuilder();
+                        var text = result["result"]?.ToArray();
+                        if (text != null)
+                        {
+                            foreach (var item in text)
+                            {
+                                sb.Append(item.ToString());
+                            }
+                        }
+                        data = sb.ToString();
+                        Logger.LogInformation("recognizer: {data}", data);
                     }
-                    data = sb.ToString();
-                    Logger.LogInformation("recognizer: {data}", data);
-                }
-                else
-                {
-                    Logger.LogError("err_no: {err_no}", err_no);
+                    else
+                    {
+                        Logger.LogError("err_no: {err_no}", err_no);
+                    }
                 }
             });
         }
@@ -112,10 +118,7 @@ public class BaiduRecognizerProvider : IRecognizerProvider, IAsyncDisposable
     {
         if (disposing)
         {
-            if (Interop != null)
-            {
-                Interop.Dispose();
-            }
+            Interop?.Dispose();
             if (Module is not null)
             {
                 await Module.DisposeAsync();

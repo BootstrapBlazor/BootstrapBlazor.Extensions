@@ -2,9 +2,10 @@
 // Licensed under the Apache License, Version 2.0. See License.txt in the project root for license information.
 // Website: https://www.blazor.zone or https://argozhang.github.io/
 
-using Azure;
 using Azure.AI.OpenAI;
 using Microsoft.Extensions.Options;
+using OpenAI.Chat;
+using System.ClientModel;
 using System.Runtime.CompilerServices;
 using System.Text;
 
@@ -14,16 +15,7 @@ class AzureOpenAIService : IAzureOpenAIService
 {
     private AzureOpenAIOption Options { get; set; }
 
-    private OpenAIClient? Client { get; set; }
-
-    private ChatCompletionsOptions ChatCompletionsOptions { get; } = new()
-    {
-        //Temperature = 0.5f, //浮点数，控制模型的输出的多样性。值越高，输出越多样化。值越低，输出越简单。默认值为 0.5
-        //MaxTokens = 500,//完成时生成的最大令牌数
-        //NucleusSamplingFactor = 0.95f,
-        //FrequencyPenalty = 0,
-        //PresencePenalty = 0,
-    };
+    private AzureOpenAIClient? Client { get; set; }
 
     /// <summary>
     /// 构造函数
@@ -55,15 +47,13 @@ class AzureOpenAIService : IAzureOpenAIService
     /// <returns></returns>
     public async Task<IEnumerable<AzureOpenAIChatMessage>> GetChatCompletionsAsync(string context, CancellationToken cancellationToken = default)
     {
-        Client ??= new(new Uri(Options.Endpoint), new AzureKeyCredential(Options.Key));
+        Client ??= new(new Uri(Options.Endpoint), new ApiKeyCredential(Options.Key));
 
-        ChatCompletionsOptions.Messages.Add(new ChatMessage(ChatRole.User, context));
-        var option = new ChatCompletionsOptions(Options.DeploymentName, ChatCompletionsOptions.Messages);
-        var completionsResponse = await Client.GetChatCompletionsAsync(option, cancellationToken);
-        return completionsResponse.Value.Choices.Select(choice => new AzureOpenAIChatMessage()
+        var client = Client.GetChatClient(Options.DeploymentName);
+        var completion = await client.CompleteChatAsync([new UserChatMessage(context)], null, cancellationToken);
+        return completion.Value.Content.Select(x => new AzureOpenAIChatMessage()
         {
-            Content = choice.Message.Content,
-            Role = choice.Message.Role
+            Content = x.Text
         });
     }
 
@@ -75,24 +65,21 @@ class AzureOpenAIService : IAzureOpenAIService
     /// <returns></returns>
     public async IAsyncEnumerable<AzureOpenAIChatMessage> GetChatCompletionsStreamingAsync(string context, [EnumeratorCancellation] CancellationToken cancellationToken = default)
     {
-        Client ??= new(new Uri(Options.Endpoint), new AzureKeyCredential(Options.Key));
+        Client ??= new(new Uri(Options.Endpoint), new ApiKeyCredential(Options.Key));
 
-        ChatCompletionsOptions.Messages.Add(new(ChatRole.User, context));
-        var option = new ChatCompletionsOptions(Options.DeploymentName, ChatCompletionsOptions.Messages);
-
+        var client = Client.GetChatClient(Options.DeploymentName);
         var content = new StringBuilder();
-        await foreach (var chatUpdate in Client.GetChatCompletionsStreaming(option, cancellationToken))
+        await foreach (var chatUpdate in client.CompleteChatStreamingAsync([new UserChatMessage(context)], null, cancellationToken))
         {
-            content.Append(chatUpdate.ContentUpdate);
-            yield return new AzureOpenAIChatMessage
+            foreach (var partText in chatUpdate.ContentUpdate)
             {
-                Content = chatUpdate.ContentUpdate,
-                Role = ChatRole.Assistant
-            };
-        }
-        if (content.Length > 0)
-        {
-            ChatCompletionsOptions.Messages.Add(new(ChatRole.Assistant, content.ToString()));
+                content.Append(partText.Text);
+                yield return new AzureOpenAIChatMessage
+                {
+                    Role = ChatRole.Assistant,
+                    Content = partText.Text
+                };
+            }
         }
     }
 
@@ -102,8 +89,6 @@ class AzureOpenAIService : IAzureOpenAIService
     /// <returns></returns>
     public Task CreateNewTopic()
     {
-        ChatCompletionsOptions.Messages.Clear();
-
         return Task.CompletedTask;
     }
 }

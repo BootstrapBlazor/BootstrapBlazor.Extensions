@@ -1,0 +1,21 @@
+﻿@import url('./cropper.min.css');
+
+.bb-cropper {
+    --bb-crop-disabled-opacity: 0.65;
+    max-width: 640px;
+    width: 100%;
+    height: 100%;
+}
+
+    .bb-cropper .bb-cropper-image {
+        width: 100%;
+    }
+
+    .bb-cropper.is-round .cropper-view-box,
+    .bb-cropper.is-round .cropper-face {
+        border-radius: 50%;
+    }
+
+    .bb-cropper.disabled {
+        opacity: var(--bb-crop-disabled-opacity);
+    }

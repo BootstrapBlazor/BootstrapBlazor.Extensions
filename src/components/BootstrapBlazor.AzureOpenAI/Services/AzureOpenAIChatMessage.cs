@@ -27,3 +27,19 @@ public class AzureOpenAIChatMessage
     /// </summary>
     public DateTimeOffset Time { get; } = DateTimeOffset.Now;
 }
+
+/// <summary>
+/// 角色
+/// </summary>
+public enum ChatRole
+{
+    /// <summary>
+    /// 用户
+    /// </summary>
+    User,
+
+    /// <summary>
+    /// 聊天助手
+    /// </summary>
+    Assistant
+}

@@ -163,15 +163,16 @@ public partial class DockViewV2
     {
         await base.OnAfterRenderAsync(firstRender);
 
-        if (firstRender)
-        {
-            await InvokeVoidAsync("init", Id, Interop, GetOptions());
-        }
-        else
+        if (!firstRender)
         {
             await InvokeVoidAsync("update", Id, GetOptions());
         }
     }
+
+    /// <summary>
+    /// <inheritdoc />
+    /// </summary>
+    protected override Task InvokeInitAsync() => InvokeVoidAsync("init", Id, Interop, GetOptions());
 
     private DockViewConfig GetOptions() => new()
     {

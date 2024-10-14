@@ -1,236 +1,214 @@
-﻿// ********************************** 
-// Densen Informatica 中讯科技 
-// 作者：Alex Chow
-// e-mail:zhouchuanglin@gmail.com 
-// **********************************
+﻿// Copyright (c) Argo Zhang (argo@163.com). All rights reserved.
+// Licensed under the Apache License, Version 2.0. See License.txt in the project root for license information.
+// Website: https://www.blazor.zone or https://argozhang.github.io/
 
+using BootstrapBlazor.Core.Converter;
 using System.Text.Json.Serialization;
 
 namespace BootstrapBlazor.Components;
 
 /// <summary>
-/// 播放器选项
+/// 裁剪选项
 /// </summary>
-public class CropperOption
+public class ImageCropperOption
 {
+    /// <summary>
+    /// Define the view mode of the cropper
+    /// </summary>
+    [JsonIgnore(Condition = JsonIgnoreCondition.WhenWritingNull)]
+    public ImageCropperViewMode? ViewMode { get; set; }
 
     /// <summary>
-    /// 定义自动裁剪区域大小（百分比）,默认值：（0.8图像的 80%）
+    /// Define the dragging mode of the cropper
     /// </summary>
-    public float AutoCropArea { get; set; } = 0.8f;
+    [JsonEnumConverter(true)]
+    [JsonIgnore(Condition = JsonIgnoreCondition.WhenWritingNull)]
+    public ImageCropperDragMode? DragMode { get; set; }
 
     /// <summary>
-    /// 启用初始化时自动裁剪图像
+    /// Define the initial aspect ratio of the crop box
     /// </summary>
-    public bool AutoCrop { get; set; } = true;
+    [JsonIgnore(Condition = JsonIgnoreCondition.WhenWritingNull)]
+    public string? InitialAspectRatio { get; set; }
 
     /// <summary>
-    /// 定义裁剪框的固定纵横比。默认情况下，裁剪框具有自由比例。 设置为1, 裁剪区默认正方形
+    /// Define the fixed aspect ratio of the crop box 定义裁剪框的固定纵横比
     /// </summary>
+    /// <remarks>默认情况下，裁剪框具有自由比例。 设置为1, 裁剪区默认正方形</remarks>
+    [JsonIgnore(Condition = JsonIgnoreCondition.WhenWritingNull)]
     public int? AspectRatio { get; set; }
 
     /// <summary>
-    /// 显示容器的网格背景, 默认 false 关闭
+    /// Re-render the cropper when resizing the window. default tue
     /// </summary>
-    public bool Background { get; set; }
+    [JsonIgnore(Condition = JsonIgnoreCondition.WhenWritingNull)]
+    public bool? Responsive { get; set; }
 
     /// <summary>
-    /// 在裁剪框上方显示中心指示器
+    /// Restore the cropped area after resizing the window. default tue
     /// </summary>
-    public bool Center { get; set; } = true;
+    [JsonIgnore(Condition = JsonIgnoreCondition.WhenWritingNull)]
+    public bool? Restore { get; set; }
 
     /// <summary>
-    /// 检查当前图片是否为跨域图片, 默认 true 。crossOrigin则会在克隆的图像元素中添加一个属性，并在该属性中添加一个时间戳参数，src以重新加载源图像，以避免浏览器缓存错误。向图像元素添加crossOrigin属性将停止向图像 URL 添加时间戳并停止重新加载图像。但是读取图像数据以进行方向检查的请求（XMLHttpRequest）将需要时间戳来破坏缓存以避免浏览器缓存错误。您可以将checkOrientation选项设置false为取消此请求。如果图像crossOrigin属性的值为"use-credentials"，则当通过 XMLHttpRequest 读取图像数据时，该withCredentials属性将设置为。true
+    /// Check if the current image is a cross-origin image. default tue
     /// </summary>
-    public bool CheckCrossOrigin { get; set; } = true;
+    [JsonIgnore(Condition = JsonIgnoreCondition.WhenWritingNull)]
+    public bool? CheckCrossOrigin { get; set; }
 
     /// <summary>
-    /// 检查当前图像的 Exif 方向信息, 默认 true 。请注意，只有 JPEG 图像可能包含 Exif 方向信息。
+    /// Check the current image's Exif Orientation information. Note that only a JPEG image may contain Exif Orientation information. default tue
     /// </summary>
-    public bool CheckOrientation { get; set; } = true;
-
-    public string? Crop { get; set; }
+    [JsonIgnore(Condition = JsonIgnoreCondition.WhenWritingNull)]
+    public bool? CheckOrientation { get; set; }
 
     /// <summary>
-    /// 启用/禁止裁剪区移动, 默认 true, 可移动
+    /// 在图像上方和裁剪框下方显示黑色模态框. default tue
     /// </summary>
-    public bool CropBoxMovable { get; set; } = true;
+    [JsonIgnore(Condition = JsonIgnoreCondition.WhenWritingNull)]
+    public bool? Modal { get; set; }
 
     /// <summary>
-    /// 启用/禁止裁剪区缩放, 默认 true, 可缩放
+    /// 显示裁剪框上方的虚线. default tue
     /// </summary>
-    public bool CropBoxResizable { get; set; } = true;
-
-    public object? Cropend { get; set; }
-    public object? Cropmove { get; set; }
-    public object? Cropstart { get; set; }
+    [JsonIgnore(Condition = JsonIgnoreCondition.WhenWritingNull)]
+    public bool? Guides { get; set; }
 
     /// <summary>
-    /// 数据, 您存储的先前裁剪的数据将setData在初始化时自动传递给该方法, 仅当该autoCrop选项设置为 时才可用true
+    /// 在裁剪框上方显示中心指示器. default tue
     /// </summary>
-    public object? Data { get; set; }
+    [JsonIgnore(Condition = JsonIgnoreCondition.WhenWritingNull)]
+    public bool? Center { get; set; }
 
     /// <summary>
-    /// 拖动模式, 默认 move 画布和图片都可以移动, 'none'，'crop'，'move'
+    /// 在裁剪框上方显示白色模态（突出显示裁剪框）. default tue
     /// </summary>
-    public string DragMode => cropperDragMode.ToString();
+    [JsonIgnore(Condition = JsonIgnoreCondition.WhenWritingNull)]
+    public bool? Highlight { get; set; }
 
     /// <summary>
-    /// 拖动模式, 默认 move 画布和图片都可以移动, 'none'，'crop'，'move'
+    /// 显示容器的网格背景, 默认 true 关闭
     /// </summary>
-    [JsonIgnore]
-    public CropperDragMode cropperDragMode { get; set; } = CropperDragMode.move;
+    [JsonIgnore(Condition = JsonIgnoreCondition.WhenWritingNull)]
+    public bool? Background { get; set; }
 
     /// <summary>
-    /// 显示裁剪框上方的虚线
+    /// Enable to crop the image automatically when initialized. default tue
     /// </summary>
-    public bool Guides { get; set; } = true;
+    [JsonIgnore(Condition = JsonIgnoreCondition.WhenWritingNull)]
+    public bool? AutoCrop { get; set; }
 
     /// <summary>
-    /// 在裁剪框上方显示白色模态（突出显示裁剪框）
+    /// It should be a number between 0 and 1. Define the automatic cropping area size (percentage) default is 0.8f
     /// </summary>
-    public bool Highlight { get; set; } = true;
+    [JsonIgnore(Condition = JsonIgnoreCondition.WhenWritingNull)]
+    public float? AutoCropArea { get; set; }
 
     /// <summary>
-    /// 裁剪框的最小高度
+    /// Enable to move the image. default tue
     /// </summary>
-    public int MinCanvasHeight { get; set; } = 0;
+    [JsonIgnore(Condition = JsonIgnoreCondition.WhenWritingNull)]
+    public bool? Movable { get; set; }
 
     /// <summary>
-    /// 裁剪框的最小宽度
+    /// Enable to rotate the image. default tue
     /// </summary>
-    public int MinCanvasWidth { get; set; } = 0;
+    [JsonIgnore(Condition = JsonIgnoreCondition.WhenWritingNull)]
+    public bool? Rotatable { get; set; }
 
     /// <summary>
-    /// 容器的最小宽度
+    /// Enable to scale the image. default tue
     /// </summary>
-    public int MinContainerHeight { get; set; } = 100;
+    [JsonIgnore(Condition = JsonIgnoreCondition.WhenWritingNull)]
+    public bool? Scalable { get; set; }
 
     /// <summary>
-    /// 容器的最小宽度
+    /// Enable to zoom the image. default tue
     /// </summary>
-    public int MinContainerWidth { get; set; } = 200;
+    [JsonIgnore(Condition = JsonIgnoreCondition.WhenWritingNull)]
+    public bool? Zoomable { get; set; }
 
     /// <summary>
-    /// 画布的最小高度
+    /// Enable to zoom the image by dragging touch. default tue
     /// </summary>
-    public int MinCropBoxHeight { get; set; } = 0;
+    [JsonIgnore(Condition = JsonIgnoreCondition.WhenWritingNull)]
+    public bool? ZoomOnTouch { get; set; }
 
     /// <summary>
-    /// 画布的最小宽度
+    /// Enable to zoom the image by mouse wheeling. default tue
     /// </summary>
-    public int MinCropBoxWidth { get; set; } = 0;
+    [JsonIgnore(Condition = JsonIgnoreCondition.WhenWritingNull)]
+    public bool? ZoomOnWheel { get; set; }
 
     /// <summary>
-    /// 在图像上方和裁剪框下方显示黑色模态框
+    /// Define zoom ratio when zooming the image by mouse wheeling
     /// </summary>
-    public bool Modal { get; set; } = true;
+    [JsonIgnore(Condition = JsonIgnoreCondition.WhenWritingNull)]
+    public float? WheelZoomRatio { get; set; }
 
     /// <summary>
-    /// 可移动图像
+    /// Enable to move the crop box by dragging. default tue
     /// </summary>
-    public bool Movable { get; set; } = true;
+    [JsonIgnore(Condition = JsonIgnoreCondition.WhenWritingNull)]
+    public bool? CropBoxMovable { get; set; }
 
     /// <summary>
-    /// 预览 , 默认：'' , 类型：Element、Array（元素）NodeList或String（选择器）
+    /// Enable to resize the crop box by dragging. default tue
     /// </summary>
-    public string Preview { get; set; } = "";
+    [JsonIgnore(Condition = JsonIgnoreCondition.WhenWritingNull)]
+    public bool? CropBoxResizable { get; set; }
 
     /// <summary>
-    /// 调整窗口大小时重新渲染裁剪器
+    /// Enable to toggle drag mode between "crop" and "move" when clicking twice on the cropper. default tue
     /// </summary>
-    public bool Responsive { get; set; } = true;
+    [JsonIgnore(Condition = JsonIgnoreCondition.WhenWritingNull)]
+    public bool? ToggleDragModeOnDblclick { get; set; }
 
     /// <summary>
-    /// 调整窗口大小后恢复裁剪区域
+    /// 裁剪框的最小高度 默认值 0
     /// </summary>
-
-    public bool Restore { get; set; } = true;
+    [JsonIgnore(Condition = JsonIgnoreCondition.WhenWritingNull)]
+    public int? MinCanvasHeight { get; set; }
 
     /// <summary>
-    /// 可旋转
+    /// 裁剪框的最小宽度 默认值 0
     /// </summary>
-    public bool Rotatable { get; set; } = true;
+    [JsonIgnore(Condition = JsonIgnoreCondition.WhenWritingNull)]
+    public int? MinCanvasWidth { get; set; }
 
     /// <summary>
-    /// 可旋转
+    /// 容器的最小宽度 默认值 100
     /// </summary>
-    public bool Scalable { get; set; } = true;
+    [JsonIgnore(Condition = JsonIgnoreCondition.WhenWritingNull)]
+    public int? MinContainerHeight { get; set; }
 
     /// <summary>
-    /// 启用在裁剪器上单击两次时在"crop"和之间切换拖动模式。"move"
+    /// 容器的最小宽度 默认值 200
     /// </summary>
-    public bool ToggleDragModeOnDblclick { get; set; } = true;
+    [JsonIgnore(Condition = JsonIgnoreCondition.WhenWritingNull)]
+    public int? MinContainerWidth { get; set; }
 
     /// <summary>
-    /// 1.只能在裁剪的图片范围内移动
+    /// 画布的最小高度 默认值 0
     /// </summary>
-    public int ViewMode => (int)ViewModes;
+    [JsonIgnore(Condition = JsonIgnoreCondition.WhenWritingNull)]
+    public int? MinCropBoxHeight { get; set; }
 
     /// <summary>
-    /// 1.只能在裁剪的图片范围内移动
+    /// 画布的最小宽度 默认值 0
     /// </summary>
-    [JsonIgnore]
-    public CropperViewMode ViewModes { get; set; } = CropperViewMode.crop_box_not_to_exceed_the_size_canvas;
-
-    public float WheelZoomRatio { get; set; } = 0.1f;
-    public int? Zoom { get; set; }
+    [JsonIgnore(Condition = JsonIgnoreCondition.WhenWritingNull)]
+    public int? MinCropBoxWidth { get; set; }
 
     /// <summary>
-    /// 通过拖动触摸来缩放图像
+    /// 是否圆角处理 默认 false
     /// </summary>
-    public bool ZoomOnTouch { get; set; } = true;
+    [JsonIgnore(Condition = JsonIgnoreCondition.WhenWritingNull)]
+    public bool? IsRound { get; set; }
 
     /// <summary>
-    /// 鼠标滚轮缩放
+    /// 获得/设置 圆角 radius 值 
     /// </summary>
-    public bool ZoomOnWheel { get; set; } = true;
-
-    /// <summary>
-    /// 可缩放
-    /// </summary>
-    public bool Zoomable { get; set; } = true;
-
-}
-
-/// <summary>
-/// 拖动模式
-/// </summary>
-public enum CropperDragMode
-{
-    /// <summary>
-    ///  创建一个新的裁剪框/create a new crop box
-    /// </summary>
-    crop,
-
-    /// <summary>
-    /// 画布和图片都可以移动/move the canvas
-    /// </summary>
-    move,
-
-    none
-}
-
-public enum CropperViewMode
-{
-    /// <summary>
-    /// 无限制,裁剪框可以延伸到画布之外
-    /// </summary>
-    no_restrictions,
-
-    /// <summary>
-    /// 限制裁剪框不超过画布的大小
-    /// </summary>
-    crop_box_not_to_exceed_the_size_canvas,
-
-    /// <summary>
-    /// 限制最小画布尺寸以适合容器。如果画布和容器的比例不同，则最小画布将被其中一个维度的额外空间包围,裁剪框限制为画布的大小
-    /// </summary>
-    fit_container,
-
-    /// <summary>
-    /// 限制最小画布尺寸以填充容器。如果画布和容器的比例不同，则容器将无法以某一维度容纳整个画布
-    /// </summary>
-    fit_container_width,
-
+    [JsonIgnore(Condition = JsonIgnoreCondition.WhenWritingNull)]
+    public string? Radius { get; set; }
 }

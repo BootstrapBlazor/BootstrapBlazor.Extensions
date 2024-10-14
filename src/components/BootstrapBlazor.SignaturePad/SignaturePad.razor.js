@@ -3,6 +3,8 @@ import Data from '../BootstrapBlazor/modules/data.js'
 import { addLink } from '../BootstrapBlazor/modules/utility.js'
 
 export async function init(id, invoke, alertText, backgroundColor) {
+    await addLink("./_content/BootstrapBlazor.SignaturePad/SignaturePad.css");
+
     //Code modify from https://github.com/szimek/signature_pad
     var element = document.getElementById(id);
     var clearButton = element.querySelector("[data-action=clear]");

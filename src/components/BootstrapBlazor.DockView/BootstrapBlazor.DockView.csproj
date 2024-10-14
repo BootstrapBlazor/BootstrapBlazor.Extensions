@@ -1,16 +1,16 @@
 <Project Sdk="Microsoft.NET.Sdk.Razor">
 
   <PropertyGroup>
-    <Version>8.1.4-beta01</Version>
+    <Version>8.1.6</Version>
   </PropertyGroup>
 
   <PropertyGroup>
-    <PackageTags>Bootstrap Blazor WebAssembly wasm UI Components</PackageTags>
+    <PackageTags>Bootstrap Blazor WebAssembly wasm UI Components Dock DockView</PackageTags>
     <Description>Bootstrap UI components extensions of Dock View</Description>
   </PropertyGroup>
 
   <ItemGroup>
-    <PackageReference Include="BootstrapBlazor" Version="8.9.1-beta02" />
+    <PackageReference Include="BootstrapBlazor" Version="8.9.1" />
   </ItemGroup>
 
   <ItemGroup>

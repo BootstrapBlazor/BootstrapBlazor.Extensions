@@ -2,9 +2,7 @@
 
 @if (Html != null)
 {
-    <iframe @ref="Element"
-            sandbox="allow-scripts"
-            allow="fullscreen"
+    <iframe sandbox="allow-scripts" allow="fullscreen"
             style="@($"border: none; width: {Width}; height: {Height};{StyleString}")"
             srcdoc="@Html" />
 }
@@ -14,7 +12,7 @@ else if (!string.IsNullOrEmpty(ErrorMessage))
 }
 else if (string.IsNullOrEmpty(Filename))
 {
-    <p>@NodataString</p>
+    <p>@NoDataString</p>
 }
 else
 {
