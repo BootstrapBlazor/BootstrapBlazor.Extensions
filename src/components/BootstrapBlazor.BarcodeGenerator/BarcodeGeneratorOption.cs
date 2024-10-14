@@ -50,7 +50,7 @@ public class BarcodeGeneratorOption
     /// 获得/设置 字体式样
     /// </summary>
     [JsonIgnore(Condition = JsonIgnoreCondition.WhenWritingNull)]
-    [JsonEnumConverter(true)]
+    [JsonConverter(typeof(JsonDescriptionEnumConverter<EnumBarcodeTextFontOption>))]
     public EnumBarcodeTextFontOption? FontOptions { get; set; }
 
     /// <summary>
