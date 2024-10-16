@@ -47,7 +47,7 @@ jobs:
         dotnet nuget push publish/BootstrapBlazor.BootstrapIcon.*.nupkg -s https://api.nuget.org/v3/index.json -k $NUGET_API_KEY --skip-duplicate
         
         dotnet pack src/components/BootstrapBlazor.BootstrapIcon.Extensions -c Release -o publish
-        dotnet nuget push publish/BootstrapBlazor.Extensions.*.nupkg -s https://api.nuget.org/v3/index.json -k $NUGET_API_KEY --skip-duplicate
+        dotnet nuget push publish/BootstrapBlazor.BootstrapIcon.Extensions.8.2.0.nupkg -s https://api.nuget.org/v3/index.json -k $NUGET_API_KEY --skip-duplicate
 
         dotnet pack src/components/BootstrapBlazor.Chart -c Release -o publish
         dotnet nuget push publish/BootstrapBlazor.Chart.*.nupkg -s https://api.nuget.org/v3/index.json -k $NUGET_API_KEY --skip-duplicate
