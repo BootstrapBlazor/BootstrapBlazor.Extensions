@@ -22,121 +22,121 @@ jobs:
         NUGET_API_KEY: ${{secrets.NUGET_API_KEY}}
         Bundle: True
       run: |
-        dotnet pack src/Components/BootstrapBlazor.AntDesignIcon -c Release -o publish
+        dotnet pack src/components/BootstrapBlazor.AntDesignIcon -c Release -o publish
         dotnet nuget push publish/BootstrapBlazor.AntDesignIcon.*.nupkg -s https://api.nuget.org/v3/index.json -k $NUGET_API_KEY --skip-duplicate
 
-        dotnet pack src/Components/BootstrapBlazor.AzureOpenAI -c Release -o publish
+        dotnet pack src/components/BootstrapBlazor.AzureOpenAI -c Release -o publish
         dotnet nuget push publish/BootstrapBlazor.AzureOpenAI.*.nupkg -s https://api.nuget.org/v3/index.json -k $NUGET_API_KEY --skip-duplicate
 
-        dotnet pack src/Components/BootstrapBlazor.AzureSpeech -c Release -o publish
+        dotnet pack src/components/BootstrapBlazor.AzureSpeech -c Release -o publish
         dotnet nuget push publish/BootstrapBlazor.AzureSpeech.*.nupkg -s https://api.nuget.org/v3/index.json -k $NUGET_API_KEY --skip-duplicate
         
-        dotnet pack src/Components/BootstrapBlazor.BaiduOcr -c Release -o publish
+        dotnet pack src/components/BootstrapBlazor.BaiduOcr -c Release -o publish
         dotnet nuget push publish/BootstrapBlazor.BaiduOcr.*.nupkg -s https://api.nuget.org/v3/index.json -k $NUGET_API_KEY --skip-duplicate
         
-        dotnet pack src/Components/BootstrapBlazor.BaiduSpeech -c Release -o publish
+        dotnet pack src/components/BootstrapBlazor.BaiduSpeech -c Release -o publish
         dotnet nuget push publish/BootstrapBlazor.BaiduSpeech.*.nupkg -s https://api.nuget.org/v3/index.json -k $NUGET_API_KEY --skip-duplicate
         
-        dotnet pack src/Components/BootstrapBlazor.BarCode -c Release -o publish
+        dotnet pack src/components/BootstrapBlazor.BarCode -c Release -o publish
         dotnet nuget push publish/BootstrapBlazor.BarCode.*.nupkg -s https://api.nuget.org/v3/index.json -k $NUGET_API_KEY --skip-duplicate
         
-        dotnet pack src/Components/BootstrapBlazor.BarcodeGenerator -c Release -o publish
+        dotnet pack src/components/BootstrapBlazor.BarcodeGenerator -c Release -o publish
         dotnet nuget push publish/BootstrapBlazor.BarcodeGenerator.*.nupkg -s https://api.nuget.org/v3/index.json -k $NUGET_API_KEY --skip-duplicate
         
-        dotnet pack src/Components/BootstrapBlazor.BootstrapIcon -c Release -o publish
+        dotnet pack src/components/BootstrapBlazor.BootstrapIcon -c Release -o publish
         dotnet nuget push publish/BootstrapBlazor.BootstrapIcon.*.nupkg -s https://api.nuget.org/v3/index.json -k $NUGET_API_KEY --skip-duplicate
         
-        dotnet pack src/Components/BootstrapBlazor.BootstrapIcon.Extensions -c Release -o publish
+        dotnet pack src/components/BootstrapBlazor.BootstrapIcon.Extensions -c Release -o publish
         dotnet nuget push publish/BootstrapBlazor.Extensions.*.nupkg -s https://api.nuget.org/v3/index.json -k $NUGET_API_KEY --skip-duplicate
 
-        dotnet pack src/Components/BootstrapBlazor.Chart -c Release -o publish
+        dotnet pack src/components/BootstrapBlazor.Chart -c Release -o publish
         dotnet nuget push publish/BootstrapBlazor.Chart.*.nupkg -s https://api.nuget.org/v3/index.json -k $NUGET_API_KEY --skip-duplicate
 
-        dotnet pack src/Components/BootstrapBlazor.CherryMarkdown -c Release -o publish
+        dotnet pack src/components/BootstrapBlazor.CherryMarkdown -c Release -o publish
         dotnet nuget push publish/BootstrapBlazor.CherryMarkdown.*.nupkg -s https://api.nuget.org/v3/index.json -k $NUGET_API_KEY --skip-duplicate
 
-        dotnet pack src/Components/BootstrapBlazor.CodeEditor -c Release -o publish
+        dotnet pack src/components/BootstrapBlazor.CodeEditor -c Release -o publish
         dotnet nuget push publish/BootstrapBlazor.CodeEditor.*.nupkg -s https://api.nuget.org/v3/index.json -k $NUGET_API_KEY --skip-duplicate
         
-        dotnet pack src/Components/BootstrapBlazor.Dock -c Release -o publish
+        dotnet pack src/components/BootstrapBlazor.Dock -c Release -o publish
         dotnet nuget push publish/BootstrapBlazor.Dock.*.nupkg -s https://api.nuget.org/v3/index.json -k $NUGET_API_KEY --skip-duplicate
                 
-        dotnet pack src/Components/BootstrapBlazor.DockView -c Release -o publish
+        dotnet pack src/components/BootstrapBlazor.DockView -c Release -o publish
         dotnet nuget push publish/BootstrapBlazor.DockView.*.nupkg -s https://api.nuget.org/v3/index.json -k $NUGET_API_KEY --skip-duplicate
         
-        dotnet pack src/Components/BootstrapBlazor.DriverJs -c Release -o publish
+        dotnet pack src/components/BootstrapBlazor.DriverJs -c Release -o publish
         dotnet nuget push publish/BootstrapBlazor.DriverJs.*.nupkg -s https://api.nuget.org/v3/index.json -k $NUGET_API_KEY --skip-duplicate
                 
-        dotnet pack src/Components/BootstrapBlazor.ElementIcon -c Release -o publish
+        dotnet pack src/components/BootstrapBlazor.ElementIcon -c Release -o publish
         dotnet nuget push publish/BootstrapBlazor.ElementIcon.*.nupkg -s https://api.nuget.org/v3/index.json -k $NUGET_API_KEY --skip-duplicate
                         
-        dotnet pack src/Components/BootstrapBlazor.FileViewer -c Release -o publish
+        dotnet pack src/components/BootstrapBlazor.FileViewer -c Release -o publish
         dotnet nuget push publish/BootstrapBlazor.FileViewer.*.nupkg -s https://api.nuget.org/v3/index.json -k $NUGET_API_KEY --skip-duplicate
 
-        dotnet pack src/Components/BootstrapBlazor.FloatingUI -c Release -o publish
+        dotnet pack src/components/BootstrapBlazor.FloatingUI -c Release -o publish
         dotnet nuget push publish/BootstrapBlazor.FloatingUI.*.nupkg -s https://api.nuget.org/v3/index.json -k $NUGET_API_KEY --skip-duplicate
 
-        dotnet pack src/Components/BootstrapBlazor.FontAwesome -c Release -o publish
+        dotnet pack src/components/BootstrapBlazor.FontAwesome -c Release -o publish
         dotnet nuget push publish/BootstrapBlazor.FontAwesome.*.nupkg -s https://api.nuget.org/v3/index.json -k $NUGET_API_KEY --skip-duplicate
 
-        dotnet pack src/Components/BootstrapBlazor.Gantt -c Release -o publish
+        dotnet pack src/components/BootstrapBlazor.Gantt -c Release -o publish
         dotnet nuget push publish/BootstrapBlazor.Gantt.*.nupkg -s https://api.nuget.org/v3/index.json -k $NUGET_API_KEY --skip-duplicate
         
-        dotnet pack src/Components/BootstrapBlazor.Holiday -c Release -o publish
+        dotnet pack src/components/BootstrapBlazor.Holiday -c Release -o publish
         dotnet nuget push publish/BootstrapBlazor.Holiday.*.nupkg -s https://api.nuget.org/v3/index.json -k $NUGET_API_KEY --skip-duplicate
 
-        dotnet pack src/Components/BootstrapBlazor.Html2Pdf -c Release -o publish
+        dotnet pack src/components/BootstrapBlazor.Html2Pdf -c Release -o publish
         dotnet nuget push publish/BootstrapBlazor.Html2Pdf.*.nupkg -s https://api.nuget.org/v3/index.json -k $NUGET_API_KEY --skip-duplicate
         
-        dotnet pack src/Components/BootstrapBlazor.Html2Pdf.iText -c Release -o publish
+        dotnet pack src/components/BootstrapBlazor.Html2Pdf.iText -c Release -o publish
         dotnet nuget push publish/BootstrapBlazor.Html2Pdf.iText.*.nupkg -s https://api.nuget.org/v3/index.json -k $NUGET_API_KEY --skip-duplicate
 
-        dotnet pack src/Components/BootstrapBlazor.IconPark -c Release -o publish
+        dotnet pack src/components/BootstrapBlazor.IconPark -c Release -o publish
         dotnet nuget push publish/BootstrapBlazor.IconPark.*.nupkg -s https://api.nuget.org/v3/index.json -k $NUGET_API_KEY --skip-duplicate
         
-        dotnet pack src/Components/BootstrapBlazor.ImageCropper -c Release -o publish
+        dotnet pack src/components/BootstrapBlazor.ImageCropper -c Release -o publish
         dotnet nuget push publish/BootstrapBlazor.ImageCropper.*.nupkg -s https://api.nuget.org/v3/index.json -k $NUGET_API_KEY --skip-duplicate
 
-        dotnet pack src/Components/BootstrapBlazor.Live2DDisplay -c Release -o publish
+        dotnet pack src/components/BootstrapBlazor.Live2DDisplay -c Release -o publish
         dotnet nuget push publish/BootstrapBlazor.Live2DDisplay.*.nupkg -s https://api.nuget.org/v3/index.json -k $NUGET_API_KEY --skip-duplicate
 
-        dotnet pack src/Components/BootstrapBlazor.Markdown -c Release -o publish
+        dotnet pack src/components/BootstrapBlazor.Markdown -c Release -o publish
         dotnet nuget push publish/BootstrapBlazor.Markdown.*.nupkg -s https://api.nuget.org/v3/index.json -k $NUGET_API_KEY --skip-duplicate
 
-        dotnet pack src/Components/BootstrapBlazor.MaterialDesign -c Release -o publish
+        dotnet pack src/components/BootstrapBlazor.MaterialDesign -c Release -o publish
         dotnet nuget push publish/BootstrapBlazor.MaterialDesign.*.nupkg -s https://api.nuget.org/v3/index.json -k $NUGET_API_KEY --skip-duplicate
 
-        dotnet pack src/Components/BootstrapBlazor.MaterialDesign.Extensions -c Release -o publish
+        dotnet pack src/components/BootstrapBlazor.MaterialDesign.Extensions -c Release -o publish
         dotnet nuget push publish/BootstrapBlazor.MaterialDesign.Extensions.*.nupkg -s https://api.nuget.org/v3/index.json -k $NUGET_API_KEY --skip-duplicate
 
-        dotnet pack src/Components/BootstrapBlazor.MouseFollower -c Release -o publish
+        dotnet pack src/components/BootstrapBlazor.MouseFollower -c Release -o publish
         dotnet nuget push publish/BootstrapBlazor.MouseFollower.*.nupkg -s https://api.nuget.org/v3/index.json -k $NUGET_API_KEY --skip-duplicate
         
-        dotnet pack src/Components/BootstrapBlazor.Player -c Release -o publish
+        dotnet pack src/components/BootstrapBlazor.Player -c Release -o publish
         dotnet nuget push publish/BootstrapBlazor.Player.*.nupkg -s https://api.nuget.org/v3/index.json -k $NUGET_API_KEY --skip-duplicate
         
-        dotnet pack src/Components/BootstrapBlazor.SignaturePad -c Release -o publish
+        dotnet pack src/components/BootstrapBlazor.SignaturePad -c Release -o publish
         dotnet nuget push publish/BootstrapBlazor.SignaturePad.*.nupkg -s https://api.nuget.org/v3/index.json -k $NUGET_API_KEY --skip-duplicate
                 
-        dotnet pack src/Components/BootstrapBlazor.Sortable -c Release -o publish
+        dotnet pack src/components/BootstrapBlazor.Sortable -c Release -o publish
         dotnet nuget push publish/BootstrapBlazor.Sortable.*.nupkg -s https://api.nuget.org/v3/index.json -k $NUGET_API_KEY --skip-duplicate
 
-        dotnet pack src/Components/BootstrapBlazor.Splitting -c Release -o publish
+        dotnet pack src/components/BootstrapBlazor.Splitting -c Release -o publish
         dotnet nuget push publish/BootstrapBlazor.Splitting.*.nupkg -s https://api.nuget.org/v3/index.json -k $NUGET_API_KEY --skip-duplicate
 
-        dotnet pack src/Components/BootstrapBlazor.SummerNote -c Release -o publish
+        dotnet pack src/components/BootstrapBlazor.SummerNote -c Release -o publish
         dotnet nuget push publish/BootstrapBlazor.SummerNote.*.nupkg -s https://api.nuget.org/v3/index.json -k $NUGET_API_KEY --skip-duplicate
         
-        dotnet pack src/Components/BootstrapBlazor.TableExport -c Release -o publish
+        dotnet pack src/components/BootstrapBlazor.TableExport -c Release -o publish
         dotnet nuget push publish/BootstrapBlazor.TableExport.*.nupkg -s https://api.nuget.org/v3/index.json -k $NUGET_API_KEY --skip-duplicate
                 
-        dotnet pack src/Components/BootstrapBlazor.TagHelper -c Release -o publish
+        dotnet pack src/components/BootstrapBlazor.TagHelper -c Release -o publish
         dotnet nuget push publish/BootstrapBlazor.TagHelper.*.nupkg -s https://api.nuget.org/v3/index.json -k $NUGET_API_KEY --skip-duplicate
 
-        dotnet pack src/Components/BootstrapBlazor.Topology -c Release -o publish
+        dotnet pack src/components/BootstrapBlazor.Topology -c Release -o publish
         dotnet nuget push publish/BootstrapBlazor.Topology.*.nupkg -s https://api.nuget.org/v3/index.json -k $NUGET_API_KEY --skip-duplicate
         
-        dotnet pack src/Components/BootstrapBlazor.WinBox -c Release -o publish
+        dotnet pack src/components/BootstrapBlazor.WinBox -c Release -o publish
         dotnet nuget push publish/BootstrapBlazor.WinBox.*.nupkg -s https://api.nuget.org/v3/index.json -k $NUGET_API_KEY --skip-duplicate
         
         dotnet pack src/extensions/BootstrapBlazor.DataAccess.EntityFrameworkCore -c Release -o publish
