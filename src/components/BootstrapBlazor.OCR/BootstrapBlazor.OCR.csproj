@@ -1,7 +1,7 @@
 <Project Sdk="Microsoft.NET.Sdk.Razor">
 
   <PropertyGroup>
-    <Version>8.1.0</Version>
+    <Version>8.2.0</Version>
   </PropertyGroup>
 
   <PropertyGroup>
@@ -17,7 +17,7 @@
   <ItemGroup>
     <PackageReference Include="Azure.AI.FormRecognizer" Version="4.1.0" />
     <PackageReference Include="AzureOpenAIClient" Version="1.0.2" />
-    <PackageReference Include="BootstrapBlazor" Version="8.0.0" />
+    <PackageReference Include="BootstrapBlazor" Version="8.10.3" />
     <PackageReference Include="Microsoft.Azure.CognitiveServices.Vision.ComputerVision" Version="7.0.1" />
   </ItemGroup>
 

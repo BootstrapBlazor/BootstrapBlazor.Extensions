@@ -6,6 +6,10 @@
   <Import Project=".\SourceLink.targets" />
 
   <PropertyGroup>
+    <Version>8.0.0</Version>
+  </PropertyGroup>
+
+  <PropertyGroup>
     <IsPackable>true</IsPackable>
     <RepositoryUrl>https://github.com/BootstrapBlazor/BootstrapBlazor.Extensions?wt.mc_id=DT-MVP-5004174</RepositoryUrl>
     <PackageProjectUrl>https://www.blazor.zone</PackageProjectUrl>
@@ -14,6 +18,10 @@
     <DocumentationFile>$(MSBuildProjectName).xml</DocumentationFile>
     <PackageReadmeFile>readme.md</PackageReadmeFile>
     <PackageReleaseNotes>https://github.com/BootstrapBlazor/BootstrapBlazor.Extensions/releases?wt.mc_id=DT-MVP-5004174</PackageReleaseNotes>
+  </PropertyGroup>
+
+  <PropertyGroup>
+    <BBVersion>8.10.3</BBVersion>
   </PropertyGroup>
 
   <ItemGroup>

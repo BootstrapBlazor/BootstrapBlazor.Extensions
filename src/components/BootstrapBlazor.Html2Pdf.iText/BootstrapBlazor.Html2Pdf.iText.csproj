@@ -10,9 +10,9 @@
   </PropertyGroup>
 
   <ItemGroup>
-    <PackageReference Include="BootstrapBlazor" Version="8.5.1" />
-    <PackageReference Include="itext7.bouncy-castle-adapter" Version="8.0.5" />
-    <PackageReference Include="itext7.pdfhtml" Version="5.0.5" />
+    <PackageReference Include="BootstrapBlazor" Version="$(BBVersion)" />
+    <PackageReference Include="itext7.bouncy-castle-adapter" Version="8.*" />
+    <PackageReference Include="itext7.pdfhtml" Version="5.*" />
   </ItemGroup>
 
 </Project>
