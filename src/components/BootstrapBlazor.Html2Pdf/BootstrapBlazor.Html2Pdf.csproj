@@ -1,7 +1,7 @@
 <Project Sdk="Microsoft.NET.Sdk.Razor">
 
   <PropertyGroup>
-    <Version>8.2.1</Version>
+    <Version>8.3.0</Version>
   </PropertyGroup>
 
   <PropertyGroup>
@@ -10,8 +10,8 @@
   </PropertyGroup>
 
   <ItemGroup>
-    <PackageReference Include="BootstrapBlazor" Version="8.10.2" />
-    <PackageReference Include="PuppeteerSharp" Version="20.0.2" />
+    <PackageReference Include="BootstrapBlazor" Version="8.10.3" />
+    <PackageReference Include="PuppeteerSharp" Version="20.*" />
   </ItemGroup>
 
 </Project>

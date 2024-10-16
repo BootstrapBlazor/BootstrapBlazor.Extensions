@@ -12,8 +12,8 @@
 
   <ItemGroup>
     <PackageReference Include="Baidu.AI" Version="4.15.15" />
-    <PackageReference Include="BootstrapBlazor" Version="8.10.2" />
-    <PackageReference Include="Newtonsoft.Json" Version="13.0.3" />
+    <PackageReference Include="BootstrapBlazor" Version="8.10.3" />
+    <PackageReference Include="Newtonsoft.Json" Version="13.*" />
   </ItemGroup>
 
 </Project>

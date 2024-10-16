@@ -6,6 +6,10 @@
   <Import Project=".\SourceLink.targets" />
 
   <PropertyGroup>
+    <Version>8.0.0</Version>
+  </PropertyGroup>
+
+  <PropertyGroup>
     <IsPackable>true</IsPackable>
     <RepositoryUrl>https://github.com/BootstrapBlazor/BootstrapBlazor.Extensions?wt.mc_id=DT-MVP-5004174</RepositoryUrl>
     <PackageProjectUrl>https://www.blazor.zone</PackageProjectUrl>
