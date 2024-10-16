@@ -1,20 +1,13 @@
 <Project Sdk="Microsoft.NET.Sdk.Razor">
 
   <PropertyGroup>
-    <Version>8.2.0</Version>
+    <Version>8.2.1</Version>
   </PropertyGroup>
 
   <PropertyGroup>
     <PackageTags>Bootstrap Blazor WebAssembly wasm UI Components Markdown</PackageTags>
     <Description>Bootstrap UI components extensions of Markdown</Description>
   </PropertyGroup>
-
-  <ItemGroup>
-    <Content Remove="*.json" />
-    <Content Remove="wwwroot\lib\**\*.css" />
-    <None Include="*.json" />
-    <None Include="wwwroot\lib\**\*.css" />
-  </ItemGroup>
 
   <ItemGroup>
     <PackageReference Include="BootstrapBlazor" Version="$(BBVersion)" />
