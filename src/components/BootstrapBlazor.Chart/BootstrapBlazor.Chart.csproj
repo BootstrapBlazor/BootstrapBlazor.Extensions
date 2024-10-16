@@ -12,7 +12,7 @@
   </ItemGroup>
 
   <ItemGroup>
-    <PackageReference Include="BootstrapBlazor" Version="8.10.3" />
+    <PackageReference Include="BootstrapBlazor" Version="$(BBVersion)" />
   </ItemGroup>
 
 </Project>

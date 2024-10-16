@@ -20,6 +20,10 @@
     <PackageReleaseNotes>https://github.com/BootstrapBlazor/BootstrapBlazor.Extensions/releases?wt.mc_id=DT-MVP-5004174</PackageReleaseNotes>
   </PropertyGroup>
 
+  <PropertyGroup>
+    <BBVersion>8.10.3</BBVersion>
+  </PropertyGroup>
+
   <ItemGroup>
     <SupportedPlatform Include="browser" />
   </ItemGroup>

@@ -12,7 +12,7 @@
 
   <ItemGroup>
     <PackageReference Include="Azure.AI.Translation.Text" Version="1.0.0" />
-    <PackageReference Include="BootstrapBlazor" Version="8.10.3" />
+    <PackageReference Include="BootstrapBlazor" Version="$(BBVersion)" />
   </ItemGroup>
 
 </Project>
