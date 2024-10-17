@@ -24,15 +24,8 @@ jobs:
         NUGET_API_KEY: ${{secrets.NUGET_API_KEY}}
         Bundle: True
       run: |
-        dotnet restore --no-cache
-        dotnet build
 
     - name: Test
       run: |
         dotnet test ./test/UnitTestEditor --collect:"XPlat Code Coverage"
         dotnet test ./test/UnitTestHoliday --collect:"XPlat Code Coverage"
-
-    - name: Upload to Codecov
-      uses: codecov/codecov-action@v4
-      with:
-        token: ${{ secrets.CODECOV_TOKEN }}
