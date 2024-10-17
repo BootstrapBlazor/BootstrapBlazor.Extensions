@@ -31,4 +31,21 @@ public static class PetaPocoServiceCollectionExtensions
         services.TryAddScoped(typeof(IDataService<>), typeof(DefaultDataService<>));
         return services;
     }
+
+    /// <summary>
+    /// 增加 PetaPoco 数据库操作服务
+    /// </summary>
+    /// <param name="services"></param>
+    /// <param name="builder"></param>
+    /// <returns></returns>
+    public static IServiceCollection AddPetaPoco(this IServiceCollection services, Func<IDatabaseBuildConfiguration, IDatabase> builder)
+    {
+        services.TryAddTransient(sp =>
+        {
+            var config = DatabaseConfiguration.Build();
+            return builder(config);
+        });
+        services.TryAddScoped(typeof(IDataService<>), typeof(DefaultDataService<>));
+        return services;
+    }
 }
