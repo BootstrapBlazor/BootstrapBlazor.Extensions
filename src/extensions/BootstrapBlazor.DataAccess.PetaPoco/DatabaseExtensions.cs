@@ -49,6 +49,7 @@ public static class DatabaseExtensions
         var sql = new Sql();
         if (where.HasFilters())
         {
+            sql.Append("WHERE ");
             var exp = where.GetFilterLambda<TModel>();
             AnalysisExpression(exp, db, sql);
         }
