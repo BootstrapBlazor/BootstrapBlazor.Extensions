@@ -38,12 +38,12 @@ public static class PetaPocoServiceCollectionExtensions
     /// <param name="services"></param>
     /// <param name="builder"></param>
     /// <returns></returns>
-    public static IServiceCollection AddPetaPoco(this IServiceCollection services, Func<IDatabaseBuildConfiguration, IDatabase> builder)
+    public static IServiceCollection AddPetaPoco(this IServiceCollection services, Func<IDatabaseBuildConfiguration, IServiceProvider, IDatabase> builder)
     {
         services.TryAddTransient(sp =>
         {
             var config = DatabaseConfiguration.Build();
-            return builder(config);
+            return builder(config, sp);
         });
         services.TryAddScoped(typeof(IDataService<>), typeof(DefaultDataService<>));
         return services;
