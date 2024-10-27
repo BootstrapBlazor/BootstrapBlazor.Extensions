@@ -19,7 +19,7 @@ public static class BootstrapBlazorHtml2PdfSelectServiceExtensions
     {
         services.AddSingleton<IHtml2Pdf, DefaultPdfService>();
 #if NET8_0_OR_GREATER
-        services.AddKeyedSingleton<IHtml2Pdf, DefaultPdfService>("BootstrapBlazor.Html2Pdf");
+        services.AddKeyedSingleton<IHtml2Pdf, DefaultPdfService>("BootstrapBlazor.Html2Pdf.Select");
 #endif
         return services;
     }
