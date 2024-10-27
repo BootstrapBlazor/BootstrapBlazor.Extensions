@@ -2,9 +2,7 @@
 // Licensed under the Apache License, Version 2.0. See License.txt in the project root for license information.
 // Website: https://www.blazor.zone or https://argozhang.github.io/
 
-
-
-using System.IO;
+using SelectPdf;
 
 namespace BootstrapBlazor.Components;
 
@@ -16,27 +14,27 @@ class DefaultPdfService : IHtml2Pdf
     /// <summary>
     /// <inheritdoc/>
     /// </summary>
-    public async Task<byte[]> PdfDataAsync(string url)
+    public Task<byte[]> PdfDataAsync(string url)
     {
-        SelectPdf.HtmlToPdf converter = new SelectPdf.HtmlToPdf();
-        SelectPdf.PdfDocument doc = converter.ConvertUrl(url);
+        var converter = new HtmlToPdf();
+        var doc = converter.ConvertUrl(url);
         byte[] result = doc.Save();
         doc.Close();
-        return result;
+        return Task.FromResult(result);
     }
 
     /// <summary>
     /// <inheritdoc/>
     /// </summary>
-    public async Task<Stream> PdfStreamAsync(string url)
+    public Task<Stream> PdfStreamAsync(string url)
     {
-        MemoryStream stream = new MemoryStream();
-        SelectPdf.HtmlToPdf converter = new SelectPdf.HtmlToPdf();
-        SelectPdf.PdfDocument doc = converter.ConvertUrl(url);
+        var stream = new MemoryStream();
+        var converter = new HtmlToPdf();
+        var doc = converter.ConvertUrl(url);
         doc.Save(stream);
         stream.Flush();
         stream.Position = 0;
-        return stream;
+        return Task.FromResult<Stream>(stream);
     }
 
     /// <summary>
@@ -45,13 +43,13 @@ class DefaultPdfService : IHtml2Pdf
     /// <param name="html">html raw string</param>
     /// <param name="links"></param>
     /// <param name="scripts"></param>
-    public async Task<byte[]> PdfDataFromHtmlAsync(string html, IEnumerable<string>? links = null, IEnumerable<string>? scripts = null)
+    public Task<byte[]> PdfDataFromHtmlAsync(string html, IEnumerable<string>? links = null, IEnumerable<string>? scripts = null)
     {
-        SelectPdf.HtmlToPdf converter = new SelectPdf.HtmlToPdf();
-        SelectPdf.PdfDocument doc = converter.ConvertHtmlString(html);
+        var converter = new HtmlToPdf();
+        var doc = converter.ConvertHtmlString(html);
         byte[] result = doc.Save();
         doc.Close();
-        return result;
+        return Task.FromResult(result);
     }
 
     /// <summary>
@@ -60,15 +58,14 @@ class DefaultPdfService : IHtml2Pdf
     /// <param name="html">html raw string</param>
     /// <param name="links"></param>
     /// <param name="scripts"></param>
-    public async Task<Stream> PdfStreamFromHtmlAsync(string html, IEnumerable<string>? links = null, IEnumerable<string>? scripts = null)
+    public Task<Stream> PdfStreamFromHtmlAsync(string html, IEnumerable<string>? links = null, IEnumerable<string>? scripts = null)
     {
-        MemoryStream stream = new MemoryStream();
-        SelectPdf.HtmlToPdf converter = new SelectPdf.HtmlToPdf();
-        SelectPdf.PdfDocument doc = converter.ConvertHtmlString(html);
+        var stream = new MemoryStream();
+        var converter = new SelectPdf.HtmlToPdf();
+        var doc = converter.ConvertHtmlString(html);
         doc.Save(stream);
         stream.Flush();
         stream.Position = 0;
-        return stream;
+        return Task.FromResult<Stream>(stream);
     }
-
 }
