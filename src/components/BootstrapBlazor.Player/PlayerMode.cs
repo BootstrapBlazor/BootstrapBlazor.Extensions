@@ -13,6 +13,7 @@ public enum PlayerMode
     /// 视频模式
     /// </summary>
     Video,
+
     /// <summary>
     /// 音频模式
     /// </summary>
