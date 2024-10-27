@@ -2,6 +2,8 @@
 
   <PropertyGroup>
     <Version>8.10.4</Version>
+    <GeneratePackageOnBuild>False</GeneratePackageOnBuild>
+    <Description>Bootstrap UI components extensions of Html2Pdf use Select.HtmlToPdf lib</Description>
   </PropertyGroup>
 
   <ItemGroup>

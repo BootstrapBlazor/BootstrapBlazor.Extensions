@@ -15,7 +15,7 @@ public static class BootstrapBlazorHtml2PdfSelectServiceExtensions
     /// 添加 AzureOpenAIService 服务
     /// </summary>
     /// <param name="services"></param>
-    public static IServiceCollection AddBootstrapBlazorHtml2PdfService(this IServiceCollection services)
+    public static IServiceCollection AddBootstrapBlazorHtml2PdfSelectService(this IServiceCollection services)
     {
         services.AddSingleton<IHtml2Pdf, DefaultPdfService>();
 #if NET8_0_OR_GREATER
