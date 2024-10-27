@@ -154,7 +154,7 @@ Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "BootstrapBlazor.Middleware"
 EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "BootstrapBlazor.WebSerialPort", "src\components\BootstrapBlazor.WebSerialPort\BootstrapBlazor.WebSerialPort.csproj", "{76ACED46-6DA0-44C7-B5F5-05A6BB4CDB1E}"
 EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "BootstrapBlazor.Html2Pdf.Select", "src\component\BootstrapBlazor.Html2Pdf.Select\BootstrapBlazor.Html2Pdf.Select.csproj", "{11FD9DF2-3F3F-4AF1-8C85-446190F7D887}"
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "BootstrapBlazor.Html2Pdf.Select", "src\components\BootstrapBlazor.Html2Pdf.Select\BootstrapBlazor.Html2Pdf.Select.csproj", "{11FD9DF2-3F3F-4AF1-8C85-446190F7D887}"
 EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
