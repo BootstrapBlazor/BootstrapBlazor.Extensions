@@ -1,0 +1,32 @@
+﻿@namespace BootstrapBlazor.Components
+@inherits BootstrapModuleComponentBase
+@attribute [JSModuleAutoLoader("./_content/BootstrapBlazor.WebSerialPort/WebSerial.razor.js", JSObjectReference = true)]
+
+@if (ShowUI)
+{
+    <div @ref="Element">
+
+        <div data-action="notSupported" class="hidden">
+            <p>
+                Sorry, <b>Web Serial</b> is not supported on this device, make sure you're
+                running Chrome 78 or later and have enabled the
+            </p>
+            <p>
+                抱歉，此设备不支持<b>网络串行</b>，请确保您
+                运行 Chrome 78 或更高版本并启用
+            </p>
+            <code>#enable-experimental-web-platform-features</code> flag in
+            <code>chrome://flags</code>
+        </div>
+        <br>
+        <button data-action="butConnect" type="button">@Options.ConnectBtnTitle</button>
+        <input type="text" data-action="fname" />
+        <button data-action='butwrite' type="button">@Options.WriteBtnTitle</button>
+
+    </div>
+}
+@if (Debug)
+{
+    <pre data-action="log"></pre>
+}
+

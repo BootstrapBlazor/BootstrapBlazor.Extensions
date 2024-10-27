@@ -11,6 +11,7 @@
 
   <PropertyGroup>
     <IsPackable>true</IsPackable>
+    <RootNamespace>BootstrapBlazor.Components</RootNamespace>
     <RepositoryUrl>https://github.com/BootstrapBlazor/BootstrapBlazor.Extensions?wt.mc_id=DT-MVP-5004174</RepositoryUrl>
     <PackageProjectUrl>https://www.blazor.zone</PackageProjectUrl>
     <RepositoryType>github</RepositoryType>
@@ -21,7 +22,7 @@
   </PropertyGroup>
 
   <PropertyGroup>
-    <BBVersion>8.10.3</BBVersion>
+    <BBVersion>8.11.0</BBVersion>
   </PropertyGroup>
 
   <ItemGroup>
