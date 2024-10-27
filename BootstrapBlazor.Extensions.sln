@@ -154,6 +154,8 @@ Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "BootstrapBlazor.Middleware"
 EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "BootstrapBlazor.WebSerialPort", "src\components\BootstrapBlazor.WebSerialPort\BootstrapBlazor.WebSerialPort.csproj", "{76ACED46-6DA0-44C7-B5F5-05A6BB4CDB1E}"
 EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "BootstrapBlazor.Html2Pdf.Select", "src\component\BootstrapBlazor.Html2Pdf.Select\BootstrapBlazor.Html2Pdf.Select.csproj", "{11FD9DF2-3F3F-4AF1-8C85-446190F7D887}"
+EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
 		Debug|Any CPU = Debug|Any CPU
@@ -408,6 +410,10 @@ Global
 		{76ACED46-6DA0-44C7-B5F5-05A6BB4CDB1E}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{76ACED46-6DA0-44C7-B5F5-05A6BB4CDB1E}.Release|Any CPU.ActiveCfg = Release|Any CPU
 		{76ACED46-6DA0-44C7-B5F5-05A6BB4CDB1E}.Release|Any CPU.Build.0 = Release|Any CPU
+		{11FD9DF2-3F3F-4AF1-8C85-446190F7D887}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{11FD9DF2-3F3F-4AF1-8C85-446190F7D887}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{11FD9DF2-3F3F-4AF1-8C85-446190F7D887}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{11FD9DF2-3F3F-4AF1-8C85-446190F7D887}.Release|Any CPU.Build.0 = Release|Any CPU
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE
@@ -479,6 +485,7 @@ Global
 		{FF8B3A19-60DC-4802-9FA0-9FE670C7D565} = {A48E5EAB-6EFB-4A78-810E-A3E79CF749F5}
 		{2D783293-CEBD-4365-B8A1-0F9E76D73295} = {BB06AD5B-3F2B-4B59-A135-36AF999A614F}
 		{76ACED46-6DA0-44C7-B5F5-05A6BB4CDB1E} = {FF1089BE-C704-4374-B629-C57C08E1798F}
+		{11FD9DF2-3F3F-4AF1-8C85-446190F7D887} = {FF1089BE-C704-4374-B629-C57C08E1798F}
 	EndGlobalSection
 	GlobalSection(ExtensibilityGlobals) = postSolution
 		SolutionGuid = {D5EB1960-6F30-4CE1-B375-EAE1F787D6FF}
