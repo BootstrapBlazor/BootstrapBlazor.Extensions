@@ -1,6 +1,5 @@
 ﻿import '../../meta2d.js'
 import Data from '../../../BootstrapBlazor/modules/data.js'
-import fillColor from '../../fillLines.js'
 
 export function init(id, options) {
     const el = document.getElementById(id)
@@ -20,6 +19,10 @@ export function init(id, options) {
 
         if (options.isDisableHover) {
             meta2d.setOptions({ hoverColor: '', hoverCursor: '', activeColor: '' });
+        }
+
+        if (options.isDisableAnchor) {
+            meta2d.disableAnchor();
         }
     }
 
@@ -105,28 +108,6 @@ export function dispose(id) {
     }
 }
 
-const hideLinesAnchorPoints = (id) => {
-    const meta2d = Data.get(id)?.meta2d
-    if(!meta2d) return
-    const pensMap = meta2d.store.pens
-    Object.keys(pensMap).forEach(key => {
-        let pen = pensMap[key]
-        pen.myId = pen.id
-        if (pen.type == 1) {
-            meta2d.setValue({
-                id: key,
-                anchors: pen.anchors.map(anchor => ({ ...anchor, radius: 0.0001 }))
-            }, { render: false })
-        }
-    })
-    meta2d.render()
-}
-const fillLines = (id, option) => {
-    const meta2d = Data.get(id)?.meta2d
-    if(!meta2d) return
-    fillColor(meta2d, option)
-}
-
 const createMeta2d = (id, data, option) => {
     const el = document.getElementById(id);
     const meta2d = hackMeta2d(el)
@@ -160,6 +141,20 @@ const hackMeta2d = el => {
         }
         Meta2d.prototype.doSocket = function (data) {
             this.socketCallback(data)
+        }
+
+        Meta2d.prototype.disableAnchor = function () {
+            const pensMap = this.store.pens
+            Object.keys(pensMap).forEach(key => {
+                let pen = pensMap[key]
+                if (pen.type == 1) {
+                    this.setValue({
+                        id: key,
+                        anchors: pen.anchors.map(anchor => ({ ...anchor, radius: 0.0001 }))
+                    }, { render: false })
+                }
+            });
+            this.render()
         }
     }
 
