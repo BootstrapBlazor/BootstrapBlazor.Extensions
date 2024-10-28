@@ -1,5 +1,6 @@
 ﻿import '../../meta2d.js'
 import Data from '../../../BootstrapBlazor/modules/data.js'
+import fillColor from '../../fillLines.js'
 
 export function init(id, options) {
     const el = document.getElementById(id)
@@ -102,6 +103,28 @@ export function dispose(id) {
         meta.meta2d.destroy()
         delete meta.meta2d
     }
+}
+
+const hideLinesAnchorPoints = (id) => {
+    const meta2d = Data.get(id)?.meta2d
+    if(!meta2d) return
+    const pensMap = meta2d.store.pens
+    Object.keys(pensMap).forEach(key => {
+        let pen = pensMap[key]
+        pen.myId = pen.id
+        if (pen.type == 1) {
+            meta2d.setValue({
+                id: key,
+                anchors: pen.anchors.map(anchor => ({ ...anchor, radius: 0.0001 }))
+            }, { render: false })
+        }
+    })
+    meta2d.render()
+}
+const fillLines = (id, option) => {
+    const meta2d = Data.get(id)?.meta2d
+    if(!meta2d) return
+    fillColor(meta2d, option)
 }
 
 const createMeta2d = (id, data, option) => {
