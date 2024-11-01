@@ -1,34 +1,20 @@
 <Project Sdk="Microsoft.NET.Sdk.Razor">
-    <PropertyGroup>
-        <TargetFrameworks>net6.0;net7.0;net8.0</TargetFrameworks>
-        <Nullable>enable</Nullable>
-        <ImplicitUsings>enable</ImplicitUsings>
-    </PropertyGroup>
 
-    <PropertyGroup>
-        <Version>8.0.7</Version>
-        <PackageProjectUrl>https://github.com/densen2014/BootstrapBlazor.MindMap</PackageProjectUrl>
-        <RepositoryUrl>https://github.com/densen2014/BootstrapBlazor.MindMap</RepositoryUrl>
-        <RepositoryType>git</RepositoryType>
-        <PackageTags>Bootstrap Blazor MindMap 思维导图组件</PackageTags>
-        <Description>Bootstrap UI MindMap components experience</Description>
-        <AssemblyName>BootstrapBlazor.MindMap</AssemblyName>
-        <RootNamespace>BootstrapBlazor.Components.MindMaps</RootNamespace>
-        <AssemblyOriginatorKeyFile>..\keys\Longbow.Utility.snk</AssemblyOriginatorKeyFile>
-        <SignAssembly>True</SignAssembly>
-        <OutputPath>..\..\..\Bin</OutputPath>
-    </PropertyGroup>
+  <PropertyGroup>
+    <Version>9.0.0-beta01</Version>
+  </PropertyGroup>
 
-    <ItemGroup Condition="'$(TargetFramework)' == 'net6.0'">
-        <PackageReference Include="Microsoft.AspNetCore.Components.Web" Version="6.0" />
-    </ItemGroup>
+  <PropertyGroup>
+    <PackageTags>Bootstrap Blazor WebAssembly wasm UI Components Mind Map</PackageTags>
+    <Description>Bootstrap UI components extensions of MindMap</Description>
+  </PropertyGroup>
 
-    <ItemGroup Condition="'$(TargetFramework)' == 'net7.0'">
-        <PackageReference Include="Microsoft.AspNetCore.Components.Web" Version="7.0" />
-    </ItemGroup>
+  <ItemGroup>
+    <PackageReference Include="BootstrapBlazor" Version="$(BBVersion)" />
+  </ItemGroup>
 
-    <ItemGroup Condition="'$(TargetFramework)' == 'net8.0'">
-        <PackageReference Include="Microsoft.AspNetCore.Components.Web" Version="8.0" />
-    </ItemGroup>
+  <ItemGroup>
+    <Using Include="Microsoft.JSInterop" />
+  </ItemGroup>
 
 </Project>
