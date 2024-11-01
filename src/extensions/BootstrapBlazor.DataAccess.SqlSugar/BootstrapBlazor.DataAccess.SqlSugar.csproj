@@ -1,7 +1,7 @@
 <Project Sdk="Microsoft.NET.Sdk">
 
   <PropertyGroup>
-    <Version>9.0.0</Version>
+    <Version>9.0.0-beta01</Version>
   </PropertyGroup>
 
   <PropertyGroup>
@@ -11,7 +11,7 @@
 
   <ItemGroup>
     <PackageReference Include="BootstrapBlazor" Version="$(BBVersion)" />
-    <PackageReference Include="SqlSugarCore" Version="5.1.4.169" />
+    <PackageReference Include="SqlSugarCore" Version="5.1.4.170" />
   </ItemGroup>
 
   <ItemGroup>
