@@ -1,7 +1,10 @@
 <Project Sdk="Microsoft.NET.Sdk.Razor">
 
   <PropertyGroup>
-    <Version>8.0.0</Version>
+    <Version>9.0.0-beta01</Version>
+  </PropertyGroup>
+
+  <PropertyGroup>
     <GeneratePackageOnBuild>False</GeneratePackageOnBuild>
     <Description>Bootstrap UI components extensions of Html2Pdf use Select.HtmlToPdf lib</Description>
   </PropertyGroup>
