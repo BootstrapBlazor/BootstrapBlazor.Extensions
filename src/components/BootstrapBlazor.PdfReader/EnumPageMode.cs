@@ -1,8 +1,6 @@
-﻿// ********************************** 
-// Densen Informatica 中讯科技 
-// 作者：Alex Chow
-// e-mail:zhouchuanglin@gmail.com 
-// **********************************
+﻿// Copyright (c) Argo Zhang (argo@163.com). All rights reserved.
+// Licensed under the Apache License, Version 2.0. See License.txt in the project root for license information.
+// Website: https://www.blazor.zone or https://argozhang.github.io/
 
 namespace BootstrapBlazor.Components;
 
@@ -11,7 +9,6 @@ namespace BootstrapBlazor.Components;
 /// </summary>
 public enum EnumPageMode
 {
-
     /// <summary>
     /// 缩略图 / SidebarView.THUMBS;
     /// </summary>
@@ -37,6 +34,4 @@ public enum EnumPageMode
     /// SidebarView.NONE;
     /// </summary>
     None
-
-
 }
