@@ -67,6 +67,12 @@ public partial class Topology
     [Parameter]
     public bool IsDisableHover { get; set; }
 
+    /// <summary>
+    /// 获得/设置 是否禁用锚点（鼠标点击线时显示线段两端小圆圈）默认 false
+    /// </summary>
+    [Parameter]
+    public bool IsDisableAnchor { get; set; }
+
     private string? StyleString => CssBuilder.Default()
         .AddStyleFromAttributes(AdditionalAttributes)
         .Build();
@@ -81,7 +87,7 @@ public partial class Topology
     /// <inheritdoc/>
     /// </summary>
     /// <returns></returns>
-    protected override Task InvokeInitAsync() => InvokeVoidAsync("init", Id, new { Invoker = Interop, Data = Content, Callback = nameof(PushData), IsFitView, IsCenterView, IsDisableHover });
+    protected override Task InvokeInitAsync() => InvokeVoidAsync("init", Id, new { Invoker = Interop, Data = Content, Callback = nameof(PushData), IsFitView, IsCenterView, IsDisableHover, IsDisableAnchor });
 
     /// <summary>
     /// 开始推送数据方法
