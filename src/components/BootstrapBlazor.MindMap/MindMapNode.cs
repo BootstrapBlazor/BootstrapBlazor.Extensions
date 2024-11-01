@@ -1,18 +1,28 @@
-﻿// ********************************** 
-// Densen Informatica 中讯科技 
-// 作者：Alex Chow
-// e-mail:zhouchuanglin@gmail.com 
-// **********************************
+﻿// Copyright (c) Argo Zhang (argo@163.com). All rights reserved.
+// Licensed under the Apache License, Version 2.0. See License.txt in the project root for license information.
+// Website: https://www.blazor.zone or https://argozhang.github.io/
 
-namespace BootstrapBlazor.Components.MindMaps;
+namespace BootstrapBlazor.Components;
 
+/// <summary>
+/// 
+/// </summary>
 public class MindMapNode
 {
+    /// <summary>
+    /// 
+    /// </summary>
     public NodeData? Data { get; set; }
 
+    /// <summary>
+    /// 
+    /// </summary>
     public List<MindMapNode>? Children { get; set; }
 }
 
+/// <summary>
+/// 
+/// </summary>
 public class NodeData
 {
     /// <summary>
@@ -76,8 +86,14 @@ public class NodeData
 /// </summary>
 public class ImageSize
 {
+    /// <summary>
+    /// 
+    /// </summary>
     public int? Width { get; set; }
 
+    /// <summary>
+    /// 
+    /// </summary>
     public int? Height { get; set; }
 }
 

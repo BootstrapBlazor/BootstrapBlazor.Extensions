@@ -1,14 +1,12 @@
-﻿// ********************************** 
-// Densen Informatica 中讯科技 
-// 作者：Alex Chow
-// e-mail:zhouchuanglin@gmail.com 
-// **********************************
+﻿// Copyright (c) Argo Zhang (argo@163.com). All rights reserved.
+// Licensed under the Apache License, Version 2.0. See License.txt in the project root for license information.
+// Website: https://www.blazor.zone or https://argozhang.github.io/
 
 using Microsoft.AspNetCore.Components;
 using Microsoft.JSInterop;
 using System.Diagnostics.CodeAnalysis;
 
-namespace BootstrapBlazor.Components.MindMaps;
+namespace BootstrapBlazor.Components;
 
 /// <summary>
 /// 思维导图 MindMap<para>开发文档 https://wanglin2.github.io/mind-map/#/doc/zh/introduction/?WT.mc_id=DT-MVP-5005078</para>
@@ -78,6 +76,11 @@ public partial class MindMap : IAsyncDisposable
 
     private MindMapNode? DataCache { get; set; }
 
+    /// <summary>
+    /// <inheritdoc/>
+    /// </summary>
+    /// <param name="firstRender"></param>
+    /// <returns></returns>
     protected override async Task OnAfterRenderAsync(bool firstRender)
     {
         try
@@ -107,6 +110,10 @@ public partial class MindMap : IAsyncDisposable
         }
     }
 
+    /// <summary>
+    /// <inheritdoc/>
+    /// </summary>
+    /// <returns></returns>
     protected override async Task OnParametersSetAsync()
     {
         await Task.CompletedTask;

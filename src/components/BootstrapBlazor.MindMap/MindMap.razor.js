@@ -1,4 +1,4 @@
-﻿import MindMap from "/_content/BootstrapBlazor.MindMap/simpleMindMap.esm.min.js"
+﻿import MindMap from "./simpleMindMap.esm.min.js"
 
 var mindMap = null;
 var optionsCache = null; 
