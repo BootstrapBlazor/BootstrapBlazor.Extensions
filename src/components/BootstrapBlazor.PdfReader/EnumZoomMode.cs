@@ -1,8 +1,6 @@
-﻿// ********************************** 
-// Densen Informatica 中讯科技 
-// 作者：Alex Chow
-// e-mail:zhouchuanglin@gmail.com 
-// **********************************
+﻿// Copyright (c) Argo Zhang (argo@163.com). All rights reserved.
+// Licensed under the Apache License, Version 2.0. See License.txt in the project root for license information.
+// Website: https://www.blazor.zone or https://argozhang.github.io/
 
 using System.ComponentModel;
 using System.Reflection;
@@ -38,37 +36,54 @@ public enum EnumZoomMode
     [Description("page-width")]
     PageWidth,
 
+    /// <summary>
+    /// 
+    /// </summary>
     [Description("page-height")]
     PageHeight,
 
+    /// <summary>
+    /// 
+    /// </summary>
     [Description("pref")]
     Pref,
 
+    /// <summary>
+    /// 
+    /// </summary>
     [Description("refW")]
     RefW,
 
+    /// <summary>
+    /// 
+    /// </summary>
     [Description("75")]
     Zoom75,
 
+    /// <summary>
+    /// 
+    /// </summary>
     [Description("50")]
     Zoom50,
 
+    /// <summary>
+    /// 
+    /// </summary>
     [Description("25")]
     Zoom25,
 
+    /// <summary>
+    /// 
+    /// </summary>
     [Description("200")]
     Zoom200,
-
 }
 
 /// <summary>
 /// Enum 扩展方法
 /// </summary>
-
-
 internal static class EnumExtensions
 {
-
     /// <summary>
     /// 重写Enum ToString（）
     /// </summary>

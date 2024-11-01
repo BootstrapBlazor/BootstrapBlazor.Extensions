@@ -1,12 +1,8 @@
-﻿// ********************************** 
-// Densen Informatica 中讯科技 
-// 作者：Alex Chow
-// e-mail:zhouchuanglin@gmail.com 
-// **********************************
+﻿// Copyright (c) Argo Zhang (argo@163.com). All rights reserved.
+// Licensed under the Apache License, Version 2.0. See License.txt in the project root for license information.
+// Website: https://www.blazor.zone or https://argozhang.github.io/
 
 using Microsoft.AspNetCore.Components;
-using Microsoft.JSInterop;
-using System.Diagnostics.CodeAnalysis;
 using System.Web;
 using UAParser;
 
@@ -38,7 +34,7 @@ public partial class PdfReader : IAsyncDisposable
     private byte[]? streamCache { get; set; }
 
     /// <summary>
-    /// 获得/设置 PDF文件URL, 默认'http' 开头自动使用流模式读取
+    /// 获得/设置 PDF文件URL, 默认 http 开头自动使用流模式读取
     /// </summary>
     [Parameter]
     public string? FileName { get; set; }
@@ -170,10 +166,16 @@ public partial class PdfReader : IAsyncDisposable
     string? ErrorMessage { get; set; }
 
     private string? Url { get; set; }
+
     private string? UrlDebug { get; set; }
-    private ClientInfo? ClientInfo { get; set; }
 
+    private UAParser.ClientInfo? ClientInfo { get; set; }
 
+    /// <summary>
+    /// <inheritdoc/>
+    /// </summary>
+    /// <param name="firstRender"></param>
+    /// <returns></returns>
     protected override async Task OnAfterRenderAsync(bool firstRender)
     {
         if (firstRender)
@@ -299,8 +301,8 @@ public partial class PdfReader : IAsyncDisposable
     /// <returns></returns>
     public virtual async Task ShowPdf(string localFileName)
     {
-       LocalFileName = localFileName;
-       await Refresh();
+        LocalFileName = localFileName;
+        await Refresh();
     }
 
 
@@ -309,6 +311,7 @@ public partial class PdfReader : IAsyncDisposable
     /// </summary>
     /// <param name="stream"></param>
     /// <param name="forceLoad">default true</param>
+    /// <param name="islocalFile"></param>
     /// <returns></returns>
     public virtual async Task ShowPdf(Stream stream, bool forceLoad = true, bool islocalFile = false)
     {
