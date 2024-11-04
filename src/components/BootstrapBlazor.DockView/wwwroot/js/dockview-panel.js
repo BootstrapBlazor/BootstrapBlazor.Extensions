@@ -1,16 +1,27 @@
 ﻿import { saveConfig } from "./dockview-config.js";
 import { getIcon } from "./dockview-icon.js"
+import { setDrawerTitle } from "./dockview-group.js"
 
 const onAddPanel = panel => {
     updateCloseButton(panel);
     updateTitle(panel);
     panel.api.onDidActiveChange(({ isActive }) => {
-        if (isActive && !panel.group.api.isMaximized()) {
+        // if (panel.group.panels.length < 2) return
+        // if (isActive) {
+        //     saveConfig(panel.accessor)
+        //     panel.group.panels.filter(p => p != panel.group.activePanel).forEach(p => {
+        //         appendTemplatePanelEle(p)
+        //     })
+        // }
+        if(isActive && !panel.group.api.isMaximized()){
             saveConfig(panel.accessor)
             if (panel.group.panels.length < 2) return
             panel.group.panels.filter(p => p != panel.group.activePanel && p.renderer == 'onlyWhenVisible').forEach(p => {
                 appendTemplatePanelEle(p)
             })
+        }
+        if(isActive && panel.group.getParams().floatType == 'drawer'){
+            setDrawerTitle(panel.group)
         }
     })
 }

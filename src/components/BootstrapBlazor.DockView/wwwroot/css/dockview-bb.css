@@ -42,6 +42,7 @@
     width: 100%;
     height: 100%;
     border: var(--bs-border-width) solid var(--bs-border-color);
+    position: relative;
 }
 
     .bb-dockview .bb-dockview-panel {
@@ -135,6 +136,7 @@
 
         .bb-dockview .dv-tab-on > .dv-default-tab-content + .dv-default-tab-action,
         .bb-dockview .tabs-and-actions-container:has(.dv-tab-on) > .right-actions-container > .bb-dockview-control-icon-close,
+        .bb-dockview .right-actions-container:not(.bb-show-autohide) .bb-dockview-control-icon-autohide,
         .bb-dockview .right-actions-container:not(.bb-show-lock) .bb-dockview-control-icon-lock,
         .bb-dockview .right-actions-container:not(.bb-show-lock) .bb-dockview-control-icon-unlock,
         .bb-dockview .right-actions-container:not(.bb-lock) .bb-dockview-control-icon-lock,
@@ -187,3 +189,78 @@
     transition-delay: unset;
     transition-duration: .3s;
 }
+
+.ribbon-body.ribbon-body > div,
+.bb-dockview .split-view-container,
+.bb-dockview .split-view-container .view-container .view
+{
+    overflow: initial;
+}
+
+.bb-dockview .split-view-container .view-container .view.bb-maximize{
+    z-index: 99;
+}
+.bb-dockview .split-view-container .view-container > .view > .groupview
+{
+    overflow: initial!important;
+}
+.bb-dockview .dv-resize-container .groupview .tabs-and-actions-container
+{
+    z-index: 12;
+}
+
+.bb-dockview .watermark {
+    overflow: hidden;
+}
+
+.bb-dockview .bb-dockview-btn-wrapper {
+    cursor: pointer;
+    float: left;
+    position: absolute;
+    left: 0;
+    top: 0;
+    transform: translate(-100%);
+    user-select: none;
+}
+.bb-dockview .bb-dockview-btn-wrapper > div {
+    width: 20px;
+    padding: 2px 0;
+    margin-bottom: 10px;
+    position: relative;
+    writing-mode: vertical-lr;
+    text-orientation: sideways;
+    color: var(--dv-inactivegroup-visiblepanel-tab-color);
+}
+.bb-dockview .bb-dockview-btn-wrapper > div:hover,
+.bb-dockview .bb-dockview-btn-wrapper > div.active {
+    color: var(--dv-activegroup-visiblepanel-tab-color);
+}
+.bb-dockview .bb-dockview-btn-wrapper > div:hover::after,
+.bb-dockview .bb-dockview-btn-wrapper > div.active::after {
+    content: '';
+    position: absolute;
+    left: -3px;
+    top: 0;
+    width: 3px;
+    height: 100%;
+    background-color: var(--bb-ribbon-menu-bg);
+}
+.bb-dockview .bb-dockview-btn-wrapper > div span {
+    display: block;
+    margin-bottom: -5px;
+}
+.bb-dockview:has(>.bb-dockview-btn-wrapper>div) {
+    margin-left: 23px;
+    width: calc(100% - 23px);
+}
+
+.bb-dockview .dv-resize-container.dv-resize-container-drawer > div:not(.dv-resize-handle-right):not(.dv-groupview-floating)
+{
+    display: none;
+}
+
+.bb-dockview .dv-resize-container-drawer{
+    height: calc(100% + 1px)!important;
+}
+
+
