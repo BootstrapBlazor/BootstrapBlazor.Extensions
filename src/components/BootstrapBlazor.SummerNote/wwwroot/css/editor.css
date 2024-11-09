@@ -36,18 +36,26 @@
     max-width: unset;
 }
 
-.editor .btn-light {
-    border-color: #00000032;
+.editor .note-btn {
+    --bs-btn-color: #212529;
+    --bs-btn-hover-color: var(--bs-btn-color);
+    --bs-btn-active-color: var(--bs-btn-color);
+    --bs-btn-disabled-color: var(--bs-btn-color);
+    --bs-btn-bg: var(--bs-light);
+    --bs-btn-border-color: var(--bs-light);
+    --bs-btn-hover-border-color: var(--bs-btn-hover-bg);
+    --bs-btn-active-bg: var(--bs-btn-hover-bg);
+    --bs-btn-active-border-color: var(--bs-btn-hover-bg);
 }
 
-    .editor .btn-light:hover {
+    .editor .note-btn:hover {
         background-color: #e2e6ea;
         border-color: #dae0e5;
     }
 
-    .editor .btn-light:not(:disabled):not(.disabled).active,
-    .editor .btn-light:not(:disabled):not(.disabled):active,
-    .editor .show > .btn-light.dropdown-toggle {
+    .editor .note-btn:not(:disabled):not(.disabled).active,
+    .editor .note-btn:not(:disabled):not(.disabled):active,
+    .editor .show > .note-btn.dropdown-toggle {
         color: #212529;
         background-color: #dae0e5;
         border-color: #d3d9df;
@@ -55,4 +63,5 @@
 
 .editor .note-toolbar {
     flex-wrap: wrap;
+    display: block;
 }
