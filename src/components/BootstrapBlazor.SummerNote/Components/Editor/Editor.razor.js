@@ -16,7 +16,7 @@ export async function init(id, invoker, methodGetPluginAttrs, methodClickPluginI
     editor.editorElement = el.querySelector('.editor-body')
 
     const initEditor = async () => {
-        let option = { focus: true, dialogsInBody: true, height, lang, langUrl }
+        const option = { focus: true, dialogsInBody: true, height, lang, langUrl, callbacks: {} };
         if (value !== '') {
             option.value = value
         }
@@ -41,13 +41,20 @@ export async function init(id, invoker, methodGetPluginAttrs, methodClickPluginI
 
             const showSubmit = el.getAttribute("data-bb-submit") === "true"
             if (!showSubmit) {
-                option.callbacks = {
-                    onChange: (contents, $editable) => {
-                        editor.invoker.invokeMethodAsync('Update', contents)
-                    }
+                option.callbacks.onChange = contents => {
+                    editor.invoker.invokeMethodAsync('Update', contents)
                 }
             }
-            option.toolbar = toolbar
+            option.toolbar = toolbar;
+            option.callbacks.onEnter = function (e) {
+                if (window.BootstrapBlazor.SummerNote === void 0) {
+                    window.BootstrapBlazor.SummerNote = { callbacks: [] }
+                }
+                const cb = window.BootstrapBlazor.SummerNote.callbacks.find(i => i.id === id);
+                if (cb) {
+                    cb.onEnter.call(this, e);
+                }
+            };
             editor.$editor = $(editor.editorElement).summernote(option)
 
             editor.editorToolbar = editor.el.querySelector('.note-toolbar')
@@ -113,7 +120,8 @@ export async function init(id, invoker, methodGetPluginAttrs, methodClickPluginI
             }
         })
     }
-    initEditor()
+
+    await initEditor();
 }
 
 export function update(id, val) {
