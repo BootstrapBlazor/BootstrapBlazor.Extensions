@@ -12,13 +12,9 @@
         content: attr(placeholder);
     }
 
-.editor .note-editor {
-    background-color: #fff;
+.editor .note-editor .note-right {
+    float: right;
 }
-
-    .editor .note-editor .note-right {
-        float: right;
-    }
 
 .editor .note-btn-close {
     background-image: -webkit-linear-gradient(top, #5bc0de 0%, #2aabd2 100%);
@@ -37,21 +33,17 @@
 }
 
 .editor .note-btn {
-    --bs-btn-color: #212529;
+    --bs-btn-color: var(--bs-body-color);
     --bs-btn-hover-color: var(--bs-btn-color);
     --bs-btn-active-color: var(--bs-btn-color);
     --bs-btn-disabled-color: var(--bs-btn-color);
-    --bs-btn-bg: var(--bs-light);
-    --bs-btn-border-color: var(--bs-light);
-    --bs-btn-hover-border-color: var(--bs-btn-hover-bg);
+    --bs-btn-bg: #fff;
+    --bs-btn-border-color: var(--bs-bordery-color);
+    --bs-btn-hover-bg: #e6e6e6;
+    --bs-btn-hover-border-color: #adadad;
     --bs-btn-active-bg: var(--bs-btn-hover-bg);
     --bs-btn-active-border-color: var(--bs-btn-hover-bg);
 }
-
-    .editor .note-btn:hover {
-        background-color: #e2e6ea;
-        border-color: #dae0e5;
-    }
 
     .editor .note-btn:not(:disabled):not(.disabled).active,
     .editor .note-btn:not(:disabled):not(.disabled):active,
@@ -64,4 +56,10 @@
 .editor .note-toolbar {
     flex-wrap: wrap;
     display: block;
+}
+
+[data-bs-theme='dark'] .editor .note-btn {
+    --bs-btn-bg: #404349;
+    --bs-btn-hover-bg: #51545a;
+    --bs-btn-hover-border-color: #adadad;
 }
