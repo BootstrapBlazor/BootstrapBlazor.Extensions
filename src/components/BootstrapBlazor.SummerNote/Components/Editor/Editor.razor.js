@@ -38,19 +38,6 @@ export async function init(id, invoker, methodGetPluginAttrs, methodClickPluginI
             tooltip = editorLangConfig.tooltip
         }
 
-        const callbackHandler = function (e, method) {
-            if (window.BootstrapBlazor.SummerNote === void 0) {
-                window.BootstrapBlazor.SummerNote = { callbacks: [] }
-            }
-
-            const cb = window.BootstrapBlazor.SummerNote.callbacks.find(i => i.id === id)
-            if (cb) {
-                const invoke = cb[method];
-                if (invoke) {
-                    invoke.call(this, e);
-                }
-            }
-        }
         EventHandler.on(editor.editorElement, 'click', async () => {
             editor.tooltip.hide()
             option.placeholder = editor.editorElement.getAttribute('placeholder')
@@ -64,8 +51,7 @@ export async function init(id, invoker, methodGetPluginAttrs, methodClickPluginI
                 }
             }
             option.toolbar = toolbar;
-            option.callbacks.onEnter = e => callbackHandler(e, 'onEnter');
-            option.callbacks.onInit = () => callbackHandler(null, 'onInit');
+            reloadCallbacks(option);
             editor.$editor = $(editor.editorElement).summernote(option)
 
             editor.editorToolbar = editor.el.querySelector('.note-toolbar')
@@ -133,6 +119,39 @@ export async function init(id, invoker, methodGetPluginAttrs, methodClickPluginI
     }
 
     await initEditor();
+}
+
+const reloadCallbacks = option => {
+    option.callbacks.onBlur = function () { callbackHandler('onBlur', arguments) };
+    option.callbacks.onBlurCodeview = function () { callbackHandler('onBlurCodeview', arguments) };
+    option.callbacks.onChange = function () { callbackHandler('onChange', arguments) };
+    option.callbacks.onChangeCodeview = function () { callbackHandler('onChangeCodeview', arguments) };
+    option.callbacks.onDialogShown = function () { callbackHandler('onDialogShown', arguments) };
+    option.callbacks.onEnter = function () { callbackHandler('onEnter', arguments) };
+    option.callbacks.onFocus = function () { callbackHandler('onFocus', arguments) };
+    option.callbacks.onImageLinkInsert = function () { callbackHandler('onImageLinkInsert', arguments) };
+    option.callbacks.onImageUploadError = function () { callbackHandler('onImageUploadError', arguments) };
+    option.callbacks.onInit = function () { callbackHandler('onInit', arguments) };
+    option.callbacks.onKeydown = function () { callbackHandler('onKeydown', arguments) };
+    option.callbacks.onKeyup = function () { callbackHandler('onKeyup', arguments) };
+    option.callbacks.onMousedown = function () { callbackHandler('onMousedown', arguments) };
+    option.callbacks.onMouseup = function () { callbackHandler('onMouseup', arguments) };
+    option.callbacks.onPaste = function () { callbackHandler('onPaste', arguments) };
+    option.callbacks.onScroll = function () { callbackHandler('onScroll', arguments) };
+}
+
+const callbackHandler = function (method, args) {
+    if (window.BootstrapBlazor.SummerNote === void 0) {
+        window.BootstrapBlazor.SummerNote = { callbacks: [] }
+    }
+
+    const cb = window.BootstrapBlazor.SummerNote.callbacks.find(i => i.id === id)
+    if (cb) {
+        const invoke = cb[method];
+        if (invoke) {
+            invoke.apply(this, args);
+        }
+    }
 }
 
 export function update(id, val) {
