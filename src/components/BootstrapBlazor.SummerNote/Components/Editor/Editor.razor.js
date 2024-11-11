@@ -122,36 +122,15 @@ export async function init(id, invoker, methodGetPluginAttrs, methodClickPluginI
 }
 
 const reloadCallbacks = option => {
-    option.callbacks.onBlur = function () { callbackHandler('onBlur', arguments) };
-    option.callbacks.onBlurCodeview = function () { callbackHandler('onBlurCodeview', arguments) };
-    option.callbacks.onChange = function () { callbackHandler('onChange', arguments) };
-    option.callbacks.onChangeCodeview = function () { callbackHandler('onChangeCodeview', arguments) };
-    option.callbacks.onDialogShown = function () { callbackHandler('onDialogShown', arguments) };
-    option.callbacks.onEnter = function () { callbackHandler('onEnter', arguments) };
-    option.callbacks.onFocus = function () { callbackHandler('onFocus', arguments) };
-    option.callbacks.onImageLinkInsert = function () { callbackHandler('onImageLinkInsert', arguments) };
-    option.callbacks.onImageUploadError = function () { callbackHandler('onImageUploadError', arguments) };
-    option.callbacks.onInit = function () { callbackHandler('onInit', arguments) };
-    option.callbacks.onKeydown = function () { callbackHandler('onKeydown', arguments) };
-    option.callbacks.onKeyup = function () { callbackHandler('onKeyup', arguments) };
-    option.callbacks.onMousedown = function () { callbackHandler('onMousedown', arguments) };
-    option.callbacks.onMouseup = function () { callbackHandler('onMouseup', arguments) };
-    option.callbacks.onPaste = function () { callbackHandler('onPaste', arguments) };
-    option.callbacks.onScroll = function () { callbackHandler('onScroll', arguments) };
-}
+    const events = ['Blur', 'BlurCodeview', 'Change', 'ChangeCodeview', 'DialogShown', 'Enter', 'Focus', 'ImageLinkInsert', 'ImageUploadError', 'Init', 'Keydown', 'Keyup', 'Mousedown', 'Mouseup', 'Paste', 'Scroll'];
 
-const callbackHandler = function (method, args) {
-    if (window.BootstrapBlazor.SummerNote === void 0) {
-        window.BootstrapBlazor.SummerNote = { callbacks: [] }
-    }
-
-    const cb = window.BootstrapBlazor.SummerNote.callbacks.find(i => i.id === id)
-    if (cb) {
-        const invoke = cb[method];
-        if (invoke) {
-            invoke.apply(this, args);
-        }
-    }
+    events.forEach(event => {
+        option.callbacks[`on${event}`] = function () {
+            const callbacks = window.BootstrapBlazor?.SummerNote?.callbacks;
+            const cb = callbacks?.find(i => i.id === id);
+            cb?.[`on${event}`]?.apply(this, arguments);
+        };
+    });
 }
 
 export function update(id, val) {
