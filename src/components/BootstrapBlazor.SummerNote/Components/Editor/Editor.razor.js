@@ -3,6 +3,12 @@ import { addLink, addScript } from '../../../BootstrapBlazor/modules/utility.js'
 import Data from '../../../BootstrapBlazor/modules/data.js'
 import EventHandler from '../../../BootstrapBlazor/modules/event-handler.js'
 
+// WIP: wait net9 release
+// later will move into bootstrapblazor for global init make sure window.BootstrapBlazor is defined
+if (window.BootstrapBlazor === void 0) {
+    window.BootstrapBlazor = {};
+}
+
 export async function init(id, invoker, methodGetPluginAttrs, methodClickPluginItem, height, value, lang, langUrl) {
     const el = document.getElementById(id)
     if (el === null) {
@@ -32,7 +38,19 @@ export async function init(id, invoker, methodGetPluginAttrs, methodClickPluginI
             tooltip = editorLangConfig.tooltip
         }
 
-        // div 点击事件
+        const callbackHandler = function (e, method) {
+            if (window.BootstrapBlazor.SummerNote === void 0) {
+                window.BootstrapBlazor.SummerNote = { callbacks: [] }
+            }
+
+            const cb = window.BootstrapBlazor.SummerNote.callbacks.find(i => i.id === id)
+            if (cb) {
+                const invoke = cb[method];
+                if (invoke) {
+                    invoke.call(this, e);
+                }
+            }
+        }
         EventHandler.on(editor.editorElement, 'click', async () => {
             editor.tooltip.hide()
             option.placeholder = editor.editorElement.getAttribute('placeholder')
@@ -46,15 +64,8 @@ export async function init(id, invoker, methodGetPluginAttrs, methodClickPluginI
                 }
             }
             option.toolbar = toolbar;
-            option.callbacks.onEnter = function (e) {
-                if (window.BootstrapBlazor.SummerNote === void 0) {
-                    window.BootstrapBlazor.SummerNote = { callbacks: [] }
-                }
-                const cb = window.BootstrapBlazor.SummerNote.callbacks.find(i => i.id === id);
-                if (cb) {
-                    cb.onEnter.call(this, e);
-                }
-            };
+            option.callbacks.onEnter = e => callbackHandler(e, 'onEnter');
+            option.callbacks.onInit = () => callbackHandler(null, 'onInit');
             editor.$editor = $(editor.editorElement).summernote(option)
 
             editor.editorToolbar = editor.el.querySelector('.note-toolbar')
