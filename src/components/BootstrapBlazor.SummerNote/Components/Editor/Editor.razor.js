@@ -51,7 +51,7 @@ export async function init(id, invoker, methodGetPluginAttrs, methodClickPluginI
                 }
             }
             option.toolbar = toolbar;
-            reloadCallbacks(option);
+            reloadCallbacks(id, option);
             editor.$editor = $(editor.editorElement).summernote(option)
 
             editor.editorToolbar = editor.el.querySelector('.note-toolbar')
@@ -121,7 +121,7 @@ export async function init(id, invoker, methodGetPluginAttrs, methodClickPluginI
     await initEditor();
 }
 
-const reloadCallbacks = option => {
+const reloadCallbacks = (id, option) => {
     const events = ['Blur', 'BlurCodeview', 'Change', 'ChangeCodeview', 'DialogShown', 'Enter', 'Focus', 'ImageLinkInsert', 'ImageUploadError', 'Init', 'Keydown', 'Keyup', 'Mousedown', 'Mouseup', 'Paste', 'Scroll'];
 
     events.forEach(event => {
