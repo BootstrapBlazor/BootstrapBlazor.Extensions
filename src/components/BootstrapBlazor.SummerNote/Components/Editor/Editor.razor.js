@@ -3,6 +3,12 @@ import { addLink, addScript } from '../../../BootstrapBlazor/modules/utility.js'
 import Data from '../../../BootstrapBlazor/modules/data.js'
 import EventHandler from '../../../BootstrapBlazor/modules/event-handler.js'
 
+// WIP: wait net9 release
+// later will move into bootstrapblazor for global init make sure window.BootstrapBlazor is defined
+if (window.BootstrapBlazor === void 0) {
+    window.BootstrapBlazor = {};
+}
+
 export async function init(id, invoker, methodGetPluginAttrs, methodClickPluginItem, height, value, lang, langUrl) {
     const el = document.getElementById(id)
     if (el === null) {
@@ -32,7 +38,6 @@ export async function init(id, invoker, methodGetPluginAttrs, methodClickPluginI
             tooltip = editorLangConfig.tooltip
         }
 
-        // div 点击事件
         EventHandler.on(editor.editorElement, 'click', async () => {
             editor.tooltip.hide()
             option.placeholder = editor.editorElement.getAttribute('placeholder')
@@ -46,15 +51,7 @@ export async function init(id, invoker, methodGetPluginAttrs, methodClickPluginI
                 }
             }
             option.toolbar = toolbar;
-            option.callbacks.onEnter = function (e) {
-                if (window.BootstrapBlazor.SummerNote === void 0) {
-                    window.BootstrapBlazor.SummerNote = { callbacks: [] }
-                }
-                const cb = window.BootstrapBlazor.SummerNote.callbacks.find(i => i.id === id);
-                if (cb) {
-                    cb.onEnter.call(this, e);
-                }
-            };
+            reloadCallbacks(id, option);
             editor.$editor = $(editor.editorElement).summernote(option)
 
             editor.editorToolbar = editor.el.querySelector('.note-toolbar')
@@ -122,6 +119,18 @@ export async function init(id, invoker, methodGetPluginAttrs, methodClickPluginI
     }
 
     await initEditor();
+}
+
+const reloadCallbacks = (id, option) => {
+    const events = ['Blur', 'BlurCodeview', 'Change', 'ChangeCodeview', 'DialogShown', 'Enter', 'Focus', 'ImageLinkInsert', 'ImageUploadError', 'Init', 'Keydown', 'Keyup', 'Mousedown', 'Mouseup', 'Paste', 'Scroll'];
+
+    events.forEach(event => {
+        option.callbacks[`on${event}`] = function () {
+            const callbacks = window.BootstrapBlazor?.SummerNote?.callbacks;
+            const cb = callbacks?.find(i => i.id === id);
+            cb?.[`on${event}`]?.apply(this, arguments);
+        };
+    });
 }
 
 export function update(id, val) {

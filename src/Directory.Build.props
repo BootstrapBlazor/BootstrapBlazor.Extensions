@@ -22,7 +22,7 @@
   </PropertyGroup>
 
   <PropertyGroup>
-    <BBVersion>9.0.0-rc*</BBVersion>
+    <BBVersion>9.0.0-rc.2.*</BBVersion>
   </PropertyGroup>
 
   <ItemGroup>
