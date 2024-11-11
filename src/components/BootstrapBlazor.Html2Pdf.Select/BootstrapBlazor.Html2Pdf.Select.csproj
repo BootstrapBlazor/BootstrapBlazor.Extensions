@@ -1,11 +1,11 @@
 <Project Sdk="Microsoft.NET.Sdk.Razor">
 
   <PropertyGroup>
-    <Version>9.0.0-beta01</Version>
+    <Version>9.0.0-beta02</Version>
   </PropertyGroup>
 
   <PropertyGroup>
-    <GeneratePackageOnBuild>False</GeneratePackageOnBuild>
+    <PackageTags>Bootstrap Blazor WebAssembly wasm UI Components Pdf</PackageTags>
     <Description>Bootstrap UI components extensions of Html2Pdf use Select.HtmlToPdf lib</Description>
   </PropertyGroup>
 
