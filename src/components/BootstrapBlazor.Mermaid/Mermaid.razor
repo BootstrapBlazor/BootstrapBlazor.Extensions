@@ -1,0 +1,19 @@
+﻿<span class="mermaid" style="@Style" id="@Id">
+	@if (Type != MermaidType.None)
+	{
+		@Type
+		@if (Type == MermaidType.flowchart || Type == MermaidType.stateDiagram)
+		{
+			@(" " + Direction)
+		}
+		@if (!string.IsNullOrEmpty(MermaidTitle) &&
+						(Type == MermaidType.gantt
+						|| Type == MermaidType.pie
+						|| Type == MermaidType.sequenceDiagram
+						))
+		{
+			@("\ntitle " + MermaidTitle)
+		}
+	}
+	@ChildContent
+</span>
