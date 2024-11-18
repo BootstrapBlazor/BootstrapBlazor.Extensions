@@ -3,8 +3,6 @@ import { addLink, addScript } from '../../../BootstrapBlazor/modules/utility.js'
 import Data from '../../../BootstrapBlazor/modules/data.js'
 import EventHandler from '../../../BootstrapBlazor/modules/event-handler.js'
 
-// WIP: wait net9 release
-// later will move into bootstrapblazor for global init make sure window.BootstrapBlazor is defined
 if (window.BootstrapBlazor === void 0) {
     window.BootstrapBlazor = {};
 }
