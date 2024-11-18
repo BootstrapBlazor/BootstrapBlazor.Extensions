@@ -15,7 +15,7 @@ public partial class Mermaid
     /// 获取/设置 图方向
     /// </summary>
     [Parameter]
-    public MermaidDirection? Direction { get; set; } = MermaidDirection.TD;
+    public MermaidDirection? Direction { get; set; } = MermaidDirection.TB;
 
     /// <summary>
     /// 获取/设置 mermaid 图内容

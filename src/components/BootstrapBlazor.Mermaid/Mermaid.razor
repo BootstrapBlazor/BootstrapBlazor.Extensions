@@ -6,18 +6,24 @@
 	@if (Type != MermaidType.None)
 	{
 		@Type.ToDescriptionString()
-		@if (Type == MermaidType.Flowchart || Type == MermaidType.StateDiagram)
+		@if (Type == MermaidType.Flowchart)
 		{
-			@(" " + Direction)
+			@(" " + Direction + "\n")
+		}
+		else if (Type == MermaidType.StateDiagram)
+		{
+			@("\ndirection " + Direction+"\n")
+		}else{
+			@("\n")
 		}
 		@if (!string.IsNullOrEmpty(MermaidTitle) &&
-						(Type == MermaidType.Gantt
-						|| Type == MermaidType.Pie
-						|| Type == MermaidType.SequenceDiagram
-						))
+											(Type == MermaidType.Gantt
+											|| Type == MermaidType.Pie
+											|| Type == MermaidType.SequenceDiagram
+											))
 		{
-			@("\ntitle " + MermaidTitle)
-		}
+			@("\ntitle " + MermaidTitle +"\n")
+	}
 	}
 	@ChildContent
 </div>

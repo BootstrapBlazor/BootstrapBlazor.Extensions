@@ -10,11 +10,7 @@ namespace BootstrapBlazor.Components;
 public enum MermaidDirection
 {
     /// <summary>
-    /// 从上到下（Top to Down）
-    /// </summary>
-    TD,
-    /// <summary>
-    /// 从上到下（Top to Bottom）与TD无差别
+    /// 从上到下（Top to Bottom)
     /// </summary>
     TB,
     /// <summary>
