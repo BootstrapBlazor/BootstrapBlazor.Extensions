@@ -1,9 +1,6 @@
-﻿export function loadMermaidContent() {
-    mermaid.contentLoaded();
-}
-
-export function removeComment() {
-    const mermaidDiv = document.querySelectorAll(".mermaid");
+﻿
+export function init(id) {
+    const mermaidDiv = document.querySelectorAll(".bb-mermaid");
     if (mermaidDiv) {
         mermaidDiv.forEach((Mermaid) => {
             const childNodes = Mermaid.childNodes;
@@ -15,12 +12,21 @@ export function removeComment() {
             }
         })
     }
+    mermaid.contentLoaded();
 }
 
-export function exportBase64Mermaid(Id) {
-    const svgElement = document.getElementById(Id).childNodes[0];
-    const serializer = new XMLSerializer();
-    const svgString = serializer.serializeToString(svgElement);
-    const svgDataUrl = 'data:image/svg+xml;base64,' + btoa(unescape(encodeURIComponent(svgString)));
+export function getContent(id) {
+    let svgDataUrl = "";
+    const el = document.getElementById(id);
+    if (el) {
+        const svgElement = el.childNodes[0];
+        const serializer = new XMLSerializer();
+        const svgString = serializer.serializeToString(svgElement);
+        svgDataUrl = 'data:image/svg+xml;base64,' + btoa(encodeURIComponent(svgString));
+    }
     return svgDataUrl;
+}
+
+export function dispose(id) {
+
 }

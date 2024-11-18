@@ -1,86 +1,65 @@
-﻿using Microsoft.AspNetCore.Components;
+﻿// Copyright (c) Argo Zhang (argo@163.com). All rights reserved.
+// Licensed under the Apache License, Version 2.0. See License.txt in the project root for license information.
+// Website: https://www.blazor.zone or https://argozhang.github.io/
+
+using Microsoft.AspNetCore.Components;
 
 namespace BootstrapBlazor.Components;
+
 /// <summary>
-/// Mermaid组件
+/// Mermaid 组件
 /// </summary>
-public partial class Mermaid : IAsyncDisposable
+public partial class Mermaid
 {
     /// <summary>
     /// 获取/设置 图方向
     /// </summary>
     [Parameter]
     public MermaidDirection? Direction { get; set; } = MermaidDirection.TD;
-    [Inject]
-    [NotNull]
-    private IJSRuntime? JSRuntime { get; set; }
-    private IJSObjectReference? Module { get; set; }
+
     /// <summary>
-    /// 获取/设置 mermaid图内容
+    /// 获取/设置 mermaid 图内容
     /// </summary>
     [Parameter]
     public RenderFragment? ChildContent { get; set; }
+
     /// <summary>
     /// 获取/设置 错误回调方法
     /// </summary>
     [Parameter]
     public Func<string, Task>? OnError { get; set; }
+
     /// <summary>
-    /// 自定义css
+    /// 获取/设置 自定义样式
     /// </summary>
     [Parameter]
-    public string? Style { get; set; } = string.Empty;
-    /// <summary>
-    /// 获取/设置 图Id
-    /// </summary>
-    [Parameter]
-    public Guid? Id { set; get; } = Guid.NewGuid();
+    public string? Style { get; set; }
+
     /// <summary>
     /// 获取/设置 图类型
     /// </summary>
     [Parameter]
-    public MermaidType? Type { set; get; } = MermaidType.None;
+    public MermaidType Type { set; get; }
+
     /// <summary>
-    /// 获取/设置 图标题 如果图类型是甘特图，饼图时和序列图时，可指定其title
+    /// 获取/设置 图标题 如果图类型是甘特图，饼图时和序列图时，可指定其 title 默认 null 未设置
     /// </summary>
     [Parameter]
-    public string? MermaidTitle { set; get; } = string.Empty;
+    public string? MermaidTitle { set; get; }
 
+    private string? ClassString => CssBuilder.Default("bb-mermaid")
+        .AddClassFromAttributes(AdditionalAttributes)
+        .Build();
 
     /// <summary>
-    /// 
+    /// <inheritdoc/>
     /// </summary>
     /// <returns></returns>
-    protected override async Task OnInitializedAsync()
-    {
-        Module = await JSRuntime.InvokeAsync<IJSObjectReference>("import", "./_content/BootstrapBlazor.Mermaid/Mermaid.razor.js");
-        await Module.InvokeVoidAsync("removeComment");
-        await Module.InvokeVoidAsync("loadMermaidContent");
+    protected override Task InvokeInitAsync() => InvokeVoidAsync("init", Id);
 
-
-        StateHasChanged();
-        await base.OnInitializedAsync();
-    }
     /// <summary>
-    /// 导出图为base64字符串
+    /// 导出图为 base64 字符串
     /// </summary>
     /// <returns>base64 string of the diagram</returns>
-    public async Task<string> ExportBase64MermaidAsync()
-    {
-        return await Module!.InvokeAsync<string>("exportBase64Mermaid", this.Id);
-    }
-
-    /// <summary>
-    /// 
-    /// </summary>
-    /// <returns></returns>
-    public async ValueTask DisposeAsync()
-    {
-        if (Module is not null)
-        {
-            await Module.DisposeAsync();
-        }
-    }
-
+    public Task<string?> ExportBase64MermaidAsync() => InvokeAsync<string?>("getContent", Id);
 }
-

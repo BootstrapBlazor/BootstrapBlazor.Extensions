@@ -1,4 +1,8 @@
-﻿<span class="mermaid" style="@Style" id="@Id">
+﻿@namespace BootstrapBlazor.Components
+@inherits BootstrapModuleComponentBase
+@attribute [JSModuleAutoLoader("./_content/BootstrapBlazor.Mermaid/Mermaid.razor.js")]
+
+<span @attributes="@AdditionalAttributes" class="@ClassString" style="@Style" id="@Id">
 	@if (Type != MermaidType.None)
 	{
 		@Type
