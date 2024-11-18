@@ -3,8 +3,6 @@ import { addLink, addScript } from '../../../BootstrapBlazor/modules/utility.js'
 import Data from '../../../BootstrapBlazor/modules/data.js'
 import EventHandler from '../../../BootstrapBlazor/modules/event-handler.js'
 
-// WIP: wait net9 release
-// later will move into bootstrapblazor for global init make sure window.BootstrapBlazor is defined
 if (window.BootstrapBlazor === void 0) {
     window.BootstrapBlazor = {};
 }
@@ -45,13 +43,17 @@ export async function init(id, invoker, methodGetPluginAttrs, methodClickPluginI
             editor.editorElement.classList.add('open')
 
             const showSubmit = el.getAttribute("data-bb-submit") === "true"
-            if (!showSubmit) {
-                option.callbacks.onChange = contents => {
-                    editor.invoker.invokeMethodAsync('Update', contents)
-                }
-            }
             option.toolbar = toolbar;
             reloadCallbacks(id, option);
+            if (!showSubmit) {
+                const externalOnChange = option.callbacks.onChange;
+                option.callbacks.onChange = function (contents) {
+                    editor.invoker.invokeMethodAsync('Update', contents)
+                    if (externalOnChange) {
+                        externalOnChange.call(this, contents);
+                    }
+                }
+            }
             editor.$editor = $(editor.editorElement).summernote(option)
 
             editor.editorToolbar = editor.el.querySelector('.note-toolbar')
