@@ -1,9 +1,8 @@
-<Project Sdk="Microsoft.NET.Sdk.Razor">
+﻿<Project Sdk="Microsoft.NET.Sdk.Razor">
 
   <PropertyGroup>
     <Version>9.0.0</Version>
   </PropertyGroup>
-
 
   <PropertyGroup>
     <PackageTags>Bootstrap Blazor WebAssembly wasm UI Components Mermaid</PackageTags>
@@ -11,11 +10,11 @@
   </PropertyGroup>
 
   <ItemGroup>
-     <PackageReference Include="BootstrapBlazor" Version="$(BBVersion)" />
+    <PackageReference Include="BootstrapBlazor" Version="$(BBVersion)" />
   </ItemGroup>
 
   <ItemGroup>
     <Using Include="Microsoft.JSInterop" />
   </ItemGroup>
-  
+
 </Project>

@@ -3,6 +3,7 @@
 // Website: https://www.blazor.zone or https://argozhang.github.io/
 
 namespace BootstrapBlazor.Components;
+
 /// <summary>
 /// 图类型
 /// </summary>

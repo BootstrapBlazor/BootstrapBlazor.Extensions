@@ -1,5 +1,4 @@
-﻿
-export function loadMermaidContent() {
+﻿export function loadMermaidContent() {
     mermaid.contentLoaded();
 }
 
@@ -17,7 +16,6 @@ export function removeComment() {
         })
     }
 }
-
 
 export function exportBase64Mermaid(Id) {
     const svgElement = document.getElementById(Id).childNodes[0];
