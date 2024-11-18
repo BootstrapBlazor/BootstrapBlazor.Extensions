@@ -45,74 +45,7 @@ public partial class Mermaid : IAsyncDisposable
     /// </summary>
     [Parameter]
     public string? MermaidTitle { set; get; } = string.Empty;
-    /// <summary>
-    /// 图类型
-    /// </summary>
-    public enum MermaidType
-    {
-        /// <summary>
-        /// 不指定图类型，需要在ChildContent中显式指定
-        /// </summary>
-        None,
-        /// <summary>
-        /// 流程图
-        /// </summary>
-        flowchart,
-        /// <summary>
-        /// 序列图
-        /// </summary>
-        sequenceDiagram,
-        /// <summary>
-        /// 类图
-        /// </summary>
-        classDiagram,
-        /// <summary>
-        /// 状态图
-        /// </summary>
-        stateDiagram,
-        /// <summary>
-        /// 实体关系图
-        /// </summary>
-        erDiagram,
-        /// <summary>
-        /// 用户旅程图
-        /// </summary>
-        journey,
-        /// <summary>
-        /// 甘特图
-        /// </summary>
-        gantt,
-        /// <summary>
-        /// 饼图
-        /// </summary>
-        pie
-    };
-    /// <summary>
-    /// 图方向,如果图类型是状态图和流程图时，需要指定图的方向
-    /// </summary>
-    public enum MermaidDirection
-    {
-        /// <summary>
-        ///  从上到下（Top to Down）
-        /// </summary>
-        TD,
-        /// <summary>
-        ///  从上到下（Top to Bottom）与TD无差别
-        /// </summary>
-        TB,
-        /// <summary>
-        /// BT：从下到上（Bottom to Top）
-        /// </summary>
-        BT,
-        /// <summary>
-        /// LR：从左到右（Left to Right）
-        /// </summary>
-        LR,
-        /// <summary>
-        /// RL：从右到左（Right to Left)
-        /// </summary>
-        RL
-    }
+
 
     /// <summary>
     /// 
