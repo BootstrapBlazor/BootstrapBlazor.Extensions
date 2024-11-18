@@ -43,13 +43,17 @@ export async function init(id, invoker, methodGetPluginAttrs, methodClickPluginI
             editor.editorElement.classList.add('open')
 
             const showSubmit = el.getAttribute("data-bb-submit") === "true"
-            if (!showSubmit) {
-                option.callbacks.onChange = contents => {
-                    editor.invoker.invokeMethodAsync('Update', contents)
-                }
-            }
             option.toolbar = toolbar;
             reloadCallbacks(id, option);
+            if (!showSubmit) {
+                const externalOnChange = option.callbacks.onChange;
+                option.callbacks.onChange = function (contents) {
+                    editor.invoker.invokeMethodAsync('Update', contents)
+                    if (externalOnChange) {
+                        externalOnChange.call(this, contents);
+                    }
+                }
+            }
             editor.$editor = $(editor.editorElement).summernote(option)
 
             editor.editorToolbar = editor.el.querySelector('.note-toolbar')
