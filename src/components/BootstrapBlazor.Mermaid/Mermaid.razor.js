@@ -1,16 +1,17 @@
-﻿
-export function init(id) {
-    const mermaidDiv = document.querySelectorAll(".bb-mermaid");
-    if (mermaidDiv) {
-        mermaidDiv.forEach((Mermaid) => {
-            const childNodes = Mermaid.childNodes;
-            for (let i = childNodes.length - 1; i >= 0; i--) {
-                const node = childNodes[i];
-                if (node.nodeType === Node.COMMENT_NODE) {
-                    Mermaid.removeChild(node);
-                }
+﻿import { addScript } from '../BootstrapBlazor/modules/utility.js'
+
+export async function init(id) {
+    await addScript('./_content/BootstrapBlazor.Mermaid/Mermaid.js')
+
+    const el = document.getElementById(id);
+    if (el) {
+        const childNodes = el.childNodes;
+        for (let i = childNodes.length - 1; i >= 0; i--) {
+            const node = childNodes[i];
+            if (node.nodeType === Node.COMMENT_NODE) {
+                el.removeChild(node);
             }
-        })
+        }
     }
     mermaid.contentLoaded();
 }

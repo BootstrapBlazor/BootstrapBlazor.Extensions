@@ -47,7 +47,7 @@ public partial class Mermaid
     [Parameter]
     public string? MermaidTitle { set; get; }
 
-    private string? ClassString => CssBuilder.Default("bb-mermaid")
+    private string? ClassString => CssBuilder.Default("bb-mermaid mermaid")
         .AddClassFromAttributes(AdditionalAttributes)
         .Build();
 
