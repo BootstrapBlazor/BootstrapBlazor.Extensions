@@ -2,6 +2,8 @@
 // Licensed under the Apache License, Version 2.0. See License.txt in the project root for license information.
 // Website: https://www.blazor.zone or https://argozhang.github.io/
 
+using System.ComponentModel;
+
 namespace BootstrapBlazor.Components;
 
 /// <summary>
@@ -13,36 +15,52 @@ public enum MermaidType
     /// 不指定图类型，需要在ChildContent中显式指定
     /// </summary>
     None,
+
     /// <summary>
     /// 流程图
     /// </summary>
-    flowchart,
+    [Description("flowchart")]
+    Flowchart,
+
     /// <summary>
     /// 序列图
     /// </summary>
-    sequenceDiagram,
+    [Description("sequenceDiagram")]
+    SequenceDiagram,
+
     /// <summary>
     /// 类图
     /// </summary>
-    classDiagram,
+    [Description("classDiagram")]
+    ClassDiagram,
+
     /// <summary>
     /// 状态图
     /// </summary>
-    stateDiagram,
+    [Description("stateDiagram")]
+    StateDiagram,
+
     /// <summary>
     /// 实体关系图
     /// </summary>
-    erDiagram,
+    [Description("erDiagram")]
+    ErDiagram,
+
     /// <summary>
     /// 用户旅程图
     /// </summary>
-    journey,
+    [Description("journey")]
+    Journey,
+
     /// <summary>
     /// 甘特图
     /// </summary>
-    gantt,
+    [Description("gantt")]
+    Gantt,
+
     /// <summary>
     /// 饼图
     /// </summary>
-    pie
+    [Description("pie")]
+    Pie
 };
