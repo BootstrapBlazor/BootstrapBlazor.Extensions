@@ -120,18 +120,11 @@ public partial class Mermaid : IAsyncDisposable
     /// <returns></returns>
     protected override async Task OnInitializedAsync()
     {
-        try
-        {
+        Module = await JSRuntime.InvokeAsync<IJSObjectReference>("import", "./_content/BootstrapBlazor.Mermaid/Mermaid.razor.js");
+        await Module.InvokeVoidAsync("removeComment");
+        await Module.InvokeVoidAsync("loadMermaidContent");
 
-            Module = await JSRuntime.InvokeAsync<IJSObjectReference>("import", "/js/mermaidHelper.js");
-            await Module.InvokeVoidAsync("removeComment");
-            await Module.InvokeVoidAsync("loadMermaidContent");
 
-        }
-        catch (Exception e)
-        {
-            if (OnError != null) await OnError.Invoke(e.Message);
-        }
         StateHasChanged();
         await base.OnInitializedAsync();
     }
@@ -155,6 +148,6 @@ public partial class Mermaid : IAsyncDisposable
             await Module.DisposeAsync();
         }
     }
-    
+
 }
 

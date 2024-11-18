@@ -6,8 +6,8 @@
 
 
   <PropertyGroup>
-    <PackageTags>Bootstrap Blazor WebAssembly wasm UI Components Mind Map</PackageTags>
-    <Description>Bootstrap UI components extensions of MindMap</Description>
+    <PackageTags>Bootstrap Blazor WebAssembly wasm UI Components Mermaid</PackageTags>
+    <Description>Bootstrap UI components extensions of Mermaid</Description>
   </PropertyGroup>
 
   <ItemGroup>

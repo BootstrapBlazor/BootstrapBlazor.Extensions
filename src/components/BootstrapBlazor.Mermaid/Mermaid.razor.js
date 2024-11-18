@@ -1,18 +1,17 @@
-﻿import Mermaid from "./js/mermaid.min.js"
-
+﻿
 export function loadMermaidContent() {
-    Mermaid.contentLoaded();
+    mermaid.contentLoaded();
 }
 
 export function removeComment() {
     const mermaidDiv = document.querySelectorAll(".mermaid");
     if (mermaidDiv) {
-        mermaidDiv.forEach((mermaid) => {
-            const childNodes = mermaid.childNodes;
+        mermaidDiv.forEach((Mermaid) => {
+            const childNodes = Mermaid.childNodes;
             for (let i = childNodes.length - 1; i >= 0; i--) {
                 const node = childNodes[i];
                 if (node.nodeType === Node.COMMENT_NODE) {
-                    mermaid.removeChild(node);
+                    Mermaid.removeChild(node);
                 }
             }
         })
