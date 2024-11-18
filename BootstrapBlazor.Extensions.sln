@@ -150,15 +150,15 @@ Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "props", "props", "{FF8B3A19
 		src\SourceLink.targets = src\SourceLink.targets
 	EndProjectSection
 EndProject
-Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "BootstrapBlazor.Middleware", "src\middleware\BootstrapBlazor.Middleware\BootstrapBlazor.Middleware.csproj", "{2D783293-CEBD-4365-B8A1-0F9E76D73295}"
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "BootstrapBlazor.Middleware", "src\middleware\BootstrapBlazor.Middleware\BootstrapBlazor.Middleware.csproj", "{2D783293-CEBD-4365-B8A1-0F9E76D73295}"
 EndProject
-Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "BootstrapBlazor.WebSerialPort", "src\components\BootstrapBlazor.WebSerialPort\BootstrapBlazor.WebSerialPort.csproj", "{76ACED46-6DA0-44C7-B5F5-05A6BB4CDB1E}"
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "BootstrapBlazor.WebSerialPort", "src\components\BootstrapBlazor.WebSerialPort\BootstrapBlazor.WebSerialPort.csproj", "{76ACED46-6DA0-44C7-B5F5-05A6BB4CDB1E}"
 EndProject
-Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "BootstrapBlazor.Html2Pdf.Select", "src\components\BootstrapBlazor.Html2Pdf.Select\BootstrapBlazor.Html2Pdf.Select.csproj", "{11FD9DF2-3F3F-4AF1-8C85-446190F7D887}"
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "BootstrapBlazor.Html2Pdf.Select", "src\components\BootstrapBlazor.Html2Pdf.Select\BootstrapBlazor.Html2Pdf.Select.csproj", "{11FD9DF2-3F3F-4AF1-8C85-446190F7D887}"
 EndProject
-Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "BootstrapBlazor.SvgEditor", "src\components\BootstrapBlazor.SVGEditor\BootstrapBlazor.SvgEditor.csproj", "{29E47F4A-CE03-42B5-BDAA-FB4B40D4C897}"
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "BootstrapBlazor.SvgEditor", "src\components\BootstrapBlazor.SVGEditor\BootstrapBlazor.SvgEditor.csproj", "{29E47F4A-CE03-42B5-BDAA-FB4B40D4C897}"
 EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "BootstrapBlazor.Mermaid", "src\components\BootstrapBlazor.Mermaid\BootstrapBlazor.Mermaid.csproj", "{1968A6D6-27CB-4F11-832B-AFA6EF51C95C}"
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "BootstrapBlazor.Mermaid", "src\components\BootstrapBlazor.Mermaid\BootstrapBlazor.Mermaid.csproj", "{DA2198E1-2CA9-EE53-926B-7950AB4B5EBF}"
 EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
@@ -422,10 +422,10 @@ Global
 		{29E47F4A-CE03-42B5-BDAA-FB4B40D4C897}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{29E47F4A-CE03-42B5-BDAA-FB4B40D4C897}.Release|Any CPU.ActiveCfg = Release|Any CPU
 		{29E47F4A-CE03-42B5-BDAA-FB4B40D4C897}.Release|Any CPU.Build.0 = Release|Any CPU
-		{1968A6D6-27CB-4F11-832B-AFA6EF51C95C}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
-		{1968A6D6-27CB-4F11-832B-AFA6EF51C95C}.Debug|Any CPU.Build.0 = Debug|Any CPU
-		{1968A6D6-27CB-4F11-832B-AFA6EF51C95C}.Release|Any CPU.ActiveCfg = Release|Any CPU
-		{1968A6D6-27CB-4F11-832B-AFA6EF51C95C}.Release|Any CPU.Build.0 = Release|Any CPU
+		{DA2198E1-2CA9-EE53-926B-7950AB4B5EBF}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{DA2198E1-2CA9-EE53-926B-7950AB4B5EBF}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{DA2198E1-2CA9-EE53-926B-7950AB4B5EBF}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{DA2198E1-2CA9-EE53-926B-7950AB4B5EBF}.Release|Any CPU.Build.0 = Release|Any CPU
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE
@@ -499,7 +499,7 @@ Global
 		{76ACED46-6DA0-44C7-B5F5-05A6BB4CDB1E} = {FF1089BE-C704-4374-B629-C57C08E1798F}
 		{11FD9DF2-3F3F-4AF1-8C85-446190F7D887} = {FF1089BE-C704-4374-B629-C57C08E1798F}
 		{29E47F4A-CE03-42B5-BDAA-FB4B40D4C897} = {FF1089BE-C704-4374-B629-C57C08E1798F}
-		{1968A6D6-27CB-4F11-832B-AFA6EF51C95C} = {FF1089BE-C704-4374-B629-C57C08E1798F}
+		{DA2198E1-2CA9-EE53-926B-7950AB4B5EBF} = {FF1089BE-C704-4374-B629-C57C08E1798F}
 	EndGlobalSection
 	GlobalSection(ExtensibilityGlobals) = postSolution
 		SolutionGuid = {D5EB1960-6F30-4CE1-B375-EAE1F787D6FF}
