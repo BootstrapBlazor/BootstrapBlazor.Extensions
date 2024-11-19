@@ -8,6 +8,7 @@
     --bb-winbox-bg: #b5b5c3;
     --bb-winbox-bg-dark: #383b3f;
     --bb-winbox-body-padding: .5rem;
+    --bb-winbox-body-bg: var(--bs-body-bg);
     --bb-window-border-radius: var(--bs-border-radius) var(--bs-border-radius) 0 0;
     --bb-winbox-footer-border-color: var(--bs-border-color);
     --bb-winbox-mask-bg: #000;
@@ -16,7 +17,7 @@
 }
 
     .winbox .wb-body {
-        background-color: var(--bb-winbox-bg);
+        background-color: var(--bb-winbox-body-bg);
     }
 
     .winbox .bb-winbox-content {
