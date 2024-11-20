@@ -1,9 +1,9 @@
-﻿import { addScript, debounce, isMobile } from "../../_content/BootstrapBlazor/modules/utility.js"
-import Data from "../../_content/BootstrapBlazor/modules/data.js"
-import EventHandler from "../../_content/BootstrapBlazor/modules/event-handler.js"
+﻿import { addScript, debounce, isMobile } from "../BootstrapBlazor/modules/utility.js"
+import Data from "../BootstrapBlazor/modules/data.js"
+import EventHandler from "../BootstrapBlazor/modules/event-handler.js"
 
 export async function init(id, options) {
-    await addScript('../../lib/meilisearch/meilisearch.umd.min.js')
+    await addScript('./_content/BootstrapBlazor.MeiliSearch/meilisearch.umd.min.js')
 
     const el = document.getElementById(id);
     const search = {
