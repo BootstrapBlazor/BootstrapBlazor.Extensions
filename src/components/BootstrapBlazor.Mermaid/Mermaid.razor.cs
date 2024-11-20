@@ -52,14 +52,30 @@ public partial class Mermaid
         .Build();
 
     /// <summary>
-    /// <inheritdoc/>
+    /// MermaidHelper.js实例
     /// </summary>
+    private new IJSObjectReference? Module {  get; set; }
+
+    /// <summary>
+    /// 初始化mermaid
+    /// </summary>
+    /// <param name="firstRender"></param>
     /// <returns></returns>
-    protected override Task InvokeInitAsync() => InvokeVoidAsync("init", Id);
+    protected override async Task OnAfterRenderAsync(bool firstRender)
+    {
+        if (firstRender)
+        {
+            Module = await JSRuntime.InvokeAsync<IJSObjectReference>("import", "./_content/BootstrapBlazor.Mermaid/js/MermaidHelper.js");
+            await Module.InvokeVoidAsync("init", Id);
+        }
+    }
 
     /// <summary>
     /// 导出图为 base64 字符串
     /// </summary>
     /// <returns>base64 string of the diagram</returns>
-    public Task<string?> ExportBase64MermaidAsync() => InvokeAsync<string?>("getContent", Id);
+    public async Task<string> ExportBase64MermaidAsync()
+    {
+        return await Module!.InvokeAsync<string>("getContent", Id);
+    }
 }
