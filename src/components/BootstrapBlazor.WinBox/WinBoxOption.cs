@@ -194,10 +194,22 @@ public class WinBoxOption
     public bool? Overflow { get; set; }
 
     /// <summary>
-    /// 获得/设置 子组件模板 默认 null
+    /// 获得/设置 子组件模板 默认 null 其内容会放置到 <see cref="BodyTemplate"/> 与 <see cref="FooterTemplate"/> 之间
     /// </summary>
     [JsonIgnore]
     public RenderFragment? ContentTemplate { get; set; }
+
+    /// <summary>
+    /// 获得/设置 Body 模板
+    /// </summary>
+    [JsonIgnore]
+    public RenderFragment? BodyTemplate { get; set; }
+
+    /// <summary>
+    /// 获得/设置 Footer 模板
+    /// </summary>
+    [JsonIgnore]
+    public RenderFragment? FooterTemplate { get; set; }
 
     /// <summary>
     /// 获得/设置 创建弹窗回调方法 默认 null
