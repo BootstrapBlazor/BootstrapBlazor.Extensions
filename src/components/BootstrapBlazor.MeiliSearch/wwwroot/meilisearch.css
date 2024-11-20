@@ -2,10 +2,13 @@
     --bb-global-search-top: 92px;
     --bb-global-search-left: 10px;
     --bb-global-search-right: 10px;
+    --bb-global-search-color: rgba(255,255,255,.5);
+    --bb-global-search-border-color: rgba(255,255,255,.5);
+    --bb-global-search-border-hover-color: rgba(255,255,255);
     display: flex;
     align-items: center;
-    color: var(--bb-header-dropdown-color);
-    border: var(--bs-border-width) solid var(--bb-header-dropdown-border-color);
+    color: var(--bb-global-search-color);
+    border: var(--bs-border-width) solid var(--bb-global-search-border-color);
     border-radius: var(--bs-border-radius);
     padding: 0.25rem 0.75rem;
     width: 168px;
@@ -15,7 +18,7 @@
 }
 
     .bb-g-search:hover {
-        --bb-header-dropdown-border-color: #fff;
+        border: var(--bs-border-width) solid var(--bb-global-search-border-hover-color);
     }
 
     .bb-g-search input {
@@ -29,7 +32,7 @@
     }
 
         .bb-g-search input::placeholder {
-            color: rgba(var(--bb-header-dropdown-color-rgb), 0.5);
+            color: var(--bb-global-search-border-color);
         }
 
     .bb-g-search i {
