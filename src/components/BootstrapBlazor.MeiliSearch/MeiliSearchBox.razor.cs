@@ -34,12 +34,19 @@ public partial class MeiliSearchBox
     [Parameter]
     public string? SearchResultPlaceHolder { get; set; }
 
+    private string? ClassString => CssBuilder.Default("bb-g-search")
+        .AddClassFromAttributes(AdditionalAttributes)
+        .Build();
+
     /// <summary>
     /// <inheritdoc/>
     /// </summary>
     /// <returns></returns>
-    protected override Task InvokeInitAsync()
+    protected override Task InvokeInitAsync() => InvokeVoidAsync("init", Id, new
     {
-        return Task.CompletedTask;
-    }
+        Options.CurrentValue?.Url,
+        Options.CurrentValue?.ApiKey,
+        Index = $"{Options.CurrentValue?.Index}-{CultureInfo.CurrentUICulture.Name}",
+        SearchStatus
+    });
 }
