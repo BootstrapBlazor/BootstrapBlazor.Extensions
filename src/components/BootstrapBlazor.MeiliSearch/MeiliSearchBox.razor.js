@@ -88,7 +88,7 @@ const handlerClearButton = search => {
 const handlerSearch = search => {
     const input = search.el.querySelector('.search-dialog-input > input');
     EventHandler.on(input, 'keyup', e => {
-        if (e.key === 'Enter') {
+        if (e.key === 'Enter' || e.key === 'NumpadEnter') {
             doSearch(search, input.value);
             if (!isMobile()) {
                 input.select();
