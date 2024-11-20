@@ -2,29 +2,8 @@
 @inherits BootstrapModuleComponentBase
 
 <div @attributes="@AdditionalAttributes" class="@ClassString" style="@Style" id="@Id">
-	@if (Type != MermaidType.None)
+	@if (DiagramHTML is not null)
 	{
-		@Type.ToDescriptionString()
-		@if (Type == MermaidType.Flowchart)
-		{
-			@(" " + Direction + "\n")
-		}
-		else if (Type == MermaidType.StateDiagram)
-		{
-			@("\ndirection " + Direction + "\n")
-		}
-		else
-		{
-			@("\n")
-		}
-		@if (!string.IsNullOrEmpty(MermaidTitle) &&
-								(Type == MermaidType.Gantt
-								|| Type == MermaidType.Pie
-								|| Type == MermaidType.SequenceDiagram
-								))
-		{
-			@("\ntitle " + MermaidTitle + "\n")
-		}
+		@DiagramHTML
 	}
-	@ChildContent
 </div>

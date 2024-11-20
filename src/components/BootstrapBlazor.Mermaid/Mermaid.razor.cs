@@ -3,6 +3,9 @@
 // Website: https://www.blazor.zone or https://argozhang.github.io/
 
 using Microsoft.AspNetCore.Components;
+using System.ComponentModel.DataAnnotations;
+using System.Runtime.CompilerServices;
+using System.Text;
 
 namespace BootstrapBlazor.Components;
 
@@ -18,18 +21,6 @@ public partial class Mermaid
     public MermaidDirection? Direction { get; set; } = MermaidDirection.TB;
 
     /// <summary>
-    /// 获取/设置 mermaid 图内容
-    /// </summary>
-    [Parameter]
-    public RenderFragment? ChildContent { get; set; }
-
-    /// <summary>
-    /// 获取/设置 错误回调方法
-    /// </summary>
-    [Parameter]
-    public Func<string, Task>? OnError { get; set; }
-
-    /// <summary>
     /// 获取/设置 自定义样式
     /// </summary>
     [Parameter]
@@ -42,6 +33,13 @@ public partial class Mermaid
     public MermaidType Type { set; get; }
 
     /// <summary>
+    /// 设置Mermaid字串
+    /// </summary>
+    [Parameter]
+    [Required]
+    public string? DiagramString { get; set; }
+
+    /// <summary>
     /// 获取/设置 图标题 如果图类型是甘特图，饼图时和序列图时，可指定其 title 默认 null 未设置
     /// </summary>
     [Parameter]
@@ -52,22 +50,62 @@ public partial class Mermaid
         .Build();
 
     /// <summary>
+    /// 构造Mermaid代码
+    /// </summary>
+    /// <returns></returns>
+    private string BuildDiagramText()
+    {
+        StringBuilder sb = new();
+        if(Type != MermaidType.None)
+        {
+            sb.Append(Type.ToDescriptionString());
+            if(Type == MermaidType.Flowchart)
+            {
+                sb.Append(" " + Direction + "\n");
+            }
+            else if (Type == MermaidType.StateDiagram)
+            {
+                sb.Append("\ndirection " + Direction + "\n");
+
+            }
+            else
+            {
+                sb.Append('\n');
+            }
+            if(!string.IsNullOrEmpty(MermaidTitle) &&
+                    (Type == MermaidType.Gantt
+                    || Type == MermaidType.Pie
+                    || Type == MermaidType.SequenceDiagram
+                    ))
+
+            {
+                sb.Append("\ntitle " + MermaidTitle + "\n");
+            }
+        }
+        sb.Append(DiagramString);
+        return sb.ToString();
+    }
+
+
+    /// <summary>
     /// MermaidHelper.js实例
     /// </summary>
     private new IJSObjectReference? Module {  get; set; }
 
     /// <summary>
-    /// 初始化mermaid
+    /// svg图
     /// </summary>
-    /// <param name="firstRender"></param>
+    private MarkupString? DiagramHTML { get; set; }
+
+    /// <summary>
+    /// 渲染Mermaid
+    /// </summary>
     /// <returns></returns>
-    protected override async Task OnAfterRenderAsync(bool firstRender)
+    protected override async Task OnParametersSetAsync()
     {
-        if (firstRender)
-        {
-            Module = await JSRuntime.InvokeAsync<IJSObjectReference>("import", "./_content/BootstrapBlazor.Mermaid/js/MermaidHelper.js");
-            await Module.InvokeVoidAsync("init", Id);
-        }
+        Module ??= await JSRuntime.InvokeAsync<IJSObjectReference>("import", "./_content/BootstrapBlazor.Mermaid/js/MermaidHelper.js");
+        string innerHTML = await Module.InvokeAsync<string>("render", Id, BuildDiagramText());
+        DiagramHTML = new MarkupString(innerHTML);
     }
 
     /// <summary>
