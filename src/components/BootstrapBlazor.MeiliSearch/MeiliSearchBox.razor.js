@@ -2,6 +2,10 @@
 import Data from "../BootstrapBlazor/modules/data.js"
 import EventHandler from "../BootstrapBlazor/modules/event-handler.js"
 
+if (window.BootstrapBlazor === void 0) {
+    window.BootstrapBlazor = {};
+}
+
 export async function init(id, options) {
     const el = document.getElementById(id);
     await addLink('./_content/BootstrapBlazor.MeiliSearch/meilisearch.css');
@@ -127,10 +131,12 @@ const doSearch = async (search, query) => {
             host: search.options.url,
             apiKey: search.options.apiKey,
         });
-        var index = client.index(search.options.index);
+        const index = client.index(search.options.index);
         const result = await index.search(query);
         updateStatus(search, result.estimatedTotalHits, result.processingTimeMs);
-        updateList(search, result);
+
+        const cb = BootstrapBlazor.MeiliSearch?.updateList ?? updateList;
+        cb(search, result);
     }
 }
 
