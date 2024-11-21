@@ -1,33 +1,27 @@
-﻿import { addScript } from '../BootstrapBlazor/modules/utility.js'
+﻿import mermaid from './mermaid.esm.min.mjs';
 
-export async function init(id) {
-    await addScript('./_content/BootstrapBlazor.Mermaid/Mermaid.js')
+export async function init(id, content) {
+    mermaid.initialize({ startOnLoad: false });
 
-    const el = document.getElementById(id);
-    if (el) {
-        const childNodes = el.childNodes;
-        for (let i = childNodes.length - 1; i >= 0; i--) {
-            const node = childNodes[i];
-            if (node.nodeType === Node.COMMENT_NODE) {
-                el.removeChild(node);
-            }
-        }
+    const render = await mermaid.render(id + '-svg', content);
+    if (render) {
+        const el = document.getElementById(id);
+        el.innerHTML = render.svg;
     }
-    mermaid.contentLoaded();
 }
-
 export function getContent(id) {
     let svgDataUrl = "";
     const el = document.getElementById(id);
     if (el) {
-        const svgElement = el.childNodes[0];
-        const serializer = new XMLSerializer();
-        const svgString = serializer.serializeToString(svgElement);
-        svgDataUrl = 'data:image/svg+xml;base64,' + btoa(encodeURIComponent(svgString));
+        for (let e in el.childNodes) {
+            if (el.childNodes[e].nodeName == "svg") {
+                const svgElement = el.childNodes[e];
+                const serializer = new XMLSerializer();
+                const svgString = serializer.serializeToString(svgElement);
+                const utf8Array = new TextEncoder().encode(svgString);
+                svgDataUrl = 'data:image/svg+xml;base64,' + btoa(String.fromCharCode(...utf8Array));
+                return svgDataUrl;
+            }
+        }
     }
-    return svgDataUrl;
-}
-
-export function dispose(id) {
-
 }
