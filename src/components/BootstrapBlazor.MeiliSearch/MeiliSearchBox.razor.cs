@@ -34,7 +34,7 @@ public partial class MeiliSearchBox
     [Parameter]
     public string? SearchResultPlaceHolder { get; set; }
 
-    private string? ClassString => CssBuilder.Default("bb-g-search")
+    private string? ClassString => CssBuilder.Default("bb-g-search d-none")
         .AddClassFromAttributes(AdditionalAttributes)
         .Build();
 

@@ -3,10 +3,11 @@ import Data from "../BootstrapBlazor/modules/data.js"
 import EventHandler from "../BootstrapBlazor/modules/event-handler.js"
 
 export async function init(id, options) {
-    await addLink('./_content/BootstrapBlazor.MeiliSearch/meilisearch.css')
-    await addScript('./_content/BootstrapBlazor.MeiliSearch/meilisearch.umd.min.js')
-
     const el = document.getElementById(id);
+    await addLink('./_content/BootstrapBlazor.MeiliSearch/meilisearch.css');
+    el.classList.remove('d-none');
+
+    await addScript('./_content/BootstrapBlazor.MeiliSearch/meilisearch.umd.min.js')
     const search = {
         el, options,
         searchText: 'searching ...',
