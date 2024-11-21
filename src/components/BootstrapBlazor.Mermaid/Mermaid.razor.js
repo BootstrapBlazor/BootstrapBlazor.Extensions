@@ -1,11 +1,14 @@
-﻿import mermaid from 'https://cdn.jsdelivr.net/npm/mermaid@11/dist/mermaid.esm.min.mjs';
-mermaid.initialize({ startOnLoad: false });
+﻿import mermaid from './mermaid.esm.min.mjs';
 
-export async function render(id, graphDefinition) {
-    var result = await mermaid.render(id + '-svg', graphDefinition);
-    return result.svg;
+export async function init(id, content) {
+    mermaid.initialize({ startOnLoad: false });
+
+    const render = await mermaid.render(id + '-svg', content);
+    if (render) {
+        const el = document.getElementById(id);
+        el.innerHTML = render.svg;
+    }
 }
-
 export function getContent(id) {
     let svgDataUrl = "";
     const el = document.getElementById(id);
