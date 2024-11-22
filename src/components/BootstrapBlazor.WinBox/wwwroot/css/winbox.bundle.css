@@ -1,6 +1,6 @@
 ﻿@import url('./winbox.min.css');
 
-.winbox {
+:root {
     --bb-winbox-bg: #b5b5c3;
     --bb-winbox-bg-dark: #383b3f;
     --bb-winbox-body-bg: var(--bs-body-bg);
@@ -9,6 +9,9 @@
     --bb-winbox-body-padding: .5rem;
     --bb-window-border-radius: var(--bs-border-radius) var(--bs-border-radius) 0 0;
     --bb-winbox-footer-border-color: var(--bs-border-color);
+}
+
+.winbox {
     background: var(--bb-winbox-bg);
     border-radius: var(--bb-window-border-radius);
 }
