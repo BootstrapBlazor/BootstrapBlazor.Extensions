@@ -60,18 +60,15 @@ const handlerMask = search => {
 }
 
 const handlerToggle = search => {
-    const { el, mask, dialog, input } = search;
+    const { el, dialog, input } = search;
     EventHandler.on(dialog, 'click', e => {
         e.stopPropagation();
     });
     EventHandler.on(el, 'click', e => {
-        mask.classList.toggle('show');
-        dialog.classList.toggle('show');
-        if (dialog.classList.contains('show')) {
-            input.focus();
-            if (!isMobile()) {
-                input.select();
-            }
+        document.documentElement.classList.toggle('bb-g-search-open');
+        input.focus();
+        if (!isMobile()) {
+            input.select();
         }
     });
     EventHandler.on(document, 'click', e => {
@@ -214,7 +211,5 @@ const resetStatus = search => {
 }
 
 const closeDialog = search => {
-    const { mask, dialog } = search;
-    dialog.classList.remove('show');
-    mask.classList.remove('show');
+    document.documentElement.classList.remove('bb-g-search-open');
 }
