@@ -1,7 +1,10 @@
-﻿:root {
+﻿.bb-g-search {
     --bb-global-search-color: rgba(255,255,255,.5);
     --bb-global-search-border-color: rgba(255,255,255,.5);
     --bb-global-search-border-hover-color: rgba(255,255,255);
+}
+
+.search-dialog-mask {
     --bb-global-search-item-active-bg: rgba(var(--bs-emphasis-color-rgb), 0.2);
     --bb-global-search-item-hover-bg: rgba(var(--bs-emphasis-color-rgb), 0.1);
     --bb-global-search-dialog-input-focus-border-color: rgba(var(--bs-emphasis-color-rgb), 0.4);
