@@ -1,13 +1,17 @@
 ﻿.bb-g-search {
-    --bb-global-search-top: 92px;
-    --bb-global-search-left: 10px;
-    --bb-global-search-right: 10px;
     --bb-global-search-color: rgba(255,255,255,.5);
     --bb-global-search-border-color: rgba(255,255,255,.5);
     --bb-global-search-border-hover-color: rgba(255,255,255);
+}
+
+.search-dialog-mask {
     --bb-global-search-item-active-bg: rgba(var(--bs-emphasis-color-rgb), 0.2);
     --bb-global-search-item-hover-bg: rgba(var(--bs-emphasis-color-rgb), 0.1);
-    --bb-global-search-dialog-input-focus-border-color:;
+    --bb-global-search-dialog-input-focus-border-color: rgba(var(--bs-emphasis-color-rgb), 0.4);
+    --bb-global-search-dialog-mask-z-index: 1100;
+}
+
+.bb-g-search {
     display: flex;
     align-items: center;
     color: var(--bb-global-search-color);
@@ -48,23 +52,24 @@
     right: 0;
     bottom: 0;
     left: 0;
-    z-index: 40;
-    background-color: #000;
-    opacity: 0.3;
+    z-index: var(--bb-global-search-dialog-mask-z-index);
+    background-color: rgba(var(--bs-emphasis-color-rgb), 0.3);
+    justify-content: center;
+    align-items: center;
+    display: none;
 }
 
-    .search-dialog-mask:not(.show),
-    .search-dialog:not(.show) {
-        display: none;
+.bb-g-search-open {
+    overflow: hidden;
+}
+
+    .bb-g-search-open .search-dialog-mask {
+        display: flex;
     }
 
 .search-dialog {
-    position: fixed;
-    top: var(--bb-global-search-top);
-    left: var(--bb-global-search-left);
-    right: var(--bb-global-search-right);
-    z-index: 50;
-    height: calc(100vh - 160px);
+    height: calc(100vh - 4rem);
+    width: calc(100vw - 2rem);
     color: var(--bs-body-color);
     background-color: var(--bs-body-bg);
     border-radius: var(--bs-border-radius);
@@ -88,6 +93,7 @@
         line-height: 25px;
         padding: 0;
         margin: 0 .5rem;
+        flex-grow: 1;
     }
 
         .search-dialog-input input::placeholder {
@@ -212,21 +218,17 @@
     }
 
 @media (min-width: 768px) {
-    .search-dialog-menu.show {
-        display: block;
-    }
-
     .bb-g-search {
-        --bb-global-search-top: 72px;
-        --bb-global-search-left: 20px;
-        --bb-global-search-right: 20px;
         margin-bottom: 0;
         margin-inline-end: .5rem;
     }
 
     .search-dialog {
         width: 700px;
-        margin: 0 auto;
+    }
+
+    .search-dialog-menu.show {
+        display: block;
     }
 }
 
