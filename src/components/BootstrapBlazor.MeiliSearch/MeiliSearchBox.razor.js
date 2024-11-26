@@ -166,10 +166,8 @@ const updateList = (search, result) => {
 
         if (hit.demos) {
             const ul = document.createElement('ol');
-            ul.classList.add('mb-0');
-            ul.classList.add('mt-2')
             hit.demos.forEach(block => {
-                const li = document.createElement('ul');
+                const li = document.createElement('li');
                 const url = block.url || hit.url;
                 li.innerHTML = blockHtml.replace('{url}', url)
                     .replace('{title}', highlight(block.title, result.query))
