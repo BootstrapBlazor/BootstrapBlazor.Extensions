@@ -11,6 +11,13 @@
     --bb-global-search-dialog-mask-z-index: 1100;
 }
 
+    .search-dialog-mask key {
+        display: inline-block;
+        margin: 0;
+        color: var(--bb-primary-color);
+        font-weight: bold;
+    }
+
 .bb-g-search {
     display: flex;
     align-items: center;
