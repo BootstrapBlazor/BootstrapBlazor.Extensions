@@ -2,7 +2,6 @@
     --bb-global-search-color: rgba(255,255,255,.5);
     --bb-global-search-border-color: rgba(255,255,255,.5);
     --bb-global-search-border-hover-color: rgba(255,255,255);
-    --bb-global-search-highlight-color: #0078d4;
 }
 
 .search-dialog-mask {
@@ -10,13 +9,19 @@
     --bb-global-search-item-hover-bg: rgba(var(--bs-emphasis-color-rgb), 0.1);
     --bb-global-search-dialog-input-focus-border-color: rgba(var(--bs-emphasis-color-rgb), 0.4);
     --bb-global-search-dialog-mask-z-index: 1100;
+    --bb-global-search-highlight-color: #0078d4;
 }
 
-    .search-dialog-mask key {
+    .search-dialog-mask .search-dialog-item ol {
+        margin: .5rem 0 0 0;
+    }
+
+    .search-dialog-mask .search-key {
         display: inline-block;
         margin: 0;
         color: var(--bb-global-search-highlight-color);
         font-weight: bold;
+        font-style: normal;
     }
 
 .bb-g-search {
