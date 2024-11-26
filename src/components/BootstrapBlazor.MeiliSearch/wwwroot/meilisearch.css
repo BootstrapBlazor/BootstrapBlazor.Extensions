@@ -2,6 +2,7 @@
     --bb-global-search-color: rgba(255,255,255,.5);
     --bb-global-search-border-color: rgba(255,255,255,.5);
     --bb-global-search-border-hover-color: rgba(255,255,255);
+    --bb-global-search-highlight-color: #0078d4;
 }
 
 .search-dialog-mask {
@@ -10,6 +11,13 @@
     --bb-global-search-dialog-input-focus-border-color: rgba(var(--bs-emphasis-color-rgb), 0.4);
     --bb-global-search-dialog-mask-z-index: 1100;
 }
+
+    .search-dialog-mask key {
+        display: inline-block;
+        margin: 0;
+        color: var(--bb-global-search-highlight-color);
+        font-weight: bold;
+    }
 
 .bb-g-search {
     display: flex;
