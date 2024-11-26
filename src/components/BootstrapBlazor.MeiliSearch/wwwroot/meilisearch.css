@@ -8,7 +8,7 @@
     --bb-global-search-item-active-bg: rgba(var(--bs-emphasis-color-rgb), 0.2);
     --bb-global-search-item-hover-bg: rgba(var(--bs-emphasis-color-rgb), 0.1);
     --bb-global-search-dialog-input-focus-border-color: rgba(var(--bs-emphasis-color-rgb), 0.4);
-    --bb-global-search-dialog-mask-z-index: 1100;
+    --bb-global-search-dialog-mask-z-index: 1092;
     --bb-global-search-highlight-color: #0078d4;
 }
 
