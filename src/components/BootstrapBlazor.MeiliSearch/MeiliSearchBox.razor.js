@@ -187,7 +187,7 @@ const updateList = (search, result) => {
 
 const highlight = (text, query) => {
     const regex = new RegExp(query, 'i');
-    return text.replace(regex, `<key>${query}</key>`);
+    return text.replace(regex, `<i class=\"search-key\">${query}</i>`);
 }
 
 const updateStatus = (search, hits, ms) => {
