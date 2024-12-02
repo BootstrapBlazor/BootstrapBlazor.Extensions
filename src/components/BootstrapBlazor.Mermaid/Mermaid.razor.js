@@ -18,8 +18,8 @@ export function getContent(id) {
                 const svgElement = el.childNodes[e];
                 const serializer = new XMLSerializer();
                 const svgString = serializer.serializeToString(svgElement);
-                const utf8Array = new TextEncoder().encode(svgString);
-                svgDataUrl = 'data:image/svg+xml;base64,' + btoa(String.fromCharCode(...utf8Array));
+                const encodedString = encodeURIComponent(svgString);
+                svgDataUrl = 'data:image/svg+xml;base64,' + btoa(unescape(encodedString));
                 return svgDataUrl;
             }
         }
