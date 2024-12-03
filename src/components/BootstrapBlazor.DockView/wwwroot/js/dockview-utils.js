@@ -1,13 +1,15 @@
 ﻿import { DockviewComponent } from "./dockview-core.esm.js"
 import { DockviewPanelContent } from "./dockview-content.js"
-import { onAddGroup, addGroupWithPanel, toggleLock, observeFloatingGroupLocationChange } from "./dockview-group.js"
+import { onAddGroup, addGroupWithPanel, toggleLock, observeFloatingGroupLocationChange, observeOverlayChange, createDrawerHandle } from "./dockview-group.js"
 import { onAddPanel, onRemovePanel, getPanelsFromOptions, findContentFromPanels } from "./dockview-panel.js"
 import { getConfig, reloadFromConfig, loadPanelsFromLocalstorage, saveConfig } from './dockview-config.js'
 import './dockview-extensions.js'
 
 const cerateDockview = (el, options) => {
+    // options.renderer = 'always'
+    // options.renderer = 'onlyWhenVisible'
     const template = el.querySelector('template');
-    const dockview = new DockviewComponent({
+    const dockview = new DockviewComponent(el, {
         parentElement: el,
         createComponent: option => new DockviewPanelContent(option)
     });
@@ -24,6 +26,7 @@ const initDockview = (dockview, options, template) => {
     dockview.init = () => {
         const config = getConfig(options);
         dockview.params.floatingGroups = config.floatingGroups || []
+        // console.log(config, 'config');
         dockview.fromJSON(config);
     }
 
@@ -76,15 +79,27 @@ const initDockview = (dockview, options, template) => {
                 dockview._panelVisibleChanged?.fire({ title: panel.title, status: false });
             })
             const { floatingGroups } = dockview.params
-            floatingGroups.forEach(floatingGroup => {
-                const group = dockview.groups.find(g => g.id == floatingGroup.data.id)
-                if (!group) return
-                const { top, left } = floatingGroup.position
-                const style = group.element.parentElement.style
-                style.top = top + 'px'
-                style.left = left + 'px'
+            dockview.floatingGroups.forEach(fg => {
+                const { top, right, bottom, left } = floatingGroups.find(g => g.data.id == fg.group.id).position
 
-                observeFloatingGroupLocationChange(group)
+                fg.group.element.parentElement.style.inset = [top, right, bottom, left]
+                    .map(item => typeof item == 'number' ? (item + 'px') : 'auto' ).join(' ')
+
+                // fg.overlay.onDidChangeEnd(e => {
+                //     saveConfig(dockview);
+                // })
+                observeOverlayChange(fg.overlay, fg.group)
+                const { floatType } = fg.group.getParams();
+                if(floatType == 'drawer'){
+                    createDrawerHandle(fg.group)
+                }
+                else {
+                    const autoHideBtn = fg.group.header.rightActionsContainer.querySelector('.bb-dockview-control-icon-autohide')
+                    if(autoHideBtn){
+                        // autoHideBtn.style.display = 'none'
+                    }
+                }
+                observeFloatingGroupLocationChange(fg.group)
             })
 
             dockview._inited = true;
@@ -179,7 +194,7 @@ const toggleComponent = (dockview, options) => {
         if (pan === void 0) {
             const panel = findContentFromPanels(dockview.params.panels, p);
             const groupPanels = panels.filter(p1 => p1.params.parentId == p.params.parentId)
-            let indexOfOptions = groupPanels.findIndex(p => p.params.key == panel.params.key)
+            let indexOfOptions = groupPanels.findIndex(p => p.params.key == panel?.params.key)
             indexOfOptions = indexOfOptions == -1 ? 0 : indexOfOptions
             const index = panel && panel.params.index
             addGroupWithPanel(dockview, panel || p, panels, index ?? indexOfOptions);

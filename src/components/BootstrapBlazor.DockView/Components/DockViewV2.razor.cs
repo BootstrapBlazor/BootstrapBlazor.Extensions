@@ -66,6 +66,12 @@ public partial class DockViewV2
     public bool ShowFloat { get; set; } = true;
 
     /// <summary>
+    /// 获得/设置 是否显示显示图钉按钮 默认 true
+    /// </summary>
+    [Parameter]
+    public bool ShowPin { get; set; } = true;
+
+    /// <summary>
     /// 获得/设置 客户端渲染模式 默认 <see cref="DockViewRenderMode.OnlyWhenVisible"/> 客户端默认使用 always onlyWhenVisible 值
     /// </summary>
     [Parameter]
@@ -183,6 +189,7 @@ public partial class DockViewV2
         IsFloating = IsFloating,
         ShowFloat = ShowFloat,
         ShowClose = ShowClose,
+        ShowPin = ShowPin,
         ShowMaximize = ShowMaximize,
         Renderer = Renderer,
         LayoutConfig = LayoutConfig,
