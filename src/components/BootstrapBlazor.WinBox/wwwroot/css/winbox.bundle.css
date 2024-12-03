@@ -1,23 +1,23 @@
 ﻿@import url('./winbox.min.css');
 
 :root {
-    --bb-winbox-mask-bg-opacity: 0.3;
-}
-
-.winbox {
     --bb-winbox-bg: #b5b5c3;
     --bb-winbox-bg-dark: #383b3f;
+    --bb-winbox-body-bg: var(--bs-body-bg);
+    --bb-winbox-mask-bg: #000;
+    --bb-winbox-mask-bg-opacity: 0.3;
     --bb-winbox-body-padding: .5rem;
     --bb-window-border-radius: var(--bs-border-radius) var(--bs-border-radius) 0 0;
     --bb-winbox-footer-border-color: var(--bs-border-color);
-    --bb-winbox-bg: var(--bs-body-bg);
-    --bb-winbox-mask-bg: #000;
+}
+
+.winbox {
     background: var(--bb-winbox-bg);
     border-radius: var(--bb-window-border-radius);
 }
 
     .winbox .wb-body {
-        background-color: var(--bb-winbox-bg);
+        background-color: var(--bb-winbox-body-bg);
     }
 
     .winbox .bb-winbox-content {

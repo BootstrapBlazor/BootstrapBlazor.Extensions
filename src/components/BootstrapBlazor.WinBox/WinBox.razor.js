@@ -1,6 +1,5 @@
 ﻿import './js/winbox.min.js'
 import Data from '../BootstrapBlazor/modules/data.js'
-import EventHanlder from '../BootstrapBlazor/modules/event-handler.js'
 import { addLink } from "../BootstrapBlazor/modules/utility.js"
 
 export async function init(id) {

@@ -50,11 +50,7 @@ const loader = el => {
     }, "+=0.5");
 }
 
-export async function init(id) {
-    await addLink('./_content/BootstrapBlazor.Splitting/lib/splitting/splitting-cells.css')
-    await addScript('./_content/BootstrapBlazor.Splitting/lib/splitting/splitting.min.js')
-    await addScript('./_content/BootstrapBlazor.Splitting/modules/gsap.min.js')
-
+export function init(id) {
     const el = document.getElementById(id);
     loader(el);
 }

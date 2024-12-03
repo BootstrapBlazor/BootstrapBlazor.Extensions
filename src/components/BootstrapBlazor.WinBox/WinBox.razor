@@ -3,12 +3,24 @@
 @attribute [JSModuleAutoLoader("./_content/BootstrapBlazor.WinBox/WinBox.razor.js", JSObjectReference = true)]
 
 <CascadingValue Value="CloseAsync" IsFixed="true">
-    @foreach (var (key, item) in _cache)
+    @foreach (var (key, option) in _cache)
     {
-        <template @key="key" id="@item?.Id">
-            <CascadingValue Value="item" IsFixed="true">
+        <template @key="key" id="@option.Id">
+            <CascadingValue Value="option" IsFixed="true">
                 <div class="bb-winbox-content">
-                    @item?.ContentTemplate
+                    @if (option.BodyTemplate != null)
+                    {
+                        <div class="bb-winbox-body">
+                            @option.BodyTemplate
+                        </div>
+                    }
+                    @option.ContentTemplate
+                    @if (option.FooterTemplate != null)
+                    {
+                        <div class="bb-winbox-footer">
+                            @option.FooterTemplate
+                        </div>
+                    }
                 </div>
             </CascadingValue>
         </template>
