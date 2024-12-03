@@ -42,10 +42,5 @@ export function reloadPlayer(id, videoSource, type) {
 }
 
 export function dispose(id) {
-    const player = Data.get(id);
     Data.remove(id);
-
-    if (player) {
-        player = null;
-    }
 }
