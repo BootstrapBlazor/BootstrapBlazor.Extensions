@@ -7,6 +7,7 @@ import './dockview-extensions.js'
 
 const cerateDockview = (el, options) => {
     // options.renderer = 'always'
+    // options.renderer = 'onlyWhenVisible'
     const template = el.querySelector('template');
     const dockview = new DockviewComponent(el, {
         parentElement: el,
@@ -25,6 +26,7 @@ const initDockview = (dockview, options, template) => {
     dockview.init = () => {
         const config = getConfig(options);
         dockview.params.floatingGroups = config.floatingGroups || []
+        // console.log(config, 'config');
         dockview.fromJSON(config);
     }
 

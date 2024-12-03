@@ -5,14 +5,10 @@ import { setDrawerTitle } from "./dockview-group.js"
 const onAddPanel = panel => {
     updateCloseButton(panel);
     updateTitle(panel);
+    observePanelActiveChange(panel)
+}
+const observePanelActiveChange = panel => {
     panel.api.onDidActiveChange(({ isActive }) => {
-        // if (panel.group.panels.length < 2) return
-        // if (isActive) {
-        //     saveConfig(panel.accessor)
-        //     panel.group.panels.filter(p => p != panel.group.activePanel).forEach(p => {
-        //         appendTemplatePanelEle(p)
-        //     })
-        // }
         if(isActive && !panel.group.api.isMaximized()){
             saveConfig(panel.accessor)
             if (panel.group.panels.length < 2) return
@@ -161,4 +157,4 @@ const deletePanel = (dockview, panel) => {
     }
 }
 
-export { onAddPanel, onRemovePanel, getPanelsFromOptions, findContentFromPanels, deletePanel };
+export { onAddPanel, observePanelActiveChange, onRemovePanel, getPanelsFromOptions, findContentFromPanels, deletePanel };

@@ -193,8 +193,11 @@ const resetActionStates = (group, actionContainer, groupType) => {
             toggleLock(group, actionContainer, true)
         }
     }
-    if (showAutohide(dockview, group) && getAutohideState(dockview, group, groupType)) {
-        actionContainer.classList.add('bb-show-autohide');
+    if (showPin(dockview, group) && showFloat(dockview, group)) {
+        actionContainer.classList.add('bb-show-pin');
+        if(getPinState(dockview, group, groupType)){
+            actionContainer.classList.add('bb-pin');
+        }
     }
     if (showMaximize(dockview, group)) {
         actionContainer.classList.add('bb-show-maximize');
@@ -202,7 +205,7 @@ const resetActionStates = (group, actionContainer, groupType) => {
         //     toggleFull(group, actionContainer, true)
         // }
     }
-    if (showFloat(dockview, group)) {
+    if (showFloat(dockview, group) && showPin(dockview, group)) {
         actionContainer.classList.add('bb-show-float');
         if (getFloatState(group)) {
             actionContainer.classList.add('bb-float');
@@ -219,14 +222,14 @@ const showLock = (dockview, group) => {
         ? options.showLock
         : group.panels.some(panel => panel.params.showLock === true)
 }
-const showAutohide = (dockview, group) => {
+const showPin = (dockview, group) => {
     const { options } = dockview.params;
-    return group.panels.every(panel => panel.params.showAutohide === null || panel.params.showAutohide === undefined)
-        ? (options.showAutohide || true)
-        : group.panels.some(panel => panel.params.showAutohide === true)
+    return group.panels.every(panel => panel.params.showPin === null || panel.params.showPin === undefined)
+        ? options.showPin
+        : group.panels.some(panel => panel.params.showPin === true)
 }
-const getAutohideState = (dockview, group, groupType) => {
-    return group.model.location.type == 'grid' || groupType == 'drawer'
+const getPinState = (dockview, group, groupType) => {
+    return group.model.location.type == 'grid'
 }
 
 const getLockState = (dockview, group) => {
@@ -307,7 +310,7 @@ const addActionEvent = group => {
                 },
             });
         }
-        else if (ele.classList.contains('bb-dockview-control-icon-autohide')) {
+        else if (ele.classList.contains('bb-dockview-control-icon-pin') || ele.classList.contains('bb-dockview-control-icon-pushpin')) {
             autoHide(group)
         }
     });
@@ -336,40 +339,40 @@ const autoHide = group => {
         if (floatingGroup) {
             setTimeout(() => {
                 createDrawerHandle(floatingGroup)
-                // floatingGroup.setParams({drawer, floatType: 'drawer'})
-                saveConfig(dockview)
             }, 0);
+            setTimeout(() => {
+                saveConfig(dockview)
+            }, 100);
         }
     }
 }
 
 const createDrawerHandle = (floatingGroup) => {
-    floatingGroup.header.rightActionsContainer.classList.remove('bb-show-float')
-    floatingGroup.header.rightActionsContainer.querySelector('.bb-dockview-control-icon-down').style.display = 'none'
     floatingGroup.element.parentElement.classList.add('dv-resize-container-drawer')
     createDrawerBtn(floatingGroup)
-    // floatingGroup.setParams({drawer, floatType: 'drawer'})
 }
 
 const createDrawerBtn = floatingGroup => {
     const dockview = floatingGroup.api.accessor
     const btn = document.createElement('div')
     const title = floatingGroup.activePanel?.title || floatingGroup.panels[0]?.title
-    // btn.innerHTML = title.split('').map(item => `<span>${item}</span>`).join('')
     btn.innerHTML = title
     btn.setAttribute('groupid', dockview.id + '_' + floatingGroup.id)
     btn.classList.add('drawer-btn')
+    if(floatingGroup.element.parentElement.style.left == '-1px'){
+        btn.classList.add('active')
+    }
 
     btn.addEventListener('click', () => {
         const fgWrapper = floatingGroup.element.parentElement
         const activePanel = floatingGroup.activePanel
+        const parentElement = activePanel.view.content.element.parentElement
         dockview.floatingGroups.forEach(item => {
             const params = item.group.getParams()
             if(params.floatType == 'drawer' && item.group != floatingGroup){
-                // item.group.element.parentElement.classList.remove('show')
                 item.group.element.parentElement.style.left = '-9999px'
-                if(activePanel?.renderer == 'always'){
-                    activePanel.view.content.element.parentElement.style.left = '-9999px'
+                if(activePanel?.renderer == 'always' && parentElement){
+                    parentElement.style.left = '-9999px'
                 }
             }
         })
@@ -378,14 +381,17 @@ const createDrawerBtn = floatingGroup => {
         })
         if(fgWrapper.style.left == '-1px'){
             fgWrapper.style.left = '-9999px'
-            if(activePanel?.renderer == 'always'){
-                activePanel.view.content.element.parentElement.style.left = '-9999px'
+            if(activePanel?.renderer == 'always' && parentElement){
+                parentElement.style.left = '-9999px'
             }
         } else {
             btn.classList.add('active')
             fgWrapper.style.left = '-1px'
-            activePanel.view.content.element.parentElement.style.left = '0'
+            if(parentElement){
+                parentElement.style.left = '0'
+            }
         }
+        saveConfig(dockview)
     })
     const dvEleBox = dockview.element.parentElement
     let btnWrapper = [...dvEleBox.children].find(item => item.classList.contains('bb-dockview-btn-wrapper'))
@@ -408,7 +414,7 @@ const setDrawerTitle = group => {
     const groupId = group.api.accessor.id + '_' + group.id
     const btnEle = group.api.accessor.element.parentElement.parentElement.querySelector(`.bb-dockview-btn-wrapper>[groupId="${groupId}"]`)
     if(!btnEle) return
-    btnEle.innerHTML = title.split('').map(item => `<span>${item}</span>`).join('')
+    btnEle.innerHTML = title
 }
 
 const removeActionEvent = group => {
@@ -438,7 +444,6 @@ const toggleFull = (group, actionContainer, maximize) => {
         maximize ? floatingExitMaximized(group) : floatingMaximize(group);
     }
     maximize ? actionContainer.classList.remove('bb-maximize') : actionContainer.classList.add('bb-maximize')
-    // group.setParams({maximize})
     if(maximize){
         group.element.parentElement.classList.remove('bb-maximize')
     }
@@ -462,44 +467,38 @@ const float = group => {
         width, height: packup?.isPackup ? packup.height : height, position: { left, top }
     }
     const floatingGroup = createFloatingGroup(group, floatingGroupRect)
-    if(floatingGroup){
-        const autoHideBtn = floatingGroup.header.rightActionsContainer.querySelector('.bb-dockview-control-icon-autohide')
-        if(autoHideBtn){
-            // autoHideBtn.style.display = 'none'
-        }
-    }
-
     saveConfig(dockview)
 }
+
 const canFloat = group => {
     if (group.locked) return false;
     const dockview = group.api.accessor;
     const gridGroups = dockview.groups.filter(g => g.panels.length > 0 && g.model.location.type === 'grid')
     if (gridGroups.length <= 1) return false;
+    if(group.element.closest('.dv-resize-container')) return
+    if(group.element.querySelector('.dv-resize-container')) return
     return true
 }
-const moveFloatContainer = floatGroup => {
-    const containerEle = floatGroup.element.parentElement
-    document.body.classList.add('bb-dockview')
-    document.body.append(containerEle)
-}
+
 const createFloatingGroup = (group, rect, groupType) => {
     const dockview = group.api.accessor
     const floatingGroup = dockview.createGroup({ id: getFloatingId(group.id) });
     observeFloatingGroupLocationChange(floatingGroup)
+    const activePanel = group.activePanel
     group.panels.slice(0).forEach((panel, index) => {
         dockview.moveGroupOrPanel({
             from: { groupId: group.id, panelId: panel.id },
             to: { group: floatingGroup, position: 'center', index },
-            skipRemoveGroup: true
+            skipRemoveGroup: true,
         })
     })
     dockview.setVisible(group, false)
     dockview.addFloatingGroup(floatingGroup, { ...rect, skipRemoveGroup: true })
+    activePanel.api.setActive()
     const overlay = dockview.floatingGroups.find(fg => fg.group.id == floatingGroup.id).overlay
     observeOverlayChange(overlay, floatingGroup)
-    createGroupActions(floatingGroup, groupType);
-    // moveFloatContainer(floatingGroup)
+    observeGroup(floatingGroup)
+    createGroupActions(floatingGroup, groupType)
     return floatingGroup
 }
 const observeOverlayChange = (overlay, group) => {

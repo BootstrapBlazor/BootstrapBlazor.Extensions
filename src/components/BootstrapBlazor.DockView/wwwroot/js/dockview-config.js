@@ -304,7 +304,14 @@ const getLeafNode = (contentItem, size, boxSize, parent, panels, getGroupId, opt
 const saveConfig = dockview => {
     if (dockview.params.options.enableLocalStorage && dockview._inited === true) {
         saveParamsIsActive(dockview)
-        const json = dockview.toJSON()
+        const json = dockview.toJSON();
+        if(dockview.floatingGroups && dockview.floatingGroups.length > 0) {
+            json.floatingGroups.forEach((fg, index) => {
+                const width = dockview.floatingGroups[index].group.width
+                fg.position.width = fg.position.width || (width ? width + 2 : 300)
+                fg.position.height = fg.position.height || dockview.floatingGroups[index].group.height
+            })
+        }
         localStorage.setItem(dockview.params.options.localStorageKey, JSON.stringify(json));
     }
 }

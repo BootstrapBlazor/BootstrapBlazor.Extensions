@@ -6546,7 +6546,7 @@ class Watermark extends CompositeDisposable {
     }
 }
 
-const DEFAULT_OVERLAY_Z_INDEX = 999;
+const DEFAULT_OVERLAY_Z_INDEX = 1002;
 class AriaLevelTracker {
     constructor() {
         this._orderedList = [];

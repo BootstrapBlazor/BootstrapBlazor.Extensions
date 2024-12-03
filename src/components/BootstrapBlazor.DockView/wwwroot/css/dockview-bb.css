@@ -136,7 +136,10 @@
 
         .bb-dockview .dv-tab-on > .dv-default-tab-content + .dv-default-tab-action,
         .bb-dockview .tabs-and-actions-container:has(.dv-tab-on) > .right-actions-container > .bb-dockview-control-icon-close,
-        .bb-dockview .right-actions-container:not(.bb-show-autohide) .bb-dockview-control-icon-autohide,
+        .bb-dockview .right-actions-container:not(.bb-show-pin) .bb-dockview-control-icon-pin,
+        .bb-dockview .right-actions-container:not(.bb-show-pin) .bb-dockview-control-icon-pushpin,
+        .bb-dockview .right-actions-container:not(.bb-pin) .bb-dockview-control-icon-pin,
+        .bb-dockview .right-actions-container.bb-pin .bb-dockview-control-icon-pushpin,
         .bb-dockview .right-actions-container:not(.bb-show-lock) .bb-dockview-control-icon-lock,
         .bb-dockview .right-actions-container:not(.bb-show-lock) .bb-dockview-control-icon-unlock,
         .bb-dockview .right-actions-container:not(.bb-lock) .bb-dockview-control-icon-lock,
@@ -158,8 +161,16 @@
         .bb-dockview .tabs-and-actions-container:has(.bb-lock) .dv-default-tab-content + .dv-default-tab-action svg > *,
         .bb-dockview .right-actions-container.bb-lock .bb-dockview-control-icon-close > svg > *,
         .bb-dockview .right-actions-container.bb-lock .bb-dockview-control-icon-float > svg > *,
-        .bb-dockview .right-actions-container.bb-lock .bb-dockview-control-icon-dock > svg > * {
+        .bb-dockview .right-actions-container.bb-lock .bb-dockview-control-icon-dock > svg > *,
+        .bb-dockview .right-actions-container.bb-lock .bb-dockview-control-icon-pin > svg > *,
+        .bb-dockview .right-actions-container.bb-lock .bb-dockview-control-icon-pushpin > svg > *,
+        .bb-dockview .groupview:has(.dv-resize-container) > .tabs-and-actions-container > .right-actions-container .bb-dockview-control-icon-pin > svg > *,
+        .bb-dockview .groupview:has(.dv-resize-container) > .tabs-and-actions-container > .right-actions-container .bb-dockview-control-icon-float > svg > *,
+        .bb-dockview .tabs-and-actions-container:has(.right-actions-container:not(.bb-pin)) + .content-container .bb-dockview .bb-dockview-control-icon-pin > svg > *,
+        .bb-dockview .tabs-and-actions-container:has(.right-actions-container:not(.bb-pin)) + .content-container .bb-dockview .bb-dockview-control-icon-float > svg > *
+        {
             stroke: var(--bb-dockview-control-icon-lock-color);
+            fill: var(--bb-dockview-control-icon-lock-color);
         }
 
     .bb-dockview .bb-dockview-control-icon > svg {
@@ -169,6 +180,7 @@
 
         .bb-dockview .bb-dockview-control-icon > svg > * {
             stroke: var(--bb-dockview-control-icon-color);
+            fill: var(--bb-dockview-control-icon-color);
         }
 
     .bb-dockview .bb-up .bb-dockview-control-icon-down > svg {
@@ -200,17 +212,13 @@
 .bb-dockview .split-view-container .view-container .view.bb-maximize{
     z-index: 99;
 }
-.bb-dockview .split-view-container .view-container > .view > .groupview
+.bb-dockview .split-view-container .view-container > .view > .groupview:not(.empty)
 {
     overflow: initial!important;
 }
 .bb-dockview .dv-resize-container .groupview .tabs-and-actions-container
 {
     z-index: 12;
-}
-
-.bb-dockview .watermark {
-    overflow: hidden;
 }
 
 .bb-dockview .bb-dockview-btn-wrapper {
@@ -254,7 +262,12 @@
     width: calc(100% - 23px);
 }
 
-.bb-dockview .dv-resize-container.dv-resize-container-drawer > div:not(.dv-resize-handle-right):not(.dv-groupview-floating)
+.bb-dockview .dv-resize-container.dv-resize-container-drawer > div:not(.dv-resize-handle-right):not(.dv-groupview-floating),
+.bb-dockview .dv-resize-container.dv-resize-container-drawer >.dv-groupview-floating > .tabs-and-actions-container .bb-dockview-control-icon-float,
+.bb-dockview .dv-resize-container.dv-resize-container-drawer >.dv-groupview-floating > .tabs-and-actions-container .bb-dockview-control-icon-dock,
+.bb-dockview .dv-resize-container.dv-resize-container-drawer >.dv-groupview-floating > .tabs-and-actions-container .bb-dockview-control-icon-down,
+.bb-dockview .dv-resize-container:not(.dv-resize-container-drawer) >.dv-groupview-floating > .tabs-and-actions-container .bb-dockview-control-icon-pin,
+.bb-dockview .dv-resize-container:not(.dv-resize-container-drawer) >.dv-groupview-floating > .tabs-and-actions-container .bb-dockview-control-icon-pushpin
 {
     display: none;
 }
