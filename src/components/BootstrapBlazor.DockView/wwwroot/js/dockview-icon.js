@@ -17,7 +17,7 @@ const getIcon = (name, hasTitle = true) => {
 const getIcons = () => {
     let icons = Data.get('dockview-v2');
     if (icons === null) {
-        icons = ['bar', 'dropdown', 'lock', 'unlock', 'down', 'full', 'restore', 'float', 'dock', 'close'].map(v => {
+        icons = ['bar', 'dropdown', 'pin', 'pushpin', 'lock', 'unlock', 'down', 'full', 'restore', 'float', 'dock', 'close'].map(v => {
             return {
                 name: v,
                 icon: document.querySelector(`template > .bb-dockview-control-icon-${v}`)
