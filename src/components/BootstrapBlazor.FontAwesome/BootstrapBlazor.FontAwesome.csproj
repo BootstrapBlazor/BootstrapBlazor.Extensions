@@ -10,6 +10,11 @@
   </PropertyGroup>
 
   <ItemGroup>
+    <Content Remove="wwwroot\css\all.css" />
+    <None Include="wwwroot\css\all.css" />
+  </ItemGroup>
+
+  <ItemGroup>
     <PackageReference Include="BootstrapBlazor" Version="$(BBVersion)" />
   </ItemGroup>
 
