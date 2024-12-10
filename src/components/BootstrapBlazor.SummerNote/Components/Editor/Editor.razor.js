@@ -7,7 +7,7 @@ if (window.BootstrapBlazor === void 0) {
     window.BootstrapBlazor = {};
 }
 
-export function init(id, invoker, methodGetPluginAttrs, methodClickPluginItem, height, value, lang, langUrl) {
+export async function init(id, invoker, methodGetPluginAttrs, methodClickPluginItem, height, value, lang, langUrl) {
     const el = document.getElementById(id)
     if (el === null) {
         return
