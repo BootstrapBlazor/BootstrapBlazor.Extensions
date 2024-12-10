@@ -259,11 +259,10 @@ public partial class Editor
     /// <summary>
     /// 执行 editor 的方法
     /// </summary>
-    public async ValueTask DoMethodAsync(string method, params object[] value)
-    {
-        if (Module != null)
-        {
-            await Module.InvokeVoidAsync("invoke", Id, method, value);
-        }
-    }
+    public Task DoMethodAsync(string method, params object[] value) => InvokeVoidAsync("invoke", Id, method, value);
+
+    /// <summary>
+    /// 代码获得当前编辑器的内容
+    /// </summary>
+    public Task<string?> GetCode() => InvokeAsync<string?>("getCode", Id);
 }

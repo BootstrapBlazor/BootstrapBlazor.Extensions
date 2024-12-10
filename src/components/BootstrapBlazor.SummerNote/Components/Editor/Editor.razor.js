@@ -1,5 +1,5 @@
 ﻿import '../../js/summernote-bs5.min.js'
-import { addLink, addScript } from '../../../BootstrapBlazor/modules/utility.js'
+import { addScript } from '../../../BootstrapBlazor/modules/utility.js'
 import Data from '../../../BootstrapBlazor/modules/data.js'
 import EventHandler from '../../../BootstrapBlazor/modules/event-handler.js'
 
@@ -7,13 +7,12 @@ if (window.BootstrapBlazor === void 0) {
     window.BootstrapBlazor = {};
 }
 
-export async function init(id, invoker, methodGetPluginAttrs, methodClickPluginItem, height, value, lang, langUrl) {
+export function init(id, invoker, methodGetPluginAttrs, methodClickPluginItem, height, value, lang, langUrl) {
     const el = document.getElementById(id)
     if (el === null) {
         return
     }
 
-    await addLink('./_content/BootstrapBlazor.SummerNote/css/bootstrap.blazor.editor.min.css')
     const editor = { el, invoker }
     Data.set(id, editor)
 
@@ -148,6 +147,11 @@ export function update(id, val) {
 export function invoke(id, method, parameter) {
     const editor = Data.get(id)
     editor.$editor.summernote(method, ...parameter)
+}
+
+export function getCode(id) {
+    const editor = Data.get(id);
+    return editor.$editor.summernote('code');
 }
 
 export function reset(id) {
