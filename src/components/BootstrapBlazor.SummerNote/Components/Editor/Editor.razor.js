@@ -149,6 +149,11 @@ export function invoke(id, method, parameter) {
     editor.$editor.summernote(method, ...parameter)
 }
 
+export function getCode(id) {
+    const editor = Data.get(id);
+    return editor.$editor.summernote('code');
+}
+
 export function reset(id) {
     const editor = Data.get(id)
     const context = editor.$editor.data('summernote')
