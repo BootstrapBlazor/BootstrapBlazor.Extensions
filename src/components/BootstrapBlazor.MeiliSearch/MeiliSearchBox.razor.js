@@ -101,7 +101,18 @@ const handlerSearch = search => {
         }
     });
     const fn = debounce(doSearch);
+    let isComposing = false;
     EventHandler.on(input, 'input', () => {
+        if (isComposing) {
+            return;
+        }
+        fn(search, input.value);
+    });
+    EventHandler.on(input, 'compositionstart', e => {
+        isComposing = true;
+    });
+    EventHandler.on(input, 'compositionend', e => {
+        isComposing = false;
         fn(search, input.value);
     });
     search.input = input;
