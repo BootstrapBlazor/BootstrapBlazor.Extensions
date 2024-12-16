@@ -1,4 +1,4 @@
-﻿import { addScript } from '../../../BootstrapBlazor/modules/utility.js'
+﻿import { addLink, addScript } from '../../../BootstrapBlazor/modules/utility.js'
 import Data from '../../../BootstrapBlazor/modules/data.js'
 import EventHandler from "../../../BootstrapBlazor/modules/event-handler.js"
 
@@ -6,7 +6,8 @@ export async function init(id, interop, options) {
     const editor = {};
     Data.set(id, editor);
 
-    await addScript('./_content/BootstrapBlazor.CodeEditor/monaco-editor/min/vs/loader.min.js')
+    await addLink('_content/BootstrapBlazor.CodeEditor/code-editor.bundle.css');
+    await addScript('_content/BootstrapBlazor.CodeEditor/monaco-editor/min/vs/loader.min.js');
 
     const init = container => {
 
