@@ -1,4 +1,6 @@
-﻿.svg-editor {
+﻿@import url('./editor/svgedit.css');
+
+.svg-editor {
     width: 100%;
     height: 600px;
     min-height: 600px
