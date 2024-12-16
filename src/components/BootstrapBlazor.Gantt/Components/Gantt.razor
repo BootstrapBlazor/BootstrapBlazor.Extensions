@@ -1,11 +1,6 @@
-﻿@using Microsoft.AspNetCore.Components.Web
-@namespace BootstrapBlazor.Components
+﻿@namespace BootstrapBlazor.Components
 @inherits BootstrapModuleComponentBase
 @attribute [JSModuleAutoLoader("./_content/BootstrapBlazor.Gantt/Components/Gantt.razor.js", JSObjectReference = true)]
-
-<HeadContent>
-    <link rel="stylesheet" href="_content/BootstrapBlazor.Gantt/css/gantt.bundle.css" />
-</HeadContent>
 
 <div @attributes="@AdditionalAttributes" id="@Id" class="@ClassString">
     <svg></svg>
