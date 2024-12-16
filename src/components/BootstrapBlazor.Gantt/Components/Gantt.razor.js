@@ -8,7 +8,7 @@ export async function init(id, tasks, option, invoke) {
         return
     }
 
-    await addLink("./_content/BootstrapBlazor.Gantt/css/frappe-gantt.min.css")
+    await addLink("./_content/BootstrapBlazor.Gantt/css/gantt.bundle.css")
 
     const gantt = new Gantt(el, tasks, {
         on_click: function (task) {
