@@ -7,7 +7,7 @@
     position: relative;
 }
 
-    .code-editor ::deep .spinner {
+    .code-editor .spinner {
         position: fixed
     }
 
