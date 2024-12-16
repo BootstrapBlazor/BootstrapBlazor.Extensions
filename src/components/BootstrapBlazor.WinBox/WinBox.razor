@@ -1,11 +1,6 @@
-﻿@using Microsoft.AspNetCore.Components.Web
-@namespace BootstrapBlazor.Components
+﻿@namespace BootstrapBlazor.Components
 @inherits BootstrapModuleComponentBase
-@attribute [JSModuleAutoLoader("./_content/BootstrapBlazor.WinBox/WinBox.razor.js", JSObjectReference = true, AutoInvokeInit = false)]
-
-<HeadContent>
-    <link rel="stylesheet" href="_content/BootstrapBlazor.WinBox/css/winbox.bundle.css" />
-</HeadContent>
+@attribute [JSModuleAutoLoader("./_content/BootstrapBlazor.WinBox/WinBox.razor.js", JSObjectReference = true)]
 
 <CascadingValue Value="CloseAsync" IsFixed="true">
     @foreach (var (key, option) in _cache)
