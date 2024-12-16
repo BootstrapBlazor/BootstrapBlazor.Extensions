@@ -1,4 +1,6 @@
-﻿.mf-cursor {
+﻿@import url('./mouse-follower.min.css');
+
+.mf-cursor {
     position: fixed;
     top: 0;
     left: 0;
