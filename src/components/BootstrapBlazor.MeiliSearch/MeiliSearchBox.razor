@@ -1,12 +1,6 @@
-﻿@using Microsoft.AspNetCore.Components.Web
-@namespace BootstrapBlazor.Components
+﻿@namespace BootstrapBlazor.Components
 @inherits BootstrapModuleComponentBase
 @attribute [JSModuleAutoLoader("./_content/BootstrapBlazor.MeiliSearch/MeiliSearchBox.razor.js")]
-
-<HeadContent>
-    <link href="_content/BootstrapBlazor.MeiliSearch/meilisearch.css" rel="stylesheet" />
-    <script src="_content/BootstrapBlazor.MeiliSearch/meilisearch.umd.min.js"></script>
-</HeadContent>
 
 <div @attributes="@AdditionalAttributes" id="@Id" class="@ClassString">
     <i class="fa-solid fa-search"></i>
