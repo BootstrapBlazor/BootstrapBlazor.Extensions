@@ -1,4 +1,6 @@
-﻿.bb-gantt {
+﻿@import url('./frappe-gantt.min.css');
+
+.bb-gantt {
     border: 1px solid var(--bs-border-color);
     border-radius: var(--bs-border-radius);
     overflow: hidden;
