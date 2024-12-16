@@ -73,10 +73,6 @@ public partial class Topology
     [Parameter]
     public bool IsDisableAnchor { get; set; }
 
-    private string? StyleString => CssBuilder.Default()
-        .AddStyleFromAttributes(AdditionalAttributes)
-        .Build();
-
     private CancellationTokenSource? CancelToken { get; set; }
 
     private string? ClassString => CssBuilder.Default("bb-topology w-100 h-100")
