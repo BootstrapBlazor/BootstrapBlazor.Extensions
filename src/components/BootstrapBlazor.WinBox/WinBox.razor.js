@@ -1,10 +1,5 @@
 ﻿import './js/winbox.min.js'
 import Data from '../BootstrapBlazor/modules/data.js'
-import { addLink } from "../BootstrapBlazor/modules/utility.js"
-
-export async function init(id) {
-    await addLink('./_content/BootstrapBlazor.WinBox/css/winbox.bundle.css')
-}
 
 export function show(id, invoke, option) {
     const el = document.getElementById(id);
