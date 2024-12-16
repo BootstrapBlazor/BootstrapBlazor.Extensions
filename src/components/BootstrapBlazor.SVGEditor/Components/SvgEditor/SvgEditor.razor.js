@@ -1,11 +1,9 @@
-﻿import { addLink } from '../../../BootstrapBlazor/modules/utility.js'
-import Data from '../../../BootstrapBlazor/modules/data.js'
+﻿import Data from '../../../BootstrapBlazor/modules/data.js'
 import Editor from "../../editor/Editor.js"
 
-export async function init(id, options) {
-    await addLink("./_content/BootstrapBlazor.SvgEditor/editor/svgedit.css")
-
+export function init(id, options) {
     const { preload, interop, callback } = options;
+
     /* for available options see the file `docs/tutorials/ConfigOptions.md */
     const svgEditor = new Editor(document.getElementById(id))
     svgEditor.setConfig({
@@ -14,7 +12,7 @@ export async function init(id, options) {
         allowInitialUserOverride: false,
         imgPath: "./_content/BootstrapBlazor.SvgEditor/editor/images/",
         showGrid: true,
-        extPath: "/_content/BootstrapBlazor.SvgEditor/editor/extensions/",
+        extPath: "./_content/BootstrapBlazor.SvgEditor/editor/extensions/",
         noDefaultExtensions: false
     })
     svgEditor.init()
