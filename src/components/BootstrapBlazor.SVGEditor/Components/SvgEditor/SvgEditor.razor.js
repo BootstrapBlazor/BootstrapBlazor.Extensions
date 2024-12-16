@@ -12,7 +12,7 @@ export function init(id, options) {
         allowInitialUserOverride: false,
         imgPath: "./_content/BootstrapBlazor.SvgEditor/editor/images/",
         showGrid: true,
-        extPath: "./_content/BootstrapBlazor.SvgEditor/editor/extensions/",
+        extPath: "/_content/BootstrapBlazor.SvgEditor/editor/extensions/",
         noDefaultExtensions: false
     })
     svgEditor.init()
