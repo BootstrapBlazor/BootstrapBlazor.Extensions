@@ -3,12 +3,12 @@ import Data from '../../../BootstrapBlazor/modules/data.js'
 import EventHandler from '../../../BootstrapBlazor/modules/event-handler.js'
 
 export async function init(op) {
-    await addLink("./_content/BootstrapBlazor.Live2DDisplay/BootstrapBlazor.Live2DDisplay.bundle.scp.css")
-    await addScript("./_content/BootstrapBlazor.Live2DDisplay/live2dcubismcore.min.js")
-    await addScript("./_content/BootstrapBlazor.Live2DDisplay/live2d.min.js")
-    await addScript("./_content/BootstrapBlazor.Live2DDisplay/pixi.min.js")
-    await addScript("./_content/BootstrapBlazor.Live2DDisplay/index.min.js")
-    await addScript("./_content/BootstrapBlazor.Live2DDisplay/extra.min.js")
+    await addLink("_content/BootstrapBlazor.Live2DDisplay/live2d.bundle.css")
+    await addScript("_content/BootstrapBlazor.Live2DDisplay/live2dcubismcore.min.js")
+    await addScript("_content/BootstrapBlazor.Live2DDisplay/live2d.min.js")
+    await addScript("_content/BootstrapBlazor.Live2DDisplay/pixi.min.js")
+    await addScript("_content/BootstrapBlazor.Live2DDisplay/index.min.js")
+    await addScript("_content/BootstrapBlazor.Live2DDisplay/extra.min.js")
 
     const model = await createModel(op);
     if (model) {
