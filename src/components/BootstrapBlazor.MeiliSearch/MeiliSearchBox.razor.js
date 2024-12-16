@@ -1,4 +1,4 @@
-﻿import { addScript, addLink, debounce, isMobile } from "../BootstrapBlazor/modules/utility.js"
+﻿import { debounce, isMobile } from "../BootstrapBlazor/modules/utility.js"
 import Data from "../BootstrapBlazor/modules/data.js"
 import EventHandler from "../BootstrapBlazor/modules/event-handler.js"
 
@@ -6,12 +6,10 @@ if (window.BootstrapBlazor === void 0) {
     window.BootstrapBlazor = {};
 }
 
-export async function init(id, options) {
+export function init(id, options) {
     const el = document.getElementById(id);
-    await addLink('./_content/BootstrapBlazor.MeiliSearch/meilisearch.css');
     el.classList.remove('d-none');
 
-    await addScript('./_content/BootstrapBlazor.MeiliSearch/meilisearch.umd.min.js')
     const search = {
         el, options,
         searchText: 'searching ...',
