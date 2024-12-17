@@ -178,7 +178,7 @@ public partial class ImageHelper : IAsyncDisposable
     /// <summary>
     /// 选择摄像头回调方法
     /// </summary>
-    /// <param name="base64encodedstring"></param>
+    /// <param name="deviceID"></param>
     /// <returns></returns>
     [JSInvokable]
     public async Task SelectDeviceID(string deviceID)
