@@ -262,19 +262,13 @@ export async function faceDetection1st(_instance, _element, _options) {
     faceCascade.load('haarcascade_frontalface_default.xml');
     let msize = new cv.Size(0, 0);
     faceCascade.detectMultiScale(gray, faces, 1.1, 3, 0, msize, msize);
-    if (faces.size() > 0) {
-        let face = faces.get(0);
-        let dst = new cv.Mat();
-        let rect = new cv.Rect(face.x * 0.8, face.y * 0.7, face.width * 1.3, face.height * 1.4);
-        dst = src.roi(rect);
-        cv.imshow(options.canvasOutputDom, dst);
-        dst.delete();
-    }
-
-    if (options.enableFaceDetectionCallBack && faces.size() > 0) {
-        let canvas = element.querySelector('#' + options.canvasOutputDom);
-        let dataUrl = canvas.toDataURL("image/jpeg");
-        instance.invokeMethodAsync('GetFace', dataUrl);
+    if (faces.size() > 0) { 
+        cv.imshow(options.canvasOutputDom, src.roi(faces.get(0))); 
+        if (options.enableFaceDetectionCallBack) {
+            let canvas = element.querySelector('#' + options.canvasOutputDom);
+            let dataUrl = canvas.toDataURL("image/jpeg");
+            instance.invokeMethodAsync('GetFace', dataUrl);
+        }
     }
 
     src.delete();
@@ -462,22 +456,14 @@ export async function faceDetectionInCamera(_instance, _element, _options) {
             // detect faces.
             faceCascade.detectMultiScale(gray, faces, 1.1, 3, 0);
             // draw faces.
-            for (let i = 0; i < faces.size(); ++i) {
-                //let face = faces.get(i);
-                //let point1 = new cv.Point(face.x, face.y);
-                //let point2 = new cv.Point(face.x + face.width, face.y + face.height);
-                //cv.rectangle(dst, point1, point2, [255, 0, 0, 255], 2); 
-                dst = new cv.Mat();
-                let rect = new cv.Rect(faces.get(i).x * 0.8, faces.get(i).y * 0.7, faces.get(i).width * 1.3, faces.get(i).height * 1.4);
-                dst = src.roi(rect);
-                break;
-            }
-            cv.imshow(options.canvasOutputDom, dst);
-            if (options.enableFaceDetectionCallBack && faces.size() > 0) {
-                let canvas = element.querySelector('#' + options.canvasOutputDom);
-                let dataUrl = canvas.toDataURL("image/jpeg");
-                instance.invokeMethodAsync('GetFace', dataUrl);
-            }
+            if (faces.size() > 0) {
+                cv.imshow(options.canvasOutputDom, src.roi(faces.get(0)));
+                if (options.enableFaceDetectionCallBack) {
+                    let canvas = element.querySelector('#' + options.canvasOutputDom);
+                    let dataUrl = canvas.toDataURL("image/jpeg");
+                    instance.invokeMethodAsync('GetFace', dataUrl);
+                }
+            } 
             // schedule the next one.
             let delay = 1000 / FPS - (Date.now() - begin);
             setTimeout(processVideo, delay);
