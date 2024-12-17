@@ -40,7 +40,8 @@ export function init(_instance, _element, _options) {
 
     img.onload = function () {
         let inCanvasCtx = inCanvas.getContext('2d')
-        inCanvasCtx.drawImage(img, 0, 0, img.width, img.height, 0, 0, 400, 400);
+        let rate = img.height / img.width;
+        inCanvasCtx.drawImage(img, 0, 0, img.width, img.height, 0, 0, 400, 400 * rate);
         if (img.width !== 400 || img.height != 400) {
             inCanvas.toBlob(function (blob) {
                 img.src = URL.createObjectURL(blob);
@@ -168,31 +169,38 @@ async function faceDetectionBase(_instance, _element, _options, type) {
     apply(_instance, _element, _options);
     let inCanvas = element.querySelector('#' + options.imageDataDom);
     let videoInput = element.querySelector('#' + options.videoInputDom);
-    inCanvas.hidden = true;
-    videoInput.hidden = false;
+    inCanvas.hidden = false;
+    videoInput.hidden = true;
 
-    if (type != 3 && !isLoadImage()) return false;
+    if (type != 3 && !isLoadImage()) {
+        return false;
+    }
     if (loading) {
         let utils = new Utils(instance, element, options);
         instance.invokeMethodAsync('GetResult', '正在加载模型文件');
         let baseurl = '_content/BootstrapBlazor.ImageHelper/models/';
         let mods = [
             "haarcascade_eye.xml",
-            "haarcascade_frontalface_default.xml" 
+            "haarcascade_frontalface_default.xml"
         ];
         let result = await utils.initModels(mods, baseurl);
         if (result) {
             loading = false;
             instance.invokeMethodAsync('GetResult', '加载模型文件完成');
-            if (type === 1)
+            if (type === 1) {
                 faceDetection(_instance, _element, _options);
-            else if (type === 3)
+            }
+            else if (type === 3) {
+                inCanvas.hidden = true;
+                videoInput.hidden = false;
                 faceDetectionInCamera(_instance, _element, _options);
-            else
+            }
+            else {
                 faceDetection1st(_instance, _element, _options);
+            }
         } else {
             instance.invokeMethodAsync('GetResult', '加载模型文件失败');
-        }        
+        }
         return false;
     }
     return true;
@@ -234,9 +242,8 @@ export async function faceDetection(_instance, _element, _options) {
     }
     cv.imshow(options.canvasOutputDom, src);
 
-    if (faces.size() > 0) {
-        let canvas = element.querySelector('#' + options.canvasOutputDom);
-        let dataUrl = canvas.toDataURL("image/jpeg");
+    if (options.enableFaceDetectionCallBack && faces.size() > 0) {
+        let dataUrl = imageData.toDataURL("image/jpeg");
         instance.invokeMethodAsync('GetFace', dataUrl);
     }
 
@@ -245,36 +252,26 @@ export async function faceDetection(_instance, _element, _options) {
 }
 
 export async function faceDetection1st(_instance, _element, _options) {
-    if (!(await faceDetectionBase(_instance, _element, _options, 2))) return; 
+    if (!(await faceDetectionBase(_instance, _element, _options, 2))) return;
     let imageData = element.querySelector('#' + options.imageDataDom);
     let src = cv.imread(imageData);
     let gray = new cv.Mat();
     cv.cvtColor(src, gray, cv.COLOR_RGBA2GRAY, 0);
     let faces = new cv.RectVector();
     let faceCascade = new cv.CascadeClassifier();
-    // load pre-trained classifiers
     faceCascade.load('haarcascade_frontalface_default.xml');
-    // // detect faces
     let msize = new cv.Size(0, 0);
     faceCascade.detectMultiScale(gray, faces, 1.1, 3, 0, msize, msize);
-    for (let i = 0; i < faces.size(); ++i) {
-        let roiGray = gray.roi(faces.get(i));
-        let roiSrc = src.roi(faces.get(i));
-        const offest = 0
-        let point1 = new cv.Point(faces.get(i).x, faces.get(i));
-        let point2 = new cv.Point(faces.get(i).x + faces.get(i).width,
-            faces.get(i).y + faces.get(i).height);
+    if (faces.size() > 0) {
+        let face = faces.get(0);
         let dst = new cv.Mat();
-        // You can try more different parameters
-        let rect = new cv.Rect(faces.get(i).x, faces.get(i).y, faces.get(i).width, faces.get(i).height);
+        let rect = new cv.Rect(face.x * 0.8, face.y * 0.7, face.width * 1.3, face.height * 1.4);
         dst = src.roi(rect);
         cv.imshow(options.canvasOutputDom, dst);
         dst.delete();
-        roiGray.delete();
-        roiSrc.delete(); 
     }
 
-    if (faces.size() > 0) {
+    if (options.enableFaceDetectionCallBack && faces.size() > 0) {
         let canvas = element.querySelector('#' + options.canvasOutputDom);
         let dataUrl = canvas.toDataURL("image/jpeg");
         instance.invokeMethodAsync('GetFace', dataUrl);
@@ -466,21 +463,20 @@ export async function faceDetectionInCamera(_instance, _element, _options) {
             faceCascade.detectMultiScale(gray, faces, 1.1, 3, 0);
             // draw faces.
             for (let i = 0; i < faces.size(); ++i) {
-                let face = faces.get(i);
-                let point1 = new cv.Point(face.x, face.y);
-                let point2 = new cv.Point(face.x + face.width, face.y + face.height);
-                cv.rectangle(dst, point1, point2, [255, 0, 0, 255], 2); 
-
+                //let face = faces.get(i);
+                //let point1 = new cv.Point(face.x, face.y);
+                //let point2 = new cv.Point(face.x + face.width, face.y + face.height);
+                //cv.rectangle(dst, point1, point2, [255, 0, 0, 255], 2); 
                 dst = new cv.Mat();
-                let rect = new cv.Rect(faces.get(i).x, faces.get(i).y, faces.get(i).width, faces.get(i).height);
+                let rect = new cv.Rect(faces.get(i).x * 0.8, faces.get(i).y * 0.7, faces.get(i).width * 1.3, faces.get(i).height * 1.4);
                 dst = src.roi(rect);
                 break;
             }
             cv.imshow(options.canvasOutputDom, dst);
-            if (faces.size() > 0) {
+            if (options.enableFaceDetectionCallBack && faces.size() > 0) {
                 let canvas = element.querySelector('#' + options.canvasOutputDom);
                 let dataUrl = canvas.toDataURL("image/jpeg");
-                instance.invokeMethodAsync('GetFace', dataUrl);  
+                instance.invokeMethodAsync('GetFace', dataUrl);
             }
             // schedule the next one.
             let delay = 1000 / FPS - (Date.now() - begin);

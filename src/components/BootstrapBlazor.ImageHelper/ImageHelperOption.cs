@@ -25,4 +25,6 @@ public class ImageHelperOption : ImageHelperOptionBase
     public string CanvasOutputDom { get; set; } = "canvasOutput";
     public string StatusDom { get; set; } = "status";
 
+    public bool EnableFaceDetectionCallBack { get; set; }
+
 }

@@ -1,13 +1,10 @@
-﻿// ********************************** 
-// Densen Informatica 中讯科技 
-// 作者：Alex Chow
-// e-mail:zhouchuanglin@gmail.com 
-// **********************************
+﻿// Copyright (c) Argo Zhang (argo@163.com). All rights reserved.
+// Licensed under the Apache License, Version 2.0. See License.txt in the project root for license information.
+// Website: https://www.blazor.zone or https://argozhang.github.io/
 
 using BootstrapBlazor.ImageHelper;
 using Microsoft.AspNetCore.Components;
 using Microsoft.JSInterop;
-using System.Diagnostics.CodeAnalysis;
 
 namespace BootstrapBlazor.Components;
 
@@ -65,6 +62,8 @@ public partial class ImageHelper : IAsyncDisposable
     [Parameter]
     public ImageHelperOption Options { get; set; } = new();
 
+    private ImageHelperOption? optionsCache;
+
     [Parameter]
     public RenderFragment? ChildContent { get; set; }
 
@@ -78,34 +77,47 @@ public partial class ImageHelper : IAsyncDisposable
     {
         try
         {
-            if (!firstRender) return;
+            if (!firstRender)
+            {
+                return;
+            }
+
             Storage ??= new StorageService(JSRuntime);
             Module = await JSRuntime.InvokeAsync<IJSObjectReference>("import", "./_content/BootstrapBlazor.ImageHelper/ImageHelper.razor.js" + "?v=" + System.Reflection.Assembly.GetExecutingAssembly().GetName().Version);
             Instance = DotNetObjectReference.Create(this);
             try
             {
                 if (Options.SaveDeviceID)
+                {
                     Options.DeviceID = await Storage.GetValue("CamsDeviceID", Options.DeviceID);
+                }
             }
             catch (Exception)
             {
             }
             await Init();
-            FirstRender = false; 
+            FirstRender = false;
 
         }
         catch (Exception e)
         {
             Message = e.Message;
             StateHasChanged();
-            if (OnError != null) await OnError.Invoke(e.Message);
+            if (OnError != null)
+            {
+                await OnError.Invoke(e.Message);
+            }
         }
 
     }
 
     protected override async Task OnParametersSetAsync()
     {
-        if (FirstRender) return;
+        if (FirstRender || optionsCache == Options)
+        {
+            return;
+        } 
+
         await Apply();
     }
 
@@ -115,13 +127,18 @@ public partial class ImageHelper : IAsyncDisposable
         IsOpenCVReady = true;
         StateHasChanged();
         if (OnResult != null)
+        {
             await OnResult.Invoke(Status);
+        }
     }
 
     [JSInvokable]
     public async Task GetError(string err)
     {
-        if (OnError != null) await OnError.Invoke(err);
+        if (OnError != null)
+        {
+            await OnError.Invoke(err);
+        }
     }
 
     /// <summary>
@@ -131,13 +148,17 @@ public partial class ImageHelper : IAsyncDisposable
     public async Task<bool> Init(ImageHelperOption? options = null)
     {
         if (options != null)
+        {
             Options = options;
+        }
 
         try
         {
             await Module!.InvokeVoidAsync("init", Instance, Element, Options);
             if (OnResult != null)
+            {
                 await OnResult.Invoke(Status);
+            }
         }
         catch (Exception ex)
         {
@@ -148,7 +169,7 @@ public partial class ImageHelper : IAsyncDisposable
         return IsOpenCVReady;
     }
 
-    private async Task OnChanged(SelectedItem item)
+    public virtual async Task OnChanged(SelectedItem item)
     {
         await Apply();
     }
@@ -161,10 +182,16 @@ public partial class ImageHelper : IAsyncDisposable
 
     public virtual async Task Apply()
     {
-        if (FirstRender || Options.Type == EnumImageHelperFunc.None) return;
+        if (FirstRender || Options.Type == EnumImageHelperFunc.None)
+        {
+            return;
+        }
+
         Message = string.Empty;
+        optionsCache = Options;
         try
         {
+            Options.EnableFaceDetectionCallBack = OnFaceDetection != null;
             var func = Options.Type.ToString().Substring(0, 1).ToLower() + Options.Type.ToString().Substring(1);
             //StateHasChanged();
             await Module!.InvokeVoidAsync(func, Instance, Element, Options);
@@ -175,7 +202,7 @@ public partial class ImageHelper : IAsyncDisposable
             StateHasChanged();
             System.Console.WriteLine(ex.Message);
         }
-    } 
+    }
 
     [JSInvokable]
     public async Task GetResult(string msg)
@@ -184,14 +211,18 @@ public partial class ImageHelper : IAsyncDisposable
         StateHasChanged();
         System.Console.WriteLine(msg);
         if (OnResult != null)
+        {
             await OnResult.Invoke(msg);
+        }
     }
 
     [JSInvokable]
     public async Task GetFace(string msg)
     {
         if (OnFaceDetection != null)
+        {
             await OnFaceDetection.Invoke(msg);
+        }
     }
 
     /// <summary>
