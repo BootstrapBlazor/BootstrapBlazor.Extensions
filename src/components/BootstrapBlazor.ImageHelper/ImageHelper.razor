@@ -7,30 +7,34 @@
     <pre id="@Options.ErrorOutputDom"></pre>
 
     <div class="row g-3">
-        <div>
-            <label class="btn btn-primary" for="@Options.CaptureDom">拍照</label><input type="file" class="sr-only" id="@Options.CaptureDom" name="file" accept="image/*" capture />
-            <label class="btn btn-primary" for="@Options.FileInputDom">图片</label><input type="file" class="sr-only" id="@Options.FileInputDom" name="file" accept="image/*" />
-            &nbsp;
-            @if (IsOpenCVReady)
-            {
-                if (ChildContent != null)
+        @if (!SingleFunction)
+        {
+
+            <div>
+                <label class="btn btn-primary" for="@Options.CaptureDom">拍照</label><input type="file" class="sr-only" id="@Options.CaptureDom" name="file" accept="image/*" capture />
+                <label class="btn btn-primary" for="@Options.FileInputDom">图片</label><input type="file" class="sr-only" id="@Options.FileInputDom" name="file" accept="image/*" />
+                &nbsp;
+                @if (IsOpenCVReady)
                 {
-                    @ChildContent
+                    if (ChildContent != null)
+                    {
+                        @ChildContent
+                    }
+                    else
+                    {
+                        <Button Text="灰度化" OnClickWithoutRender="(() => Apply(EnumImageHelperFunc.Grayscale))" />
+                        <Button Text="边缘检测" OnClickWithoutRender="(() => Apply(EnumImageHelperFunc.EdgeDetection))" />
+                        <Button Text="特征点检测" OnClickWithoutRender="(() => Apply(EnumImageHelperFunc.FeaturePointDetection))" />
+                        <Button Text="人脸检测" OnClickWithoutRender="(() => Apply(EnumImageHelperFunc.FaceDetection))" />
+                        <Button Text="摄像头" OnClickWithoutRender="(() => Apply(EnumImageHelperFunc.FaceDetectionInCamera))" />
+                        <Button Id="@Options.StartAndStopDom" Text="" />
+                        <div class="col-12 mt-3">
+                            <Select @bind-Value="Options.Type" ShowLabel="true" OnSelectedItemChanged="OnChanged" />
+                        </div>
+                    }
                 }
-                else
-                {
-                    <Button Text="灰度化" OnClickWithoutRender="(() => Apply(EnumImageHelperFunc.Grayscale))" />
-                    <Button Text="边缘检测" OnClickWithoutRender="(() => Apply(EnumImageHelperFunc.EdgeDetection))" />
-                    <Button Text="特征点检测" OnClickWithoutRender="(() => Apply(EnumImageHelperFunc.FeaturePointDetection))" />
-                    <Button Text="人脸检测" OnClickWithoutRender="(() => Apply(EnumImageHelperFunc.FaceDetection))" />
-                    <Button Text="摄像头" OnClickWithoutRender="(() => Apply(EnumImageHelperFunc.FaceDetectionInCamera))" />
-                    <Button Id="@Options.StartAndStopDom" Text="" />
-                    <div class="col-12 mt-3">
-                        <Select @bind-Value="Options.Type" ShowLabel="true" OnSelectedItemChanged="OnChanged" />
-                    </div>
-                }
-            }
             </div>
+        }
         <div class="inputoutput col-12 col-sm-6">
             @if (Options.Type != EnumImageHelperFunc.FaceDetectionInCamera)
             {
@@ -43,8 +47,8 @@
                     height="400"
                     class="canvas" />
             <video id="@Options.VideoInputDom"
-                   width=640
-                   height=480
+                   width=1024
+                   height=468
                    data-action="video"
                    class="video"
                    muted

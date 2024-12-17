@@ -44,6 +44,12 @@ public partial class ImageHelper : IAsyncDisposable
     [Parameter]
     public Func<string, Task>? OnError { get; set; }
 
+    /// <summary>
+    /// 检测到人脸回调方法/  face detection callback method
+    /// </summary>
+    [Parameter]
+    public Func<string, Task>? OnFaceDetection { get; set; }
+
     private bool IsOpenCVReady { get; set; }
     private string Status => IsOpenCVReady ? "初始化完成" : "正在初始化...";
     private string? Message { get; set; }
@@ -61,7 +67,13 @@ public partial class ImageHelper : IAsyncDisposable
 
     [Parameter]
     public RenderFragment? ChildContent { get; set; }
- 
+
+    /// <summary>
+    /// 单一功能
+    /// </summary>
+    [Parameter]
+    public bool SingleFunction { get; set; }
+
     protected override async Task OnAfterRenderAsync(bool firstRender)
     {
         try
@@ -173,6 +185,13 @@ public partial class ImageHelper : IAsyncDisposable
         System.Console.WriteLine(msg);
         if (OnResult != null)
             await OnResult.Invoke(msg);
+    }
+
+    [JSInvokable]
+    public async Task GetFace(string msg)
+    {
+        if (OnFaceDetection != null)
+            await OnFaceDetection.Invoke(msg);
     }
 
     /// <summary>

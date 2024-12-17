@@ -34,7 +34,7 @@ export function init(_instance, _element, _options) {
         img.src = URL.createObjectURL(e.target.files[0]);
     }, false);
 
-    captureElement.addEventListener('change', (e) => {
+    if (captureElement) captureElement.addEventListener('change', (e) => {
         img.src = URL.createObjectURL(e.target.files[0]);
     }, false);
 
@@ -455,9 +455,19 @@ export async function faceDetectionInCamera(_instance, _element, _options) {
                 let face = faces.get(i);
                 let point1 = new cv.Point(face.x, face.y);
                 let point2 = new cv.Point(face.x + face.width, face.y + face.height);
-                cv.rectangle(dst, point1, point2, [255, 0, 0, 255], 2);
+                cv.rectangle(dst, point1, point2, [255, 0, 0, 255], 2); 
+
+                dst = new cv.Mat();
+                let rect = new cv.Rect(faces.get(i).x, faces.get(i).y, faces.get(i).width, faces.get(i).height);
+                dst = src.roi(rect);
+                break;
             }
             cv.imshow(options.canvasOutputDom, dst);
+            if (faces.size() > 0) {
+                let canvas = element.querySelector('#' + options.canvasOutputDom);
+                let dataUrl = canvas.toDataURL("image/jpeg");
+                instance.invokeMethodAsync('GetFace', dataUrl);  
+            }
             // schedule the next one.
             let delay = 1000 / FPS - (Date.now() - begin);
             setTimeout(processVideo, delay);
