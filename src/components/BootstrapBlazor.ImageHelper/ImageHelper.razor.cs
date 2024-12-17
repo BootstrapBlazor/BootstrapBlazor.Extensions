@@ -61,7 +61,7 @@ public partial class ImageHelper : IAsyncDisposable
 
     [Parameter]
     public RenderFragment? ChildContent { get; set; }
-
+ 
     protected override async Task OnAfterRenderAsync(bool firstRender)
     {
         try
@@ -114,7 +114,6 @@ public partial class ImageHelper : IAsyncDisposable
 
     /// <summary>
     /// </summary>
-    /// <param name="input"></param>
     /// <param name="options"></param>
     /// <returns></returns>
     public async Task<bool> Init(ImageHelperOption? options = null)
