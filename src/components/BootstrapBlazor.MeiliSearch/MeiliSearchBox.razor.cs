@@ -34,6 +34,12 @@ public partial class MeiliSearchBox
     [Parameter]
     public string? SearchResultPlaceHolder { get; set; }
 
+    /// <summary>
+    /// 获得/设置 搜索列集合 默认 null 未设置
+    /// </summary>
+    [Parameter]
+    public List<string>? SearchableColumns { get; set; }
+
     private string? ClassString => CssBuilder.Default("bb-g-search d-none")
         .AddClassFromAttributes(AdditionalAttributes)
         .Build();
@@ -47,6 +53,7 @@ public partial class MeiliSearchBox
         Options.CurrentValue?.Url,
         Options.CurrentValue?.ApiKey,
         Index = $"{Options.CurrentValue?.Index}-{CultureInfo.CurrentUICulture.Name}",
-        SearchStatus
+        SearchStatus,
+        SearchableColumns
     });
 }
