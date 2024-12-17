@@ -233,6 +233,13 @@ export async function faceDetection(_instance, _element, _options) {
         roiGray.delete(); roiSrc.delete();
     }
     cv.imshow(options.canvasOutputDom, src);
+
+    if (faces.size() > 0) {
+        let canvas = element.querySelector('#' + options.canvasOutputDom);
+        let dataUrl = canvas.toDataURL("image/jpeg");
+        instance.invokeMethodAsync('GetFace', dataUrl);
+    }
+
     src.delete(); gray.delete(); faceCascade.delete();
     eyeCascade.delete(); faces.delete(); eyes.delete();
 }
@@ -264,8 +271,15 @@ export async function faceDetection1st(_instance, _element, _options) {
         cv.imshow(options.canvasOutputDom, dst);
         dst.delete();
         roiGray.delete();
-        roiSrc.delete();
+        roiSrc.delete(); 
     }
+
+    if (faces.size() > 0) {
+        let canvas = element.querySelector('#' + options.canvasOutputDom);
+        let dataUrl = canvas.toDataURL("image/jpeg");
+        instance.invokeMethodAsync('GetFace', dataUrl);
+    }
+
     src.delete();
     gray.delete();
     faceCascade.delete();
