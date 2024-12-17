@@ -89,9 +89,12 @@ const handlerClearButton = search => {
 
 const handlerSearch = search => {
     const input = search.el.querySelector('.search-dialog-input > input');
+    const filter = {
+        attributesToSearchOn: search.options.searchableColumns
+    };
     EventHandler.on(input, 'keyup', e => {
         if (e.key === 'Enter' || e.key === 'NumpadEnter') {
-            doSearch(search, input.value);
+            doSearch(search, input.value, filter);
             if (!isMobile()) {
                 input.select();
             }
@@ -106,14 +109,14 @@ const handlerSearch = search => {
         if (isComposing) {
             return;
         }
-        fn(search, input.value);
+        fn(search, input.value, filter);
     });
     EventHandler.on(input, 'compositionstart', e => {
         isComposing = true;
     });
     EventHandler.on(input, 'compositionend', e => {
         isComposing = false;
-        fn(search, input.value);
+        fn(search, input.value, filter);
     });
     search.input = input;
 
@@ -132,7 +135,7 @@ const handlerSearch = search => {
     });
 }
 
-const doSearch = async (search, query) => {
+const doSearch = async (search, query, filter = null) => {
     if (query) {
         search.status.innerHTML = search.searchText;
         const client = new MeiliSearch({
@@ -140,7 +143,7 @@ const doSearch = async (search, query) => {
             apiKey: search.options.apiKey,
         });
         const index = client.index(search.options.index);
-        const result = await index.search(query);
+        const result = await index.search(query, filter);
         updateStatus(search, result.estimatedTotalHits, result.processingTimeMs);
 
         const cb = BootstrapBlazor.MeiliSearch?.updateList ?? updateList;
