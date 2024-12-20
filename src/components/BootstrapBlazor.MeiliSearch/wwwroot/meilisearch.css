@@ -118,6 +118,10 @@
         border-color: var(--bb-global-search-dialog-input-focus-border-color);
     }
 
+    .search-dialog-input .search-dialog-clear {
+        cursor: pointer;
+    }
+
 .search-dialog-status {
     border-bottom: var(--bs-border-width) solid var(--bs-border-color);
     padding: 0 1rem;
