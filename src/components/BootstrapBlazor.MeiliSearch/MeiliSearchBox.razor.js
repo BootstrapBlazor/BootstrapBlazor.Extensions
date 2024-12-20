@@ -60,9 +60,17 @@ const handlerMask = search => {
 }
 
 const handlerToggle = search => {
-    const { el, dialog, input } = search;
+    const { el, dialog, input, list } = search;
     EventHandler.on(dialog, 'click', e => {
         e.stopPropagation();
+
+        if (e.target.closest('.search-dialog-input') !== null) {
+            return;
+        }
+
+        if (list.querySelector('.search-dialog-item') === null) {
+            closeDialog(search);
+        }
     });
     EventHandler.on(el, 'click', e => {
         document.documentElement.classList.toggle('bb-g-search-open');
