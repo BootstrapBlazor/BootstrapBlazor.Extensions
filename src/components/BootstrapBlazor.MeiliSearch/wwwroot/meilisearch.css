@@ -2,6 +2,9 @@
     --bb-global-search-color: rgba(255,255,255,.5);
     --bb-global-search-border-color: rgba(255,255,255,.5);
     --bb-global-search-border-hover-color: rgba(255,255,255);
+    --bb-global-search-padding: 0.25rem 0.75rem;
+    --bb-global-search-width: 168px;
+    --bb-global-search-input-margin-left: .5rem;
 }
 
 .search-dialog-mask {
@@ -30,10 +33,8 @@
     color: var(--bb-global-search-color);
     border: var(--bs-border-width) solid var(--bb-global-search-border-color);
     border-radius: var(--bs-border-radius);
-    padding: 0.25rem 0.75rem;
-    width: 168px;
-    margin-bottom: .5rem;
-    font-size: .875rem;
+    padding: var(--bb-global-search-padding);
+    width: var(--bb-global-search-width);
     transition: border-color .3s linear;
 }
 
@@ -45,9 +46,9 @@
         width: 100%;
         background-color: transparent;
         border: none;
-        line-height: 25px;
+        line-height: 1.5;
         padding: 0;
-        margin: 0 .5rem;
+        margin-left: var(--bb-global-search-input-margin-left);
         cursor: pointer;
     }
 
