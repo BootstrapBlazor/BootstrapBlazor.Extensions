@@ -84,4 +84,10 @@ public partial class Mermaid
     /// </summary>
     /// <returns>base64 string of the diagram</returns>
     public Task<string?> ExportBase64MermaidAsync() => InvokeAsync<string>("getContent", Id);
+
+    /// <summary>
+    /// 内容改变时重新渲染mermaid
+    /// </summary>
+    /// <returns></returns>
+    public Task MermaidChanged() => InvokeVoidAsync("init", Id, BuildDiagramText());
 }
