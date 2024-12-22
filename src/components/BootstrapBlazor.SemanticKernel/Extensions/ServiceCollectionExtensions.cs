@@ -23,7 +23,8 @@ public static class ServiceCollectionExtensions
     public static IServiceCollection AddBootstrapBlazorSemanticKernel(this IServiceCollection services, IConfiguration config)
     {
         services.Configure<KernelOptions>(config.GetSection("KernelOptions"));
-        services.AddSingleton<IKernelService, KernelService>();
+        services.AddSingleton<KernelStoreService>();
+        services.AddScoped<IKernelService, KernelService>();
         return services;
     }
 }

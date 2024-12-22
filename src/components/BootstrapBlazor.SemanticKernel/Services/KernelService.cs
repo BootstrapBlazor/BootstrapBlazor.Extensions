@@ -10,13 +10,15 @@ using Microsoft.SemanticKernel.Connectors.Ollama;
 using Microsoft.SemanticKernel.Connectors.OpenAI;
 using Microsoft.SemanticKernel.Memory;
 using System.Collections.Concurrent;
+using System.Collections.Generic;
 #pragma warning disable CS1998
 namespace BootstrapBlazor.Components.Services;
 /// <summary>
-/// 管理语义内核的单例服务
+/// 管理语义内核的作用域服务
 /// </summary>
 /// <param name="options">通过Configuration绑定的配置</param>
-public class KernelService(KernelOptions options) : IKernelService
+/// <param name="store">单例存储服务</param>
+public class KernelService(KernelOptions options, KernelStoreService store) : IKernelService
 {
     private ConcurrentDictionary<string, Kernel> Kernels { get; } = [];
     private ConcurrentDictionary<string, ISemanticTextMemory> Memories { get; } = [];
@@ -29,7 +31,8 @@ public class KernelService(KernelOptions options) : IKernelService
     /// <exception cref="ArgumentNullException">配置项未找到</exception>
     public async Task<Kernel?> CreateKernelAsync(string config = "Default", ServiceLifetime lifetime = ServiceLifetime.Singleton)
     {
-        if (Kernels.TryGetValue(config, out var kernel) && lifetime == ServiceLifetime.Singleton) return kernel;
+        if (lifetime == ServiceLifetime.Singleton && store.TryGetKernel(config, out var sKernel)) return sKernel;
+        if (lifetime == ServiceLifetime.Scoped && Kernels.TryGetValue(config, out var kernel)) return kernel;
         var model = options.Configs.FirstOrDefault(c => c.ConfigName == config) ?? throw new ArgumentNullException($"model \"{config}\" is not configured in configuration!");
         var builder = Kernel.CreateBuilder();
         if (model.Provider == ChatModelsProvider.OpenAI)
@@ -66,7 +69,8 @@ public class KernelService(KernelOptions options) : IKernelService
             builder.AddOpenAIChatCompletion(model.ChatModel, new Uri(model.Endpoint), model.ApiKey ?? null);
         }
         kernel = builder.Build();
-        if (lifetime == ServiceLifetime.Singleton) Kernels.TryAdd(config, kernel);
+        if(lifetime == ServiceLifetime.Singleton) store.TryAddKernel(config, kernel);
+        if (lifetime == ServiceLifetime.Scoped) Kernels.TryAdd(config, kernel);
         return kernel;
     }
     /// <summary>
@@ -78,7 +82,8 @@ public class KernelService(KernelOptions options) : IKernelService
     /// <exception cref="ArgumentNullException">配置项未找到</exception>
     public async Task<ISemanticTextMemory?> CreateMemoryStoreAsync(string config = "Default", ServiceLifetime lifetime = ServiceLifetime.Singleton)
     {
-        if (Memories.TryGetValue(config, out var memory) && lifetime == ServiceLifetime.Singleton) return memory;
+        if (lifetime == ServiceLifetime.Singleton && store.TryGetMemoryStore(config, out var sMemory)) return sMemory;
+        if (lifetime == ServiceLifetime.Scoped && Memories.TryGetValue(config, out var memory)) return memory;
         var model = options.Configs.FirstOrDefault(c => c.ConfigName == config) ?? throw new ArgumentNullException($"model \"{config}\" is not configured in configuration!");
         if (model is null) return null;
         IMemoryStore memoryStore = null!;
@@ -94,7 +99,8 @@ public class KernelService(KernelOptions options) : IKernelService
                 .WithTextEmbeddingGeneration(generation)
                 .WithMemoryStore(memoryStore)
                 .Build();
-            Memories.TryAdd(config, mem);
+            if (lifetime == ServiceLifetime.Singleton) store.TryAddMemoryStore(config, mem);
+            if (lifetime == ServiceLifetime.Scoped) Memories.TryAdd(config, mem);
             return mem;
         }
 
@@ -105,7 +111,8 @@ public class KernelService(KernelOptions options) : IKernelService
                     modelId: model.EmbeddingsModel, model.ApiKey)
                 .WithMemoryStore(memoryStore)
                 .Build();
-            Memories.TryAdd(config, mem);
+            if (lifetime == ServiceLifetime.Singleton) store.TryAddMemoryStore(config, mem);
+            if (lifetime == ServiceLifetime.Scoped) Memories.TryAdd(config, mem);
             return mem;
         }
 
@@ -116,13 +123,15 @@ public class KernelService(KernelOptions options) : IKernelService
                 .WithTextEmbeddingGeneration(generation)
                 .WithMemoryStore(memoryStore)
                 .Build();
-            Memories.TryAdd(config, mem);
+            if (lifetime == ServiceLifetime.Singleton) store.TryAddMemoryStore(config, mem);
+            if (lifetime == ServiceLifetime.Scoped) Memories.TryAdd(config, mem);
             return mem;
         }
         var nullmem = new MemoryBuilder()
             .WithMemoryStore(memoryStore)
             .Build();
-        if (lifetime == ServiceLifetime.Singleton) Memories.TryAdd(config, nullmem);
+        if (lifetime == ServiceLifetime.Singleton) store.TryAddMemoryStore(config, nullmem);
+        if (lifetime == ServiceLifetime.Scoped) Memories.TryAdd(config, nullmem);
         return nullmem;
     }
 }
