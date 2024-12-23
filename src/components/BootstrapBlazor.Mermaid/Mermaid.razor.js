@@ -1,6 +1,5 @@
 ﻿import mermaid from './mermaid.min.js';
 
-
 export async function init(id, content) {
     mermaid.initialize({ startOnLoad: false });
     const render = await mermaid.render(id + '-svg', content);
