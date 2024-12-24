@@ -205,7 +205,7 @@ const resetActionStates = (group, actionContainer, groupType) => {
         //     toggleFull(group, actionContainer, true)
         // }
     }
-    if (showFloat(dockview, group) && showPin(dockview, group)) {
+    if (showFloat(dockview, group)) {
         actionContainer.classList.add('bb-show-float');
         if (getFloatState(group)) {
             actionContainer.classList.add('bb-float');
@@ -531,6 +531,7 @@ const observeFloatingGroupLocationChange = group => {
                 }
             }, 0)
             removeDrawerBtn(group)
+            group.header.rightActionsContainer.classList.add('bb-pin')
         }
     })
 }
