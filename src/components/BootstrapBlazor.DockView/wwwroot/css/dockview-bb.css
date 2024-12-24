@@ -166,8 +166,11 @@
         .bb-dockview .right-actions-container.bb-lock .bb-dockview-control-icon-pushpin > svg > *,
         .bb-dockview .groupview:has(.dv-resize-container) > .tabs-and-actions-container > .right-actions-container .bb-dockview-control-icon-pin > svg > *,
         .bb-dockview .groupview:has(.dv-resize-container) > .tabs-and-actions-container > .right-actions-container .bb-dockview-control-icon-float > svg > *,
-        .bb-dockview .tabs-and-actions-container:has(.right-actions-container:not(.bb-pin)) + .content-container .bb-dockview .bb-dockview-control-icon-pin > svg > *,
-        .bb-dockview .tabs-and-actions-container:has(.right-actions-container:not(.bb-pin)) + .content-container .bb-dockview .bb-dockview-control-icon-float > svg > * {
+        .bb-dockview .tabs-and-actions-container:has(.bb-show-pin):has(.right-actions-container:not(.bb-pin)) + .content-container .bb-dockview .bb-dockview-control-icon-pin > svg > *,
+        .bb-dockview .tabs-and-actions-container:has(.bb-show-pin):has(.right-actions-container:not(.bb-pin)) + .content-container .bb-dockview .bb-dockview-control-icon-float > svg > *,
+        .bb-dockview .tabs-and-actions-container:has(.bb-show-float.bb-float) + .content-container .bb-dockview .bb-dockview-control-icon-pin > svg > *,
+        .bb-dockview .tabs-and-actions-container:has(.bb-show-float.bb-float) + .content-container .bb-dockview .bb-dockview-control-icon-float > svg > * 
+        {
             stroke: var(--bb-dockview-control-icon-lock-color);
         }
 
