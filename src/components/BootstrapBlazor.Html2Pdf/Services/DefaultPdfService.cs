@@ -101,7 +101,7 @@ class DefaultPdfService : IHtml2Pdf
         }
     }
 
-    private static LaunchOptions CreateOptions() => new() { Headless = true, Args = ["--no-sandbox", "--disable-setuid-sandbox"] };
+    private static LaunchOptions CreateOptions() => new() { Headless = true, Args = ["--no-sandbox", "--disable-setuid-sandbox", "--disable-web-security"] };
 
     private static async Task<IBrowser> LaunchBrowserAsync()
     {
