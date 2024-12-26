@@ -13,6 +13,8 @@
     --bb-global-search-dialog-input-focus-border-color: rgba(var(--bs-emphasis-color-rgb), 0.4);
     --bb-global-search-dialog-mask-z-index: 1092;
     --bb-global-search-highlight-color: #0078d4;
+    --bb-global-search-footer-shadow: 0 -1px 0 0 #e0e3e8, 0 -3px 6px 0 rgba(69, 98, 155, .12);
+    --bb-global-search-main-max-height: calc(100vh - 220px);
 }
 
     .search-dialog-mask .search-dialog-item ol {
@@ -69,7 +71,6 @@
     z-index: var(--bb-global-search-dialog-mask-z-index);
     background-color: rgba(var(--bs-emphasis-color-rgb), 0.3);
     justify-content: center;
-    align-items: center;
     display: none;
 }
 
@@ -82,14 +83,12 @@
     }
 
 .search-dialog {
-    height: calc(100vh - 4rem);
     width: calc(100vw - 2rem);
     color: var(--bs-body-color);
     background-color: var(--bs-body-bg);
     border-radius: var(--bs-border-radius);
     border: var(--bs-border-width) solid var(--bs-border-color);
-    overflow: auto;
-    padding: 1rem;
+    margin: 1rem auto auto;
 }
 
 .search-dialog-input {
@@ -99,6 +98,7 @@
     align-items: center;
     padding: 0.375rem 0.75rem;
     transition: border-color .3s linear;
+    margin: .5rem;
 }
 
     .search-dialog-input input {
@@ -122,20 +122,10 @@
         cursor: pointer;
     }
 
-.search-dialog-status {
-    border-bottom: var(--bs-border-width) solid var(--bs-border-color);
-    padding: 0 1rem;
-    font-size: .75rem;
-    display: block;
-    margin: 0 -1rem .5rem -1rem;
-    color: rgba(var(--bs-body-color-rgb), 0.5);
-    line-height: 34px;
-}
-
 .search-dialog-main {
     display: flex;
-    height: calc(100% - 82px);
-    margin: 0 -.5rem;
+    margin: .5rem;
+    max-height: calc(100vh - 82px);
 }
 
 .search-dialog-menu {
@@ -146,6 +136,7 @@
     border-radius: var(--bs-border-radius);
     font-size: 13px;
     display: none;
+    max-height: var(--bb-global-search-main-max-height);
 }
 
     .search-dialog-menu .search-dialog-menu-item {
@@ -170,6 +161,7 @@
 .search-dialog-list {
     flex: 1;
     overflow: auto;
+    max-height: var(--bb-global-search-main-max-height);
     border: var(--bs-border-width) solid var(--bs-border-color);
     border-radius: var(--bs-border-radius);
     padding: .25rem;
@@ -188,8 +180,8 @@
             margin-top: .5rem;
         }
 
-        .search-dialog-list .search-dialog-item:hover {
-            border: var(--bs-border-width) solid var(--bs-border-color);
+        .search-dialog-list .search-dialog-item.active {
+            background-color: var(--bb-global-search-item-active-bg);
         }
 
         .search-dialog-list .search-dialog-item a {
@@ -231,8 +223,22 @@
 
     .search-dialog-list .search-dialog-empty-template {
         text-align: center;
-        padding: 24px;
+        padding: 36px;
         display: block;
+    }
+
+.search-dialog-footer {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    position: relative;
+    user-select: none;
+    box-shadow: var(--bb-global-search-footer-shadow);
+    padding: .5rem;
+}
+
+    .search-dialog-footer .search-dialog-commands > div:not(:last-child) {
+        margin-right: .5rem;
     }
 
 @media (min-width: 768px) {
@@ -243,6 +249,7 @@
 
     .search-dialog {
         width: 700px;
+        margin: 4rem auto auto;
     }
 
     .search-dialog-menu.show {
