@@ -15,7 +15,6 @@ export async function init(id, options) {
     const search = {
         el, options,
         searchText: 'searching ...',
-        status: el.querySelector('.search-dialog-status'),
         menu: el.querySelector('.search-dialog-menu'),
         list: el.querySelector('.search-dialog-list'),
         template: el.querySelector('.search-dialog-item-template'),
@@ -31,7 +30,7 @@ export async function init(id, options) {
     handlerToggle(search);
     handlerMask(search);
 
-    resetStatus(search);
+    resetSearch(search);
 
     new bootstrap.ScrollSpy(search.list, {
         target: '.search-dialog-menu'
@@ -67,10 +66,6 @@ const handlerToggle = search => {
         if (e.target.closest('.search-dialog-input') !== null) {
             return;
         }
-
-        if (list.querySelector('.search-dialog-item') === null) {
-            closeDialog(search);
-        }
     });
     EventHandler.on(el, 'click', e => {
         document.documentElement.classList.toggle('bb-g-search-open');
@@ -90,7 +85,7 @@ const handlerToggle = search => {
 const handlerClearButton = search => {
     const clearButton = search.el.querySelector('.search-dialog-clear');
     EventHandler.on(clearButton, 'click', () => {
-        resetStatus(search);
+        resetSearch(search);
     });
     search.clearButton = clearButton;
 }
@@ -108,7 +103,7 @@ const handlerSearch = search => {
             }
         }
         else if (e.key === 'Escape') {
-            resetStatus(search);
+            resetSearch(search);
         }
     });
     const fn = debounce(doSearch);
@@ -145,7 +140,6 @@ const handlerSearch = search => {
 
 const doSearch = async (search, query, filter = null) => {
     if (query) {
-        search.status.innerHTML = search.searchText;
         const client = new MeiliSearch({
             host: search.options.url,
             apiKey: search.options.apiKey,
@@ -212,12 +206,10 @@ const highlight = (text, query) => {
 
 const updateStatus = (search, hits, ms) => {
     const status = search.status;
-    status.innerHTML = `Found ${hits} results in ${ms}ms`;
 }
 
-const resetStatus = search => {
-    const { options, status, input, list, menu, emptyTemplate } = search;
-    status.innerHTML = options.searchStatus;
+const resetSearch = search => {
+    const { options, input, list, menu, emptyTemplate } = search;
 
     if (input.value === '') {
         closeDialog(search);
