@@ -68,7 +68,7 @@ public partial class MeiliSearchBox
     /// 获得/设置 是否显示键盘提示信息
     /// </summary>
     [Parameter]
-    public bool ShowKeyboardTips { get; set; }  = true;
+    public bool ShowKeyboardTips { get; set; } = true;
 
     /// <summary>
     /// 获得/设置 无搜索框结果占位字符串 默认 null

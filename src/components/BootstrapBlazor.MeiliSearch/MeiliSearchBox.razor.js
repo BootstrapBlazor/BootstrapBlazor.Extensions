@@ -178,14 +178,18 @@ const doToggleActive = (search, up) => {
 const doSearch = async (search, query, filter = null) => {
     if (query) {
         const { status, options } = search;
-        status.innerHTML = options.searchingText;
+        if (status) {
+            status.innerHTML = options.searchingText;
+        }
         const client = new MeiliSearch({
             host: options.url,
             apiKey: options.apiKey,
         });
         const index = client.index(options.index);
         const result = await index.search(query, filter);
-        updateStatus(search, result.estimatedTotalHits, result.processingTimeMs);
+        if (status) {
+            updateStatus(search, result.estimatedTotalHits, result.processingTimeMs);
+        }
 
         const cb = BootstrapBlazor.MeiliSearch?.updateList ?? updateList;
         cb(search, result);
