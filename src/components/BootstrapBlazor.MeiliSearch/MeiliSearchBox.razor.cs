@@ -46,9 +46,39 @@ public partial class MeiliSearchBox
     [Parameter]
     public List<string>? SearchableColumns { get; set; }
 
+    /// <summary>
+    /// 获得/设置 回车按键提示文本信息 默认 to Select
+    /// </summary>
+    [Parameter]
+    public string? EnterKeyText { get; set; }
+
+    /// <summary>
+    /// 获得/设置 箭头按键提示文本信息 默认 to Navigate
+    /// </summary>
+    [Parameter]
+    public string? ArrowKeyText { get; set; }
+
+    /// <summary>
+    /// 获得/设置 Esc 按键提示文本信息 默认 to Close
+    /// </summary>
+    [Parameter]
+    public string? EscKeyText { get; set; }
+
     private string? ClassString => CssBuilder.Default("bb-g-search d-none")
         .AddClassFromAttributes(AdditionalAttributes)
         .Build();
+
+    /// <summary>
+    /// <inheritdoc/>
+    /// </summary>
+    protected override void OnParametersSet()
+    {
+        base.OnParametersSet();
+
+        EnterKeyText ??= "to Select";
+        ArrowKeyText ??= "to Navigate";
+        EscKeyText ??= "to Close";
+    }
 
     /// <summary>
     /// <inheritdoc/>
