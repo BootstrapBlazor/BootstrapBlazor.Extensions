@@ -1,13 +1,4 @@
-﻿.bb-g-search {
-    --bb-global-search-color: rgba(255,255,255,.5);
-    --bb-global-search-border-color: rgba(255,255,255,.5);
-    --bb-global-search-border-hover-color: rgba(255,255,255);
-    --bb-global-search-padding: 0.25rem 0.75rem;
-    --bb-global-search-width: 168px;
-    --bb-global-search-input-margin-left: .5rem;
-}
-
-.search-dialog-mask {
+﻿.search-dialog-mask {
     --bb-global-search-item-active-bg: rgba(var(--bs-emphasis-color-rgb), 0.2);
     --bb-global-search-item-hover-bg: rgba(var(--bs-emphasis-color-rgb), 0.1);
     --bb-global-search-dialog-input-focus-border-color: rgba(var(--bs-emphasis-color-rgb), 0.4);
@@ -29,39 +20,6 @@
         font-style: normal;
     }
 
-.bb-g-search {
-    display: flex;
-    align-items: center;
-    color: var(--bb-global-search-color);
-    border: var(--bs-border-width) solid var(--bb-global-search-border-color);
-    border-radius: var(--bs-border-radius);
-    padding: var(--bb-global-search-padding);
-    width: var(--bb-global-search-width);
-    transition: border-color .3s linear;
-}
-
-    .bb-g-search:hover {
-        border: var(--bs-border-width) solid var(--bb-global-search-border-hover-color);
-    }
-
-    .bb-g-search input {
-        width: 100%;
-        background-color: transparent;
-        border: none;
-        line-height: 1.5;
-        padding: 0;
-        margin-left: var(--bb-global-search-input-margin-left);
-        cursor: pointer;
-    }
-
-        .bb-g-search input::placeholder {
-            color: var(--bb-global-search-border-color);
-        }
-
-    .bb-g-search i {
-        cursor: pointer;
-    }
-
 .search-dialog-mask {
     position: fixed;
     top: 0;
@@ -71,7 +29,6 @@
     z-index: var(--bb-global-search-dialog-mask-z-index);
     background-color: rgba(var(--bs-emphasis-color-rgb), 0.3);
     justify-content: center;
-    display: none;
 }
 
 .bb-g-search-open {
@@ -248,11 +205,6 @@
     }
 
 @media (min-width: 768px) {
-    .bb-g-search {
-        margin-bottom: 0;
-        margin-inline-end: .5rem;
-    }
-
     .search-dialog {
         width: 700px;
         margin: 4rem auto auto;
