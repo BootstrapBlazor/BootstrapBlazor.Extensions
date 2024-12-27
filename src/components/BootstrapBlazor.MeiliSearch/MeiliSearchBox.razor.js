@@ -9,9 +9,8 @@ if (window.BootstrapBlazor === void 0) {
 export async function init(id, options) {
     const el = document.getElementById(id);
     await addLink('_content/BootstrapBlazor.MeiliSearch/meilisearch.css');
-    el.classList.remove('d-none');
+    await addScript('_content/BootstrapBlazor.MeiliSearch/meilisearch.umd.min.js');
 
-    await addScript('_content/BootstrapBlazor.MeiliSearch/meilisearch.umd.min.js')
     const search = {
         el, options,
         status: el.querySelector('.search-dialog-status'),
@@ -95,7 +94,7 @@ const handlerSearch = search => {
             if (activeItem) {
                 const link = activeItem.querySelector('a');
                 if (link) {
-                    location.href = link.href;
+                    link.click();
                 }
             }
             else {
