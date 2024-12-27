@@ -120,6 +120,7 @@
 
     .search-dialog-input .search-dialog-clear {
         cursor: pointer;
+        font-size: 18px;
     }
 
 .search-dialog-status {
