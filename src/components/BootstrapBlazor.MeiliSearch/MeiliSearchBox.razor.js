@@ -1,6 +1,7 @@
 ﻿import { addScript, addLink, debounce, isMobile } from "../BootstrapBlazor/modules/utility.js"
 import Data from "../BootstrapBlazor/modules/data.js"
 import EventHandler from "../BootstrapBlazor/modules/event-handler.js"
+import Input from "../BootstrapBlazor/modules/input.js"
 
 if (window.BootstrapBlazor === void 0) {
     window.BootstrapBlazor = {};
@@ -47,10 +48,10 @@ export function dispose(id) {
         EventHandler.off(clearButton, 'click');
         EventHandler.off(dialog, 'click');
         EventHandler.off(input, 'keyup');
-        EventHandler.off(input, 'input');
         EventHandler.off(menu, 'click');
         EventHandler.off(el, 'click');
         EventHandler.off(mask, 'click');
+        Input.dispose(input);
     }
 }
 
@@ -84,9 +85,9 @@ const handlerClearButton = search => {
 }
 
 const handlerSearch = search => {
-    const { input } = search;
+    const { input, options, menu } = search;
     const filter = {
-        attributesToSearchOn: search.options.searchableColumns
+        attributesToSearchOn: options.searchableColumns
     };
     EventHandler.on(input, 'keyup', async e => {
         if (e.key === 'Enter' || e.key === 'NumpadEnter') {
@@ -114,24 +115,10 @@ const handlerSearch = search => {
             doToggleActive(search, false);
         }
     });
-    const fn = debounce(doSearch);
-    let isComposing = false;
-    EventHandler.on(input, 'input', () => {
-        if (isComposing) {
-            return;
-        }
-        fn(search, input.value, filter);
-    });
-    EventHandler.on(input, 'compositionstart', () => {
-        isComposing = true;
-    });
-    EventHandler.on(input, 'compositionend', () => {
-        isComposing = false;
-        fn(search, input.value, filter);
-    });
-    search.input = input;
+    const fn = debounce(v => doSearch(search, v, filter));
+    Input.composition(input, fn);
 
-    EventHandler.on(search.menu, 'click', '.search-dialog-menu-item', e => {
+    EventHandler.on(menu, 'click', '.search-dialog-menu-item', e => {
         e.preventDefault();
 
         const link = e.delegateTarget;
@@ -140,10 +127,16 @@ const handlerSearch = search => {
             const targetEl = document.querySelector(target);
 
             if (targetEl) {
-                targetEl.scrollIntoView(true);
+                targetEl.scrollIntoView(getScrollIntoViewOptions(options));
             }
         }
     });
+}
+
+const getScrollIntoViewOptions = options => options.scrollIntoViewOptions ?? {
+    behavior: 'smooth',
+    block: 'start',
+    inline: 'nearest'
 }
 
 const doToggleActive = (search, up) => {
@@ -162,11 +155,7 @@ const doToggleActive = (search, up) => {
                 index = 0;
             }
             items[index].classList.add('active');
-            items[index].scrollIntoView(options.scrollIntoViewOptions ?? {
-                behavior: 'smooth',
-                block: 'start',
-                inline: 'nearest'
-            });
+            items[index].scrollIntoView(getScrollIntoViewOptions(options));
         }
         else {
             items[0].classList.add('active');
