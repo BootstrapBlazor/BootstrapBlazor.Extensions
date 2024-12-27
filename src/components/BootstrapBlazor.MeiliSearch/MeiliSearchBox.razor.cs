@@ -35,6 +35,12 @@ public partial class MeiliSearchBox
     public string? SearchResultPlaceHolder { get; set; }
 
     /// <summary>
+    /// 获得/设置 无搜索框结果占位字符串 默认 null
+    /// </summary>
+    [Parameter]
+    public string? EmptySearchResultPlaceHolder { get; set; }
+
+    /// <summary>
     /// 获得/设置 滚动效果 <see cref="ScrollIntoViewOptions"/> 实例 默认 null
     /// </summary>
     [Parameter]
@@ -101,6 +107,7 @@ public partial class MeiliSearchBox
         Index = $"{Options.CurrentValue?.Index}-{CultureInfo.CurrentUICulture.Name}",
         SearchStatus,
         SearchableColumns,
-        ScrollIntoViewOptions
+        ScrollIntoViewOptions,
+        EmptySearchResultPlaceHolder
     });
 }
