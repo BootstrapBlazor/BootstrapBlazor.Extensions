@@ -180,10 +180,6 @@
             margin-top: .5rem;
         }
 
-        .search-dialog-list .search-dialog-item.active {
-            background-color: var(--bb-global-search-item-active-bg);
-        }
-
         .search-dialog-list .search-dialog-item a {
             color: var(--bs-body-color);
         }
@@ -217,7 +213,8 @@
                 font-size: .75rem;
             }
 
-            .search-dialog-list .search-dialog-item li:hover {
+            .search-dialog-list .search-dialog-item li:hover,
+            .search-dialog-list .search-dialog-item li.active {
                 background-color: var(--bb-global-search-item-hover-bg);
             }
 
