@@ -39,6 +39,11 @@ export async function init(id, options) {
     })
 }
 
+export function update(id, options) {
+    const search = Data.get(id);
+    search.options = options;
+}
+
 export function dispose(id) {
     const search = Data.get(id);
     Data.remove(id);
