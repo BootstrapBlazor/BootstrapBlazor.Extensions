@@ -41,10 +41,34 @@ public partial class MeiliSearchBox
     public string? LogoText { get; set; }
 
     /// <summary>
+    /// 获得/设置 是否显示 Logo 文字 默认 true
+    /// </summary>
+    [Parameter]
+    public bool ShowLogoText { get; set; } = true;
+
+    /// <summary>
     /// 获得/设置 搜索框结果占位字符串 默认 null
     /// </summary>
     [Parameter]
     public string? SearchResultPlaceHolder { get; set; }
+
+    /// <summary>
+    /// 获得/设置 是否显示搜索结果 默认 true
+    /// </summary>
+    [Parameter]
+    public bool ShowSearchResult { get; set; } = true;
+
+    /// <summary>
+    /// 获得/设置 是否显示 Footer 默认 true
+    /// </summary>
+    [Parameter]
+    public bool ShowFooter { get; set; } = true;
+
+    /// <summary>
+    /// 获得/设置 是否显示键盘提示信息
+    /// </summary>
+    [Parameter]
+    public bool ShowKeyboardTips { get; set; }  = true;
 
     /// <summary>
     /// 获得/设置 无搜索框结果占位字符串 默认 null

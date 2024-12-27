@@ -21,23 +21,36 @@
                 <div class="search-dialog-menu scroll">
                 </div>
             </main>
-            <footer class="search-dialog-footer">
-                @if(FooterTemplate == null){
-                    <div class="search-dialog-commands d-none d-md-flex">
-                        <div><kbd>Enter</kbd> @EnterKeyText</div>
-                        <div><kbd>ArrowUp</kbd> <kbd>ArrowDown</kbd> @ArrowKeyText</div>
-                        <div><kbd>ESC</kbd> @EscKeyText</div>
-                    </div>
-                    <div class="search-dialog-status"></div>
-                    <div class="search-dialog-logo">
-                        @LogoText
-                    </div>
-                }
-                else
-                {
-                    @FooterTemplate
-                }
-            </footer>
+            @if (ShowFooter)
+            {
+                <footer class="search-dialog-footer">
+                    @if (FooterTemplate == null)
+                    {
+                        @if (ShowKeyboardTips)
+                        {
+                            <div class="search-dialog-commands d-none d-md-flex">
+                                <div><kbd>Enter</kbd> @EnterKeyText</div>
+                                <div><kbd>ArrowUp</kbd> <kbd>ArrowDown</kbd> @ArrowKeyText</div>
+                                <div><kbd>ESC</kbd> @EscKeyText</div>
+                            </div>
+                        }
+                        @if (ShowSearchResult)
+                        {
+                            <div class="search-dialog-status"></div>
+                        }
+                        @if (ShowLogoText)
+                        {
+                            <div class="search-dialog-logo">
+                                @LogoText
+                            </div>
+                        }
+                    }
+                    else
+                    {
+                        @FooterTemplate
+                    }
+                </footer>
+            }
             <template>
                 <div class="search-dialog-item-template">
                     <div class="search-dialog-item">
