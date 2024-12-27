@@ -17,19 +17,19 @@ public partial class MeiliSearchBox
     private IOptionsMonitor<MeiliSearchOptions>? Options { get; set; }
 
     /// <summary>
-    /// 获得/设置 搜索框占位字符串 默认 null 取内置资源文件值
+    /// 获得/设置 搜索框占位字符串 默认 null
     /// </summary>
     [Parameter]
     public string? SearchBoxPlaceHolder { get; set; }
 
     /// <summary>
-    /// 获得/设置 搜索框占位字符串 默认 null 取内置资源文件值
+    /// 获得/设置 搜索框占位字符串 默认 null
     /// </summary>
     [Parameter]
     public string? SearchStatus { get; set; }
 
     /// <summary>
-    /// 获得/设置 搜索框结果占位字符串 默认 null 取内置资源文件值
+    /// 获得/设置 搜索框结果占位字符串 默认 null
     /// </summary>
     [Parameter]
     public string? SearchResultPlaceHolder { get; set; }
@@ -81,6 +81,10 @@ public partial class MeiliSearchBox
     {
         base.OnParametersSet();
 
+        SearchBoxPlaceHolder ??= "Search";
+        SearchStatus ??= "Powered by BootstrapBlazor";
+        SearchResultPlaceHolder ??= "Type something to search";
+        EmptySearchResultPlaceHolder ??= "No recent searches";
         EnterKeyText ??= "to Select";
         ArrowKeyText ??= "to Navigate";
         EscKeyText ??= "to Close";
