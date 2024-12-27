@@ -132,7 +132,6 @@
 .search-dialog-main {
     display: flex;
     margin: .5rem;
-    max-height: calc(100vh - 82px);
 }
 
 .search-dialog-menu {
