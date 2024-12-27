@@ -14,7 +14,7 @@ export async function init(id, options) {
     await addScript('_content/BootstrapBlazor.MeiliSearch/meilisearch.umd.min.js')
     const search = {
         el, options,
-        searchText: 'searching ...',
+        status: el.querySelector('.search-dialog-status'),
         input: el.querySelector('.search-dialog-input > input'),
         clearButton: el.querySelector('.search-dialog-clear'),
         menu: el.querySelector('.search-dialog-menu'),
@@ -177,16 +177,24 @@ const doToggleActive = (search, up) => {
 
 const doSearch = async (search, query, filter = null) => {
     if (query) {
+        const { status, options } = search;
+        status.innerHTML = options.searchingText;
         const client = new MeiliSearch({
-            host: search.options.url,
-            apiKey: search.options.apiKey,
+            host: options.url,
+            apiKey: options.apiKey,
         });
-        const index = client.index(search.options.index);
+        const index = client.index(options.index);
         const result = await index.search(query, filter);
+        updateStatus(search, result.estimatedTotalHits, result.processingTimeMs);
 
         const cb = BootstrapBlazor.MeiliSearch?.updateList ?? updateList;
         cb(search, result);
     }
+}
+
+const updateStatus = (search, hits, ms) => {
+    const { status, options } = search;
+    status.innerHTML = options.searchResultText.replace('{0}', hits).replace('{1}', ms);
 }
 
 const updateList = (search, result) => {

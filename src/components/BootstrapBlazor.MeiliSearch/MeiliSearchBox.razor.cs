@@ -29,6 +29,18 @@ public partial class MeiliSearchBox
     public string? SearchStatus { get; set; }
 
     /// <summary>
+    /// 获得/设置 正在搜索字符串 默认 null
+    /// </summary>
+    [Parameter]
+    public string? SearchingText { get; set; }
+
+    /// <summary>
+    /// 获得/设置 搜索字结果符串 默认 null
+    /// </summary>
+    [Parameter]
+    public string? SearchResultText { get; set; }
+
+    /// <summary>
     /// 获得/设置 搜索框占位字符串 默认 null
     /// </summary>
     [Parameter]
@@ -95,6 +107,8 @@ public partial class MeiliSearchBox
 
         SearchBoxPlaceHolder ??= "Search";
         SearchStatus ??= "Powered by BootstrapBlazor";
+        SearchingText ??= "Searching";
+        SearchResultText ??= "Found {0} results in {1}ms";
         LogoText ??= "Powered by BootstrapBlazor";
         SearchResultPlaceHolder ??= "Type something to search";
         EmptySearchResultPlaceHolder ??= "No recent searches";
@@ -115,6 +129,8 @@ public partial class MeiliSearchBox
         SearchStatus,
         SearchableColumns,
         ScrollIntoViewOptions,
-        EmptySearchResultPlaceHolder
+        EmptySearchResultPlaceHolder,
+        SearchingText,
+        SearchResultText
     });
 }
