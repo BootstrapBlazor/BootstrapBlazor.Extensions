@@ -123,9 +123,6 @@
     }
 
 .search-dialog-status {
-    padding: 0 .5rem;
-    font-size: .75rem;
-    display: block;
     color: rgba(var(--bs-body-color-rgb), 0.5);
 }
 
@@ -238,6 +235,7 @@
     user-select: none;
     box-shadow: var(--bb-global-search-footer-shadow);
     padding: .5rem;
+    font-size: .75rem;
 }
 
     .search-dialog-footer .search-dialog-commands > div:not(:last-child) {
