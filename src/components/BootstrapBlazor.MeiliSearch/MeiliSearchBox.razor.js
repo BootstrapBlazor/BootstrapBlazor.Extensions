@@ -15,6 +15,8 @@ export async function init(id, options) {
     const search = {
         el, options,
         searchText: 'searching ...',
+        input: el.querySelector('.search-dialog-input > input'),
+        clearButton: el.querySelector('.search-dialog-clear'),
         menu: el.querySelector('.search-dialog-menu'),
         list: el.querySelector('.search-dialog-list'),
         template: el.querySelector('.search-dialog-item-template'),
@@ -25,8 +27,8 @@ export async function init(id, options) {
     };
     Data.set(id, search);
 
-    handlerClearButton(search);
     handlerSearch(search);
+    handlerClearButton(search);
     handlerToggle(search);
     handlerMask(search);
 
@@ -57,10 +59,7 @@ const handlerMask = search => {
     const { mask } = search;
     document.body.appendChild(mask);
     EventHandler.on(mask, 'click', e => {
-        const element = e.target.closest('.bb-g-search');
-        if (element === null) {
-            closeDialog();
-        }
+        closeDialog();
     });
 }
 
@@ -79,15 +78,14 @@ const handlerToggle = search => {
 }
 
 const handlerClearButton = search => {
-    const clearButton = search.el.querySelector('.search-dialog-clear');
+    const { clearButton } = search;
     EventHandler.on(clearButton, 'click', () => {
         resetSearch(search);
     });
-    search.clearButton = clearButton;
 }
 
 const handlerSearch = search => {
-    const input = search.el.querySelector('.search-dialog-input > input');
+    const { input } = search;
     const filter = {
         attributesToSearchOn: search.options.searchableColumns
     };
@@ -256,6 +254,7 @@ const resetSearch = search => {
     }
     else {
         input.value = '';
+        input.focus();
         resetResult(search);
     }
 }
