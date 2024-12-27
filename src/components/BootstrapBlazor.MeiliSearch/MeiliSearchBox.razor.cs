@@ -29,6 +29,12 @@ public partial class MeiliSearchBox
     public string? SearchStatus { get; set; }
 
     /// <summary>
+    /// 获得/设置 搜索框占位字符串 默认 null
+    /// </summary>
+    [Parameter]
+    public string? LogoText { get; set; }
+
+    /// <summary>
     /// 获得/设置 搜索框结果占位字符串 默认 null
     /// </summary>
     [Parameter]
@@ -89,6 +95,7 @@ public partial class MeiliSearchBox
 
         SearchBoxPlaceHolder ??= "Search";
         SearchStatus ??= "Powered by BootstrapBlazor";
+        LogoText ??= "Powered by BootstrapBlazor";
         SearchResultPlaceHolder ??= "Type something to search";
         EmptySearchResultPlaceHolder ??= "No recent searches";
         EnterKeyText ??= "to Select";
