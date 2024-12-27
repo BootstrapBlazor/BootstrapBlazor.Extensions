@@ -122,6 +122,13 @@
         cursor: pointer;
     }
 
+.search-dialog-status {
+    padding: 0 .5rem;
+    font-size: .75rem;
+    display: block;
+    color: rgba(var(--bs-body-color-rgb), 0.5);
+}
+
 .search-dialog-main {
     display: flex;
     margin: .5rem;
