@@ -248,6 +248,7 @@ const updateList = (search, result) => {
     }
     else {
         resetResult(search);
+        list.querySelector('.search-dialog-empty-template').innerHTML = search.options.emptySearchResultPlaceHolder;
     }
 }
 
