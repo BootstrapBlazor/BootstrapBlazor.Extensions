@@ -21,13 +21,7 @@ export async function init(id, options) {
         blockTemplate: el.querySelector('.search-dialog-block-template'),
         emptyTemplate: el.querySelector('.search-dialog-empty-template'),
         dialog: el.querySelector('.search-dialog'),
-        mask: el.querySelector('.search-dialog-mask'),
-        close: e => {
-            const element = e.target.closest('.bb-g-search');
-            if (element === null) {
-                closeDialog();
-            }
-        }
+        mask: el.querySelector('.search-dialog-mask')
     };
     Data.set(id, search);
 
@@ -35,7 +29,6 @@ export async function init(id, options) {
     handlerSearch(search);
     handlerToggle(search);
     handlerMask(search);
-    handlerClose(search);
 
     resetSearch(search);
 
@@ -49,34 +42,32 @@ export function dispose(id) {
     Data.remove(id);
 
     if (search) {
-        const { el, menu, dialog, clearButton, input } = search;
+        const { el, menu, dialog, clearButton, input, mask } = search;
         EventHandler.off(clearButton, 'click');
         EventHandler.off(dialog, 'click');
         EventHandler.off(input, 'keyup');
         EventHandler.off(input, 'input');
         EventHandler.off(menu, 'click');
         EventHandler.off(el, 'click');
-        EventHandler.off(document, 'click', search.close);
+        EventHandler.off(mask, 'click');
     }
-}
-
-const handlerClose = search => {
-    EventHandler.on(document, 'click', search.close);
 }
 
 const handlerMask = search => {
     const { mask } = search;
     document.body.appendChild(mask);
+    EventHandler.on(mask, 'click', e => {
+        const element = e.target.closest('.bb-g-search');
+        if (element === null) {
+            closeDialog();
+        }
+    });
 }
 
 const handlerToggle = search => {
     const { el, dialog, input } = search;
     EventHandler.on(dialog, 'click', e => {
         e.stopPropagation();
-
-        if (e.target.closest('.search-dialog-input') !== null) {
-            return;
-        }
     });
     EventHandler.on(el, 'click', e => {
         document.documentElement.classList.toggle('bb-g-search-open');
