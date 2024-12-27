@@ -108,17 +108,21 @@ const handlerSearch = search => {
                 if (link) {
                     location.href = link.href;
                 }
-            } else {
+            }
+            else {
                 await doSearch(search, input.value, filter);
                 if (!isMobile()) {
                     input.select();
                 }
             }
-        } else if (e.key === 'Escape') {
+        }
+        else if (e.key === 'Escape') {
             resetSearch(search);
-        } else if (e.key === 'ArrowUp') {
+        }
+        else if (e.key === 'ArrowUp') {
             doToggleActive(search, true);
-        } else if (e.key === 'ArrowDown') {
+        }
+        else if (e.key === 'ArrowDown') {
             doToggleActive(search, false);
         }
     });
@@ -165,7 +169,8 @@ const doToggleActive = (search, up) => {
             index = up ? index - 1 : index + 1;
             if (index < 0) {
                 index = items.length - 1;
-            } else if (index >= items.length) {
+            }
+            else if (index >= items.length) {
                 index = 0;
             }
             items[index].classList.add('active');
@@ -174,7 +179,8 @@ const doToggleActive = (search, up) => {
                 block: 'start',
                 inline: 'nearest'
             });
-        } else {
+        }
+        else {
             items[0].classList.add('active');
         }
     }
@@ -255,7 +261,8 @@ const resetSearch = search => {
 
     if (input.value === '') {
         closeDialog();
-    } else {
+    }
+    else {
         input.value = '';
         resetResult(search);
     }
