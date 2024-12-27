@@ -241,6 +241,10 @@
         margin-right: .5rem;
     }
 
+    .search-dialog-footer .search-dialog-commands kbd {
+        background-color: var(--bb-global-search-item-bg);
+    }
+
 @media (min-width: 768px) {
     .bb-g-search {
         margin-bottom: 0;
