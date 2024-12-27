@@ -64,6 +64,12 @@ public partial class MeiliSearchBox
     [Parameter]
     public string? EscKeyText { get; set; }
 
+    /// <summary>
+    /// 获得/设置 Footer 模板
+    /// </summary>
+    [Parameter]
+    public RenderFragment? FooterTemplate { get; set; }
+
     private string? ClassString => CssBuilder.Default("bb-g-search d-none")
         .AddClassFromAttributes(AdditionalAttributes)
         .Build();

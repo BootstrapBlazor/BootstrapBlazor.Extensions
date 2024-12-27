@@ -22,14 +22,20 @@
                 </div>
             </main>
             <footer class="search-dialog-footer">
-                <div class="search-dialog-commands d-none d-sm-flex">
-                    <div><kbd>Enter</kbd> @EnterKeyText</div>
-                    <div><kbd>ArrowUp</kbd> <kbd>ArrowDown</kbd> @ArrowKeyText</div>
-                    <div><kbd>ESC</kbd> @EscKeyText</div>
-                </div>
-                <div class="search-dialog-logo">
-                    @SearchStatus
-                </div>
+                @if(FooterTemplate == null){
+                    <div class="search-dialog-commands d-none d-sm-flex">
+                        <div><kbd>Enter</kbd> @EnterKeyText</div>
+                        <div><kbd>ArrowUp</kbd> <kbd>ArrowDown</kbd> @ArrowKeyText</div>
+                        <div><kbd>ESC</kbd> @EscKeyText</div>
+                    </div>
+                    <div class="search-dialog-logo">
+                        @SearchStatus
+                    </div>
+                }
+                else
+                {
+                    @FooterTemplate
+                }
             </footer>
             <template>
                 <div class="search-dialog-item-template">
