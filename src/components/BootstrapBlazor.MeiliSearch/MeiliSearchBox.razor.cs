@@ -23,12 +23,6 @@ public partial class MeiliSearchBox
     public string? SearchBoxPlaceHolder { get; set; }
 
     /// <summary>
-    /// 获得/设置 搜索框占位字符串 默认 null
-    /// </summary>
-    [Parameter]
-    public string? SearchStatus { get; set; }
-
-    /// <summary>
     /// 获得/设置 正在搜索字符串 默认 null
     /// </summary>
     [Parameter]
@@ -106,7 +100,6 @@ public partial class MeiliSearchBox
         base.OnParametersSet();
 
         SearchBoxPlaceHolder ??= "Search";
-        SearchStatus ??= "Powered by BootstrapBlazor";
         SearchingText ??= "Searching";
         SearchResultText ??= "Found {0} results in {1}ms";
         LogoText ??= "Powered by BootstrapBlazor";
@@ -126,7 +119,6 @@ public partial class MeiliSearchBox
         Options.CurrentValue?.Url,
         Options.CurrentValue?.ApiKey,
         Index = $"{Options.CurrentValue?.Index}-{CultureInfo.CurrentUICulture.Name}",
-        SearchStatus,
         SearchableColumns,
         ScrollIntoViewOptions,
         EmptySearchResultPlaceHolder,
