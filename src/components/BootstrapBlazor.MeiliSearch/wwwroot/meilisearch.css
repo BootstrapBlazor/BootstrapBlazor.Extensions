@@ -14,7 +14,7 @@
     --bb-global-search-dialog-mask-z-index: 1092;
     --bb-global-search-highlight-color: #0078d4;
     --bb-global-search-footer-shadow: 0 -1px 0 0 #e0e3e8, 0 -3px 6px 0 rgba(69, 98, 155, .12);
-    --bb-global-search-main-max-height: calc(100vh - 220px);
+    --bb-global-search-main-max-height: calc(100vh - 250px);
 }
 
     .search-dialog-mask .search-dialog-item ol {
@@ -122,10 +122,16 @@
         cursor: pointer;
     }
 
+.search-dialog-status {
+    padding: 0 .5rem;
+    font-size: .75rem;
+    display: block;
+    color: rgba(var(--bs-body-color-rgb), 0.5);
+}
+
 .search-dialog-main {
     display: flex;
     margin: .5rem;
-    max-height: calc(100vh - 82px);
 }
 
 .search-dialog-menu {
@@ -180,10 +186,6 @@
             margin-top: .5rem;
         }
 
-        .search-dialog-list .search-dialog-item.active {
-            background-color: var(--bb-global-search-item-active-bg);
-        }
-
         .search-dialog-list .search-dialog-item a {
             color: var(--bs-body-color);
         }
@@ -217,7 +219,8 @@
                 font-size: .75rem;
             }
 
-            .search-dialog-list .search-dialog-item li:hover {
+            .search-dialog-list .search-dialog-item li:hover,
+            .search-dialog-list .search-dialog-item li.active {
                 background-color: var(--bb-global-search-item-hover-bg);
             }
 

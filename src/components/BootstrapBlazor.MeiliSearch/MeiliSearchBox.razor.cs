@@ -17,22 +17,46 @@ public partial class MeiliSearchBox
     private IOptionsMonitor<MeiliSearchOptions>? Options { get; set; }
 
     /// <summary>
-    /// 获得/设置 搜索框占位字符串 默认 null 取内置资源文件值
+    /// 获得/设置 搜索框占位字符串 默认 null
     /// </summary>
     [Parameter]
     public string? SearchBoxPlaceHolder { get; set; }
 
     /// <summary>
-    /// 获得/设置 搜索框占位字符串 默认 null 取内置资源文件值
+    /// 获得/设置 搜索框占位字符串 默认 null
     /// </summary>
     [Parameter]
     public string? SearchStatus { get; set; }
 
     /// <summary>
-    /// 获得/设置 搜索框结果占位字符串 默认 null 取内置资源文件值
+    /// 获得/设置 正在搜索字符串 默认 null
+    /// </summary>
+    [Parameter]
+    public string? SearchingText { get; set; }
+
+    /// <summary>
+    /// 获得/设置 搜索字结果符串 默认 null
+    /// </summary>
+    [Parameter]
+    public string? SearchResultText { get; set; }
+
+    /// <summary>
+    /// 获得/设置 搜索框占位字符串 默认 null
+    /// </summary>
+    [Parameter]
+    public string? LogoText { get; set; }
+
+    /// <summary>
+    /// 获得/设置 搜索框结果占位字符串 默认 null
     /// </summary>
     [Parameter]
     public string? SearchResultPlaceHolder { get; set; }
+
+    /// <summary>
+    /// 获得/设置 无搜索框结果占位字符串 默认 null
+    /// </summary>
+    [Parameter]
+    public string? EmptySearchResultPlaceHolder { get; set; }
 
     /// <summary>
     /// 获得/设置 滚动效果 <see cref="ScrollIntoViewOptions"/> 实例 默认 null
@@ -81,6 +105,13 @@ public partial class MeiliSearchBox
     {
         base.OnParametersSet();
 
+        SearchBoxPlaceHolder ??= "Search";
+        SearchStatus ??= "Powered by BootstrapBlazor";
+        SearchingText ??= "Searching";
+        SearchResultText ??= "Found {0} results in {1}ms";
+        LogoText ??= "Powered by BootstrapBlazor";
+        SearchResultPlaceHolder ??= "Type something to search";
+        EmptySearchResultPlaceHolder ??= "No recent searches";
         EnterKeyText ??= "to Select";
         ArrowKeyText ??= "to Navigate";
         EscKeyText ??= "to Close";
@@ -97,6 +128,9 @@ public partial class MeiliSearchBox
         Index = $"{Options.CurrentValue?.Index}-{CultureInfo.CurrentUICulture.Name}",
         SearchStatus,
         SearchableColumns,
-        ScrollIntoViewOptions
+        ScrollIntoViewOptions,
+        EmptySearchResultPlaceHolder,
+        SearchingText,
+        SearchResultText
     });
 }
