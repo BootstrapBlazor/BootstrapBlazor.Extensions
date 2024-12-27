@@ -105,6 +105,12 @@ const handlerSearch = search => {
         else if (e.key === 'Escape') {
             resetSearch(search);
         }
+        else if (e.key === 'ArrowUp') {
+            doSwitchActiveItem(search, true);
+        }
+        else if (e.key === 'ArrowDown') {
+            doSwitchActiveItem(search, false);
+        }
     });
     const fn = debounce(doSearch);
     let isComposing = false;
@@ -136,6 +142,35 @@ const handlerSearch = search => {
             }
         }
     });
+}
+
+const doSwitchActiveItem = (search, up) => {
+    const { list, options } = search;
+    const items = [...list.querySelectorAll('.search-dialog-item')];
+    if (items.length > 0) {
+        const activeItem = list.querySelector('.search-dialog-item.active');
+        if (activeItem) {
+            activeItem.classList.remove('active');
+            let index = items.indexOf(activeItem);
+            if (up) {
+                index--;
+            }
+            else {
+                index++;
+            }
+            if (index < 0) {
+                index = items.length - 1;
+            }
+            else if (index >= items.length) {
+                index = 0;
+            }
+            items[index].classList.add('active');
+            items[index].scrollIntoView(options.scrollIntoViewOptions ?? { behavior: 'smooth', block: 'start', inline: 'nearest' });
+        }
+        else {
+            items[0].classList.add('active');
+        }
+    }
 }
 
 const doSearch = async (search, query, filter = null) => {
