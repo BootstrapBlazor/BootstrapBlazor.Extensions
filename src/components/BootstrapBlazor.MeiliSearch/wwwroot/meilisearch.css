@@ -6,6 +6,8 @@
     --bb-global-search-highlight-color: #0078d4;
     --bb-global-search-footer-shadow: 0 -1px 0 0 #e0e3e8, 0 -3px 6px 0 rgba(69, 98, 155, .12);
     --bb-global-search-main-max-height: calc(100vh - 250px);
+    --bb-global-search-footer-kbd-bg: var(--bs-body-color);
+    --bb-global-search-footer-kbd-color: var(--bs-body-bg);
 }
 
     .search-dialog-mask .search-dialog-item ol {
@@ -201,7 +203,7 @@
     }
 
     .search-dialog-footer .search-dialog-commands kbd {
-        background-color: var(--bb-global-search-item-bg);
+        background-color: var(--bb-global-search-footer-kbd-bg);
     }
 
 @media (min-width: 768px) {
