@@ -137,6 +137,31 @@ public partial class MeiliSearchBox
     /// <summary>
     /// <inheritdoc/>
     /// </summary>
+    /// <param name="firstRender"></param>
+    /// <returns></returns>
+    protected override async Task OnAfterRenderAsync(bool firstRender)
+    {
+        await base.OnAfterRenderAsync(firstRender);
+
+        if (!firstRender)
+        {
+            await InvokeVoidAsync("update", Id, new
+            {
+                Options.CurrentValue?.Url,
+                Options.CurrentValue?.ApiKey,
+                Index = $"{Options.CurrentValue?.Index}-{CultureInfo.CurrentUICulture.Name}",
+                SearchableColumns,
+                ScrollIntoViewOptions,
+                EmptySearchResultPlaceHolder,
+                SearchingText,
+                SearchResultText
+            });
+        }
+    }
+
+    /// <summary>
+    /// <inheritdoc/>
+    /// </summary>
     /// <returns></returns>
     protected override Task InvokeInitAsync() => InvokeVoidAsync("init", Id, new
     {
