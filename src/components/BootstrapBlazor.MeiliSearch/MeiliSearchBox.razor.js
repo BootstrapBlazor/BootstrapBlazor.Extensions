@@ -52,7 +52,7 @@ export function dispose(id) {
         const { el, menu, dialog, clearButton, input, mask } = search;
         EventHandler.off(clearButton, 'click');
         EventHandler.off(dialog, 'click');
-        EventHandler.off(input, 'keyup');
+        EventHandler.off(dialog, 'keyup');
         EventHandler.off(menu, 'click');
         EventHandler.off(el, 'click');
         EventHandler.off(mask, 'click');
@@ -90,11 +90,11 @@ const handlerClearButton = search => {
 }
 
 const handlerSearch = search => {
-    const { input, options, menu } = search;
+    const { input, dialog, options, menu } = search;
     const filter = {
         attributesToSearchOn: options.searchableColumns
     };
-    EventHandler.on(input, 'keyup', async e => {
+    EventHandler.on(dialog, 'keyup', async e => {
         if (e.key === 'Enter' || e.key === 'NumpadEnter') {
             const activeItem = search.list.querySelector('.active');
             if (activeItem) {
