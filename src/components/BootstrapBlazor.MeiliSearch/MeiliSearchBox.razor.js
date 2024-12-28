@@ -61,18 +61,18 @@ export function dispose(id) {
 }
 
 const handlerMask = search => {
-    const { mask } = search;
+    const { mask, dialog } = search;
     document.body.appendChild(mask);
     EventHandler.on(mask, 'click', e => {
         closeDialog();
     });
-}
-
-const handlerToggle = search => {
-    const { el, dialog, input } = search;
     EventHandler.on(dialog, 'click', e => {
         e.stopPropagation();
     });
+}
+
+const handlerToggle = search => {
+    const { el, input } = search;
     EventHandler.on(el, 'click', e => {
         document.documentElement.classList.toggle('bb-g-search-open');
         input.focus();
