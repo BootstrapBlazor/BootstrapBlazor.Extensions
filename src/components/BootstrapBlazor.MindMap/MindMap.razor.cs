@@ -3,34 +3,15 @@
 // Website: https://www.blazor.zone or https://argozhang.github.io/
 
 using Microsoft.AspNetCore.Components;
-using Microsoft.JSInterop;
-using System.Diagnostics.CodeAnalysis;
 
 namespace BootstrapBlazor.Components;
 
 /// <summary>
-/// 思维导图 MindMap<para>开发文档 https://wanglin2.github.io/mind-map/#/doc/zh/introduction/?WT.mc_id=DT-MVP-5005078</para>
+/// 思维导图 MindMap
+/// <para>JS 仓库 https://github.com/wanglin2/mind-map?wt.mc_id=DT-MVP-5004174</para>
 /// </summary>
-public partial class MindMap : IAsyncDisposable
+public partial class MindMap
 {
-    [Inject]
-    [NotNull]
-    private IJSRuntime? JSRuntime { get; set; }
-
-    private IJSObjectReference? Module { get; set; }
-    private DotNetObjectReference<MindMap>? Instance { get; set; }
-
-    /// <summary>
-    /// UI界面元素的引用对象
-    /// </summary>
-    public ElementReference Element { get; set; }
-
-    /// <summary>
-    /// 获得/设置 错误回调方法
-    /// </summary>
-    [Parameter]
-    public Func<string, Task>? OnError { get; set; }
-
     /// <summary>
     /// 获得/设置 收到数据回调方法
     /// </summary>
@@ -38,25 +19,14 @@ public partial class MindMap : IAsyncDisposable
     public Func<string?, Task>? OnReceive { get; set; }
 
     /// <summary>
-    /// 自定义CSS/Custom CSS
+    /// 获得/设置 MindMap 选项 <see cref="MindMapOption"/> 实例
     /// </summary>
     [Parameter]
-    [NotNull]
-    public string? StyleCss { get; set; }
+    public MindMapOption? Options { get; set; }
 
-    /// <summary>
-    /// 获得/设置 显示内置UI
-    /// </summary>
-    [Parameter]
-    public bool ShowUI { get; set; } = true;
-
-    /// <summary>
-    /// 选项
-    /// </summary>
-    [Parameter]
-    public MindMapOption Options { get; set; } = new();
-
-    private MindMapOption OptionsCache { get; set; } = new();
+    private string? ClassString => CssBuilder.Default("bb-mindmap")
+        .AddClassFromAttributes(AdditionalAttributes)
+        .Build();
 
     /// <summary>
     /// 初始数据
@@ -74,164 +44,63 @@ public partial class MindMap : IAsyncDisposable
         }
     };
 
-    private MindMapNode? DataCache { get; set; }
-
     /// <summary>
     /// <inheritdoc/>
     /// </summary>
-    /// <param name="firstRender"></param>
-    /// <returns></returns>
-    protected override async Task OnAfterRenderAsync(bool firstRender)
-    {
-        try
-        {
-            if (firstRender)
-            {
-                Module = await JSRuntime.InvokeAsync<IJSObjectReference>("import", "./_content/BootstrapBlazor.MindMap/MindMap.razor.js" + "?v=" + System.Reflection.Assembly.GetExecutingAssembly().GetName().Version);
-                Instance = DotNetObjectReference.Create(this);
-                await Module!.InvokeVoidAsync("Init", Element, Data, Options);
-                DataCache = Data;
-            }
-
-            if (!firstRender && Module != null && DataCache != Data)
-            {
-                await Module!.InvokeVoidAsync("Init", Element, Data, Options);
-                DataCache = Data;
-            }
-            else if (!firstRender && Module != null && OptionsCache != Options)
-            {
-                await Module!.InvokeVoidAsync("Init", Element, DataCache, Options);
-            }
-
-        }
-        catch (Exception e)
-        {
-            if (OnError != null) await OnError.Invoke(e.Message);
-        }
-    }
+    protected override Task InvokeInitAsync() => InvokeVoidAsync("init", Id, Interop, Data, Options);
 
     /// <summary>
-    /// <inheritdoc/>
+    /// 执行指定不带返回值的 Javascript 方法
     /// </summary>
-    /// <returns></returns>
-    protected override async Task OnParametersSetAsync()
-    {
-        await Task.CompletedTask;
-    }
-
-    async ValueTask IAsyncDisposable.DisposeAsync()
-    {
-        Instance?.Dispose();
-        if (Module is not null)
-        {
-            await Module.DisposeAsync();
-        }
-    }
+    /// <param name="methodName"></param>
+    /// <param name="args"></param>
+    public Task Execute(string methodName, params object?[]? args) => InvokeVoidAsync("execute", Id, methodName, args);
 
     /// <summary>
     /// 下载为文件
     /// </summary>
-    public virtual async Task Export(string Type = "png", bool IsDownload = true, string FileName = "temp", bool WithConfig = true)
-    {
-        try
-        {
-            await Module!.InvokeVoidAsync("Export", Instance, Type, IsDownload, FileName, WithConfig);
-        }
-        catch
-        {
-        }
-    }
+    public Task Export(string type = "png", bool download = true, string fileName = "temp", bool withConfig = true) => InvokeVoidAsync("exportAs", Id, type, download, fileName, withConfig);
 
     /// <summary>
-    /// 获取数据
+    /// 容器尺寸变化后，需要调用该方法进行适应
     /// </summary>
-    public virtual async Task GetData(bool FullData = true)
-    {
-        try
-        {
-            await Module!.InvokeVoidAsync("GetData", Instance, FullData);
-        }
-        catch
-        {
-        }
-    }
+    public Task Resize() => Execute("resize");
 
     /// <summary>
-    /// 导入数据
+    /// 恢复到默认的变换
     /// </summary>
-    public virtual async Task SetData(string JsonDataString)
-    {
-        try
-        {
-            await Module!.InvokeVoidAsync("SetData", JsonDataString);
-        }
-        catch
-        {
-        }
-    }
+    public Task Reset() => InvokeVoidAsync("reset", Id);
 
     /// <summary>
-    /// 复位
+    /// 缩放思维导图至适应画布
     /// </summary>
-    public virtual async Task Reset()
-    {
-        try
-        {
-            await Module!.InvokeVoidAsync("Reset");
-        }
-        catch
-        {
-        }
-    }
+    public Task Fit() => InvokeVoidAsync("fit", Id);
 
     /// <summary>
-    /// 切换主题
+    /// 获取数据方法
     /// </summary>
-    public virtual async Task SetTheme(EnumMindMapTheme theme)
-    {
-        try
-        {
-            Options.Theme = theme;
-            await Module!.InvokeVoidAsync("SetTheme", theme);
-        }
-        catch
-        {
-        }
-    }
-
-    /// <summary>
-    /// 切换布局
-    /// </summary>
-    public virtual async Task SetLayout(EnumMindMapLayout layout)
-    {
-        try
-        {
-            Options.Layout = layout;
-            await Module!.InvokeVoidAsync("SetLayout", layout.ToString());
-        }
-        catch
-        {
-        }
-    }
-
-    /// <summary>
-    /// 收到数据回调方法
-    /// </summary>
-    /// <param name="msg"></param>
+    /// <param name="withConfig">获取的数据只包括节点树，如果传 true 则会包含主题、布局、视图等数据 默认 false</param>
     /// <returns></returns>
-    [JSInvokable]
-    public async Task ReceiveData(object? msg)
-    {
-        try
-        {
-            if (OnReceive != null && msg != null)
-            {
-                await OnReceive.Invoke(msg.ToString());
-            }
-        }
-        catch (Exception e)
-        {
-            if (OnError != null) await OnError.Invoke(e.Message);
-        }
-    }
+    public async Task<string?> GetData(bool withConfig = false) => await InvokeAsync<string?>("getData", Id, withConfig);
+
+    /// <summary>
+    /// 获取数据方法
+    /// </summary>
+    /// <param name="jsonData">思维导图结构数据 null 画布会显示空白</param>
+    /// <returns></returns>
+    public Task SetData(string jsonData) => InvokeVoidAsync("setData", Id, jsonData);
+
+    /// <summary>
+    /// 设置主题方法 
+    /// </summary>
+    /// <param name="theme"></param>
+    /// <returns></returns>
+    public Task SetTheme(EnumMindMapTheme theme) => Execute("setTheme", theme.ToString());
+
+    /// <summary>
+    /// 设置主题方法 
+    /// </summary>
+    /// <param name="layout"></param>
+    /// <returns></returns>
+    public Task SetLayout(EnumMindMapLayout layout) => Execute("setLayout", layout.ToString());
 }

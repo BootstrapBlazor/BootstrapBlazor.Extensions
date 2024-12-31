@@ -1,82 +1,87 @@
-﻿import MindMap from "./simpleMindMap.esm.min.js"
+﻿import { addLink } from '../BootstrapBlazor/modules/utility.js'
+import MindMap from "./simpleMindMap.esm.min.js"
+import Data from '../BootstrapBlazor/modules/data.js'
 
-var mindMap = null;
-var optionsCache = null; 
-
-export function Init(element, data,options) {
-
-    var el = element.querySelector("[data-action=mindMapContainer]");
-
-    if (mindMap == undefined) {
-        mindMap = new MindMap({
-            el: el,
-            layout: options.layout,
-            theme: options.theme,
-            data: data
-        });
-        optionsCache = options;
-    } else {
-        SetLayout(options.layout);
-        SetTheme(options.theme);
+export async function init(id, invoke, data, options) {
+    const el = document.getElementById(id);
+    if (el === null) {
         return;
     }
+    await addLink('./_content/BootstrapBlazor.MindMap/mindmap.css');
 
-    return {
-        dispose: () => {
-            element.cloneNode(true);
-        }
+    options ??= {};
+    options.el = el;
+    options.data = data;
+
+    const mindMap = new MindMap({
+        el: el,
+        layout: options.layout,
+        theme: options.theme,
+        data: data
+    });
+
+    const observer = new ResizeObserver(e => {
+        mindMap.resize();
+    });
+    observer.observe(el);
+    Data.set(id, { el, invoke, mindMap, observer });
+}
+
+export function execute(id, method, args) {
+    const mm = Data.get(id);
+    const { mindMap } = mm;
+    const fn = mindMap[method];
+    if (fn) {
+        fn.apply(mindMap, args);
     }
-
 }
 
-export function Export(instance, type = 'png', isDownload = true, fileName = 'temp', withConfig = true) {  
-    var ret=mindMap.export(type, isDownload, fileName, withConfig)
-    if (!isDownload) instance.invokeMethodAsync('ReceiveData', ret);
+export function getData(id, withConfig = false) {
+    const mm = Data.get(id);
+    const { mindMap } = mm;
+    const data = mindMap.getData(withConfig);
+    return JSON.stringify(data);
 }
 
-export async function GetData(instance, fullData = true) {
-    instance.invokeMethodAsync('ReceiveData', JSON.stringify(mindMap.getData(fullData)));
-}
-
-export function SetData(jsondata) {
+export function setData(id, jsondata) {
+    const mm = Data.get(id);
+    const { mindMap } = mm;
 
     let data = JSON.parse(jsondata)
     if (data.root) {
         mindMap.setFullData(data)
-    } else {
+    }
+    else {
         mindMap.setData(data)
     }
     mindMap.view.reset()
 }
 
-export function Reset() {
+export function exportAs(id, type = 'png', isDownload = true, fileName = 'temp', withConfig = true) {
+    const mm = Data.get(id);
+    const { mindMap } = mm;
+    return mindMap.export(type, isDownload, fileName, withConfig)
+}
+
+export function reset(id) {
+    const mm = Data.get(id);
+    const { mindMap } = mm;
     mindMap.view.reset()
 }
 
-export function SetTheme(theme) {
-    if (optionsCache.theme == undefined || optionsCache.theme != theme) {
-        optionsCache.theme = theme;
-        mindMap.setTheme(theme);
-    }
+export function fit(id) {
+    const mm = Data.get(id);
+    const { mindMap } = mm;
+    mindMap.view.fit()
 }
 
-export function SetLayout(layout) {
-    if (optionsCache.layout == undefined || optionsCache.layout != layout) {
-        optionsCache.layout = layout;
-    mindMap.setLayout(layout);
-    }
-}
+export function dispose(id) {
+    const mm = Data.get(id);
+    Data.remove(id);
 
-export function Search(searchInputRef) {
-    mindMap.search.search(this.searchText, () => {
-        searchInputRef.focus()
-    })
-}
-
-export function Replace(replaceAll = false) {
-    if (!replaceAll) {
-        mindMap.search.replace(this.replaceText, true)
-    } else {
-        mindMap.search.replaceAll(this.replaceText)
+    const { observer } = mm;
+    if (observer) {
+        observer.disconnect();
+        observer = null;
     }
 }
