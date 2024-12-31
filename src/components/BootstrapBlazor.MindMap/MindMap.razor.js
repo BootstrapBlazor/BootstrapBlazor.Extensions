@@ -1,44 +1,41 @@
-﻿import MindMap from "./simpleMindMap.esm.min.js"
+﻿import { addLink } from '../BootstrapBlazor/modules/utility.js'
+import MindMap from "./simpleMindMap.esm.min.js"
+import Data from '../BootstrapBlazor/modules/data.js'
 
-var mindMap = null;
-var optionsCache = null; 
-
-export function Init(element, data,options) {
-
-    var el = element.querySelector("[data-action=mindMapContainer]");
-
-    if (mindMap == undefined) {
-        mindMap = new MindMap({
-            el: el,
-            layout: options.layout,
-            theme: options.theme,
-            data: data
-        });
-        optionsCache = options;
-    } else {
-        SetLayout(options.layout);
-        SetTheme(options.theme);
+export async function init(id, data, options) {
+    const el = document.getElementById(id);
+    if (el === null) {
         return;
     }
+    await addLink('./_content/BootstrapBlazor.MindMap/mindmap.css');
 
-    return {
-        dispose: () => {
-            element.cloneNode(true);
-        }
-    }
+    options ??= {};
+    options.el = el;
+    options.data = data;
 
+    const mindMap = new MindMap({
+        el: el,
+        layout: options.layout,
+        theme: options.theme,
+        data: data
+    });
+    Data.set(id, { el, mindMap });
 }
 
-export function Export(instance, type = 'png', isDownload = true, fileName = 'temp', withConfig = true) {  
-    var ret=mindMap.export(type, isDownload, fileName, withConfig)
+export function dispose(id) {
+    Data.remove(id);
+}
+
+export function saveAs(id, type = 'png', isDownload = true, fileName = 'temp', withConfig = true) {
+    var ret = mindMap.export(type, isDownload, fileName, withConfig)
     if (!isDownload) instance.invokeMethodAsync('ReceiveData', ret);
 }
 
-export async function GetData(instance, fullData = true) {
+export async function getData(instance, fullData = true) {
     instance.invokeMethodAsync('ReceiveData', JSON.stringify(mindMap.getData(fullData)));
 }
 
-export function SetData(jsondata) {
+export function setData(jsondata) {
 
     let data = JSON.parse(jsondata)
     if (data.root) {
@@ -49,34 +46,35 @@ export function SetData(jsondata) {
     mindMap.view.reset()
 }
 
-export function Reset() {
+export function reset() {
     mindMap.view.reset()
 }
 
-export function SetTheme(theme) {
+export function setTheme(theme) {
     if (optionsCache.theme == undefined || optionsCache.theme != theme) {
         optionsCache.theme = theme;
         mindMap.setTheme(theme);
     }
 }
 
-export function SetLayout(layout) {
+export function setLayout(layout) {
     if (optionsCache.layout == undefined || optionsCache.layout != layout) {
         optionsCache.layout = layout;
-    mindMap.setLayout(layout);
+        mindMap.setLayout(layout);
     }
 }
 
-export function Search(searchInputRef) {
+export function search(searchInputRef) {
     mindMap.search.search(this.searchText, () => {
         searchInputRef.focus()
     })
 }
 
-export function Replace(replaceAll = false) {
+export function replace(replaceAll = false) {
     if (!replaceAll) {
         mindMap.search.replace(this.replaceText, true)
-    } else {
+    }
+    else {
         mindMap.search.replaceAll(this.replaceText)
     }
 }
