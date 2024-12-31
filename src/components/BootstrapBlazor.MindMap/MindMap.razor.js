@@ -19,7 +19,12 @@ export async function init(id, invoke, data, options) {
         theme: options.theme,
         data: data
     });
-    Data.set(id, { el, invoke, mindMap });
+
+    const observer = new ResizeObserver(e => {
+        mindMap.resize();
+    });
+    observer.observe(el);
+    Data.set(id, { el, invoke, mindMap, observer });
 }
 
 export function execute(id, method, args) {
@@ -71,5 +76,12 @@ export function fit(id) {
 }
 
 export function dispose(id) {
+    const mm = Data.get(id);
     Data.remove(id);
+
+    const { observer } = mm;
+    if (observer) {
+        observer.disconnect();
+        observer = null;
+    }
 }
