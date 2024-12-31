@@ -15,11 +15,11 @@ public class MindMapOption
     /// 布局
     /// </summary>
     [DisplayName("布局")]
-    public EnumMindMapLayout Layout { get; set; } = EnumMindMapLayout.logicalStructure;
+    public EnumMindMapLayout Layout { get; set; } = EnumMindMapLayout.LogicalStructure;
 
     /// <summary>
     /// 主题
     /// </summary>
     [DisplayName("主题")]
-    public EnumMindMapTheme Theme { get; set; } = EnumMindMapTheme.defaultTheme;
+    public EnumMindMapTheme Theme { get; set; } = EnumMindMapTheme.DefaultTheme;
 }

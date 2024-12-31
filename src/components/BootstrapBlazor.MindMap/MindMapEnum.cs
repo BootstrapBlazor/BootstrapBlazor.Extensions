@@ -3,260 +3,259 @@
 // Website: https://www.blazor.zone or https://argozhang.github.io/
 
 using System.ComponentModel;
-using System.Text.Json.Serialization;
 
 namespace BootstrapBlazor.Components;
 
 /// <summary>
 /// 布局
 /// </summary>
-[JsonConverter(typeof(JsonStringEnumConverter))]
+[JsonEnumConverter(true)]
 public enum EnumMindMapLayout
 {
     /// <summary>
     /// 逻辑结构图
     /// </summary>
     [Description("逻辑结构图")]
-    logicalStructure,
+    LogicalStructure,
 
     /// <summary>
     /// 思维导图
     /// </summary>
     [Description("思维导图")]
-    mindMap,
+    MindMap,
 
     /// <summary>
     /// 组织结构图
     /// </summary>
     [Description("组织结构图")]
-    organizationStructure,
+    OrganizationStructure,
 
     /// <summary>
     /// 目录组织图
     /// </summary>
     [Description("目录组织图")]
-    catalogOrganization,
+    CatalogOrganization,
 
     /// <summary>
     /// 时间轴
     /// </summary>
     [Description("时间轴")]
-    timeline,
+    Timeline,
 
     /// <summary>
     /// 时间轴2
     /// </summary>
     [Description("时间轴2")]
-    timeline2,
+    Timeline2,
 
     /// <summary>
     /// 鱼骨图
     /// </summary>
     [Description("鱼骨图")]
-    fishbone,
+    Fishbone,
 
     /// <summary>
     /// 竖向时间轴
     /// </summary>
     [Description("竖向时间轴")]
-    verticalTimeline
+    VerticalTimeline
 }
 
 /// <summary>
 /// 主题
 /// </summary>
-[JsonConverter(typeof(JsonStringEnumConverter))]
+[JsonEnumConverter(true)]
 public enum EnumMindMapTheme
 {
     /// <summary>
     /// 
     /// </summary>
     [Description("默认")]
-    defaultTheme,
+    DefaultTheme,
 
     /// <summary>
     /// 
     /// </summary>
     [Description("经典")]
-    classic,
+    Classic,
 
     /// <summary>
     /// 
     /// </summary>
     [Description("经典2")]
-    classic2,
+    Classic2,
 
     /// <summary>
     /// 
     /// </summary>
     [Description("经典3")]
-    classic3,
+    Classic3,
 
     /// <summary>
     /// 
     /// </summary>
     [Description("经典4")]
-    classic4,
+    Classic4,
 
     /// <summary>
     /// 
     /// </summary>
     [Description("经典绿")]
-    classicGreen,
+    ClassicGreen,
 
     /// <summary>
     /// 
     /// </summary>
     [Description("经典蓝")]
-    classicBlue,
+    ClassicBlue,
 
     /// <summary>
     /// 
     /// </summary>
     [Description("黑色")]
-    dark,
+    Dark,
 
     /// <summary>
     /// 
     /// </summary>
     [Description("黑色2")]
-    dark2,
+    Dark2,
 
     /// <summary>
     /// 
     /// </summary>
     [Description("简洁黑")]
-    simpleBlack,
+    SimpleBlack,
 
     /// <summary>
     /// 
     /// </summary>
     [Description("黑色幽默")]
-    blackHumour,
+    BlackHumour,
 
     /// <summary>
     /// 
     /// </summary>
     [Description("深夜")]
-    lateNightOffice,
+    LateNightOffice,
 
     /// <summary>
     /// 
     /// </summary>
     [Description("黑金")]
-    blackGold,
+    BlackGold,
 
     /// <summary>
     /// 
     /// </summary>
     [Description("咖啡")]
-    coffee,
+    Coffee,
 
     /// <summary>
     /// 
     /// </summary>
     [Description("清新绿")]
-    freshGreen,
+    FreshGreen,
 
     /// <summary>
     /// 
     /// </summary>
     [Description("绿叶")]
-    greenLeaf,
+    GreenLeaf,
 
     /// <summary>
     /// 
     /// </summary>
     [Description("天绿")]
-    skyGreen,
+    SkyGreen,
 
     /// <summary>
     /// 
     /// </summary>
     [Description("薄荷")]
-    mint,
+    Mint,
 
     /// <summary>
     /// 
     /// </summary>
     [Description("牛油果")]
-    avocado,
+    Avocado,
 
     /// <summary>
     /// 
     /// </summary>
     [Description("天蓝")]
-    blueSky,
+    BlueSky,
 
     /// <summary>
     /// 
     /// </summary>
     [Description("葡萄粉")]
-    pinkGrape,
+    PinkGrape,
 
     /// <summary>
     /// 
     /// </summary>
     [Description("粉色")]
-    brainImpairedPink,
+    BrainImpairedPink,
 
     /// <summary>
     /// 
     /// </summary>
     [Description("浪漫紫")]
-    romanticPurple,
+    RomanticPurple,
 
     /// <summary>
     /// 
     /// </summary>
     [Description("鲜红")]
-    freshRed,
+    FreshRed,
 
     /// <summary>
     /// 
     /// </summary>
     [Description("激情红")]
-    redSpirit,
+    RedSpirit,
 
     /// <summary>
     /// 
     /// </summary>
     [Description("橙汁")]
-    orangeJuice,
+    OrangeJuice,
 
     /// <summary>
     /// 
     /// </summary>
     [Description("金黄")]
-    gold,
+    Gold,
 
     /// <summary>
     /// 
     /// </summary>
     [Description("土黄")]
-    earthYellow,
+    EarthYellow,
 
     /// <summary>
     /// 
     /// </summary>
     [Description("大眼萌")]
-    minions,
+    Minions,
 
     /// <summary>
     /// 
     /// </summary>
     [Description("活力橙")]
-    vitalityOrange,
+    VitalityOrange,
 
     /// <summary>
     /// 
     /// </summary>
     [Description("秋天")]
-    autumn,
+    Autumn,
 
     /// <summary>
     /// 
     /// </summary>
     [Description("墨绿")]
-    courseGreen,
+    CourseGreen,
 }
