@@ -3,28 +3,15 @@
 // Website: https://www.blazor.zone or https://argozhang.github.io/
 
 using Microsoft.AspNetCore.Components;
-using Microsoft.JSInterop;
-using System.Diagnostics.CodeAnalysis;
 
 namespace BootstrapBlazor.Components;
 
 /// <summary>
-/// 思维导图 MindMap<para>开发文档 https://wanglin2.github.io/mind-map/#/doc/zh/introduction/?WT.mc_id=DT-MVP-5005078</para>
+/// 思维导图 MindMap
+/// <para>JS 仓库 https://github.com/wanglin2/mind-map?wt.mc_id=DT-MVP-5004174</para>
 /// </summary>
-public partial class MindMap : IAsyncDisposable
+public partial class MindMap
 {
-    [Inject]
-    [NotNull]
-    private IJSRuntime? JSRuntime { get; set; }
-
-    private IJSObjectReference? Module { get; set; }
-    private DotNetObjectReference<MindMap>? Instance { get; set; }
-
-    /// <summary>
-    /// UI界面元素的引用对象
-    /// </summary>
-    public ElementReference Element { get; set; }
-
     /// <summary>
     /// 获得/设置 错误回调方法
     /// </summary>
@@ -54,9 +41,11 @@ public partial class MindMap : IAsyncDisposable
     /// 选项
     /// </summary>
     [Parameter]
-    public MindMapOption Options { get; set; } = new();
+    public MindMapOption? Options { get; set; }
 
-    private MindMapOption OptionsCache { get; set; } = new();
+    private string? ClassString => CssBuilder.Default("bb-mindmap")
+        .AddClassFromAttributes(AdditionalAttributes)
+        .Build();
 
     /// <summary>
     /// 初始数据
@@ -79,140 +68,38 @@ public partial class MindMap : IAsyncDisposable
     /// <summary>
     /// <inheritdoc/>
     /// </summary>
-    /// <param name="firstRender"></param>
     /// <returns></returns>
-    protected override async Task OnAfterRenderAsync(bool firstRender)
-    {
-        try
-        {
-            if (firstRender)
-            {
-                Module = await JSRuntime.InvokeAsync<IJSObjectReference>("import", "./_content/BootstrapBlazor.MindMap/MindMap.razor.js" + "?v=" + System.Reflection.Assembly.GetExecutingAssembly().GetName().Version);
-                Instance = DotNetObjectReference.Create(this);
-                await Module!.InvokeVoidAsync("Init", Element, Data, Options);
-                DataCache = Data;
-            }
-
-            if (!firstRender && Module != null && DataCache != Data)
-            {
-                await Module!.InvokeVoidAsync("Init", Element, Data, Options);
-                DataCache = Data;
-            }
-            else if (!firstRender && Module != null && OptionsCache != Options)
-            {
-                await Module!.InvokeVoidAsync("Init", Element, DataCache, Options);
-            }
-
-        }
-        catch (Exception e)
-        {
-            if (OnError != null) await OnError.Invoke(e.Message);
-        }
-    }
-
-    /// <summary>
-    /// <inheritdoc/>
-    /// </summary>
-    /// <returns></returns>
-    protected override async Task OnParametersSetAsync()
-    {
-        await Task.CompletedTask;
-    }
-
-    async ValueTask IAsyncDisposable.DisposeAsync()
-    {
-        Instance?.Dispose();
-        if (Module is not null)
-        {
-            await Module.DisposeAsync();
-        }
-    }
+    protected override Task InvokeInitAsync() => InvokeVoidAsync("init", Id, Data, Options);
 
     /// <summary>
     /// 下载为文件
     /// </summary>
-    public virtual async Task Export(string Type = "png", bool IsDownload = true, string FileName = "temp", bool WithConfig = true)
-    {
-        try
-        {
-            await Module!.InvokeVoidAsync("Export", Instance, Type, IsDownload, FileName, WithConfig);
-        }
-        catch
-        {
-        }
-    }
+    public Task Export(string type = "png", bool download = true, string fileName = "temp", bool withConfig = true) => InvokeVoidAsync("export", Id, type, download, fileName, withConfig);
 
     /// <summary>
     /// 获取数据
     /// </summary>
-    public virtual async Task GetData(bool FullData = true)
-    {
-        try
-        {
-            await Module!.InvokeVoidAsync("GetData", Instance, FullData);
-        }
-        catch
-        {
-        }
-    }
+    public Task GetData(bool fullData = true) => InvokeVoidAsync("getData", Id, fullData);
 
     /// <summary>
     /// 导入数据
     /// </summary>
-    public virtual async Task SetData(string JsonDataString)
-    {
-        try
-        {
-            await Module!.InvokeVoidAsync("SetData", JsonDataString);
-        }
-        catch
-        {
-        }
-    }
+    public Task SetData(string jsonDataString) => InvokeVoidAsync("setData", Id, jsonDataString);
 
     /// <summary>
     /// 复位
     /// </summary>
-    public virtual async Task Reset()
-    {
-        try
-        {
-            await Module!.InvokeVoidAsync("Reset");
-        }
-        catch
-        {
-        }
-    }
+    public Task Reset() => InvokeVoidAsync("reset", Id);
 
     /// <summary>
     /// 切换主题
     /// </summary>
-    public virtual async Task SetTheme(EnumMindMapTheme theme)
-    {
-        try
-        {
-            Options.Theme = theme;
-            await Module!.InvokeVoidAsync("SetTheme", theme);
-        }
-        catch
-        {
-        }
-    }
+    public Task SetTheme(EnumMindMapTheme theme) => InvokeVoidAsync("setTheme", Id, theme);
 
     /// <summary>
     /// 切换布局
     /// </summary>
-    public virtual async Task SetLayout(EnumMindMapLayout layout)
-    {
-        try
-        {
-            Options.Layout = layout;
-            await Module!.InvokeVoidAsync("SetLayout", layout.ToString());
-        }
-        catch
-        {
-        }
-    }
+    public Task SetLayout(EnumMindMapLayout layout) => InvokeVoidAsync("setLayout", Id, layout);
 
     /// <summary>
     /// 收到数据回调方法
