@@ -13,32 +13,13 @@ namespace BootstrapBlazor.Components;
 public partial class MindMap
 {
     /// <summary>
-    /// 获得/设置 错误回调方法
-    /// </summary>
-    [Parameter]
-    public Func<string, Task>? OnError { get; set; }
-
-    /// <summary>
     /// 获得/设置 收到数据回调方法
     /// </summary>
     [Parameter]
     public Func<string?, Task>? OnReceive { get; set; }
 
     /// <summary>
-    /// 自定义CSS/Custom CSS
-    /// </summary>
-    [Parameter]
-    [NotNull]
-    public string? StyleCss { get; set; }
-
-    /// <summary>
-    /// 获得/设置 显示内置UI
-    /// </summary>
-    [Parameter]
-    public bool ShowUI { get; set; } = true;
-
-    /// <summary>
-    /// 选项
+    /// 获得/设置 MindMap 选项 <see cref="MindMapOption"/> 实例
     /// </summary>
     [Parameter]
     public MindMapOption? Options { get; set; }
@@ -63,62 +44,63 @@ public partial class MindMap
         }
     };
 
-    private MindMapNode? DataCache { get; set; }
-
     /// <summary>
     /// <inheritdoc/>
     /// </summary>
-    /// <returns></returns>
-    protected override Task InvokeInitAsync() => InvokeVoidAsync("init", Id, Data, Options);
+    protected override Task InvokeInitAsync() => InvokeVoidAsync("init", Id, Interop, Data, Options);
+
+    /// <summary>
+    /// 执行指定不带返回值的 Javascript 方法
+    /// </summary>
+    /// <param name="methodName"></param>
+    /// <param name="args"></param>
+    public Task Execute(string methodName, params object?[]? args) => InvokeVoidAsync("execute", Id, methodName, args);
 
     /// <summary>
     /// 下载为文件
     /// </summary>
-    public Task Export(string type = "png", bool download = true, string fileName = "temp", bool withConfig = true) => InvokeVoidAsync("export", Id, type, download, fileName, withConfig);
+    public Task Export(string type = "png", bool download = true, string fileName = "temp", bool withConfig = true) => InvokeVoidAsync("exportAs", Id, type, download, fileName, withConfig);
 
     /// <summary>
-    /// 获取数据
+    /// 容器尺寸变化后，需要调用该方法进行适应
     /// </summary>
-    public Task GetData(bool fullData = true) => InvokeVoidAsync("getData", Id, fullData);
+    public Task Resize() => Execute("resize");
 
     /// <summary>
-    /// 导入数据
-    /// </summary>
-    public Task SetData(string jsonDataString) => InvokeVoidAsync("setData", Id, jsonDataString);
-
-    /// <summary>
-    /// 复位
+    /// 恢复到默认的变换
     /// </summary>
     public Task Reset() => InvokeVoidAsync("reset", Id);
 
     /// <summary>
-    /// 切换主题
+    /// 缩放思维导图至适应画布
     /// </summary>
-    public Task SetTheme(EnumMindMapTheme theme) => InvokeVoidAsync("setTheme", Id, theme);
+    public Task Fit() => InvokeVoidAsync("fit", Id);
 
     /// <summary>
-    /// 切换布局
+    /// 获取数据方法
     /// </summary>
-    public Task SetLayout(EnumMindMapLayout layout) => InvokeVoidAsync("setLayout", Id, layout);
-
-    /// <summary>
-    /// 收到数据回调方法
-    /// </summary>
-    /// <param name="msg"></param>
+    /// <param name="withConfig">获取的数据只包括节点树，如果传 true 则会包含主题、布局、视图等数据 默认 false</param>
     /// <returns></returns>
-    [JSInvokable]
-    public async Task ReceiveData(object? msg)
-    {
-        try
-        {
-            if (OnReceive != null && msg != null)
-            {
-                await OnReceive.Invoke(msg.ToString());
-            }
-        }
-        catch (Exception e)
-        {
-            if (OnError != null) await OnError.Invoke(e.Message);
-        }
-    }
+    public async Task<string?> GetData(bool withConfig = false) => await InvokeAsync<string?>("getData", Id, withConfig);
+
+    /// <summary>
+    /// 获取数据方法
+    /// </summary>
+    /// <param name="jsonData">思维导图结构数据 null 画布会显示空白</param>
+    /// <returns></returns>
+    public Task SetData(string jsonData) => InvokeVoidAsync("setData", Id, jsonData);
+
+    /// <summary>
+    /// 设置主题方法 
+    /// </summary>
+    /// <param name="theme"></param>
+    /// <returns></returns>
+    public Task SetTheme(EnumMindMapTheme theme) => Execute("setTheme", theme.ToString());
+
+    /// <summary>
+    /// 设置主题方法 
+    /// </summary>
+    /// <param name="layout"></param>
+    /// <returns></returns>
+    public Task SetLayout(EnumMindMapLayout layout) => Execute("setLayout", layout.ToString());
 }

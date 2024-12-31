@@ -2,7 +2,7 @@
 import MindMap from "./simpleMindMap.esm.min.js"
 import Data from '../BootstrapBlazor/modules/data.js'
 
-export async function init(id, data, options) {
+export async function init(id, invoke, data, options) {
     const el = document.getElementById(id);
     if (el === null) {
         return;
@@ -19,62 +19,57 @@ export async function init(id, data, options) {
         theme: options.theme,
         data: data
     });
-    Data.set(id, { el, mindMap });
+    Data.set(id, { el, invoke, mindMap });
 }
 
-export function dispose(id) {
-    Data.remove(id);
+export function execute(id, method, args) {
+    const mm = Data.get(id);
+    const { mindMap } = mm;
+    const fn = mindMap[method];
+    if (fn) {
+        fn.apply(mindMap, args);
+    }
 }
 
-export function saveAs(id, type = 'png', isDownload = true, fileName = 'temp', withConfig = true) {
-    var ret = mindMap.export(type, isDownload, fileName, withConfig)
-    if (!isDownload) instance.invokeMethodAsync('ReceiveData', ret);
+export function getData(id, withConfig = false) {
+    const mm = Data.get(id);
+    const { mindMap } = mm;
+    const data = mindMap.getData(withConfig);
+    return JSON.stringify(data);
 }
 
-export async function getData(instance, fullData = true) {
-    instance.invokeMethodAsync('ReceiveData', JSON.stringify(mindMap.getData(fullData)));
-}
-
-export function setData(jsondata) {
+export function setData(id, jsondata) {
+    const mm = Data.get(id);
+    const { mindMap } = mm;
 
     let data = JSON.parse(jsondata)
     if (data.root) {
         mindMap.setFullData(data)
-    } else {
+    }
+    else {
         mindMap.setData(data)
     }
     mindMap.view.reset()
 }
 
-export function reset() {
+export function exportAs(id, type = 'png', isDownload = true, fileName = 'temp', withConfig = true) {
+    const mm = Data.get(id);
+    const { mindMap } = mm;
+    return mindMap.export(type, isDownload, fileName, withConfig)
+}
+
+export function reset(id) {
+    const mm = Data.get(id);
+    const { mindMap } = mm;
     mindMap.view.reset()
 }
 
-export function setTheme(theme) {
-    if (optionsCache.theme == undefined || optionsCache.theme != theme) {
-        optionsCache.theme = theme;
-        mindMap.setTheme(theme);
-    }
+export function fit(id) {
+    const mm = Data.get(id);
+    const { mindMap } = mm;
+    mindMap.view.fit()
 }
 
-export function setLayout(layout) {
-    if (optionsCache.layout == undefined || optionsCache.layout != layout) {
-        optionsCache.layout = layout;
-        mindMap.setLayout(layout);
-    }
-}
-
-export function search(searchInputRef) {
-    mindMap.search.search(this.searchText, () => {
-        searchInputRef.focus()
-    })
-}
-
-export function replace(replaceAll = false) {
-    if (!replaceAll) {
-        mindMap.search.replace(this.replaceText, true)
-    }
-    else {
-        mindMap.search.replaceAll(this.replaceText)
-    }
+export function dispose(id) {
+    Data.remove(id);
 }
