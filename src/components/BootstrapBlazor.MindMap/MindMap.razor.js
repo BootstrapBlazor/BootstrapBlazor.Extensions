@@ -1,6 +1,11 @@
 ﻿import { addLink } from '../BootstrapBlazor/modules/utility.js'
 import MindMap from "./simpleMindMap.esm.min.js"
+import Themes from "./themes.esm.min.js"
 import Data from '../BootstrapBlazor/modules/data.js'
+
+if (window.BootstrapBlazor === void 0) {
+    window.BootstrapBlazor = {};
+}
 
 export async function init(id, invoke, data, options) {
     const el = document.getElementById(id);
@@ -9,16 +14,18 @@ export async function init(id, invoke, data, options) {
     }
     await addLink('./_content/BootstrapBlazor.MindMap/mindmap.css');
 
+    Themes.init(MindMap);
+
     options ??= {};
     options.el = el;
-    options.data = data;
-
-    const mindMap = new MindMap({
-        el: el,
-        layout: options.layout,
-        theme: options.theme,
-        data: data
-    });
+    const d = JSON.parse(data);
+    if (d.root === null) {
+        options.data = d;
+    }
+    const mindMap = new MindMap(options);
+    if (d.root) {
+        mindMap.setFullData(d)
+    }
 
     const observer = new ResizeObserver(e => {
         mindMap.resize();
@@ -27,10 +34,22 @@ export async function init(id, invoke, data, options) {
     Data.set(id, { el, invoke, mindMap, observer });
 }
 
+export function update(id, options) {
+    const mm = Data.get(id);
+    const { mindMap } = mm;
+    const { layout, theme } = options;
+    if (layout !== mindMap.opt.layout) {
+        mindMap.setLayout(layout);
+    }
+    if (theme !== mindMap.opt.theme) {
+        mindMap.setTheme(theme);
+    }
+}
+
 export function execute(id, method, args) {
     const mm = Data.get(id);
     const { mindMap } = mm;
-    const fn = mindMap[method];
+    const fn = BootstrapBlazor.MindMap?.callbacks[method] ?? mindMap[method];
     if (fn) {
         fn.apply(mindMap, args);
     }
@@ -73,6 +92,12 @@ export function fit(id) {
     const mm = Data.get(id);
     const { mindMap } = mm;
     mindMap.view.fit()
+}
+
+export function scale(id, scale, cx, cy) {
+    const mm = Data.get(id);
+    const { mindMap } = mm;
+    mindMap.view.setScale(scale, cx, cy)
 }
 
 export function dispose(id) {

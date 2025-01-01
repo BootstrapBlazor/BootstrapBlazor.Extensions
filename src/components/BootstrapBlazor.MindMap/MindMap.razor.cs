@@ -13,41 +13,50 @@ namespace BootstrapBlazor.Components;
 public partial class MindMap
 {
     /// <summary>
-    /// 获得/设置 收到数据回调方法
+    /// 获得/设置 组件布局类型 默认 LogicalStructure 逻辑结构图
     /// </summary>
     [Parameter]
-    public Func<string?, Task>? OnReceive { get; set; }
+    public EnumMindMapLayout Layout { get; set; } = EnumMindMapLayout.LogicalStructure;
 
     /// <summary>
-    /// 获得/设置 MindMap 选项 <see cref="MindMapOption"/> 实例
+    /// 获得/设置 组件主题 默认 DefaultTheme 主题
     /// </summary>
     [Parameter]
-    public MindMapOption? Options { get; set; }
+    public EnumMindMapTheme Theme { get; set; } = EnumMindMapTheme.Coffee;
 
     private string? ClassString => CssBuilder.Default("bb-mindmap")
         .AddClassFromAttributes(AdditionalAttributes)
         .Build();
 
     /// <summary>
-    /// 初始数据
+    /// 获得/设置 初始数据
     /// </summary>
     [Parameter]
-    public MindMapNode Data { get; set; } = new MindMapNode
-    {
-        Data = new NodeData
-        {
-            Text = "根节点",
-            Generalization = new Generalization
-            {
-                Text = "概要的内容"
-            },
-        }
-    };
+    public string? Data { get; set; }
 
     /// <summary>
     /// <inheritdoc/>
     /// </summary>
-    protected override Task InvokeInitAsync() => InvokeVoidAsync("init", Id, Interop, Data, Options);
+    /// <param name="firstRender"></param>
+    /// <returns></returns>
+    protected override async Task OnAfterRenderAsync(bool firstRender)
+    {
+        await base.OnAfterRenderAsync(firstRender);
+
+        if (firstRender)
+        {
+
+        }
+        else
+        {
+            await InvokeVoidAsync("update", Id, new { Layout, Theme });
+        }
+    }
+
+    /// <summary>
+    /// <inheritdoc/>
+    /// </summary>
+    protected override Task InvokeInitAsync() => InvokeVoidAsync("init", Id, Interop, Data, new { Layout, Theme });
 
     /// <summary>
     /// 执行指定不带返回值的 Javascript 方法
@@ -77,6 +86,11 @@ public partial class MindMap
     public Task Fit() => InvokeVoidAsync("fit", Id);
 
     /// <summary>
+    /// 缩放思维导图至适应画布
+    /// </summary>
+    public Task Scale(float rate) => InvokeVoidAsync("scale", Id, rate);
+
+    /// <summary>
     /// 获取数据方法
     /// </summary>
     /// <param name="withConfig">获取的数据只包括节点树，如果传 true 则会包含主题、布局、视图等数据 默认 false</param>
@@ -95,12 +109,12 @@ public partial class MindMap
     /// </summary>
     /// <param name="theme"></param>
     /// <returns></returns>
-    public Task SetTheme(EnumMindMapTheme theme) => Execute("setTheme", theme.ToString());
+    public Task SetTheme(EnumMindMapTheme theme) => Execute("setTheme", theme);
 
     /// <summary>
     /// 设置主题方法 
     /// </summary>
     /// <param name="layout"></param>
     /// <returns></returns>
-    public Task SetLayout(EnumMindMapLayout layout) => Execute("setLayout", layout.ToString());
+    public Task SetLayout(EnumMindMapLayout layout) => Execute("setLayout", layout);
 }
