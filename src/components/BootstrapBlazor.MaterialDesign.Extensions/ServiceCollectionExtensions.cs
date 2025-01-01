@@ -2,6 +2,10 @@
 // Licensed under the Apache License, Version 2.0. See License.txt in the project root for license information.
 // Website: https://www.blazor.zone or https://argozhang.github.io/
 
+#if NET8_0_OR_GREATER
+using System.Collections.Frozen;
+#endif
+
 using BootstrapBlazor.Components;
 
 namespace Microsoft.Extensions.DependencyInjection;
@@ -20,7 +24,11 @@ public static class IconMapperOptionsExtensions
         services.ConfigureIconThemeOptions(options =>
         {
             options.ThemeKey = "mdi";
+#if NET8_0_OR_GREATER
+            options.TryAddIcons("mdi", DefaultIcon.Icons.ToFrozenDictionary());
+#else
             options.Icons["mdi"] = DefaultIcon.Icons;
+#endif
         });
         return services;
     }
