@@ -86,6 +86,11 @@ public partial class MindMap
     public Task Fit() => InvokeVoidAsync("fit", Id);
 
     /// <summary>
+    /// 缩放思维导图至适应画布
+    /// </summary>
+    public Task Scale(float rate) => InvokeVoidAsync("scale", Id, rate);
+
+    /// <summary>
     /// 获取数据方法
     /// </summary>
     /// <param name="withConfig">获取的数据只包括节点树，如果传 true 则会包含主题、布局、视图等数据 默认 false</param>

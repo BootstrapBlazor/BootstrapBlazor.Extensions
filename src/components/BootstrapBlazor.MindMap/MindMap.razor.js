@@ -85,6 +85,12 @@ export function fit(id) {
     mindMap.view.fit()
 }
 
+export function scale(id, scale, cx, cy) {
+    const mm = Data.get(id);
+    const { mindMap } = mm;
+    mindMap.view.setScale(scale, cx, cy)
+}
+
 export function dispose(id) {
     const mm = Data.get(id);
     Data.remove(id);
