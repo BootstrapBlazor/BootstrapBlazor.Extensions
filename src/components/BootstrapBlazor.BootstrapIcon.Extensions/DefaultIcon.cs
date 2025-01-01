@@ -82,6 +82,8 @@ internal class DefaultIcon
 
         { ComponentIcons.ImageViewerFileIcon, "bi bi-file-image" },
 
+        { ComponentIcons.InputClearIcon, "bi bi-x-circle" },
+
         { ComponentIcons.InputNumberMinusIcon, "bi bi-dash-circle" },
         { ComponentIcons.InputNumberPlusIcon, "bi bi-plus-circle" },
 
@@ -219,5 +221,5 @@ internal class DefaultIcon
         { ComponentIcons.ThemeProviderLightModeIcon, "bi bi-sun-fill" },
         { ComponentIcons.ThemeProviderDarkModeIcon, "bi bi-moon-stars-fill" },
         { ComponentIcons.ThemeProviderActiveModeIcon, "bi bi-check2" }
-};
+    };
 }
