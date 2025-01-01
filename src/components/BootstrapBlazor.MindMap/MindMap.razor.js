@@ -3,6 +3,10 @@ import MindMap from "./simpleMindMap.esm.min.js"
 import Themes from "./themes.esm.min.js"
 import Data from '../BootstrapBlazor/modules/data.js'
 
+if (window.BootstrapBlazor === void 0) {
+    window.BootstrapBlazor = {};
+}
+
 export async function init(id, invoke, data, options) {
     const el = document.getElementById(id);
     if (el === null) {
@@ -14,9 +18,14 @@ export async function init(id, invoke, data, options) {
 
     options ??= {};
     options.el = el;
-    options.data = JSON.parse(data);
-
+    const d = JSON.parse(data);
+    if (d.root === null) {
+        options.data = d;
+    }
     const mindMap = new MindMap(options);
+    if (d.root) {
+        mindMap.setFullData(d)
+    }
 
     const observer = new ResizeObserver(e => {
         mindMap.resize();
@@ -40,7 +49,7 @@ export function update(id, options) {
 export function execute(id, method, args) {
     const mm = Data.get(id);
     const { mindMap } = mm;
-    const fn = mindMap[method];
+    const fn = BootstrapBlazor.MindMap?.callbacks[method] ?? mindMap[method];
     if (fn) {
         fn.apply(mindMap, args);
     }
