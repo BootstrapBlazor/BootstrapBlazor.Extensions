@@ -82,6 +82,8 @@ internal class DefaultIcon
 
         { ComponentIcons.ImageViewerFileIcon, "mdi mdi-file-image-outline" },
 
+        { ComponentIcons.InputClearIcon, "mdi mdi-close-circle-outline" },
+
         { ComponentIcons.InputNumberMinusIcon, "mdi mdi-minus-circle-outline" },
         { ComponentIcons.InputNumberPlusIcon, "mdi mdi-plus-circle-outline" },
 
