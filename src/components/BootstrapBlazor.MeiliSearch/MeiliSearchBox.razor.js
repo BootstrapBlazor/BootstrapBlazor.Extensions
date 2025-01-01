@@ -179,7 +179,7 @@ const doSearch = async (search, query, filter = null) => {
             apiKey: options.apiKey,
         });
         const index = client.index(options.index);
-        const result = await index.search(query, filter);
+        const result = await index.search(query, { limit: 50, offset: 0, ...filter });
         if (status) {
             updateStatus(search, result.estimatedTotalHits, result.processingTimeMs);
         }
@@ -217,7 +217,7 @@ const updateList = (search, result) => {
             const div = document.createElement('div');
             div.innerHTML = html.replace('{url}', hit.url)
                 .replace('{title}', highlight(hit.title, result.query))
-                .replace('{sub-title}', highlight(hit.subTitle, result.query))
+                .replace('{sub-title}', highlight(hit.introl, result.query))
                 .replace('{count}', hit.demos.length);
             const item = div.firstChild;
             item.setAttribute("id", `hit${hit.id}`);
