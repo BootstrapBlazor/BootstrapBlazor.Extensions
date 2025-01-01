@@ -1,5 +1,6 @@
 ﻿import { addLink } from '../BootstrapBlazor/modules/utility.js'
 import MindMap from "./simpleMindMap.esm.min.js"
+import Themes from "./themes.esm.min.js"
 import Data from '../BootstrapBlazor/modules/data.js'
 
 export async function init(id, invoke, data, options) {
@@ -8,6 +9,8 @@ export async function init(id, invoke, data, options) {
         return;
     }
     await addLink('./_content/BootstrapBlazor.MindMap/mindmap.css');
+
+    Themes.init(MindMap);
 
     options ??= {};
     options.el = el;
