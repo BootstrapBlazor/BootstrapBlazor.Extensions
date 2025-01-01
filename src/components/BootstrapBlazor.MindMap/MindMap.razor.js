@@ -11,20 +11,27 @@ export async function init(id, invoke, data, options) {
 
     options ??= {};
     options.el = el;
-    options.data = data;
+    options.data = JSON.parse(data);
 
-    const mindMap = new MindMap({
-        el: el,
-        layout: options.layout,
-        theme: options.theme,
-        data: data
-    });
+    const mindMap = new MindMap(options);
 
     const observer = new ResizeObserver(e => {
         mindMap.resize();
     });
     observer.observe(el);
     Data.set(id, { el, invoke, mindMap, observer });
+}
+
+export function update(id, options) {
+    const mm = Data.get(id);
+    const { mindMap } = mm;
+    const { layout, theme } = options;
+    if (layout !== mindMap.opt.layout) {
+        mindMap.setLayout(layout);
+    }
+    if (theme !== mindMap.opt.theme) {
+        mindMap.setTheme(theme);
+    }
 }
 
 export function execute(id, method, args) {
