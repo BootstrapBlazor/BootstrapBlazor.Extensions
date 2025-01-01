@@ -162,6 +162,8 @@ Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "BootstrapBlazor.Mermaid", "
 EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "BootstrapBlazor.MeiliSearch", "src\components\BootstrapBlazor.MeiliSearch\BootstrapBlazor.MeiliSearch.csproj", "{4B086A62-5F5A-47BC-921F-35803F26DD68}"
 EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "UniTestSvgIcon", "test\UniTestSvgIcon\UniTestSvgIcon.csproj", "{F965576B-A801-4473-85FE-E100125FDEF5}"
+EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
 		Debug|Any CPU = Debug|Any CPU
@@ -432,6 +434,10 @@ Global
 		{4B086A62-5F5A-47BC-921F-35803F26DD68}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{4B086A62-5F5A-47BC-921F-35803F26DD68}.Release|Any CPU.ActiveCfg = Release|Any CPU
 		{4B086A62-5F5A-47BC-921F-35803F26DD68}.Release|Any CPU.Build.0 = Release|Any CPU
+		{F965576B-A801-4473-85FE-E100125FDEF5}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{F965576B-A801-4473-85FE-E100125FDEF5}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{F965576B-A801-4473-85FE-E100125FDEF5}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{F965576B-A801-4473-85FE-E100125FDEF5}.Release|Any CPU.Build.0 = Release|Any CPU
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE
@@ -507,6 +513,7 @@ Global
 		{29E47F4A-CE03-42B5-BDAA-FB4B40D4C897} = {FF1089BE-C704-4374-B629-C57C08E1798F}
 		{DA2198E1-2CA9-EE53-926B-7950AB4B5EBF} = {FF1089BE-C704-4374-B629-C57C08E1798F}
 		{4B086A62-5F5A-47BC-921F-35803F26DD68} = {FF1089BE-C704-4374-B629-C57C08E1798F}
+		{F965576B-A801-4473-85FE-E100125FDEF5} = {B6A98ADE-D26A-4D0B-8978-AB7AC915F5AE}
 	EndGlobalSection
 	GlobalSection(ExtensibilityGlobals) = postSolution
 		SolutionGuid = {D5EB1960-6F30-4CE1-B375-EAE1F787D6FF}
