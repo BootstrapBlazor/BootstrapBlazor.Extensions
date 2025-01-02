@@ -6,14 +6,26 @@ namespace BootstrapBlazor.Components.Extensions;
 
 internal static class ITableColumnExtensions
 {
-    public static async Task<object?> FormatValue(this ITableColumn col, object? value, TableExportOptions options)
+    public static async Task<object?> FormatValue(this ITableColumn col, object? value, TableExportOptions options, ILookupService? lookupService)
     {
         var ret = value;
         if (ret != null)
         {
-            if (options.EnableLookup && col.Lookup != null)
+            if (options.EnableLookup)
             {
-                ret = col.Lookup.FirstOrDefault(i => i.Value.Equals(value?.ToString(), col.LookupStringComparison))?.Text;
+                IEnumerable<SelectedItem>? lookup = null;
+                if (lookupService != null)
+                {
+                    lookup = await col.GetItemsAsync(lookupService, col.LookupServiceKey, col.LookupServiceData);
+                }
+                else if (col.LookupService != null)
+                {
+                    lookup = await col.LookupService.GetItemsAsync(col.LookupServiceKey, col.LookupServiceData);
+                }
+                if (lookup != null)
+                {
+                    ret = lookup.FirstOrDefault(i => i.Value.Equals(value?.ToString(), col.LookupStringComparison))?.Text;
+                }
             }
             if (options.EnableFormat && col.Formatter != null)
             {
