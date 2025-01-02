@@ -76,7 +76,7 @@ export function setData(id, jsondata) {
     mindMap.view.reset()
 }
 
-export function exportAs(id, type = 'png', isDownload = true, fileName = 'temp', withConfig = true) {
+export function exportAs(id, type = 'png', isDownload = true, fileName = 'mindMap', withConfig = true) {
     const mm = Data.get(id);
     const { mindMap } = mm;
     return mindMap.export(type, isDownload, fileName, withConfig)
@@ -107,6 +107,6 @@ export function dispose(id) {
     const { observer } = mm;
     if (observer) {
         observer.disconnect();
-        observer = null;
+        delete mm.observer;
     }
 }

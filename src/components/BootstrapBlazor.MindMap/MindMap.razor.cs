@@ -66,9 +66,17 @@ public partial class MindMap
     public Task Execute(string methodName, params object?[]? args) => InvokeVoidAsync("execute", Id, methodName, args);
 
     /// <summary>
-    /// 下载为文件
+    /// 导出文件方法
+    /// <param name="type">导出文件类型 默认 png</param>
+    /// <param name="download">是否下载 默认 true</param>
+    /// <param name="fileName">导出文件名 默认 null 使用 "mindMapHHmmss" 格式</param>
+    /// <param name="withConfig">导出是否带配置信息 默认 true</param>
     /// </summary>
-    public Task Export(string type = "png", bool download = true, string fileName = "temp", bool withConfig = true) => InvokeVoidAsync("exportAs", Id, type, download, fileName, withConfig);
+    public Task Export(string type = "png", bool download = true, string? fileName = null, bool withConfig = true)
+    {
+        fileName ??= $"mindMap{DateTime.Now:HHmmss}";
+        return InvokeVoidAsync("exportAs", Id, type, download, fileName, withConfig);
+    }
 
     /// <summary>
     /// 容器尺寸变化后，需要调用该方法进行适应
