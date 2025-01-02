@@ -85,7 +85,7 @@ class ExportDataReader<TModel>(IEnumerable<TModel> items, IEnumerable<ITableColu
             v = Utility.GetPropertyValue(row, col.GetFieldName());
             if (v != null)
             {
-                var task = col.FormatValue(v, _options);
+                var task = col.FormatValue(v, _options, null);
                 if (task.Wait(1000))
                 {
                     v = task.Result;

@@ -87,6 +87,7 @@ class DefaultTableExport(IServiceProvider serviceProvider) : ITableExport
     {
         var ret = false;
         var logger = serviceProvider.GetRequiredService<ILogger<DefaultTableExport>>();
+        var lookupService = serviceProvider.GetRequiredService<ILookupService>();
 
         try
         {
@@ -96,7 +97,7 @@ class DefaultTableExport(IServiceProvider serviceProvider) : ITableExport
                 tags.AddRange(links);
             }
             var linkString = string.Join("", tags.Select(i => $"<link rel=\"stylesheet\" href=\"{i}\">"));
-            var html = await GenerateTableHtmlAsync(items, cols, options);
+            var html = await GenerateTableHtmlAsync(items, cols, options, lookupService);
             var htmlString = $"""
                 <!DOCTYPE html>
 
@@ -141,7 +142,7 @@ class DefaultTableExport(IServiceProvider serviceProvider) : ITableExport
         ];
     }
 
-    private static async Task<string> GenerateTableHtmlAsync<TModel>(IEnumerable<TModel> items, IEnumerable<ITableColumn>? cols, TableExportOptions options)
+    private static async Task<string> GenerateTableHtmlAsync<TModel>(IEnumerable<TModel> items, IEnumerable<ITableColumn>? cols, TableExportOptions options, ILookupService lookupService)
     {
         var builder = new StringBuilder();
         cols ??= Utility.GetTableColumns<TModel>();
@@ -163,7 +164,7 @@ class DefaultTableExport(IServiceProvider serviceProvider) : ITableExport
                 builder.AppendLine("<tr>");
                 foreach (var pi in cols)
                 {
-                    var val = await pi.FormatValue(Utility.GetPropertyValue(item, pi.GetFieldName()), options);
+                    var val = await pi.FormatValue(Utility.GetPropertyValue(item, pi.GetFieldName()), options, lookupService);
                     builder.AppendLine($"<td><div class=\"table-cell\">{val}</div></td>");
                 }
                 builder.AppendLine("</tr>");
