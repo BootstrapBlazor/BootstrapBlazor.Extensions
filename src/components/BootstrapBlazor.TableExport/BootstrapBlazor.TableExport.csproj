@@ -10,7 +10,7 @@
   </PropertyGroup>
 
   <ItemGroup>
-    <PackageReference Include="BootstrapBlazor" Version="9.2.1" />
+    <PackageReference Include="BootstrapBlazor" Version="9.2.3" />
     <PackageReference Include="MiniExcel" Version="1.36.0" />
   </ItemGroup>
 
