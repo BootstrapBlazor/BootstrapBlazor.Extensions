@@ -11,7 +11,7 @@ internal static class ITableColumnExtensions
         var ret = value;
         if (ret != null)
         {
-            if (options.EnableLookup)
+            if (options.EnableLookup && col.IsLookup())
             {
                 IEnumerable<SelectedItem>? lookup = null;
                 if (lookupService != null)
