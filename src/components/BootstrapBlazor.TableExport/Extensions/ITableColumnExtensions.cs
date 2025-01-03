@@ -6,7 +6,7 @@ namespace BootstrapBlazor.Components.Extensions;
 
 internal static class ITableColumnExtensions
 {
-    public static async Task<object?> FormatValue(this ITableColumn col, object? value, TableExportOptions options, ILookupService? lookupService)
+    public static async Task<object?> FormatValueAsync(this ITableColumn col, object? value, TableExportOptions options, ILookupService? lookupService)
     {
         var ret = value;
         if (ret != null)

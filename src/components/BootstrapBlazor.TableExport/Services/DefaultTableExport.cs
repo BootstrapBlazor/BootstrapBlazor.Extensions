@@ -164,7 +164,7 @@ class DefaultTableExport(IServiceProvider serviceProvider) : ITableExport
                 builder.AppendLine("<tr>");
                 foreach (var pi in cols)
                 {
-                    var val = await pi.FormatValue(Utility.GetPropertyValue(item, pi.GetFieldName()), options, lookupService);
+                    var val = await pi.FormatValueAsync(Utility.GetPropertyValue(item, pi.GetFieldName()), options, lookupService);
                     builder.AppendLine($"<td><div class=\"table-cell\">{val}</div></td>");
                 }
                 builder.AppendLine("</tr>");
