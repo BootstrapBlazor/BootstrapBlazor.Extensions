@@ -82,11 +82,6 @@ public partial class Markdown : IAsyncDisposable
     private MarkdownOption Option { get; } = new();
 
     /// <summary>
-    /// 获得/设置 DOM 元素实例
-    /// </summary>
-    private ElementReference Element { get; set; }
-
-    /// <summary>
     /// 获得 组件样式
     /// </summary>
     protected string? GetClassString() => CssBuilder.Default()
@@ -116,7 +111,7 @@ public partial class Markdown : IAsyncDisposable
     /// <inheritdoc/>
     /// </summary>
     /// <returns></returns>
-    protected override Task InvokeInitAsync() => InvokeVoidAsync("init", Element, Interop, Option, nameof(Update));
+    protected override Task InvokeInitAsync() => InvokeVoidAsync("init", Id, Interop, Option, nameof(Update));
 
     /// <summary>
     /// 更新组件值方法
@@ -154,7 +149,7 @@ public partial class Markdown : IAsyncDisposable
     public new async Task SetValue(string value)
     {
         CurrentValueAsString = value;
-        await InvokeVoidAsync("update", Element, Value);
+        await InvokeVoidAsync("update", Id, Value);
     }
 
     /// <summary>
@@ -163,5 +158,5 @@ public partial class Markdown : IAsyncDisposable
     /// <param name="method"></param>
     /// <param name="parameters"></param>
     /// <returns></returns>
-    public Task DoMethodAsync(string method, params object[] parameters) => InvokeVoidAsync("invoke", Element, method, parameters);
+    public Task DoMethodAsync(string method, params object[] parameters) => InvokeVoidAsync("invoke", Id, method, parameters);
 }
