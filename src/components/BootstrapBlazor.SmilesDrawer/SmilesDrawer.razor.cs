@@ -26,6 +26,24 @@ public partial class SmilesDrawer
     public bool CompactDrawing { get; set; }
 
     /// <summary>
+    /// 键的线粗细，默认值 0.6
+    /// </summary>
+    [Parameter]
+    public float BondThickness { get; set; } = 0.6f;
+
+    /// <summary>
+    /// 键的平行线间距，默认值 2.7
+    /// </summary>
+    [Parameter]
+    public float BondSpacing { get; set; } = 2.7f;
+
+    /// <summary>
+    /// 是否显示末端碳 (CH3)，默认为 false 不显示
+    /// </summary>
+    [Parameter]
+    public bool TerminalCarbons { get; set; }
+
+    /// <summary>
     /// 获得/设置 分子图宽度单位 px
     /// </summary>
     [Parameter]
@@ -72,11 +90,17 @@ public partial class SmilesDrawer
     /// <returns></returns>
     protected override Task InvokeInitAsync() => InvokeVoidAsync("init", Id, GetOptions());
 
-    private object GetOptions() => new { SmilesValue, CompactDrawing, Width, Height, Theme };
+    private object GetOptions() => new { SmilesValue, CompactDrawing, BondThickness, BondSpacing, TerminalCarbons, Width, Height, Theme };
 
     private string? _lastSmilesValue;
 
     private bool _lastCompactDrawing;
+
+    private float _lastBondThickness;
+
+    private float _lastBondSpacing;
+
+    private bool _lastTerminalCarbons;
 
     private float? _lastWidth;
 
@@ -88,6 +112,9 @@ public partial class SmilesDrawer
     {
         _lastSmilesValue = SmilesValue;
         _lastCompactDrawing = CompactDrawing;
+        _lastBondThickness = BondThickness;
+        _lastBondSpacing = BondSpacing;
+        _lastTerminalCarbons = TerminalCarbons;
         _lastWidth = Width;
         _lastHeight = Height;
         _lastTheme = Theme;
@@ -104,6 +131,21 @@ public partial class SmilesDrawer
         else if (_lastCompactDrawing != CompactDrawing)
         {
             _lastCompactDrawing = CompactDrawing;
+            changed = true;
+        }
+        else if (_lastBondThickness != BondThickness)
+        {
+            _lastBondThickness = BondThickness;
+            changed = true;
+        }
+        else if (_lastBondSpacing != BondSpacing)
+        {
+            _lastBondSpacing = BondSpacing;
+            changed = true;
+        }
+        else if (_lastTerminalCarbons != TerminalCarbons)
+        {
+            _lastTerminalCarbons = TerminalCarbons;
             changed = true;
         }
         else if (_lastWidth != Width)
