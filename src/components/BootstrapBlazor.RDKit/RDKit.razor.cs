@@ -16,6 +16,12 @@ public partial class RDKit
     [NotNull]
     public string? Value { get; set; }
 
+    /// <summary>
+    /// 获得/设置 Smarts 值
+    /// </summary>
+    [Parameter]
+    public string? Smarts { get; set; }
+
     private string? ClassString => CssBuilder.Default("bb-rdk")
         .AddClassFromAttributes(AdditionalAttributes)
         .Build();
@@ -46,5 +52,5 @@ public partial class RDKit
     /// <inheritdoc/>
     /// </summary>
     /// <returns></returns>
-    protected override Task InvokeInitAsync() => InvokeVoidAsync("init", Id, Value);
+    protected override Task InvokeInitAsync() => InvokeVoidAsync("init", Id, new { Smiles = Value, Smarts });
 }
