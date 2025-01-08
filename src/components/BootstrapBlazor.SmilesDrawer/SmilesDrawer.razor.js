@@ -1,10 +1,6 @@
 ﻿import { addScript } from "../BootstrapBlazor/modules/utility.js"
 import Data from "../BootstrapBlazor/modules/data.js"
 
-if (window.BootstrapBlazor === void 0) {
-    window.BootstrapBlazor = {};
-}
-
 export async function init(id, options) {
     const el = document.getElementById(id);
     if (el === null) {
@@ -12,8 +8,6 @@ export async function init(id, options) {
     }
 
     await addScript("./_content/BootstrapBlazor.SmilesDrawer/smiles-drawer.min.js");
-
-    //修改option之后需要new一个新的smilesDrawer对象，所以init中不单独做该对象的new和全局
 
     Data.set(id, { el });
 
@@ -25,15 +19,17 @@ export function update(id, options) {
 }
 
 const draw = (id, options) => {
-    const { smilesValue, needReLoadOptions, compactDrawing } = options;
-    const opt = { compactDrawing: compactDrawing };
-    if (BootstrapBlazor.SmilesDrawer === void 0 || needReLoadOptions) {
-        BootstrapBlazor.SmilesDrawer = new SmilesDrawer.Drawer(opt);
-    }
     SmilesDrawer.parse(
-        smilesValue,
-        function(tree) {
-            BootstrapBlazor.SmilesDrawer.draw(tree, id, 'light', false);
+        options.smilesValue,
+        function (tree) {
+            delete options.smilesValue;
+            for (let key in options) {
+                if (options[key] === null) {
+                    delete options[key];
+                }
+            }
+            const drawer = new SmilesDrawer.Drawer(options);
+            drawer.draw(tree, id, 'light', false);
             console.log(tree);
         },
         function (err) {

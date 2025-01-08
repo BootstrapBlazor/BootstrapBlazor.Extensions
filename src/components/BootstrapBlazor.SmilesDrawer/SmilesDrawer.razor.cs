@@ -1,4 +1,8 @@
-﻿using Microsoft.AspNetCore.Components;
+﻿// Copyright (c) Argo Zhang (argo@163.com). All rights reserved.
+// Licensed under the Apache License, Version 2.0. See License.txt in the project root for license information.
+// Website: https://www.blazor.zone or https://argozhang.github.io/
+
+using Microsoft.AspNetCore.Components;
 
 namespace BootstrapBlazor.Components;
 
@@ -16,10 +20,28 @@ public partial class SmilesDrawer
     public string? SmilesValue { get; set; }
 
     /// <summary>
-    /// 是否开启紧凑绘图，默认为false不开启
+    /// 是否开启紧凑绘图，默认为 false 不开启
     /// </summary>
     [Parameter]
     public bool CompactDrawing { get; set; }
+
+    /// <summary>
+    /// 获得/设置 分子图宽度单位 px
+    /// </summary>
+    [Parameter]
+    public float? Width { get; set; }
+
+    /// <summary>
+    /// 获得/设置 分子图高度单位 px
+    /// </summary>
+    [Parameter]
+    public float? Height { get; set; }
+
+    /// <summary>
+    /// 获得/设置 主题 默认 null 使用 light 主题
+    /// </summary>
+    [Parameter]
+    public string? Theme { get; set; }
 
     private string? ClassString => CssBuilder.Default("bb-smiles-drawer")
         .AddClassFromAttributes(AdditionalAttributes)
@@ -50,18 +72,25 @@ public partial class SmilesDrawer
     /// <returns></returns>
     protected override Task InvokeInitAsync() => InvokeVoidAsync("init", Id, GetOptions());
 
-    private object GetOptions() => new { SmilesValue, NeedReLoadOptions, CompactDrawing };
+    private object GetOptions() => new { SmilesValue, CompactDrawing, Width, Height, Theme };
 
     private string? _lastSmilesValue;
 
     private bool _lastCompactDrawing;
 
-    private bool NeedReLoadOptions { get; set; }
+    private float? _lastWidth;
+
+    private float? _lastHeight;
+
+    private string? _lastTheme;
 
     private void StoreParameters()
     {
         _lastSmilesValue = SmilesValue;
         _lastCompactDrawing = CompactDrawing;
+        _lastWidth = Width;
+        _lastHeight = Height;
+        _lastTheme = Theme;
     }
 
     private bool ValidateParameters()
@@ -77,9 +106,21 @@ public partial class SmilesDrawer
             _lastCompactDrawing = CompactDrawing;
             changed = true;
         }
-        NeedReLoadOptions = changed;
+        else if (_lastWidth != Width)
+        {
+            _lastWidth = Width;
+            changed = true;
+        }
+        else if (_lastHeight != Height)
+        {
+            _lastHeight = Height;
+            changed = true;
+        }
+        else if (_lastTheme != Theme)
+        {
+            _lastTheme = Theme;
+            changed = true;
+        }
         return changed;
     }
-
 }
-
