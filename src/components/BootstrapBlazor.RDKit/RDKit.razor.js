@@ -30,16 +30,38 @@ export function update(id, options) {
 
 const draw = (el, options) => {
     const { RDKit } = BootstrapBlazor;
-    const { smiles, smarts } = options;
+    const { smiles, smarts, height, width } = options;
     if (smiles) {
         const mol = RDKit.get_mol(smiles);
         if (smarts) {
             const qmol = RDKit.get_qmol(smarts);
-            const mdetails = mol.get_substruct_match(qmol);
+            let mdetails = mol.get_substruct_match(qmol);
+            mdetails = appendSize(mdetails, width, height);
             el.innerHTML = mol.get_svg_with_highlights(mdetails);
         }
         else {
-            el.innerHTML = mol.get_svg();
+            el.innerHTML = getSvg(mol, width, height);
         }
+    }
+}
+
+const appendSize = (details, width, height) => {
+    if (width && height) {
+        const detail = JSON.parse(details);
+        detail.width = width;
+        detail.height = height;
+        return JSON.stringify(detail);
+    }
+    else {
+        return details;
+    }
+}
+
+const getSvg = (mol, width, height) => {
+    if (width && height) {
+        return mol.get_svg(width, height);
+    }
+    else {
+        return mol.get_svg();
     }
 }
