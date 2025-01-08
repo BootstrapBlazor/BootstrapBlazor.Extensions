@@ -5,7 +5,7 @@ if (window.BootstrapBlazor === void 0) {
     window.BootstrapBlazor = {};
 }
 
-export async function init(id, value = "") {
+export async function init(id, options) {
     const el = document.getElementById(id);
     if (el === null) {
         return;
@@ -14,13 +14,21 @@ export async function init(id, value = "") {
     await addScript("./_content/BootstrapBlazor.RDKit/RDKit_minimal.js");
 
     if (BootstrapBlazor.RDKit === void 0) {
-        const kit = await initRDKitModule();
-        BootstrapBlazor.RDKit = kit;
+        BootstrapBlazor.RDKit = await initRDKitModule();
     }
 
-    if (value !== "") {
-        const mol = BootstrapBlazor.RDKit.get_mol(value);
-        el.innerHTML = mol.get_svg();
+    const { RDKit } = BootstrapBlazor;
+    const { smiles, smarts } = options;
+    if (smiles) {
+        const mol = RDKit.get_mol(smiles);
+        if (smarts) {
+            const qmol = RDKit.get_qmol(smarts);
+            const mdetails = mol.get_substruct_match(qmol);
+            el.innerHTML = mol.get_svg_with_highlights(mdetails);
+        }
+        else {
+            el.innerHTML = mol.get_svg();
+        }
     }
 
     Data.set(id, { el });
