@@ -25,13 +25,21 @@ public partial class RDKit
     [Parameter]
     public string? Smarts { get; set; }
 
+    /// <summary>
+    /// 获得/设置 分子图宽度单位 px
+    /// </summary>
+    [Parameter]
+    public float? Width { get; set; }
+
+    /// <summary>
+    /// 获得/设置 分子图高度单位 px
+    /// </summary>
+    [Parameter]
+    public float? Height { get; set; }
+
     private string? ClassString => CssBuilder.Default("bb-rdk")
         .AddClassFromAttributes(AdditionalAttributes)
         .Build();
-
-    private string? _lastValue;
-
-    private string? _lastSmarts;
 
     /// <summary>
     /// <inheritdoc/>
@@ -44,8 +52,7 @@ public partial class RDKit
 
         if (firstRender)
         {
-            _lastValue = Value;
-            _lastSmarts = Smarts;
+            StoreParameters();
         }
         else if (ValidateParameters())
         {
@@ -61,6 +68,23 @@ public partial class RDKit
 
     private object GetOptions() => new { Smiles = Value, Smarts };
 
+
+    private string? _lastValue;
+
+    private string? _lastSmarts;
+
+    private float? _lastWidth;
+
+    private float? _lastHeight;
+
+    private void StoreParameters()
+    {
+        _lastValue = Value;
+        _lastSmarts = Smarts;
+        _lastWidth = Width;
+        _lastHeight = Height;
+    }
+
     private bool ValidateParameters()
     {
         var changed = false;
@@ -72,6 +96,16 @@ public partial class RDKit
         else if (_lastSmarts != Smarts)
         {
             _lastSmarts = Smarts;
+            changed = true;
+        }
+        else if (_lastWidth != Width)
+        {
+            _lastWidth = Width;
+            changed = true;
+        }
+        else if (_lastHeight != Height)
+        {
+            _lastHeight = Height;
             changed = true;
         }
         return changed;
