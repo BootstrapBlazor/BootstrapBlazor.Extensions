@@ -16,7 +16,19 @@ export async function init(id, options) {
     if (BootstrapBlazor.RDKit === void 0) {
         BootstrapBlazor.RDKit = await initRDKitModule();
     }
+    Data.set(id, { el });
 
+    draw(el, options);
+}
+
+export function update(id, options) {
+    const instance = Data.get(id);
+    const { el } = instance;
+
+    draw(el, options);
+}
+
+const draw = (el, options) => {
     const { RDKit } = BootstrapBlazor;
     const { smiles, smarts } = options;
     if (smiles) {
@@ -30,9 +42,4 @@ export async function init(id, options) {
             el.innerHTML = mol.get_svg();
         }
     }
-
-    Data.set(id, { el });
-}
-
-export function update(id, value) {
 }

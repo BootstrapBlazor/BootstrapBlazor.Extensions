@@ -1,4 +1,7 @@
-﻿
+﻿// Copyright (c) Argo Zhang (argo@163.com). All rights reserved.
+// Licensed under the Apache License, Version 2.0. See License.txt in the project root for license information.
+// Website: https://www.blazor.zone or https://argozhang.github.io/
+
 using Microsoft.AspNetCore.Components;
 
 namespace BootstrapBlazor.Components;
@@ -28,6 +31,8 @@ public partial class RDKit
 
     private string? _lastValue;
 
+    private string? _lastSmarts;
+
     /// <summary>
     /// <inheritdoc/>
     /// </summary>
@@ -40,11 +45,11 @@ public partial class RDKit
         if (firstRender)
         {
             _lastValue = Value;
+            _lastSmarts = Smarts;
         }
-        else if (_lastValue != Value)
+        else if (ValidateParameters())
         {
-            _lastValue = Value;
-            await InvokeVoidAsync("update", Id, Value);
+            await InvokeVoidAsync("update", Id, GetOptions());
         }
     }
 
@@ -52,5 +57,23 @@ public partial class RDKit
     /// <inheritdoc/>
     /// </summary>
     /// <returns></returns>
-    protected override Task InvokeInitAsync() => InvokeVoidAsync("init", Id, new { Smiles = Value, Smarts });
+    protected override Task InvokeInitAsync() => InvokeVoidAsync("init", Id, GetOptions());
+
+    private object GetOptions() => new { Smiles = Value, Smarts };
+
+    private bool ValidateParameters()
+    {
+        var changed = false;
+        if (_lastValue != Value)
+        {
+            _lastValue = Value;
+            changed = true;
+        }
+        else if (_lastSmarts != Smarts)
+        {
+            _lastSmarts = Smarts;
+            changed = true;
+        }
+        return changed;
+    }
 }
