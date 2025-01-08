@@ -66,7 +66,7 @@ public partial class RDKit
     /// <returns></returns>
     protected override Task InvokeInitAsync() => InvokeVoidAsync("init", Id, GetOptions());
 
-    private object GetOptions() => new { Smiles = Value, Smarts };
+    private object GetOptions() => new { Smiles = Value, Smarts, Height, Width };
 
 
     private string? _lastValue;
