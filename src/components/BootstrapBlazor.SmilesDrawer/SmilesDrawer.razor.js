@@ -1,6 +1,6 @@
 ﻿import { addScript } from "../BootstrapBlazor/modules/utility.js"
 
-export async function init(id, options) {
+export async function init(id, smiles, options) {
     const el = document.getElementById(id);
     if (el === null) {
         return;
@@ -8,28 +8,22 @@ export async function init(id, options) {
 
     await addScript("./_content/BootstrapBlazor.SmilesDrawer/smiles-drawer.min.js");
 
-    draw(id, options);
+    draw(id, smiles, options);
 }
 
-export function update(id, options) {
-    draw(id, options);
+export function update(id, smiles, options) {
+    draw(id, smiles, options);
 }
 
-const draw = (id, options) => {
-    const smiles = options.smilesValue;
-    delete options.smilesValue;
-
+const draw = (id, smiles, options) => {
     SmilesDrawer.parse(
         smiles,
         function (tree) {
+            if (options === null) {
+                options = { theme: 'light' };
+            }
             const theme = options.theme ?? 'light';
             delete options.theme;
-
-            for (let key in options) {
-                if (options[key] === null) {
-                    delete options[key];
-                }
-            }
 
             const drawer = new SmilesDrawer.Drawer(options);
             drawer.draw(tree, id, theme, false);
