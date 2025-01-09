@@ -17,7 +17,7 @@ public partial class RDKit
     [Parameter]
     [EditorRequired]
     [NotNull]
-    public string? Value { get; set; }
+    public string? Smiles { get; set; }
 
     /// <summary>
     /// 获得/设置 Smarts 值
@@ -66,10 +66,10 @@ public partial class RDKit
     /// <returns></returns>
     protected override Task InvokeInitAsync() => InvokeVoidAsync("init", Id, GetOptions());
 
-    private object GetOptions() => new { Smiles = Value, Smarts, Height, Width };
+    private object GetOptions() => new { Smiles, Smarts, Height, Width };
 
 
-    private string? _lastValue;
+    private string? _lastSmiles;
 
     private string? _lastSmarts;
 
@@ -79,7 +79,7 @@ public partial class RDKit
 
     private void StoreParameters()
     {
-        _lastValue = Value;
+        _lastSmiles = Smiles;
         _lastSmarts = Smarts;
         _lastWidth = Width;
         _lastHeight = Height;
@@ -88,9 +88,9 @@ public partial class RDKit
     private bool ValidateParameters()
     {
         var changed = false;
-        if (_lastValue != Value)
+        if (_lastSmiles != Smiles)
         {
-            _lastValue = Value;
+            _lastSmiles = Smiles;
             changed = true;
         }
         else if (_lastSmarts != Smarts)
