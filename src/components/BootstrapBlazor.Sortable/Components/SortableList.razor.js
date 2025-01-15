@@ -1,4 +1,4 @@
-﻿import Sortable from '../sortable.esm.js'
+﻿import { Sortable, MultiDrag, Swap } from '../sortable.esm.js'
 import Data from '../../BootstrapBlazor/modules/data.js'
 
 export function init(id, invoke, options, triggerUpdate, triggerRemove, triggerAdd) {
@@ -11,6 +11,14 @@ export function init(id, invoke, options, triggerUpdate, triggerRemove, triggerA
     op.triggerUpdate = triggerUpdate;
     op.triggerRemove = triggerRemove;
     op.triggerAdd = triggerAdd;
+
+    if (op.multiDrag) {
+        Sortable.mount(new MultiDrag());
+    }
+
+    if (op.swap) {
+        Sortable.mount(new Swap());
+    }
 
     let element = el;
     if (op.rootSelector) {
@@ -97,8 +105,6 @@ const initSortable = (id, element, invoke, op) => {
 
     if (op.triggerAdd) {
         op.onAdd = event => {
-            console.log('onAdd', event);
-
             var closestParent = event.from.closest('.bb-sortable');
             if (closestParent) {
                 const items = [];
