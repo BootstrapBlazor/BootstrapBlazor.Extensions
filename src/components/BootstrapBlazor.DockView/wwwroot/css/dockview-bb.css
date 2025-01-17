@@ -48,6 +48,7 @@
     .bb-dockview .bb-dockview-panel {
         height: 100%;
         width: 100%;
+        overflow: auto;
     }
 
     .bb-dockview .groupview > .content-container, .dv-render-overlay {
@@ -169,8 +170,7 @@
         .bb-dockview .tabs-and-actions-container:has(.bb-show-pin):has(.right-actions-container:not(.bb-pin)) + .content-container .bb-dockview .bb-dockview-control-icon-pin > svg > *,
         .bb-dockview .tabs-and-actions-container:has(.bb-show-pin):has(.right-actions-container:not(.bb-pin)) + .content-container .bb-dockview .bb-dockview-control-icon-float > svg > *,
         .bb-dockview .tabs-and-actions-container:has(.bb-show-float.bb-float) + .content-container .bb-dockview .bb-dockview-control-icon-pin > svg > *,
-        .bb-dockview .tabs-and-actions-container:has(.bb-show-float.bb-float) + .content-container .bb-dockview .bb-dockview-control-icon-float > svg > * 
-        {
+        .bb-dockview .tabs-and-actions-container:has(.bb-show-float.bb-float) + .content-container .bb-dockview .bb-dockview-control-icon-float > svg > * {
             stroke: var(--bb-dockview-control-icon-lock-color);
         }
 
