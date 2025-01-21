@@ -1,12 +1,13 @@
-﻿// ********************************** 
-// Densen Informatica 中讯科技 
-// 作者：Alex Chow
-// e-mail:zhouchuanglin@gmail.com 
-// **********************************
+﻿// Copyright (c) Argo Zhang (argo@163.com). All rights reserved.
+// Licensed under the Apache License, Version 2.0. See License.txt in the project root for license information.
+// Website: https://www.blazor.zone or https://argozhang.github.io/
 
 using BootstrapBlazor.ImageHelper;
 using Microsoft.AspNetCore.Components;
 using Microsoft.JSInterop;
+using System;
+using System.Diagnostics.CodeAnalysis;
+using System.Text;
 
 namespace BootstrapBlazor.Components;
 
@@ -43,6 +44,12 @@ public partial class ImageHelper : IAsyncDisposable
     [Parameter]
     public Func<string, Task>? OnError { get; set; }
 
+    /// <summary>
+    /// 检测到人脸回调方法/  face detection callback method
+    /// </summary>
+    [Parameter]
+    public Func<string, Task>? OnFaceDetection { get; set; }
+
     private bool IsOpenCVReady { get; set; }
     private string Status => IsOpenCVReady ? "初始化完成" : "正在初始化...";
     private string? Message { get; set; }
@@ -58,41 +65,62 @@ public partial class ImageHelper : IAsyncDisposable
     [Parameter]
     public ImageHelperOption Options { get; set; } = new();
 
+    private ImageHelperOption? optionsCache;
+
     [Parameter]
     public RenderFragment? ChildContent { get; set; }
+
+    /// <summary>
+    /// 单一功能
+    /// </summary>
+    [Parameter]
+    public bool SingleFunction { get; set; }
 
     protected override async Task OnAfterRenderAsync(bool firstRender)
     {
         try
         {
-            if (!firstRender) return;
+            if (!firstRender)
+            {
+                return;
+            }
+
             Storage ??= new StorageService(JSRuntime);
             Module = await JSRuntime.InvokeAsync<IJSObjectReference>("import", "./_content/BootstrapBlazor.ImageHelper/ImageHelper.razor.js" + "?v=" + System.Reflection.Assembly.GetExecutingAssembly().GetName().Version);
             Instance = DotNetObjectReference.Create(this);
             try
             {
                 if (Options.SaveDeviceID)
+                {
                     Options.DeviceID = await Storage.GetValue("CamsDeviceID", Options.DeviceID);
+                }
             }
             catch (Exception)
             {
             }
             await Init();
-            FirstRender = false; 
+            FirstRender = false;
 
         }
         catch (Exception e)
         {
             Message = e.Message;
             StateHasChanged();
-            if (OnError != null) await OnError.Invoke(e.Message);
+            if (OnError != null)
+            {
+                await OnError.Invoke(e.Message);
+            }
         }
 
     }
 
     protected override async Task OnParametersSetAsync()
     {
-        if (FirstRender) return;
+        if (FirstRender || optionsCache == Options)
+        {
+            return;
+        }
+
         await Apply();
     }
 
@@ -102,13 +130,30 @@ public partial class ImageHelper : IAsyncDisposable
         IsOpenCVReady = true;
         StateHasChanged();
         if (OnResult != null)
+        {
             await OnResult.Invoke(Status);
+        }
     }
 
     [JSInvokable]
     public async Task GetError(string err)
     {
-        if (OnError != null) await OnError.Invoke(err);
+        if (OnError != null)
+        {
+            await OnError.Invoke(err);
+        }
+        try
+        {
+            if (!string.IsNullOrEmpty(Options.DeviceID))
+            {
+                Options.DeviceID = null;
+                await Storage.RemoveValue("CamsDeviceID");
+                await Apply();
+            }
+        }
+        catch
+        {
+        }
     }
 
     /// <summary>
@@ -118,13 +163,17 @@ public partial class ImageHelper : IAsyncDisposable
     public async Task<bool> Init(ImageHelperOption? options = null)
     {
         if (options != null)
+        {
             Options = options;
+        }
 
         try
         {
             await Module!.InvokeVoidAsync("init", Instance, Element, Options);
             if (OnResult != null)
+            {
                 await OnResult.Invoke(Status);
+            }
         }
         catch (Exception ex)
         {
@@ -135,26 +184,55 @@ public partial class ImageHelper : IAsyncDisposable
         return IsOpenCVReady;
     }
 
-    private async Task OnChanged(SelectedItem item)
+    public virtual async Task OnChanged(SelectedItem item)
     {
         await Apply();
     }
 
-    public virtual async Task Apply(EnumImageHelperFunc func)
+    public virtual async Task<string?> Apply(EnumImageHelperFunc func)
     {
         Options.Type = func;
-        await Apply();
+        return await Apply();
     }
 
-    public virtual async Task Apply()
+    public virtual async Task<string?> TakeFace()
     {
-        if (FirstRender || Options.Type == EnumImageHelperFunc.None) return;
+        Options.Type = EnumImageHelperFunc.FaceDetection1st;
+        return await Apply(true);
+    }
+
+    public virtual async Task Stop()
+    {
+        await Module!.InvokeVoidAsync("stop");
+    }
+
+    public virtual async Task<string?> Apply(bool callback = false)
+    {
+        if (!callback && (FirstRender || Options.Type == EnumImageHelperFunc.None))
+        {
+            return null;
+        }
+
         Message = string.Empty;
+        optionsCache = Options;
         try
         {
+            Options.EnableFaceDetectionCallBack = !callback && OnFaceDetection != null;
             var func = Options.Type.ToString().Substring(0, 1).ToLower() + Options.Type.ToString().Substring(1);
             //StateHasChanged();
-            await Module!.InvokeVoidAsync(func, Instance, Element, Options);
+            var res = await Module!.InvokeAsync<bool?>(func, Instance, Element, Options);
+            if (callback)
+            {
+                if (res==true)
+                {
+                    var dataReference = await Module!.InvokeAsync<IJSStreamReference>("streamToDotNet");
+                    using var dataReferenceStream = await dataReference.OpenReadStreamAsync(maxAllowedSize: 10_000_000);
+                    using var memoryStream = new MemoryStream();
+                    await dataReferenceStream.CopyToAsync(memoryStream);
+                    var res1 = Encoding.UTF8.GetString(memoryStream.GetBuffer());
+                    return res1;
+                }
+            }
         }
         catch (Exception ex)
         {
@@ -162,7 +240,8 @@ public partial class ImageHelper : IAsyncDisposable
             StateHasChanged();
             System.Console.WriteLine(ex.Message);
         }
-    } 
+        return null;
+    }
 
     [JSInvokable]
     public async Task GetResult(string msg)
@@ -171,7 +250,41 @@ public partial class ImageHelper : IAsyncDisposable
         StateHasChanged();
         System.Console.WriteLine(msg);
         if (OnResult != null)
+        {
             await OnResult.Invoke(msg);
+        }
+    }
+
+    private bool isBusy;
+
+    [JSInvokable()]
+    public async Task GetFace()
+    {
+        if (OnFaceDetection != null)
+        {
+            if (isBusy)
+            {
+                Message = "忙碌中...";
+                StateHasChanged();
+                return;
+            }
+            isBusy = true;
+            _ = Task.Run(async () =>
+            {
+                await Task.Delay(TimeSpan.FromSeconds(2));
+                isBusy = false;
+            });
+
+            var dataReference = await Module!.InvokeAsync<IJSStreamReference>("streamToDotNet");
+            using var dataReferenceStream = await dataReference.OpenReadStreamAsync(maxAllowedSize: 10_000_000);
+            using var memoryStream = new MemoryStream();
+            await dataReferenceStream.CopyToAsync(memoryStream);
+            var res1 = Encoding.UTF8.GetString(memoryStream.GetBuffer());
+
+            await OnFaceDetection.Invoke(res1);
+            isBusy = false;
+
+        }
     }
 
     /// <summary>

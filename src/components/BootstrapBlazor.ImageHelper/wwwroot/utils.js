@@ -152,7 +152,8 @@ export function Utils(instance, element, options) { // eslint-disable-line no-un
         }
     };
 
-    this.startCamera = function (resolution, callback, videoId, selectedDeviceId, changeCameraCallback) {
+    this.startCamera = function (resolution, callback, videoId, selectedDeviceId, changeCameraCallback, onErrorCallback) {
+        self.printError(null);
         self.selectedDeviceId = selectedDeviceId;
         if (navigator.mediaDevices && navigator.mediaDevices.getUserMedia) {
             let constraints = {
@@ -193,7 +194,9 @@ export function Utils(instance, element, options) { // eslint-disable-line no-un
                     self.listCameras(changeCameraCallback);
                 })
                 .catch(function (err) {
+                    //添加回调处理
                     self.printError('Camera Error: ' + err.name + ' ' + err.message);
+                    onErrorCallback('Camera Error: ' + err.name + ' ' + err.message);
                 });
         }
     };
