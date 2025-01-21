@@ -11,7 +11,7 @@
 
   <ItemGroup>
     <PackageReference Include="BootstrapBlazor" Version="9.2.3" />
-    <PackageReference Include="MiniExcel" Version="1.36.0" />
+    <PackageReference Include="BootstrapBlazor.MiniExcel" Version="1.38.0" />
   </ItemGroup>
 
   <ItemGroup>
