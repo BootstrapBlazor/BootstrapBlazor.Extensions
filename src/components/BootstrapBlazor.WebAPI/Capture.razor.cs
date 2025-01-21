@@ -299,7 +299,10 @@ public partial class Capture : IAsyncDisposable
     [JSInvokable]
     public async Task GetDecode(string val)
     {
-        if (OnDecode != null) await OnDecode.Invoke(val);
+        if (OnDecode != null)
+        {
+            await OnDecode.Invoke(val);
+        }
     }
 
     /// <summary>
@@ -310,7 +313,21 @@ public partial class Capture : IAsyncDisposable
     [JSInvokable]
     public async Task GetError(string error)
     {
-        if (OnError != null) await OnError.Invoke(error);
+        if (OnError != null)
+        {
+            await OnError.Invoke(error);
+        }
+        try
+        {
+            if (!string.IsNullOrWhiteSpace(DeviceID))
+            {
+                DeviceID = null;
+                await Storage.RemoveValue("CamsDeviceID");
+            }
+        }
+        catch
+        {
+        }
     }
 
 }

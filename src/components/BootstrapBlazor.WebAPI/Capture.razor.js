@@ -127,7 +127,8 @@ export function Capture(instance, element, opt, command) {
                 })
                 .catch((err) => {
                     console.error(`An error occurred: ${err}`);
-                    instance.invokeMethodAsync('GetError', `An error occurred: ${err}`);
+                    console.dir(err);
+                    instance.invokeMethodAsync('GetError', JSON.stringify(err));
                 });
 
         } else if (navigator.mediaDevices && navigator.mediaDevices.getUserMedia) {
