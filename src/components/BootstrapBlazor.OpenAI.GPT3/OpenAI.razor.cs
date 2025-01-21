@@ -509,20 +509,26 @@ public partial class OpenAI : IAsyncDisposable
     private async Task Save()
     {
         IsBackdropOpen = false;
-        await Storage.SetValue("AiMaxTokens", SelectedMaxTokens);
-        await Storage.SetValue("AiTemperature", SelectedTemperature);
-        await Storage.SetValue("SpeechRecognLanguage", SpeechRecognLanguage);
-        await Storage.SetValue("SpeechRecognContinuous", SpeechRecognContinuous);
-        await Storage.SetValue("SpeechAutoSent", AutoSent);
-        await Storage.SetValue("SpeechAutoSpeak", AutoSpeak);
-        await Storage.SetValue("SpeechContinuous", Options.Continuous);
-        await Storage.SetValue("SpeechInterimResults", Options.InterimResults);
-        await Storage.SetValue("PlayLanguage", PlayLanguage);
-        await Storage.SetValue("PlayRate", OptionsTTS.Rate);
-        await Storage.SetValue("PlayPicth", OptionsTTS.Picth);
-        await Storage.SetValue("PlayVolume", OptionsTTS.Volume);
-        await Storage.SetValue("SingleLine", SingleLine);
-        await Storage.SetValue("AutoMultiLine", AutoMultiLine);
+        try
+        {
+            await Storage.SetValue("AiMaxTokens", SelectedMaxTokens);
+            await Storage.SetValue("AiTemperature", SelectedTemperature);
+            await Storage.SetValue("SpeechRecognLanguage", SpeechRecognLanguage);
+            await Storage.SetValue("SpeechRecognContinuous", SpeechRecognContinuous);
+            await Storage.SetValue("SpeechAutoSent", AutoSent);
+            await Storage.SetValue("SpeechAutoSpeak", AutoSpeak);
+            await Storage.SetValue("SpeechContinuous", Options.Continuous);
+            await Storage.SetValue("SpeechInterimResults", Options.InterimResults);
+            await Storage.SetValue("PlayLanguage", PlayLanguage);
+            await Storage.SetValue("PlayRate", OptionsTTS.Rate);
+            await Storage.SetValue("PlayPicth", OptionsTTS.Picth);
+            await Storage.SetValue("PlayVolume", OptionsTTS.Volume);
+            await Storage.SetValue("SingleLine", SingleLine);
+            await Storage.SetValue("AutoMultiLine", AutoMultiLine);
+        }
+        catch
+        {
+        }
 
     }
 
