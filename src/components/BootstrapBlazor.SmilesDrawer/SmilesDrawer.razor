@@ -1,0 +1,5 @@
+﻿@namespace BootstrapBlazor.Components
+@inherits BootstrapModuleComponentBase
+@attribute [JSModuleAutoLoader("./_content/BootstrapBlazor.SmilesDrawer/SmilesDrawer.razor.js", AutoInvokeDispose = false)]
+
+<canvas @attributes="AdditionalAttributes" id="@Id" class="@ClassString"></canvas>

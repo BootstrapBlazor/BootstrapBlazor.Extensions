@@ -42,7 +42,7 @@
     }
 
 .search-dialog {
-    width: calc(100vw - 2rem);
+    width: calc(100vw - 4rem);
     color: var(--bs-body-color);
     background-color: var(--bs-body-bg);
     border-radius: var(--bs-border-radius);
@@ -196,6 +196,7 @@
     box-shadow: var(--bb-global-search-footer-shadow);
     padding: .5rem;
     font-size: .75rem;
+    min-height: 34px;
 }
 
     .search-dialog-footer .search-dialog-commands > div:not(:last-child) {
@@ -205,6 +206,20 @@
     .search-dialog-footer .search-dialog-commands kbd {
         background-color: var(--bb-global-search-footer-kbd-bg);
     }
+
+    .search-dialog-footer .search-dialog-logo {
+        display: none;
+    }
+
+@media(min-width: 576px) {
+    .search-dialog {
+        width: 500px;
+    }
+
+    .search-dialog-footer .search-dialog-logo {
+        display: block;
+    }
+}
 
 @media (min-width: 768px) {
     .search-dialog {

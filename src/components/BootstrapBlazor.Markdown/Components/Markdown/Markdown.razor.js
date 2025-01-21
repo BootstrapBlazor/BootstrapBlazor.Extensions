@@ -4,11 +4,12 @@ import '../../lib/tui.highlight/toastui-editor-plugin-code-syntax-highlight-all.
 import { addLink } from '../../../BootstrapBlazor/modules/utility.js'
 import Data from '../../../BootstrapBlazor/modules/data.js'
 
-export async function init(el, invoker, options, callback) {
+export async function init(id, invoker, options, callback) {
     await addLink('./_content/BootstrapBlazor.Markdown/css/bootstrap.blazor.markdown.min.css')
 
+    const el = document.getElementById(id)
     const md = {}
-    Data.set(el, md)
+    Data.set(id, md)
 
     md._invoker = invoker
     md._options = options
@@ -27,22 +28,22 @@ export async function init(el, invoker, options, callback) {
     })
 }
 
-export function update(el, val) {
-    const md = Data.get(el)
+export function update(id, val) {
+    const md = Data.get(id)
     md._editor.setMarkdown(val)
 }
 
-export function invoke(el, method, parameters) {
-    const md = Data.get(el)
+export function invoke(id, method, parameters) {
+    const md = Data.get(id)
     md._editor[method](...parameters);
     const val = md._editor.getMarkdown()
     const html = md._editor.getHTML()
     md._invoker.invokeMethodAsync('Update', [val, html])
 }
 
-export function dispose(el) {
-    const md = Data.get(el)
+export function dispose(id) {
+    const md = Data.get(id)
+    Data.remove(id)
     md._editor.off('blur')
     md._editor.destroy()
-    Data.remove(el)
 }

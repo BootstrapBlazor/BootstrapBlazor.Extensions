@@ -164,6 +164,10 @@ Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "BootstrapBlazor.MeiliSearch
 EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "UniTestSvgIcon", "test\UniTestSvgIcon\UniTestSvgIcon.csproj", "{F965576B-A801-4473-85FE-E100125FDEF5}"
 EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "BootstrapBlazor.RDKit", "src\components\BootstrapBlazor.RDKit\BootstrapBlazor.RDKit.csproj", "{7328E464-AE3C-4277-BEC3-422C56637066}"
+EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "BootstrapBlazor.SmilesDrawer", "src\components\BootstrapBlazor.SmilesDrawer\BootstrapBlazor.SmilesDrawer.csproj", "{84823875-1B07-4CCE-A009-29AEF90C6C10}"
+EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
 		Debug|Any CPU = Debug|Any CPU
@@ -438,6 +442,14 @@ Global
 		{F965576B-A801-4473-85FE-E100125FDEF5}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{F965576B-A801-4473-85FE-E100125FDEF5}.Release|Any CPU.ActiveCfg = Release|Any CPU
 		{F965576B-A801-4473-85FE-E100125FDEF5}.Release|Any CPU.Build.0 = Release|Any CPU
+		{7328E464-AE3C-4277-BEC3-422C56637066}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{7328E464-AE3C-4277-BEC3-422C56637066}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{7328E464-AE3C-4277-BEC3-422C56637066}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{7328E464-AE3C-4277-BEC3-422C56637066}.Release|Any CPU.Build.0 = Release|Any CPU
+		{84823875-1B07-4CCE-A009-29AEF90C6C10}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{84823875-1B07-4CCE-A009-29AEF90C6C10}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{84823875-1B07-4CCE-A009-29AEF90C6C10}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{84823875-1B07-4CCE-A009-29AEF90C6C10}.Release|Any CPU.Build.0 = Release|Any CPU
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE
@@ -514,6 +526,8 @@ Global
 		{DA2198E1-2CA9-EE53-926B-7950AB4B5EBF} = {FF1089BE-C704-4374-B629-C57C08E1798F}
 		{4B086A62-5F5A-47BC-921F-35803F26DD68} = {FF1089BE-C704-4374-B629-C57C08E1798F}
 		{F965576B-A801-4473-85FE-E100125FDEF5} = {B6A98ADE-D26A-4D0B-8978-AB7AC915F5AE}
+		{7328E464-AE3C-4277-BEC3-422C56637066} = {FF1089BE-C704-4374-B629-C57C08E1798F}
+		{84823875-1B07-4CCE-A009-29AEF90C6C10} = {FF1089BE-C704-4374-B629-C57C08E1798F}
 	EndGlobalSection
 	GlobalSection(ExtensibilityGlobals) = postSolution
 		SolutionGuid = {D5EB1960-6F30-4CE1-B375-EAE1F787D6FF}
