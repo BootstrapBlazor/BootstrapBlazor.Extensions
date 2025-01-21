@@ -108,6 +108,8 @@ public partial class PlayAudio : IAsyncDisposable
     /// 播放文本
     /// </summary>
     /// <param name="textOrSSML"></param>
+    /// <param name="voicename"></param>
+    /// <param name="style"></param>
     /// <returns></returns>
     public async Task Play(string textOrSSML, string? voicename = null, string? style = null)
     {

@@ -6,6 +6,7 @@ using BootstrapBlazor.OCR.Services;
 using Microsoft.Azure.CognitiveServices.Vision.ComputerVision;
 using Microsoft.Azure.CognitiveServices.Vision.ComputerVision.Models;
 using Microsoft.Extensions.Configuration;
+using Console = System.Console;
 
 namespace BootstrapBlazor.Ocr.Services;
 
@@ -163,7 +164,6 @@ public partial class OcrService : BaseService<ReadResult>
     /// <summary>
     /// 从 URL 提取文本
     /// </summary>
-    /// <param name="client"></param>
     /// <param name="urlFile"></param>
     /// <returns></returns>
     public async Task<List<string>> OcrUrl(string urlFile)
@@ -222,7 +222,7 @@ public partial class OcrService : BaseService<ReadResult>
     /// <summary>
     /// 从本地文件或者流提取文本
     /// </summary>
-    /// <param name="client"></param>
+    /// <param name="splitPerLine"></param>
     /// <param name="localFile"></param>
     /// <param name="stream"></param>
     /// <returns></returns>

@@ -262,7 +262,7 @@ public partial class FileSystem : IAsyncDisposable
         try
         {
             msg += fileData.name + Environment.NewLine;
-            Console.WriteLine(fileData.name);
+            System.Console.WriteLine(fileData.name);
             if (OnFileInfo != null) await OnFileInfo.Invoke(fileData);
         }
         catch (Exception e)

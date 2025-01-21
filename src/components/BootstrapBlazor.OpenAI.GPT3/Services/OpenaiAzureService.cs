@@ -8,6 +8,7 @@ using Azure;
 using Azure.AI.OpenAI;
 using Microsoft.Extensions.Configuration;
 using Newtonsoft.Json;
+using Console = System.Console;
 
 namespace BootstrapBlazor.OpenAI.Services;
 

@@ -10,13 +10,11 @@ using System.Diagnostics.CodeAnalysis;
 
 namespace BootstrapBlazor.Components;
 
+
 /// <summary>
 /// 语音识别/合成
-/// <para></para>
 /// 浏览器兼容性提示：安卓基于浏览器API,仅可以工作在Google服务正常的设备上
-/// <para></para>
 /// Recordatorio de compatibilidad del navegador: Android se basa en la API basada en el navegador y solo puede funcionar en el dispositivo normal de Google Service
-/// </remarks>
 /// </summary>
 public partial class WebSpeech : IAsyncDisposable
 {
@@ -167,7 +165,9 @@ public partial class WebSpeech : IAsyncDisposable
     /// 语音合成（文字转语音）
     /// </summary>
     /// <param name="text">文字</param>
+    /// <param name="option"></param>
     /// <param name="lang">语言</param>
+    /// <param name="voiceURI"></param>
     /// <returns></returns>
     public virtual async Task SpeechSynthesis(string text, SpeechSynthesisOption? option, string? lang = "zh-CN", string? voiceURI = null)
     {
@@ -237,7 +237,7 @@ public partial class WebSpeech : IAsyncDisposable
     /// <summary>
     /// 状态
     /// </summary>
-    /// <param name="msg"></param>
+    /// <param name="flag"></param>
     /// <returns></returns>
     [JSInvokable]
     public async Task Busy(bool flag)

@@ -8,6 +8,7 @@ using Microsoft.Extensions.Configuration;
 using System.Net.Http.Headers;
 using System.Text;
 using static BootstrapBlazor.AzureServices.Enums;
+using Console = System.Console;
 
 namespace BootstrapBlazor.AzureServices;
 

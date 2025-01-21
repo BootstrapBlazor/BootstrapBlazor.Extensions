@@ -3,6 +3,7 @@
 // Website: https://www.blazor.zone or https://argozhang.github.io/
 
 using System.Text.RegularExpressions;
+using Console = System.Console;
 
 namespace BootstrapBlazor.OCR
 {

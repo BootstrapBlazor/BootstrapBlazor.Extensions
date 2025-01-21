@@ -18,4 +18,8 @@
     <Using Include="Microsoft.JSInterop" />
   </ItemGroup>
 
+  <ItemGroup>
+    <Using Include="BootstrapBlazor.Components" />
+  </ItemGroup> 
+
 </Project>

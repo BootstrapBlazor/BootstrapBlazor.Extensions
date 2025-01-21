@@ -6,7 +6,6 @@
 
 using Microsoft.AspNetCore.Components;
 using Microsoft.JSInterop;
-using System.Diagnostics.CodeAnalysis;
 using System.Reflection.Metadata;
 using UAParser;
 
@@ -71,7 +70,7 @@ public partial class WebApi : IAsyncDisposable
                     await OnUserAgentResult.Invoke(ClientInfo);
                     if (ShowInfo)
                     {
-                        Console.WriteLine(userAgent);
+                        System.Console.WriteLine(userAgent);
                         UserAgents = userAgent;
                         StateHasChanged();
                     }
@@ -171,6 +170,7 @@ public partial class WebApi : IAsyncDisposable
     /// <param name="title">分享标题</param>
     /// <param name="text">分享文本</param>
     /// <param name="url">分享链接</param>
+    /// <param name="files"></param>
     /// <returns></returns>
     public virtual async Task Share(string title, string text, string url, string? files = null)
     {
@@ -213,7 +213,6 @@ public partial class WebApi : IAsyncDisposable
     /// <summary>
     /// 屏幕录屏开始
     /// </summary>
-    /// <param name="screen"></param>
     /// <returns></returns>
     public virtual async Task ScreenRecordStart()
     {
@@ -248,7 +247,6 @@ public partial class WebApi : IAsyncDisposable
     /// <summary>
     /// 屏幕录屏支持格式
     /// </summary>
-    /// <param name="screen"></param>
     /// <returns></returns>
     public virtual async Task<string[]?> ScreenRecordTypeSupported()
     {

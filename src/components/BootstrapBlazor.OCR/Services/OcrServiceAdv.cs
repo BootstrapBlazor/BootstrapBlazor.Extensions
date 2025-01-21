@@ -259,7 +259,6 @@ public partial class OcrService : BaseService<ReadResult>
     /// <para></para>检测特定领域的内容
     ///<para></para> 识别图像中的地标或名人。
     /// </summary>
-    /// <param name="client">客户端</param>
     /// <param name="urlImage">URL</param> 
     /// <param name="stream">流</param> 
     /// <param name="localImage">本地图片文件</param> 
@@ -280,7 +279,7 @@ public partial class OcrService : BaseService<ReadResult>
             // 显示结果。
             var jsonUrl = JsonConvert.SerializeObject(resultsUrl.Result);
             JObject resultJsonUrl = JObject.Parse(jsonUrl);
-            if (resultJsonUrl["landmarks"].Any())
+            if (resultJsonUrl["landmarks"]!.Any())
             {
                 res.Add(await GetStatus($"检测到地标: {resultJsonUrl["landmarks"][0]["name"]} " +
                     $"可信度 {resultJsonUrl["landmarks"][0]["confidence"]:P2}."));
@@ -304,7 +303,7 @@ public partial class OcrService : BaseService<ReadResult>
                 // 显示结果。
                 var jsonLocal = JsonConvert.SerializeObject(resultsLocal.Result);
                 JObject resultJsonLocal = JObject.Parse(jsonLocal);
-                if (resultJsonLocal["celebrities"].Any())
+                if (resultJsonLocal["celebrities"]!.Any())
                 {
                     res.Add(await GetStatus($"检测到名人: {resultJsonLocal["celebrities"][0]["name"]} " +
                       $"可信度 {resultJsonLocal["celebrities"][0]["confidence"]:P2}"));
