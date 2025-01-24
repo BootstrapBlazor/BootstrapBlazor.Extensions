@@ -52,7 +52,8 @@ class DefaultTableExport(IServiceProvider serviceProvider) : ITableExport
     {
         options ??= serviceProvider.GetRequiredService<IOptions<BootstrapBlazorOptions>>().Value.TableSettings.TableExportOptions;
         cols ??= Utility.GetTableColumns<TModel>();
-        var value = new ExportDataReader<TModel>(items, cols, options);
+        var lookupService = serviceProvider.GetRequiredService<ILookupService>();
+        var value = new ExportDataReader<TModel>(items, cols, options, lookupService);
 
         using var stream = new MemoryStream();
         await MiniExcel.SaveAsAsync(stream, value, excelType: excelType);
@@ -164,7 +165,7 @@ class DefaultTableExport(IServiceProvider serviceProvider) : ITableExport
                 builder.AppendLine("<tr>");
                 foreach (var pi in cols)
                 {
-                    var val = await pi.FormatValue(Utility.GetPropertyValue(item, pi.GetFieldName()), options, lookupService);
+                    var val = await pi.FormatValueAsync(Utility.GetPropertyValue(item, pi.GetFieldName()), options, lookupService);
                     builder.AppendLine($"<td><div class=\"table-cell\">{val}</div></td>");
                 }
                 builder.AppendLine("</tr>");
