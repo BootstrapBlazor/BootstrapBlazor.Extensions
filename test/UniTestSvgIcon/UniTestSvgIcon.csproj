@@ -23,19 +23,22 @@
   </ItemGroup>
 
   <ItemGroup>
-    <None Update="download.zip">
+    <None Update="IconPark\download.zip">
       <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
     </None>
-    <None Update="element.zip">
+    <None Update="Element\element.zip">
       <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
     </None>
-    <None Update="filled.zip">
+    <None Update="AntDesign\filled.zip">
       <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
     </None>
-    <None Update="outlined.zip">
+    <None Update="AntDesign\outlined.zip">
       <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
     </None>
-    <None Update="twotone.zip">
+    <None Update="AntDesign\twotone.zip">
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+    </None>
+    <None Update="OctIcon\octicons.zip">
       <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
     </None>
   </ItemGroup>
