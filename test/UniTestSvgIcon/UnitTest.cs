@@ -205,4 +205,74 @@ public partial class UnitTest
 
     [GeneratedRegex("svg\">(.*)</svg>")]
     private static partial Regex SvgRegex();
+
+
+    [Fact]
+    public void OctIcon_Ok()
+    {
+        var services = new ServiceCollection();
+        services.AddBootstrapBlazor();
+        var provider = services.BuildServiceProvider();
+        var zipService = provider.GetRequiredService<IZipArchiveService>();
+
+        var root = AppContext.BaseDirectory;
+        var downloadFile = Path.Combine(root, "Octicon", "octicons.zip");
+        Assert.True(File.Exists(downloadFile));
+
+        var downloadFolder = Path.Combine(root, "octicons");
+        if (Directory.Exists(downloadFolder))
+        {
+            Directory.Delete(downloadFolder, true);
+        }
+        zipService.ExtractToDirectory(downloadFile, downloadFolder, true);
+
+        var folder = new DirectoryInfo(downloadFolder);
+
+        // 处理 List 文件
+        var iconListFile = Path.Combine(root, $"../../../Octicon/OcticonIconList.razor");
+        if (File.Exists(iconListFile))
+        {
+            File.Delete(iconListFile);
+        }
+
+        // 处理 svg 文件
+        var svgFile = Path.Combine(root, $"../../../Octicon/octicon.svg");
+        if (File.Exists(svgFile))
+        {
+            File.Delete(svgFile);
+        }
+        using var listWriter = new StreamWriter(File.OpenWrite(iconListFile));
+        using var writer = new StreamWriter(File.OpenWrite(svgFile));
+        writer.WriteLine("<svg xmlns=\"http://www.w3.org/2000/svg\">");
+        foreach (var icon in folder.EnumerateFiles())
+        {
+            if (!icon.Name.EndsWith("-16.svg"))
+            {
+                continue;
+            }
+            var id = Path.GetFileNameWithoutExtension(icon.Name);
+            using var reader = new StreamReader(icon.OpenRead());
+            var data = reader.ReadToEnd();
+            reader.Close();
+
+            // find <svg
+            var index = data.IndexOf("<svg ");
+            if (index > -1)
+            {
+                data = data[index..];
+            }
+            index = data.IndexOf(">");
+            if (index > -1)
+            {
+                data = data[(index + 1)..];
+            }
+            var target = data.Replace("</svg>", "").Trim();
+            target = $"    <symbol viewBox=\"0 0 16 16\" id=\"{id}\">{target}</symbol>";
+            writer.WriteLine(target);
+
+            listWriter.WriteLine($"<OctIcon Name=\"{id}\"></OctIcon>");
+        }
+        writer.WriteLine("</svg>");
+        writer.Close();
+    }
 }
