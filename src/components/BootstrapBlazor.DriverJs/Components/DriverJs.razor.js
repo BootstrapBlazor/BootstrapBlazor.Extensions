@@ -141,6 +141,13 @@ export function refresh(id) {
     }
 }
 
+export function destroy(id) {
+    const d = Data.get(id);
+    if (d) {
+        d.driver.destroy();
+    }
+}
+
 export function highlight(id, options, config) {
     const driverObj = driver(options);
     driverObj.highlight(config);

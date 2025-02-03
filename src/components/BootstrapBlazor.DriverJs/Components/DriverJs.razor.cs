@@ -142,6 +142,12 @@ public partial class DriverJs
     public Task<int> GetActiveIndex() => InvokeAsync<int>("getActiveIndex", Id);
 
     /// <summary>
+    /// Gets the active step index
+    /// </summary>
+    /// <returns></returns>
+    public Task Destroy() => InvokeVoidAsync("destroy", Id);
+
+    /// <summary>
     /// Gets the active step configuration
     /// </summary>
     /// <returns></returns>
