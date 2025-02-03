@@ -87,9 +87,6 @@ public class DriverJsPopover : ComponentBase, IDriverJsPopover, IDisposable
     [JsonIgnore]
     private DriverJsStep? Step { get; set; }
 
-    [Inject, NotNull]
-    private IStringLocalizer<DriverJs>? Localizer { get; set; }
-
     /// <summary>
     /// <inheritdoc/>
     /// </summary>
@@ -98,18 +95,6 @@ public class DriverJsPopover : ComponentBase, IDriverJsPopover, IDisposable
         base.OnInitialized();
 
         Step?.UpdatePopover(this);
-    }
-
-    /// <summary>
-    /// <inheritdoc />
-    /// </summary>
-    protected override void OnParametersSet()
-    {
-        base.OnParametersSet();
-
-        PrevBtnText ??= Localizer[nameof(PrevBtnText)];
-        NextBtnText ??= Localizer[nameof(NextBtnText)];
-        DoneBtnText ??= Localizer[nameof(DoneBtnText)];
     }
 
     private void Dispose(bool disposing)

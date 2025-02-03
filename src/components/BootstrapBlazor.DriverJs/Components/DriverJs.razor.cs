@@ -47,6 +47,9 @@ public partial class DriverJs
         Config ??= new();
         Config.Steps = _steps;
         Config.ProgressText ??= Localizer[nameof(Config.ProgressText)];
+        Config.PrevBtnText ??= Localizer[nameof(Config.PrevBtnText)];
+        Config.NextBtnText ??= Localizer[nameof(Config.NextBtnText)];
+        Config.DoneBtnText ??= Localizer[nameof(Config.DoneBtnText)];
 
         await InvokeVoidAsync("start", Id, Config, new
         {
