@@ -29,7 +29,7 @@ public partial class SmilesDrawer
         .AddClassFromAttributes(AdditionalAttributes)
         .Build();
 
-    private SmilesDrawerOptions? _lastOptions;
+    private string? _lastOptions;
 
     private string? _lastSmiles;
 
@@ -45,7 +45,7 @@ public partial class SmilesDrawer
         if (firstRender)
         {
             _lastSmiles = Smiles;
-            _lastOptions = Options;
+            _lastOptions = Options?.ToString();
         }
         else if (ValidateParameters())
         {
@@ -62,10 +62,11 @@ public partial class SmilesDrawer
     private bool ValidateParameters()
     {
         var ret = false;
-        if (Smiles != _lastSmiles || Options != _lastOptions)
+        var optionString = Options?.ToString();
+        if (Smiles != _lastSmiles || _lastOptions != optionString)
         {
             _lastSmiles = Smiles;
-            _lastOptions = Options;
+            _lastOptions = optionString;
             ret = true;
         }
         return ret;
