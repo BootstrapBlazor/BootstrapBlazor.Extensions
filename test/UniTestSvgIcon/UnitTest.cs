@@ -55,13 +55,13 @@ public partial class UnitTest
             var data = reader.ReadToEnd();
             reader.Close();
 
-            var regex = SvgRegex();
-            var m = regex.Match(data);
-            var target = m.Groups[1].Value;
-
-            // remove stroke
-            target = $"    <symbol viewBox=\"0 0 48 48\" fill=\"none\" id=\"{id}\">{target.Replace("stroke=\"#333\" ", string.Empty)}</symbol>";
-            writer.WriteLine(target);
+            data = data.Replace("<?xml version=\"1.0\" encoding=\"UTF-8\"?>", "");
+            data = data.Replace("<svg ", "<symbol ");
+            data = data.Replace("</svg>", "</symbol>");
+            data = data.Replace("width=\"24\" height=\"24\"", $"id=\"{id}\"");
+            data = data.Replace(" xmlns=\"http://www.w3.org/2000/svg\"", "");
+            data = data.Replace("\"#333\"", "\"var(--bb-bd-icon-color)\"");
+            writer.WriteLine(data);
 
             listWriter.WriteLine($"<ByteDanceIcon Name=\"{id}\"></ByteDanceIcon>");
         }
