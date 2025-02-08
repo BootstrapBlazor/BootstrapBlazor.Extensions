@@ -1,7 +1,7 @@
 <Project Sdk="Microsoft.NET.Sdk.Razor">
 
   <PropertyGroup>
-    <Version>9.0.0</Version>
+    <Version>9.0.1</Version>
   </PropertyGroup>
 
   <PropertyGroup>
@@ -10,13 +10,8 @@
   </PropertyGroup>
 
   <ItemGroup>
-    <Content Remove="bundleconfig.json" />
-    <Content Remove="wwwroot\md\css\*.css" />
-  </ItemGroup>
-
-  <ItemGroup>
-    <None Include="bundleconfig.json" />
-    <None Include="wwwroot\md\css\*.css" />
+    <Content Remove="wwwroot\md\css\materialdesignicons.css" />
+    <None Include="wwwroot\md\css\materialdesignicons.css" />
   </ItemGroup>
 
 </Project>
