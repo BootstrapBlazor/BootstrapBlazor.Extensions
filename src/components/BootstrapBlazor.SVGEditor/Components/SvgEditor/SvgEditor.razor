@@ -3,8 +3,4 @@
 @inherits BootstrapModuleComponentBase
 @attribute [JSModuleAutoLoader("./_content/BootstrapBlazor.SvgEditor/Components/SvgEditor/SvgEditor.razor.js", JSObjectReference = true)]
 
-<HeadContent>
-    <link rel="stylesheet" href="_content/BootstrapBlazor.SvgEditor/svgedit.bundle.css" />
-</HeadContent>
-
-<div class="bb-svg-editor svg-editor" id="@Id"></div>
+<div @attributes="AdditionalAttributes" id="@Id" class="bb-svg-editor svg-editor"></div>
