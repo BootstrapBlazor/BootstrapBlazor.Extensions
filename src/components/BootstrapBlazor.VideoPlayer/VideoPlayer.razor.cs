@@ -21,7 +21,7 @@ public partial class VideoPlayer : IAsyncDisposable
     public string? Url { get; set; }
 
     /// <summary>
-    /// 资源类型
+    /// 获得/设置 资源类型 默认 application/x-mpegURL
     /// <para>video/mp4</para>
     /// <para>application/x-mpegURL</para>
     /// <para>video/ogg</para>
@@ -32,37 +32,37 @@ public partial class VideoPlayer : IAsyncDisposable
     public string MineType { get; set; } = "application/x-mpegURL";
 
     /// <summary>
-    /// 宽度
+    /// 获得/设置 宽度 默认 300
     /// </summary>
     [Parameter]
     public int Width { get; set; } = 300;
 
     /// <summary>
-    /// 高度
+    /// 获得/设置 高度 默认 200
     /// </summary>
     [Parameter]
     public int Height { get; set; } = 200;
 
     /// <summary>
-    /// 显示控制条,默认 true
+    /// 获得/设置 显示控制条 默认 true
     /// </summary>
     [Parameter]
     public bool Controls { get; set; } = true;
 
     /// <summary>
-    /// 自动播放,默认 true
+    /// 获得/设置 自动播放 默认 true
     /// </summary>
     [Parameter]
     public bool AutoPlay { get; set; } = true;
 
     /// <summary>
-    /// 预载,默认 auto
+    /// 获得/设置 预载 默认 auto
     /// </summary>
     [Parameter]
     public string Preload { get; set; } = "auto";
 
     /// <summary>
-    /// 设置封面资源,相对或者绝对路径
+    /// 获得/设置 设置封面资源，相对或者绝对路径 默认 null
     /// </summary>
     [Parameter]
     public string? Poster { get; set; }
