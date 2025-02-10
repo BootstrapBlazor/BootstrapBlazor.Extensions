@@ -1,6 +1,6 @@
 ﻿/**
  * dockview-core
- * @version 3.0.2
+ * @version 3.1.1
  * @link https://github.com/mathuo/dockview
  * @license MIT
  */
@@ -4739,8 +4739,8 @@ class Tab extends CompositeDisposable {
         this.accessor = accessor;
         this.group = group;
         this.content = undefined;
-        this._onChanged = new Emitter();
-        this.onChanged = this._onChanged.event;
+        this._onPointDown = new Emitter();
+        this.onPointerDown = this._onPointDown.event;
         this._onDropped = new Emitter();
         this.onDrop = this._onDropped.event;
         this._onDragStart = new Emitter();
@@ -4770,13 +4770,10 @@ class Tab extends CompositeDisposable {
             },
         });
         this.onWillShowOverlay = this.dropTarget.onWillShowOverlay;
-        this.addDisposables(this._onChanged, this._onDropped, this._onDragStart, dragHandler.onDragStart((event) => {
+        this.addDisposables(this._onPointDown, this._onDropped, this._onDragStart, dragHandler.onDragStart((event) => {
             this._onDragStart.fire(event);
         }), dragHandler, addDisposableListener(this._element, 'pointerdown', (event) => {
-            if (event.defaultPrevented) {
-                return;
-            }
-            this._onChanged.fire(event);
+            this._onPointDown.fire(event);
         }), this.dropTarget.onDrop((event) => {
             this._onDropped.fire(event);
         }), this.dropTarget);
@@ -5054,6 +5051,9 @@ class TabsContainer extends CompositeDisposable {
     delete(id) {
         const index = this.tabs.findIndex((tab) => tab.value.panel.id === id);
         const tabToRemove = this.tabs.splice(index, 1)[0];
+        if (!tabToRemove) {
+            throw new Error(`dockview: Tab not found`);
+        }
         const { value, disposable } = tabToRemove;
         disposable.dispose();
         value.dispose();
@@ -5074,7 +5074,10 @@ class TabsContainer extends CompositeDisposable {
         tab.setContent(panel.view.tab);
         const disposable = new CompositeDisposable(tab.onDragStart((event) => {
             this._onTabDragStart.fire({ nativeEvent: event, panel });
-        }), tab.onChanged((event) => {
+        }), tab.onPointerDown((event) => {
+            if (event.defaultPrevented) {
+                return;
+            }
             const isFloatingGroupsEnabled = !this.accessor.options.disableFloatingGroups;
             const isFloatingWithOnePanel = this.group.api.location.type === 'floating' &&
                 this.size === 1;
@@ -5092,12 +5095,12 @@ class TabsContainer extends CompositeDisposable {
                 });
                 return;
             }
-            const isLeftClick = event.button === 0;
-            if (!isLeftClick || event.defaultPrevented) {
-                return;
-            }
-            if (this.group.activePanel !== panel) {
-                this.group.model.openPanel(panel);
+            switch (event.button) {
+                case 0: // left click or touch
+                    if (this.group.activePanel !== panel) {
+                        this.group.model.openPanel(panel);
+                    }
+                    break;
             }
         }), tab.onDrop((event) => {
             this._onDrop.fire({
@@ -6047,12 +6050,11 @@ class DockviewGroupPanelApiImpl extends GridviewPanelApiImpl {
     constructor(id, accessor) {
         super(id, '__dockviewgroup__');
         this.accessor = accessor;
-        this._mutableDisposable = new MutableDisposable();
         this._onDidLocationChange = new Emitter();
         this.onDidLocationChange = this._onDidLocationChange.event;
         this._onDidActivePanelChange = new Emitter();
         this.onDidActivePanelChange = this._onDidActivePanelChange.event;
-        this.addDisposables(this._onDidLocationChange, this._onDidActivePanelChange, this._mutableDisposable);
+        this.addDisposables(this._onDidLocationChange, this._onDidActivePanelChange);
     }
     close() {
         if (!this._group) {
@@ -6110,20 +6112,7 @@ class DockviewGroupPanelApiImpl extends GridviewPanelApiImpl {
         }
     }
     initialize(group) {
-        /**
-         * TODO: Annoying initialization order caveat, find a better way to initialize and avoid needing null checks
-         *
-         * Due to the order on initialization we know that the model isn't defined until later in the same stack-frame of setup.
-         * By queuing a microtask we can ensure the setup is completed within the same stack-frame, but after everything else has
-         * finished ensuring the `model` is defined.
-         */
         this._group = group;
-        queueMicrotask(() => {
-            this._mutableDisposable.value =
-                this._group.model.onDidActivePanelChange((event) => {
-                    this._onDidActivePanelChange.fire(event);
-                });
-        });
     }
 }
 
@@ -6193,6 +6182,9 @@ class DockviewGroupPanel extends GridviewPanel {
         }, new DockviewGroupPanelApiImpl(id, accessor));
         this.api.initialize(this); // cannot use 'this' after after 'super' call
         this._model = new DockviewGroupPanelModel(this.element, accessor, id, options, this);
+        this.addDisposables(this.model.onDidActivePanelChange((event) => {
+            this.api._onDidActivePanelChange.fire(event);
+        }));
     }
     focus() {
         if (!this.api.isActive) {
@@ -6540,9 +6532,6 @@ class DefaultTab extends CompositeDisposable {
         this.action.appendChild(createCloseButton());
         this._element.appendChild(this._content);
         this._element.appendChild(this.action);
-        this.addDisposables(addDisposableListener(this.action, 'pointerdown', (ev) => {
-            ev.preventDefault();
-        }));
         this.render();
     }
     init(params) {
@@ -7980,6 +7969,9 @@ class DockviewComponent extends BaseGrid {
             addDisposableWindowListener(_window.window, 'resize', () => {
                 group.layout(_window.window.innerWidth, _window.window.innerHeight);
             }), overlayRenderContainer, Disposable.from(() => {
+                if (this.isDisposed) {
+                    return; // cleanup may run after instance is disposed
+                }
                 if (isGroupAddedToDom &&
                     this.getPanel(referenceGroup.id)) {
                     this.movingLock(() => moveGroupWithoutDestroying({
