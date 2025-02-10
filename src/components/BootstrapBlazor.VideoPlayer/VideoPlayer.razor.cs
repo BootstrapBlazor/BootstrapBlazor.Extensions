@@ -75,12 +75,6 @@ public partial class VideoPlayer : IAsyncDisposable
     public string? Language { get; set; }
 
     /// <summary>
-    /// 自定义CSS
-    /// </summary>
-    [Parameter]
-    public string? CssPath { get; set; } = "./_content/BootstrapBlazor.VideoPlayer/video-js.min.css";
-
-    /// <summary>
     /// <inheritdoc/>
     /// </summary>
     /// <returns></returns>
