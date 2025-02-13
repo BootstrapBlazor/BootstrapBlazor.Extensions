@@ -25,6 +25,12 @@ public partial class AntDesignIcon
     public string? Href { get; set; }
 
     /// <summary>
+    /// 获得 图标颜色 默认 null 未设置
+    /// </summary>
+    [Parameter]
+    public string? Color { get; set; }
+
+    /// <summary>
     /// 获得 图标分类 默认为 Outlined    
     /// </summary>
     [Parameter]
@@ -35,6 +41,11 @@ public partial class AntDesignIcon
     /// </summary>
     private string? ClassString => CssBuilder.Default("bb-ant-icon")
         .AddClass($"bb-ant-icon-{Name}", !string.IsNullOrEmpty(Name))
+        .Build();
+
+    private string? StyleString => CssBuilder.Default()
+        .AddClass($"--bb-ant-icon-color: {Color};", !string.IsNullOrEmpty(Color) && Category != AntDesignIconCategory.TwoTone)
+        .AddStyleFromAttributes(AdditionalAttributes)
         .Build();
 
     /// <summary>

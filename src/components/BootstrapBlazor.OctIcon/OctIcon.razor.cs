@@ -7,9 +7,9 @@ using Microsoft.AspNetCore.Components;
 namespace BootstrapBlazor.Components;
 
 /// <summary>
-/// ByteDanceIcon 组件
+/// OctIcon 组件
 /// </summary>
-public partial class ByteDanceIcon
+public partial class OctIcon
 {
     /// <summary>
     /// 获得/设置 图标名称
@@ -33,12 +33,12 @@ public partial class ByteDanceIcon
     /// <summary>
     /// 获得 样式字符串
     /// </summary>
-    private string? ClassString => CssBuilder.Default("bb-iconpark-icon")
-        .AddClass($"bb-iconpark-icon-{Name}", !string.IsNullOrEmpty(Name))
+    private string? ClassString => CssBuilder.Default("bb-oct-icon")
+        .AddClass($"bb-oct-icon-{Name}", !string.IsNullOrEmpty(Name))
         .Build();
 
     private string? StyleString => CssBuilder.Default()
-        .AddClass($"--bb-bd-icon-color: {Color};", !string.IsNullOrEmpty(Color))
+        .AddClass($"--bb-oct-icon-color: {Color};", !string.IsNullOrEmpty(Color))
         .AddStyleFromAttributes(AdditionalAttributes)
         .Build();
 
@@ -49,6 +49,6 @@ public partial class ByteDanceIcon
     {
         base.OnParametersSet();
 
-        Href ??= $"./_content/BootstrapBlazor.IconPark/icon-park.svg#{Name}";
+        Href ??= $"./_content/BootstrapBlazor.OctIcon/octicon.svg#{Name}";
     }
 }

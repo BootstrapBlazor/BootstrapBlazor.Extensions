@@ -1,6 +1,6 @@
 ﻿.bb-iconpark-icon {
     --bb-svg-icon-width: 12px;
-    --bb-svg-icon-color: var(--bs-body-color);
+    --bb-bd-icon-color: currentColor;
     display: inline-flex;
 }
 
@@ -8,7 +8,3 @@
         width: var(--bb-svg-icon-width);
         height: var(--bb-svg-icon-width);
     }
-
-        .bb-iconpark-icon > svg > * {
-            stroke: var(--bb-svg-icon-color);
-        }

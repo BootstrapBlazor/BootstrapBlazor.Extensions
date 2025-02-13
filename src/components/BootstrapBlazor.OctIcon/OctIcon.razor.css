@@ -1,10 +1,10 @@
-﻿.bb-element-icon {
+﻿.bb-oct-icon {
     --bb-svg-icon-width: 16px;
     display: inline-flex;
-    color: var(--bb-element-icon-color, currentColor);
+    color: var(--bb-oct-icon-color);
 }
 
-    .bb-element-icon > svg {
+    .bb-oct-icon > svg {
         width: var(--bb-svg-icon-width);
         height: var(--bb-svg-icon-width);
         fill: currentColor;
