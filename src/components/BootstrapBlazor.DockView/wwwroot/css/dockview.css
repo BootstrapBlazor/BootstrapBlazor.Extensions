@@ -15,6 +15,8 @@
   --dv-icon-hover-background-color: rgba(90, 93, 94, 0.31);
   --dv-floating-box-shadow: 8px 8px 8px 0px rgba(83, 89, 93, 0.5);
   --dv-overlay-z-index: 999;
+  --dv-active-sash-transition-duration: 0.1s;
+  --dv-active-sash-transition-delay: 0.5s;
   --dv-group-view-background-color: #1e1e1e;
   --dv-tabs-and-actions-container-background-color: #252526;
   --dv-activegroup-visiblepanel-tab-background-color: #1e1e1e;
@@ -40,6 +42,8 @@
   --dv-icon-hover-background-color: rgba(90, 93, 94, 0.31);
   --dv-floating-box-shadow: 8px 8px 8px 0px rgba(83, 89, 93, 0.5);
   --dv-overlay-z-index: 999;
+  --dv-active-sash-transition-duration: 0.1s;
+  --dv-active-sash-transition-delay: 0.5s;
   --dv-group-view-background-color: white;
   --dv-tabs-and-actions-container-background-color: #f3f3f3;
   --dv-activegroup-visiblepanel-tab-background-color: white;
@@ -65,6 +69,8 @@
   --dv-icon-hover-background-color: rgba(90, 93, 94, 0.31);
   --dv-floating-box-shadow: 8px 8px 8px 0px rgba(83, 89, 93, 0.5);
   --dv-overlay-z-index: 999;
+  --dv-active-sash-transition-duration: 0.1s;
+  --dv-active-sash-transition-delay: 0.5s;
   --dv-group-view-background-color: #1e1e1e;
   --dv-tabs-and-actions-container-background-color: #252526;
   --dv-activegroup-visiblepanel-tab-background-color: #1e1e1e;
@@ -119,6 +125,8 @@
   --dv-icon-hover-background-color: rgba(90, 93, 94, 0.31);
   --dv-floating-box-shadow: 8px 8px 8px 0px rgba(83, 89, 93, 0.5);
   --dv-overlay-z-index: 999;
+  --dv-active-sash-transition-duration: 0.1s;
+  --dv-active-sash-transition-delay: 0.5s;
   --dv-group-view-background-color: #000c18;
   --dv-tabs-and-actions-container-background-color: #1c1c2a;
   --dv-activegroup-visiblepanel-tab-background-color: #000c18;
@@ -145,6 +153,8 @@
   --dv-icon-hover-background-color: rgba(90, 93, 94, 0.31);
   --dv-floating-box-shadow: 8px 8px 8px 0px rgba(83, 89, 93, 0.5);
   --dv-overlay-z-index: 999;
+  --dv-active-sash-transition-duration: 0.1s;
+  --dv-active-sash-transition-delay: 0.5s;
   --dv-group-view-background-color: #282a36;
   --dv-tabs-and-actions-container-background-color: #191a21;
   --dv-activegroup-visiblepanel-tab-background-color: #282a36;
@@ -197,6 +207,8 @@
   --dv-icon-hover-background-color: rgba(90, 93, 94, 0.31);
   --dv-floating-box-shadow: 8px 8px 8px 0px rgba(83, 89, 93, 0.5);
   --dv-overlay-z-index: 999;
+  --dv-active-sash-transition-duration: 0.1s;
+  --dv-active-sash-transition-delay: 0.5s;
   --dv-group-view-background-color: #ebeced;
   --dv-tabs-and-actions-container-background-color: #fcfcfc;
   --dv-activegroup-visiblepanel-tab-background-color: #f0f1f2;
@@ -243,7 +255,7 @@
 .dockview-theme-replit .dv-groupview.dv-inactive-group {
   border: 1px solid transparent;
 }
-.dockview-theme-replit .vertical > .sash-container > .sash:not(.disabled)::after {
+.dockview-theme-replit .dv-vertical > .dv-sash-container > .dv-sash:not(.disabled)::after {
   content: "";
   height: 4px;
   width: 40px;
@@ -254,7 +266,7 @@
   background-color: var(--dv-separator-handle-background-color);
   position: absolute;
 }
-.dockview-theme-replit .vertical > .sash-container > .sash:not(.disabled):hover::after {
+.dockview-theme-replit .dv-vertical > .dv-sash-container > .dv-sash:not(.disabled):hover::after {
   background-color: var(--dv-separator-handle-hover-background-color);
 }
 .dockview-theme-replit .dv-horizontal > .dv-sash-container > .dv-sash:not(.disabled)::after {
@@ -670,14 +682,12 @@
   -ms-user-select: none;
   touch-action: none;
 }
-.dv-split-view-container .dv-sash-container .dv-sash:not(.disabled):active {
-  transition: background-color 0.1s ease-in-out;
+.dv-split-view-container .dv-sash-container .dv-sash:not(.disabled):active, .dv-split-view-container .dv-sash-container .dv-sash:not(.disabled):hover {
   background-color: var(--dv-active-sash-color, transparent);
-}
-.dv-split-view-container .dv-sash-container .dv-sash:not(.disabled):hover {
-  background-color: var(--dv-active-sash-color, transparent);
-  transition: background-color 0.1s ease-in-out;
-  transition-delay: 0.5s;
+  transition-property: background-color;
+  transition-timing-function: ease-in-out;
+  transition-duration: var(--dv-active-sash-transition-duration, 0.1s);
+  transition-delay: var(--dv-active-sash-transition-delay, 0.5s);
 }
 .dv-split-view-container .dv-view-container {
   position: relative;
@@ -698,10 +708,6 @@
   z-index: 5;
   pointer-events: none;
   background-color: var(--dv-separator-border);
-}
-.dv-watermark {
-  display: flex;
-  height: 100%;
 }
 .dv-dragged {
   transform: translate3d(0px, 0px, 0px); /* forces tab to be drawn on a separate layer (see https://github.com/microsoft/vscode/issues/18733) */
@@ -818,5 +824,9 @@
   pointer-events: none;
   background-color: var(--dv-tab-divider-color);
   width: 1px;
+  height: 100%;
+}
+.dv-watermark {
+  display: flex;
   height: 100%;
 }
