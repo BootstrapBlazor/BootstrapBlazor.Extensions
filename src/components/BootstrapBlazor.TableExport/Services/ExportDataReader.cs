@@ -8,7 +8,7 @@ using System.Data;
 
 namespace BootstrapBlazor.Components;
 
-class ExportDataReader<TModel>(IEnumerable<TModel> items, IEnumerable<ITableColumn> cols, TableExportOptions options) : MiniExcelDataReaderBase
+class ExportDataReader<TModel>(IEnumerable<TModel> items, IEnumerable<ITableColumn> cols, TableExportOptions options, ILookupService lookupService) : MiniExcelDataReaderBase
 {
     private int _rowIndex = -1;
     private readonly IEnumerable<TModel> _rows = items;
@@ -75,7 +75,7 @@ class ExportDataReader<TModel>(IEnumerable<TModel> items, IEnumerable<ITableColu
     /// </summary>
     /// <param name="i"></param>
     /// <returns></returns>
-    public override object GetValue(int i)
+    public override object? GetValue(int i)
     {
         object? v = null;
         var row = _rows.ElementAtOrDefault(_rowIndex);
@@ -83,16 +83,28 @@ class ExportDataReader<TModel>(IEnumerable<TModel> items, IEnumerable<ITableColu
         if (row != null && col != null)
         {
             v = Utility.GetPropertyValue(row, col.GetFieldName());
-            if (v != null)
+        }
+        return v;
+    }
+
+    /// <summary>
+    /// <inheritdoc/>
+    /// </summary>
+    /// <param name="i"></param>
+    /// <param name="cancellationToken"></param>
+    /// <returns></returns>
+    public override async Task<object?> GetValueAsync(int i, CancellationToken cancellationToken)
+    {
+        object? v = GetValue(i);
+        if (v != null)
+        {
+            var col = _columns.ElementAtOrDefault(i);
+            if (col != null)
             {
-                var task = col.FormatValue(v, _options, null);
-                if (task.Wait(1000))
-                {
-                    v = task.Result;
-                }
+                v = await col.FormatValueAsync(v, _options, lookupService);
             }
         }
-        return v!;
+        return v;
     }
 
     /// <summary>

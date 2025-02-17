@@ -25,10 +25,21 @@ public partial class ElementIcon
     public string? Href { get; set; }
 
     /// <summary>
+    /// 获得 图标颜色 默认 null 未设置
+    /// </summary>
+    [Parameter]
+    public string? Color { get; set; }
+
+    /// <summary>
     /// 获得 样式字符串
     /// </summary>
     private string? ClassString => CssBuilder.Default("bb-element-icon")
         .AddClass($"bb-element-icon-{Name}", !string.IsNullOrEmpty(Name))
+        .Build();
+
+    private string? StyleString => CssBuilder.Default()
+        .AddClass($"--bb-element-icon-color: {Color};", !string.IsNullOrEmpty(Color))
+        .AddStyleFromAttributes(AdditionalAttributes)
         .Build();
 
     /// <summary>

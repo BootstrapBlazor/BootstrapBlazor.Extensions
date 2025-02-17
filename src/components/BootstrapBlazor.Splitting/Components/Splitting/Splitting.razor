@@ -2,12 +2,6 @@
 @inherits BootstrapModuleComponentBase
 @attribute [JSModuleAutoLoader("./_content/BootstrapBlazor.Splitting/Components/Splitting/Splitting.razor.js", AutoInvokeDispose = false)]
 
-<HeadContent>
-    <link rel="stylesheet" href="./_content/BootstrapBlazor.Splitting/splitting.bundle.css" />
-    <script src="./_content/BootstrapBlazor.Splitting/lib/splitting/splitting.min.js" type="text/javascript"></script>
-    <script src="./_content/BootstrapBlazor.Splitting/modules/gsap.min.js" type="text/javascript"></script>
-</HeadContent>
-
 <div @attributes="AdditionalAttributes" id="@Id" class="@ClassString" data-bb-columns="@Columns" data-bb-repeat="@Repeat">
     @if (ShowLoadingText)
     {

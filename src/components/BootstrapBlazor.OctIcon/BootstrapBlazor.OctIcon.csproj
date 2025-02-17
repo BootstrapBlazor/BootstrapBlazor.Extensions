@@ -5,16 +5,12 @@
   </PropertyGroup>
 
   <PropertyGroup>
-    <PackageTags>Bootstrap Blazor WebAssembly wasm UI Components Editor SvgEditor</PackageTags>
-    <Description>Bootstrap UI components extensions of Editor</Description>
+    <PackageTags>Bootstrap Blazor WebAssembly wasm UI Components Icon</PackageTags>
+    <Description>Bootstrap UI components extensions of OctIcon</Description>
   </PropertyGroup>
 
   <ItemGroup>
     <PackageReference Include="BootstrapBlazor" Version="$(BBVersion)" />
-  </ItemGroup>
-
-  <ItemGroup>
-    <Using Include="Microsoft.JSInterop" />
   </ItemGroup>
 
 </Project>

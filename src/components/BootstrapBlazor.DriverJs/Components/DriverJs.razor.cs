@@ -47,6 +47,9 @@ public partial class DriverJs
         Config ??= new();
         Config.Steps = _steps;
         Config.ProgressText ??= Localizer[nameof(Config.ProgressText)];
+        Config.PrevBtnText ??= Localizer[nameof(Config.PrevBtnText)];
+        Config.NextBtnText ??= Localizer[nameof(Config.NextBtnText)];
+        Config.DoneBtnText ??= Localizer[nameof(Config.DoneBtnText)];
 
         await InvokeVoidAsync("start", Id, Config, new
         {
@@ -137,6 +140,12 @@ public partial class DriverJs
     /// </summary>
     /// <returns></returns>
     public Task<int> GetActiveIndex() => InvokeAsync<int>("getActiveIndex", Id);
+
+    /// <summary>
+    /// Gets the active step index
+    /// </summary>
+    /// <returns></returns>
+    public Task Destroy() => InvokeVoidAsync("destroy", Id);
 
     /// <summary>
     /// Gets the active step configuration
