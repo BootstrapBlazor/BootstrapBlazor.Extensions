@@ -124,7 +124,7 @@ const initDockview = (dockview, options, template) => {
 export const observeGroup = (group) => {
     const dockview = group.api.accessor
     if (dockview.params.observer === null) {
-        dockview.params.observer = new ResizeObserver(observerList => resizeObserverHandle(observerList, dockview));
+        dockview.params.observer = new ResizeObserver(observerList => requestAnimationFrame(() => resizeObserverHandle(observerList, dockview)));
     }
     dockview.params.observer.observe(group.header.element)
     dockview.params.observer.observe(group.header.tabContainer)
@@ -143,22 +143,22 @@ const resizeObserverHandle = (observerList, dockview) => {
 }
 const setWidth = (target, dockview) => {
     let header, tabsContainer
-    if (target.classList.contains('tabs-container')) {
+    if (target.classList.contains('dv-tabs-container')) {
         header = target.parentElement
         tabsContainer = target
     }
     else {
         header = target
-        tabsContainer = header.querySelector('.tabs-container')
+        tabsContainer = header.querySelector('.dv-tabs-container')
     }
     if (header.offsetWidth == 0) return
-    let voidWidth = header.querySelector('.void-container').offsetWidth
-    let dropdown = header.querySelector('.right-actions-container>.dropdown')
+    let voidWidth = header.querySelector('.dv-void-container').offsetWidth
+    let dropdown = header.querySelector('.dv-right-actions-container>.dropdown')
     if (!dropdown) return
     let dropMenu = dropdown.querySelector('.dropdown-menu')
     if (voidWidth === 0) {
         if (tabsContainer.children.length <= 1) return
-        const inactiveTabs = header.querySelectorAll('.tabs-container>.tab')
+        const inactiveTabs = header.querySelectorAll('.dv-tabs-container>.dv-tab')
         const lastTab = inactiveTabs[inactiveTabs.length - 1]
         const aEle = document.createElement('a')
         const liEle = document.createElement('li')
@@ -169,9 +169,9 @@ const setWidth = (target, dockview) => {
         dropMenu.insertAdjacentElement("afterbegin", liEle)
     }
     else {
-        let firstLi = dropMenu.querySelector('li:has(.tab)') || dropMenu.children[0]
+        let firstLi = dropMenu.querySelector('li:has(.dv-active-tab)') || dropMenu.children[0]
         if (firstLi) {
-            let firstTab = firstLi.querySelector('.tab')
+            let firstTab = firstLi.querySelector('.dv-tab')
             if (voidWidth > firstLi.tabWidth || tabsContainer.children.length == 0) {
                 firstTab && tabsContainer.append(firstTab)
                 firstLi.remove()
@@ -179,7 +179,7 @@ const setWidth = (target, dockview) => {
         }
     }
     setTimeout(() => {
-        if ([...tabsContainer.children].every(tab => !tab.classList.contains('active-tab'))) {
+        if ([...tabsContainer.children].every(tab => !tab.classList.contains('dv-active-tab'))) {
             const group = dockview.groups.find(g => g.element === header.parentElement)
             group.panels[0].api.setActive()
         }

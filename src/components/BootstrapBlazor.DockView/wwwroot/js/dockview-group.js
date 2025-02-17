@@ -162,7 +162,7 @@ const getOrientation = function (child, group) {
 }
 
 const createGroupActions = (group, groupType) => {
-    const actionContainer = group.header.element.querySelector('.right-actions-container');
+    const actionContainer = group.header.element.querySelector('.dv-right-actions-container');
     getIcons().forEach(item => {
         if (item.name !== 'bar') {
             const icon = getIcon(item.name);
@@ -268,7 +268,7 @@ const showFloat = (dockview, group) => {
 const getFloatState = group => group.model.location.type === 'floating';
 
 const addActionEvent = group => {
-    const actionContainer = group.header.element.querySelector('.right-actions-container');
+    const actionContainer = group.header.element.querySelector('.dv-right-actions-container');
     const tabsContainer = group.header.tabContainer
 
     EventHandler.on(actionContainer, 'click', '.bb-dockview-control-icon', e => {
@@ -296,11 +296,11 @@ const addActionEvent = group => {
         else if (ele.classList.contains('bb-dockview-control-icon-down')) {
             down(group, actionContainer, true);
         }
-        else if (ele.classList.contains('bb-dockview-control-icon-close') && ele.parentElement.classList.contains('right-actions-container')) {
+        else if (ele.classList.contains('bb-dockview-control-icon-close') && ele.parentElement.classList.contains('dv-right-actions-container')) {
             close(group, actionContainer, true);
         }
         else if (e.target.classList.contains('dv-default-tab-content')) {
-            const targetTabEle = e.target.closest('.tab')
+            const targetTabEle = e.target.closest('.dv-tab')
             group.api.accessor.moveGroupOrPanel({
                 from: { groupId: group.id, panelId: group.panels.find(p => p.view.tab.element.parentElement == targetTabEle).id },
                 to: {
@@ -418,7 +418,7 @@ const setDrawerTitle = group => {
 }
 
 const removeActionEvent = group => {
-    const actionContainer = group.header.element.querySelector('.right-actions-container');
+    const actionContainer = group.header.element.querySelector('.dv-right-actions-container');
 
     EventHandler.off(actionContainer, 'click', '.bb-dockview-control-icon');
 }
@@ -640,21 +640,21 @@ const floatingExitMaximized = group => {
 const setWidth = (observerList) => {
     observerList.forEach(({ target }) => {
         let header, tabsContainer
-        if (target.classList.contains('tabs-container')) {
+        if (target.classList.contains('dv-tabs-container')) {
             header = target.parentElement
             tabsContainer = target
         }
         else {
             header = target
-            tabsContainer = header.querySelector('.tabs-container')
+            tabsContainer = header.querySelector('.dv-tabs-container')
         }
-        let voidWidth = header.querySelector('.void-container').offsetWidth
-        let dropdown = header.querySelector('.right-actions-container>.dropdown')
+        let voidWidth = header.querySelector('.dv-void-container').offsetWidth
+        let dropdown = header.querySelector('.dv-right-actions-container>.dropdown')
         if (!dropdown) return
         let dropMenu = dropdown.querySelector('.dropdown-menu')
         if (voidWidth === 0) {
             if (tabsContainer.children.length <= 1) return
-            const inactiveTabs = header.querySelectorAll('.tabs-container>.inactive-tab')
+            const inactiveTabs = header.querySelectorAll('.dv-tabs-container>.dv-inactive-tab')
             const lastTab = inactiveTabs[inactiveTabs.length - 1]
             const aEle = document.createElement('a')
             const liEle = document.createElement('li')
@@ -665,9 +665,9 @@ const setWidth = (observerList) => {
             dropMenu.insertAdjacentElement("afterbegin", liEle)
         }
         else {
-            let firstLi = dropMenu.querySelector('li:has(.active-tab)') || dropMenu.children[0]
+            let firstLi = dropMenu.querySelector('li:has(.dv-active-tab)') || dropMenu.children[0]
             if (firstLi) {
-                let firstTab = firstLi.querySelector('.tab')
+                let firstTab = firstLi.querySelector('.dv-tab')
                 if (voidWidth > firstLi.tabWidth || tabsContainer.children.length == 0) {
                     firstTab && tabsContainer.append(firstTab)
                     firstLi.remove()
