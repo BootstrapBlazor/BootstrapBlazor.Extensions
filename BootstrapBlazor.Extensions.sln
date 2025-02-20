@@ -170,6 +170,8 @@ Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "BootstrapBlazor.SmilesDrawe
 EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "BootstrapBlazor.OctIcon", "src\components\BootstrapBlazor.OctIcon\BootstrapBlazor.OctIcon.csproj", "{AA4EDA37-1D81-4235-A7F6-F1C112B364EF}"
 EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "BootstrapBlazor.IP2Region", "src\components\BootstrapBlazor.IP2Region\BootstrapBlazor.IP2Region.csproj", "{8A46FEDF-FD76-48AB-9BB2-47254C7623A4}"
+EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
 		Debug|Any CPU = Debug|Any CPU
@@ -456,6 +458,10 @@ Global
 		{AA4EDA37-1D81-4235-A7F6-F1C112B364EF}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{AA4EDA37-1D81-4235-A7F6-F1C112B364EF}.Release|Any CPU.ActiveCfg = Release|Any CPU
 		{AA4EDA37-1D81-4235-A7F6-F1C112B364EF}.Release|Any CPU.Build.0 = Release|Any CPU
+		{8A46FEDF-FD76-48AB-9BB2-47254C7623A4}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{8A46FEDF-FD76-48AB-9BB2-47254C7623A4}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{8A46FEDF-FD76-48AB-9BB2-47254C7623A4}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{8A46FEDF-FD76-48AB-9BB2-47254C7623A4}.Release|Any CPU.Build.0 = Release|Any CPU
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE
@@ -535,6 +541,7 @@ Global
 		{7328E464-AE3C-4277-BEC3-422C56637066} = {FF1089BE-C704-4374-B629-C57C08E1798F}
 		{84823875-1B07-4CCE-A009-29AEF90C6C10} = {FF1089BE-C704-4374-B629-C57C08E1798F}
 		{AA4EDA37-1D81-4235-A7F6-F1C112B364EF} = {FF1089BE-C704-4374-B629-C57C08E1798F}
+		{8A46FEDF-FD76-48AB-9BB2-47254C7623A4} = {FF1089BE-C704-4374-B629-C57C08E1798F}
 	EndGlobalSection
 	GlobalSection(ExtensibilityGlobals) = postSolution
 		SolutionGuid = {D5EB1960-6F30-4CE1-B375-EAE1F787D6FF}
