@@ -1,0 +1,16 @@
+<Project Sdk="Microsoft.NET.Sdk.Razor">
+
+  <PropertyGroup>
+    <Version>9.0.0-beta01</Version>
+  </PropertyGroup>
+
+  <PropertyGroup>
+    <PackageTags>Bootstrap Blazor WebAssembly wasm UI Components JuHe Ip Locator</PackageTags>
+    <Description>Bootstrap UI components extensions of JuHeIpLocator</Description>
+  </PropertyGroup>
+
+  <ItemGroup>
+    <PackageReference Include="BootstrapBlazor" Version="9.3.1-beta24" />
+  </ItemGroup>
+
+</Project>
