@@ -5,7 +5,7 @@
   </ItemGroup>
 
   <Target Name="CopyFiles" AfterTargets="Build">
-    <Copy SourceFiles="@(Files)" DestinationFolder="$(TargetDir)/%(RecursiveDir)"/>
+    <Copy SourceFiles="@(Files)" DestinationFolder="$(TargetDir)/ip2region/%(RecursiveDir)"/>
   </Target>
 
 </Project>
