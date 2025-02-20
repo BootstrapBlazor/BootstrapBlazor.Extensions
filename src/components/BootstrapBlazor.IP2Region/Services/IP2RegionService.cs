@@ -49,7 +49,7 @@ class IP2RegionService : DefaultIpLocatorProvider
 
     private void InitSearch()
     {
-        var xdbPath = _ipOptions.Value.XdbPath ?? Path.Combine(AppContext.BaseDirectory, "ip2region.xdb");
+        var xdbPath = _ipOptions.Value.XdbPath ?? Path.Combine(AppContext.BaseDirectory, "ip2region", "ip2region.xdb");
         if (!File.Exists(xdbPath))
         {
             _logger.LogWarning("IP2Region xdb file not found, please check the file path: {dbPath}", xdbPath);
