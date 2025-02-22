@@ -122,4 +122,10 @@ public class Html2ImageOptions : IHtml2ImageOptions
     /// </summary>
     [JsonIgnore(Condition = JsonIgnoreCondition.WhenWritingNull)]
     public bool? SkipAutoScale { get; set; }
+
+    /// <summary>
+    /// 执行方法名称 ToPng ToJpeg ToSvg ToCanvas
+    /// </summary>
+    [JsonIgnore(Condition = JsonIgnoreCondition.WhenWritingNull)]
+    public string? MethodName { get; set; }
 }
