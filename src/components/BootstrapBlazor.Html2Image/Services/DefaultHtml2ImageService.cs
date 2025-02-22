@@ -9,7 +9,7 @@ using Microsoft.JSInterop;
 namespace BootstrapBlazor.Components;
 
 /// <summary>
-/// 默认 Html to Image 实现 
+/// 默认 Html to Image 实现
 /// <param name="runtime"></param>
 /// <param name="logger"></param>
 /// </summary>
@@ -20,14 +20,14 @@ class DefaultHtml2ImageService(IJSRuntime runtime, ILogger<DefaultHtml2ImageServ
     /// <summary>
     /// <inheritdoc/>
     /// </summary>
-    public Task<string?> GetDataAsync(string selector, IHtml2ImageOptions? options) => Execute(selector, "toPng", options);
+    public Task<string?> GetDataAsync(string selector, IHtml2ImageOptions? options) => Execute(selector, options);
 
     /// <summary>
     /// <inheritdoc/>
     /// </summary>
     public Task<Stream?> GetStreamAsync(string selector, IHtml2ImageOptions? options) => ToBlob(selector, options);
 
-    private async Task<string?> Execute(string selector, string methodName, IHtml2ImageOptions? options)
+    private async Task<string?> Execute(string selector, IHtml2ImageOptions? options)
     {
         string? data = null;
         try
@@ -35,7 +35,7 @@ class DefaultHtml2ImageService(IJSRuntime runtime, ILogger<DefaultHtml2ImageServ
             _jsModule ??= await LoadModule();
             if (_jsModule != null)
             {
-                data = await _jsModule.InvokeAsync<string?>("execute", selector, methodName, options);
+                data = await _jsModule.InvokeAsync<string?>("execute", selector, "getData", options);
             }
         }
         catch (Exception ex)
