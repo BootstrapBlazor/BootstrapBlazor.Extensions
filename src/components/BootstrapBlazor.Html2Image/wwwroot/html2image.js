@@ -1,4 +1,4 @@
-﻿import './html-to-image.js'
+﻿import './lib/html-to-image.js'
 
 export async function execute(selector, methodName, options) {
     let data = null;
@@ -15,7 +15,7 @@ export async function execute(selector, methodName, options) {
 const getMethod = options => {
     let ret = "toPng";
     if (options) {
-        const {methodName} = options;
+        const { methodName } = options;
         delete options.methodName;
 
         if (['toPng', 'toJpeg', 'toSvg', 'toCanvas'].find(i => i === methodName)) {
