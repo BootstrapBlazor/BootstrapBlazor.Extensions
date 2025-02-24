@@ -51,9 +51,6 @@ export async function init(id, invoke, options) {
 
 const createUniverSheet = async sheet => {
     const { el } = sheet;
-    const { sheetName, plugins } = sheet.options ?? {
-        sheetName: "default", plugins: {}
-    };
     const { LocaleType, merge } = UniverCore;
     const { createUniver } = UniverPresets;
     const { UniverSheetsCorePreset } = UniverPresetSheetsCore;
@@ -75,7 +72,8 @@ const createUniverSheet = async sheet => {
             UniverSheetsZenEditorPlugin
         ]
     };
-
+    const sheetName = sheet.options.sheetName ?? "default";
+    const plugins = sheet.options.plugins ?? {};
     for (const name in plugins) {
         const module = await import(`../../../${plugins[name]}`);
         options.plugins.push(module[name]);

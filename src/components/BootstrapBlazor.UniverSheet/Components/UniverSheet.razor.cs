@@ -18,6 +18,12 @@ public partial class UniverSheet
     public Dictionary<string, string>? Plugins { get; set; }
 
     /// <summary>
+    /// 获得/设置 Name 默认 null 未设置
+    /// </summary>
+    [Parameter]
+    public string? Name { get; set; }
+
+    /// <summary>
     /// 获得/设置 主题颜色 默认 null 未设置
     /// </summary>
     [Parameter]
@@ -37,5 +43,5 @@ public partial class UniverSheet
     /// <inheritdoc/>
     /// </summary>
     /// <returns></returns>
-    protected override Task InvokeInitAsync() => InvokeVoidAsync("init", Id, Interop, new { Theme, Lang, Plugins });
+    protected override Task InvokeInitAsync() => InvokeVoidAsync("init", Id, Interop, new { SheetName = Name, Theme, Lang, Plugins });
 }
