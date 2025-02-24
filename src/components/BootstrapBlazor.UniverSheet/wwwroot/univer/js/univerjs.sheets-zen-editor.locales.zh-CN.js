@@ -1,0 +1,1 @@
+(function(e,n){typeof exports=="object"&&typeof module<"u"?module.exports=n():typeof define=="function"&&define.amd?define(n):(e=typeof globalThis<"u"?globalThis:e||self,e.UniverSheetsZenEditorZhCN=n())})(this,function(){"use strict";return{shortcut:{sheet:{"zen-edit-cancel":"取消编辑（禅模式状态）","zen-edit-confirm":"放弃编辑（禅模式状态）"}}}});
