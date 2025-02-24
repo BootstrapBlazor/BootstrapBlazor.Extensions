@@ -1,5 +1,5 @@
-﻿import { addScript, addLink } from '../BootstrapBlazor/modules/utility.js'
-import Data from '../BootstrapBlazor/modules/data.js'
+﻿import { addScript, addLink } from '../../BootstrapBlazor/modules/utility.js'
+import Data from '../../BootstrapBlazor/modules/data.js'
 
 if (window.BootstrapBlazor === void 0) {
     window.BootstrapBlazor = {};
@@ -43,14 +43,47 @@ export async function init(id, invoke, options) {
     const sheet = {
         el,
         invoke,
-        options
+        options,
     };
-    createUniverSheet(sheet);
+    await createUniverSheet(sheet);
     Data.set(id, sheet);
 }
 
-const createUniverSheet = sheet => {
-    const options = {};
+const createUniverSheet = async sheet => {
+    const { el } = sheet;
+    const { sheetName, plugins } = sheet.options ?? {
+        sheetName: "default", plugins: {}
+    };
+    const { LocaleType, merge } = UniverCore;
+    const { createUniver } = UniverPresets;
+    const { UniverSheetsCorePreset } = UniverPresetSheetsCore;
+    const { UniverSheetsDrawingPreset } = UniverPresetSheetsDrawing;
+    const { UniverSheetsZenEditorPlugin } = UniverSheetsZenEditor
+    const { defaultTheme } = UniverDesign;
+    const options = {
+        theme: defaultTheme,
+        locale: LocaleType.ZH_CN,
+        locales: {
+            [LocaleType.ZH_CN]: merge(
+                {},
+                UniverPresetSheetsCoreZhCN,
+                UniverPresetSheetsDrawingZhCN,
+                UniverSheetsZenEditorZhCN
+            ),
+        },
+        plugins: [
+            UniverSheetsZenEditorPlugin
+        ]
+    };
+
+    for (const name in plugins) {
+        const module = await import(`../../../${plugins[name]}`);
+        options.plugins.push(module[name]);
+    }
+
+    if (BootstrapBlazor.Univer.Sheet.callbacks.beforeCreateUniver) {
+        BootstrapBlazor.Univer.Sheet.callbacks.beforeCreateUniver(sheetName, options);
+    }
     const { univer, univerAPI } = createUniver({
         presets: [
             UniverSheetsCorePreset({
@@ -61,12 +94,13 @@ const createUniverSheet = sheet => {
         ...options
     });
 
-    univerAPI.createUniverSheet({
-        defaultWorkbookData,
-        ...options.workbookData
-    });
-    sheet.univer = univer;
-    sheet.univerAPI = univerAPI;
+    const workbookData = {
+        defaultWorkbookData
+    };
+    if (BootstrapBlazor.Univer.Sheet.callbacks.beforeCreateUniverSheet) {
+        BootstrapBlazor.Univer.Sheet.callbacks.beforeCreateUniverSheet(sheetName, workbookData);
+    }
+    univerAPI.createUniverSheet();
 }
 
 const defaultWorkbookData = {
