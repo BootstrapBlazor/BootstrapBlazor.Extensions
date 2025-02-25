@@ -99,6 +99,8 @@ const createUniverSheet = async sheet => {
         BootstrapBlazor.Univer.Sheet.callbacks.beforeCreateUniverSheet(sheetName, workbookData);
     }
     univerAPI.createUniverSheet();
+    sheet.univer = univer;
+    sheet.univerAPI = univerAPI;
 }
 
 const defaultWorkbookData = {
@@ -131,6 +133,11 @@ const defaultWorkbookData = {
             columnCount: 100,
         },
     }
+}
+
+export function execute(id, data) {
+    const sheet = Data.get(id);
+    console.log(id, sheet, data);
 }
 
 export function dispose(id) {
