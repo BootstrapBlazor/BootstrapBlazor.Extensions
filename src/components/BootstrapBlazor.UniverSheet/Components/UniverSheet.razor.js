@@ -101,6 +101,18 @@ const createUniverSheet = async sheet => {
     univerAPI.createUniverSheet();
     sheet.univer = univer;
     sheet.univerAPI = univerAPI;
+    
+    window.univer = univer;
+    window.univerAPI = univerAPI;
+    
+    const customService = univerAPI._injector.get('zhangsan');
+    // const customService2 = univerAPI._injector.get('zhangsan');
+    // console.log(customService === customService2);
+    console.log(customService, 'customService');
+    console.log(customService._getResource(), 'customService._getResource()')
+
+    customService._setRangeValue('999')
+
 }
 
 const defaultWorkbookData = {
