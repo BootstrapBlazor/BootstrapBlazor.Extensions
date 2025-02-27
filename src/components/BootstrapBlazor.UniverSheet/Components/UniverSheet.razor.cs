@@ -45,7 +45,7 @@ public partial class UniverSheet
     /// 获得/设置 Frame 加载页面传递过来的数据
     /// </summary>
     [Parameter]
-    public Func<object?, Task>? OnPostDataAsync { get; set; }
+    public Func<UniverSheetData?, Task>? OnPostDataAsync { get; set; }
 
     private string? ClassString => CssBuilder.Default("bb-univer-sheet w-100 h-100")
         .AddClassFromAttributes(AdditionalAttributes)
@@ -87,7 +87,7 @@ public partial class UniverSheet
     /// <param name="data"></param>
     /// <returns></returns>
     [JSInvokable]
-    public async Task TriggerPostData(object? data)
+    public async Task TriggerPostData(UniverSheetData data)
     {
         if (OnPostDataAsync != null)
         {
