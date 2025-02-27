@@ -120,9 +120,12 @@ const createUniverSheet = async sheet => {
 
 export function execute(id, data) {
     const sheet = Data.get(id);
-    for (const { service } of sheet.dataServices) {
+    for (const { name, service } of sheet.dataServices) {
         if (typeof (service.receiveData) === 'function') {
             service.receiveData(data);
+        }
+        else {
+            console.warn(`The service ${name} does not have a receiveData method.`);
         }
     }
 }
