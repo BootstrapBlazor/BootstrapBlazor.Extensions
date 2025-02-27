@@ -108,8 +108,8 @@ const createUniverSheet = async sheet => {
 
     for (const name of dataServiceNames) {
         const service = univerAPI._injector.get(name);
-        service.pushData = data => {
-            invoke.invokeMethodAsync('TriggerPostData', data);
+        service.pushData = async data => {
+            await invoke.invokeMethodAsync('TriggerPostData', data);
         }
         sheet.dataServices.push({
             name,
@@ -120,9 +120,7 @@ const createUniverSheet = async sheet => {
 
 export function execute(id, data) {
     const sheet = Data.get(id);
-    for (const { name, service } of sheet.dataServices) {
-        console.log(name, service);
-
+    for (const { service } of sheet.dataServices) {
         if (typeof (service.receiveData) === 'function') {
             service.receiveData(data);
         }
