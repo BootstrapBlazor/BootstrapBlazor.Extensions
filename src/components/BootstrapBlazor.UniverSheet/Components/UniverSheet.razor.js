@@ -36,9 +36,7 @@ export async function init(id, invoke, options) {
     await addScript('./_content/BootstrapBlazor.UniverSheet/univer/js/univerjs.preset-sheets-drawing.locales.zhCN.js');
     await addScript('./_content/BootstrapBlazor.UniverSheet/univer/js/univerjs.sheets-zen-editor.locales.zh-CN.js');
 
-    await addLink('./_content/BootstrapBlazor.UniverSheet/univer/css/univerjs.preset-sheets-core.css');
-    await addLink('./_content/BootstrapBlazor.UniverSheet/univer/css/univerjs.preset-sheets-drawing.css');
-    await addLink('./_content/BootstrapBlazor.UniverSheet/univer/css/univerjs.sheets-zen-editor.css');
+    await addLink('./_content/BootstrapBlazor.UniverSheet/univer/css/univer-sheet.bundle.css');
 
     const sheet = {
         el,

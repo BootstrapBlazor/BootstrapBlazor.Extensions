@@ -1,0 +1,8 @@
+﻿@import 'univerjs.preset-sheets-core.css';
+@import 'univerjs.preset-sheets-drawing.css';
+@import 'univerjs.sheets-zen-editor.css';
+
+.bb-univer-sheet {
+    width: 100%;
+    height: 100%;
+}

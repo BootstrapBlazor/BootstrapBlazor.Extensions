@@ -47,7 +47,7 @@ public partial class UniverSheet
     [Parameter]
     public Func<UniverSheetData?, Task>? OnPostDataAsync { get; set; }
 
-    private string? ClassString => CssBuilder.Default("bb-univer-sheet w-100 h-100")
+    private string? ClassString => CssBuilder.Default("bb-univer-sheet")
         .AddClassFromAttributes(AdditionalAttributes)
         .Build();
 
