@@ -73,14 +73,10 @@ const createUniverSheet = async sheet => {
     };
     const sheetName = sheet.options.sheetName ?? "default";
     const plugins = sheet.options.plugins ?? {};
-    const dataServiceNames = []
     for (const name in plugins) {
         const module = await import(`../../../${plugins[name]}`);
         const plugin = module[name];
         options.plugins.push(plugin);
-        if (plugin.DataServiceName !== void 0) {
-            dataServiceNames.push(plugin.DataServiceName);
-        }
     }
 
     if (BootstrapBlazor.Univer.Sheet.callbacks.beforeCreateUniver) {
@@ -105,17 +101,6 @@ const createUniverSheet = async sheet => {
     univerAPI.createUniverSheet();
     sheet.univer = univer;
     sheet.univerAPI = univerAPI;
-
-    for (const name of dataServiceNames) {
-        const service = univerAPI._injector.get(name);
-        service.pushData = async data => {
-            await invoke.invokeMethodAsync('TriggerPostData', data);
-        }
-        sheet.dataServices.push({
-            name,
-            service
-        });
-    }
 }
 
 export function execute(id, data) {
