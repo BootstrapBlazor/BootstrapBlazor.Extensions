@@ -87,10 +87,9 @@ public partial class UniverSheet
     /// <param name="data"></param>
     /// <returns></returns>
     [JSInvokable]
-    public async Task<UniverSheetData?> TriggerPostData(UniverSheetData data)
-    {
-        return OnPostDataAsync == null ? null : await OnPostDataAsync(data);
-    }
+    public async Task<UniverSheetData?> TriggerPostData(UniverSheetData data) => OnPostDataAsync == null
+        ? null
+        : await OnPostDataAsync(data);
 
     /// <summary>
     /// 获得/设置 页面加载完毕后回调方法
