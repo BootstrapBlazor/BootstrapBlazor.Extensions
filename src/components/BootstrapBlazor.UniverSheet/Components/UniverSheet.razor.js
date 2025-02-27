@@ -42,13 +42,14 @@ export async function init(id, invoke, options) {
         el,
         invoke,
         options,
+        dataServices: []
     };
     await createUniverSheet(sheet);
     Data.set(id, sheet);
 }
 
 const createUniverSheet = async sheet => {
-    const { el } = sheet;
+    const { el, invoke } = sheet;
     const { LocaleType, merge } = UniverCore;
     const { createUniver } = UniverPresets;
     const { UniverSheetsCorePreset } = UniverPresetSheetsCore;
@@ -72,9 +73,14 @@ const createUniverSheet = async sheet => {
     };
     const sheetName = sheet.options.sheetName ?? "default";
     const plugins = sheet.options.plugins ?? {};
+    const dataServiceNames = []
     for (const name in plugins) {
         const module = await import(`../../../${plugins[name]}`);
-        options.plugins.push(module[name]);
+        const plugin = module[name];
+        options.plugins.push(plugin);
+        if (plugin.DataServiceName !== void 0) {
+            dataServiceNames.push(plugin.DataServiceName);
+        }
     }
 
     if (BootstrapBlazor.Univer.Sheet.callbacks.beforeCreateUniver) {
@@ -100,15 +106,27 @@ const createUniverSheet = async sheet => {
     sheet.univer = univer;
     sheet.univerAPI = univerAPI;
 
-    sheet.customService = sheet.univerAPI._injector.get('zhangsan');
-    sheet.customService.pushData = data => {
-        sheet.invoke.invokeMethodAsync('TriggerPostData', data);
+    for (const name of dataServiceNames) {
+        const service = univerAPI._injector.get(name);
+        service.pushData = data => {
+            invoke.invokeMethodAsync('TriggerPostData', data);
+        }
+        sheet.dataServices.push({
+            name,
+            service
+        });
     }
 }
 
 export function execute(id, data) {
     const sheet = Data.get(id);
-    sheet.customService.receiveData(data);
+    for (const { name, service } of sheet.dataServices) {
+        console.log(name, service);
+
+        if (typeof (service.receiveData) === 'function') {
+            service.receiveData(data);
+        }
+    }
 }
 
 export function dispose(id) {
