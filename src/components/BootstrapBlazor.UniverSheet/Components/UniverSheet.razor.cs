@@ -64,7 +64,7 @@ public partial class UniverSheet
         if (_lastData != Data)
         {
             _lastData = Data;
-            await PushData(Data);
+            await PushDataAsync(Data);
         }
     }
 
@@ -79,7 +79,7 @@ public partial class UniverSheet
     /// </summary>
     /// <param name="data"></param>
     /// <returns></returns>
-    public Task PushData(UniverSheetData? data) => InvokeVoidAsync("execute", Id, data);
+    public Task PushDataAsync(UniverSheetData? data) => InvokeVoidAsync("execute", Id, data);
 
     /// <summary>
     /// 由 JavaScript 调用
