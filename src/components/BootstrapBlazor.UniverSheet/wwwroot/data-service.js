@@ -3,7 +3,7 @@
 
     registerUniverSheet(sheet) {
         sheet.pushData = data => {
-            _checkReceiveDataCallback();
+            this._checkReceiveDataCallback();
             this._callback(data);
         };
         this._sheet = sheet;
@@ -14,12 +14,12 @@
     }
 
     getUniverSheet() {
-        _checkUniverSheet();
+        this._checkUniverSheet();
         return this._sheet;
     }
 
     async getDataAsync(data) {
-        _checkUniverSheet();
+        this._checkUniverSheet();
         return await this._sheet.invoke.invokeMethodAsync('TriggerPostData', data);
     }
 
