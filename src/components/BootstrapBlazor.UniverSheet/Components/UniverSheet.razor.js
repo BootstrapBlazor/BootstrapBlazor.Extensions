@@ -1,4 +1,5 @@
 ﻿import Data from '../../BootstrapBlazor/modules/data.js'
+import { isFunction } from '../../BootstrapBlazor/modules/utility.js'
 import { createUniverSheetAsync } from '../univer.js'
 
 
@@ -29,7 +30,7 @@ export function dispose(id) {
     const univerSheet = Data.get(id);
     Data.remove(id);
 
-    if (univerSheet) {
-        univerSheet.univer.dispose();
+    if (isFunction(univerSheet.dispose)) {
+        univerSheet.dispose();
     }
 }

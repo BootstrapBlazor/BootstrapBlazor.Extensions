@@ -1,4 +1,6 @@
-﻿export default class DataService {
+﻿import { isFunction } from '../BootstrapBlazor/modules/utility.js'
+
+export default class DataService {
     static name = 'DataService';
 
     registerUniverSheet(sheet) {
@@ -30,7 +32,7 @@
     }
 
     _checkReceiveDataCallback() {
-        if (typeof (this._callback) !== 'function') {
+        if (isFunction(this._callback) === false) {
             throw new Error('Receive data callback is not registered. Please call registerReceiveDataCallback first');
         }
     }
