@@ -24,5 +24,10 @@ export function execute(id, data) {
 }
 
 export function dispose(id) {
+    const univerSheet = Data.get(id);
+    Data.remove(id);
 
+    if (univerSheet) {
+        univerSheet.dispose();
+    }
 }
