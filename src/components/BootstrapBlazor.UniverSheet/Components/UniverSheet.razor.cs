@@ -102,7 +102,7 @@ public partial class UniverSheet
     /// </summary>
     /// <returns></returns>
     [JSInvokable]
-    public async Task TriggerLoaded()
+    public async Task TriggerReadyAsync()
     {
         if (OnReadyAsync != null)
         {

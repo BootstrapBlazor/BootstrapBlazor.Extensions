@@ -15,6 +15,8 @@ export async function init(id, invoke, options) {
     };
     await createUniverSheetAsync(univerSheet);
     Data.set(id, univerSheet);
+
+    invoke.invokeMethodAsync('TriggerReadyAsync');
 }
 
 export function execute(id, data) {
