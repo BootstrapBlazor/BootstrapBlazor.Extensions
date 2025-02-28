@@ -1,5 +1,5 @@
 ﻿import Data from '../../BootstrapBlazor/modules/data.js'
-import { createUniverSheet } from '../univer.js'
+import { createUniverSheetAsync } from '../univer.js'
 
 
 export async function init(id, invoke, options) {
@@ -8,19 +8,19 @@ export async function init(id, invoke, options) {
         return;
     }
 
-    const sheet = {
+    const univerSheet = {
         el,
         invoke,
         options
     };
-    await createUniverSheet(sheet);
-    Data.set(id, sheet);
+    await createUniverSheetAsync(univerSheet);
+    Data.set(id, univerSheet);
 }
 
 export function execute(id, data) {
-    const sheet = Data.get(id);
+    const univerSheet = Data.get(id);
 
-    sheet.pushData(data);
+    univerSheet.pushData(data);
 }
 
 export function dispose(id) {

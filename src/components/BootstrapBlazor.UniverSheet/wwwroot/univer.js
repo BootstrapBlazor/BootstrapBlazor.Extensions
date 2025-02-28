@@ -35,7 +35,7 @@ const loadAssets = async () => {
 }
 
 
-export async function createUniverSheet(sheet) {
+export async function createUniverSheetAsync(sheet) {
     await loadAssets();
 
     const { el } = sheet;
@@ -92,7 +92,7 @@ export async function createUniverSheet(sheet) {
     sheet.univerAPI = univerAPI;
 
     const dataService = univer._injector.get(DataService.name);
-    dataService.register(sheet);
+    dataService.registerUniverSheet(sheet);
 }
 
 const defaultWorkbookData = {
