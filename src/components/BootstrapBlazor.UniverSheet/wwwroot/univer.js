@@ -1,23 +1,6 @@
 ﻿import { addScript, addLink } from '../BootstrapBlazor/modules/utility.js'
 import DataService from './data-service.js'
 
-if (window.BootstrapBlazor === void 0) {
-    window.BootstrapBlazor = {};
-}
-
-if (window.BootstrapBlazor.Univer === void 0) {
-    window.BootstrapBlazor.Univer = {};
-}
-
-if (window.BootstrapBlazor.Univer.Sheet === void 0) {
-    window.BootstrapBlazor.Univer.Sheet = {
-        callbacks: {
-            beforeCreateUniver: null,
-            beforeCreateUniverSheet: null
-        }
-    }
-}
-
 const loadAssets = async () => {
     await addScript('./_content/BootstrapBlazor.UniverSheet/univer/js/react.production.min.js');
     await addScript('./_content/BootstrapBlazor.UniverSheet/univer/js/react-dom.production.min.js');
@@ -70,9 +53,6 @@ export async function createUniverSheetAsync(sheet) {
         options.plugins.push(plugin);
     }
 
-    if (BootstrapBlazor.Univer.Sheet.callbacks.beforeCreateUniver) {
-        BootstrapBlazor.Univer.Sheet.callbacks.beforeCreateUniver(sheetName, options);
-    }
     const { univer, univerAPI } = createUniver({
         presets: [
             UniverSheetsCorePreset({
@@ -83,11 +63,7 @@ export async function createUniverSheetAsync(sheet) {
         ...options
     });
 
-    const workbookData = sheet.options.workbookData
-    if (BootstrapBlazor.Univer.Sheet.callbacks.beforeCreateUniverSheet) {
-        BootstrapBlazor.Univer.Sheet.callbacks.beforeCreateUniverSheet(sheetName, workbookData);
-    }
-    univerAPI.createWorkbook(workbookData);
+    univerAPI.createUniverSheet();
     sheet.univer = univer;
     sheet.univerAPI = univerAPI;
 
