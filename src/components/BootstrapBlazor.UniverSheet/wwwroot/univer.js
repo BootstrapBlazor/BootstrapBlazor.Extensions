@@ -43,7 +43,6 @@ export async function createUniverSheetAsync(sheet) {
             UniverSheetsZenEditorPlugin
         ]
     };
-    const sheetName = sheet.options.sheetName ?? "default";
     const plugins = sheet.options.plugins ?? {
         DefaultPlugin: '_content/BootstrapBlazor.UniverSheet/plugin.js'
     };
@@ -66,6 +65,9 @@ export async function createUniverSheetAsync(sheet) {
     univerAPI.createUniverSheet();
     sheet.univer = univer;
     sheet.univerAPI = univerAPI;
+    sheet.dispose = () => {
+        univer.dispose();
+    }
 
     const dataService = univer._injector.get(DataService.name);
     dataService.registerUniverSheet(sheet);
