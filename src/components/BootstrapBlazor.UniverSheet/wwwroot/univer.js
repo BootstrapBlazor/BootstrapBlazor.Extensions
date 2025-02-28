@@ -61,7 +61,9 @@ export async function createUniverSheetAsync(sheet) {
         ]
     };
     const sheetName = sheet.options.sheetName ?? "default";
-    const plugins = sheet.options.plugins ?? {};
+    const plugins = sheet.options.plugins ?? {
+        DefaultPlugin: '_content/BootstrapBlazor.UniverSheet/plugin.js'
+    };
     for (const name in plugins) {
         const module = await import(`../../../${plugins[name]}`);
         const plugin = module[name];
