@@ -1,4 +1,5 @@
 ﻿import { addScript, addLink } from '../BootstrapBlazor/modules/utility.js'
+import DataService from './data-service.js'
 
 if (window.BootstrapBlazor === void 0) {
     window.BootstrapBlazor = {};
@@ -92,36 +93,6 @@ export async function createUniverSheet(sheet) {
 
     const dataService = univer._injector.get(DataService.name);
     dataService.register(sheet);
-}
-
-export class DataService {
-    static name = 'DataService';
-
-    constructor() {
-        console.log('DataService.constructor');
-    }
-
-    receiveData(data) {
-        this._callback(data);
-    }
-
-    register(sheet) {
-        this._sheet = sheet;
-        this._sheet.pushData = this.receiveData.bind(this);
-    }
-
-    registerCallback(callback) {
-        this._callback = callback;
-    }
-
-    getSheet() {
-        return this._sheet;
-    }
-
-    async getData(data) {
-        console.log('getData', data);
-        return await this._sheet.invoke.invokeMethodAsync('TriggerPostData', data);
-    }
 }
 
 const defaultWorkbookData = {
