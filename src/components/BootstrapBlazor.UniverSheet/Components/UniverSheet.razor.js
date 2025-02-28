@@ -30,6 +30,6 @@ export function dispose(id) {
     Data.remove(id);
 
     if (univerSheet) {
-        univerSheet.dispose();
+        univerSheet.univer.dispose();
     }
 }

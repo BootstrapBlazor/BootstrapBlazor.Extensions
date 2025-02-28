@@ -81,48 +81,14 @@ export async function createUniverSheetAsync(sheet) {
         ...options
     });
 
-    const workbookData = {
-        defaultWorkbookData
-    };
+    const workbookData = sheet.options.workbookData
     if (BootstrapBlazor.Univer.Sheet.callbacks.beforeCreateUniverSheet) {
         BootstrapBlazor.Univer.Sheet.callbacks.beforeCreateUniverSheet(sheetName, workbookData);
     }
-    univerAPI.createUniverSheet();
+    univerAPI.createWorkbook(workbookData);
     sheet.univer = univer;
     sheet.univerAPI = univerAPI;
 
     const dataService = univer._injector.get(DataService.name);
     dataService.registerUniverSheet(sheet);
-}
-
-const defaultWorkbookData = {
-    sheets: {
-        sheet1: {
-            id: 'sheet1',
-            name: 'sheet1',
-            cellData: {
-                0: {
-                    0: {
-                        v: "default-workbook-data:sheet1:A1",
-                    },
-                },
-            },
-            rowCount: 100,
-            columnCount: 100,
-        },
-        sheet2: {
-            id: 'sheet2',
-            name: 'sheet2',
-            cellData: {
-                0: {
-                    0: {
-                        v: 'default-workbook-data:sheet2:A1',
-                    },
-                },
-
-            },
-            rowCount: 100,
-            columnCount: 100,
-        },
-    }
 }
