@@ -19,7 +19,7 @@ export class DefaultPlugin extends Plugin {
     onReady() {
         this._dataService = this._injector.get(DataService.name);
         this._dataService.registerReceiveDataCallback(data => {
-            this.receiveData(data);
+            return this.receiveData(data);
         });
     }
 
