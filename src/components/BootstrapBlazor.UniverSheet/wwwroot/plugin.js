@@ -55,6 +55,12 @@ export class DefaultPlugin extends Plugin {
         this._sheet ??= this._dataService.getUniverSheet();
         const { univerAPI } = this._sheet;
         const data = univerAPI.getActiveWorkbook().save();
+        debugger;
+        delete data.id;
+        delete data.name;
+        delete data.sheetOrder;
+        delete data.appVersion;
+        delete data.resources;
         return {
             messageName: null,
             commandName: 'Save',
