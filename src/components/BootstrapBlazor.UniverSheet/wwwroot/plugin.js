@@ -42,13 +42,13 @@ export class DefaultPlugin extends Plugin {
 
     setWorkbookData(data) {
         this._sheet ??= this._dataService.getUniverSheet();
-        const { univer, univerAPI } = this._sheet;
+        const { univerAPI } = this._sheet;
         const activeWorkbook = univerAPI.getActiveWorkbook()
         const unitId = activeWorkbook?.getId()
         if (unitId) {
             univerAPI.disposeUnit(unitId)
         }
-        univer.createUnit(UniverInstanceType.UNIVER_SHEET, JSON.parse(data));
+        univerAPI.createWorkbook(JSON.parse(data));
     }
 
     getWorkbookData() {
