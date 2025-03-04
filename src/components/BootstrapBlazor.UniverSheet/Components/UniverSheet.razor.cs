@@ -66,7 +66,7 @@ public partial class UniverSheet
     /// <inheritdoc/>
     /// </summary>
     /// <returns></returns>
-    protected override Task InvokeInitAsync() => InvokeVoidAsync("init", Id, Interop, new { Theme, Lang, Plugins });
+    protected override Task InvokeInitAsync() => InvokeVoidAsync("init", Id, Interop, new { Theme, Lang, Plugins, Data });
 
     /// <summary>
     /// 推送数据方法
