@@ -2,7 +2,6 @@
 import { isFunction } from '../../BootstrapBlazor/modules/utility.js'
 import { createUniverSheetAsync } from '../univer.js'
 
-
 export async function init(id, invoke, options) {
     const el = document.getElementById(id);
     if (el === null) {
@@ -23,7 +22,7 @@ export async function init(id, invoke, options) {
 export function execute(id, data) {
     const univerSheet = Data.get(id);
 
-    univerSheet.pushData(data);
+    return univerSheet.pushData(data);
 }
 
 export function dispose(id) {

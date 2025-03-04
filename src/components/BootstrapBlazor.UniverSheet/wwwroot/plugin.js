@@ -1,6 +1,6 @@
 ﻿import DataService from './data-service.js'
 
-const { Plugin, Injector, setDependencies } = UniverCore;
+const { Plugin, Injector, setDependencies, UniverInstanceType } = UniverCore;
 
 // 定义插件类
 export class DefaultPlugin extends Plugin {
@@ -19,7 +19,7 @@ export class DefaultPlugin extends Plugin {
     onReady() {
         this._dataService = this._injector.get(DataService.name);
         this._dataService.registerReceiveDataCallback(data => {
-            this.receiveData(data);
+            return this.receiveData(data);
         });
     }
 
@@ -27,22 +27,45 @@ export class DefaultPlugin extends Plugin {
 
     }
 
-    receiveData(data) {
-        this._sheet ??= this._dataService.getUniverSheet();
-        const sheetData = data.data;
-        const { univerAPI } = this._sheet;
-        const rows = sheetData.length;
-        let cols = 1;
-        if (rows > 0) {
-            cols = sheetData[0].length;
+    receiveData(payload) {
+        const { messageName, commandName, data } = payload;
+        if (messageName === null) {
+            if (commandName === 'SetWorkbook') {
+                this.setWorkbookData(data);
+            }
+            else if (commandName === 'GetWorkbook') {
+                return this.getWorkbookData();
+            }
         }
-        const range = univerAPI.getActiveWorkbook().getActiveSheet().getRange(0, 0, rows, cols)
-        const defaultData = sheetData.map(d => {
-            return d.map(v => {
-                return { v: v };
-            });
-        });
-        range.setValues(defaultData);
+        return null;
+    }
+
+    setWorkbookData(data) {
+        this._sheet ??= this._dataService.getUniverSheet();
+        const { univerAPI } = this._sheet;
+        const activeWorkbook = univerAPI.getActiveWorkbook()
+        const unitId = activeWorkbook?.getId()
+        if (unitId) {
+            univerAPI.disposeUnit(unitId)
+        }
+        univerAPI.createWorkbook(JSON.parse(data));
+    }
+
+    getWorkbookData() {
+        this._sheet ??= this._dataService.getUniverSheet();
+        const { univerAPI } = this._sheet;
+        const data = univerAPI.getActiveWorkbook().save();
+        debugger;
+        delete data.id;
+        delete data.name;
+        delete data.sheetOrder;
+        delete data.appVersion;
+        delete data.resources;
+        return {
+            messageName: null,
+            commandName: 'Save',
+            data: JSON.stringify(data)
+        };
     }
 }
 

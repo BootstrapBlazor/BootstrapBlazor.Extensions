@@ -6,7 +6,7 @@ export default class DataService {
     registerUniverSheet(sheet) {
         sheet.pushData = data => {
             this._checkReceiveDataCallback();
-            this._callback(data);
+            return this._callback(data);
         };
         this._sheet = sheet;
     }

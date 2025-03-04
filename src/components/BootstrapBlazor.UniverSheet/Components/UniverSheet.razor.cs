@@ -79,7 +79,7 @@ public partial class UniverSheet
     /// </summary>
     /// <param name="data"></param>
     /// <returns></returns>
-    public Task PushDataAsync(UniverSheetData? data) => InvokeVoidAsync("execute", Id, data);
+    public Task<UniverSheetData?> PushDataAsync(UniverSheetData? data) => InvokeAsync<UniverSheetData>("execute", Id, data);
 
     /// <summary>
     /// 由 JavaScript 调用
