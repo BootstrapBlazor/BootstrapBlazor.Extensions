@@ -62,7 +62,15 @@ export async function createUniverSheetAsync(sheet) {
         ...options
     });
 
-    univerAPI.createUniverSheet();
+    const { data } = sheet.options;
+    if (data !== void 0) {
+        univerAPI.createWorkbook(JSON.parse(data.data));
+        delete sheet.options.data;
+    }
+    else {
+        univerAPI.createUniverSheet();
+    }
+
     sheet.univer = univer;
     sheet.univerAPI = univerAPI;
     sheet.dispose = () => {

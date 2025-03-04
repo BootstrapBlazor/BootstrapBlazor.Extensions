@@ -12,6 +12,7 @@ public class UniverSheetData
     /// <summary>
     /// 获得/设置 消息名称 默认 null 未设置
     /// </summary>
+    /// <remarks>为 null 时组件会处理内置几个 <see cref="CommandName"/></remarks>
     public string? MessageName { get; set; }
 
     /// <summary>

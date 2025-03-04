@@ -31,10 +31,13 @@ export class DefaultPlugin extends Plugin {
         const { messageName, commandName, data } = payload;
         if (messageName === null) {
             if (commandName === 'SetWorkbook') {
-                this.setWorkbookData(data);
+                this.setWorkbookData(JSON.parse(data));
             }
             else if (commandName === 'GetWorkbook') {
                 return this.getWorkbookData();
+            }
+            else if (commandName == 'UpdateRange') {
+                this.updateRange(data);
             }
         }
         return null;
@@ -48,14 +51,13 @@ export class DefaultPlugin extends Plugin {
         if (unitId) {
             univerAPI.disposeUnit(unitId)
         }
-        univerAPI.createWorkbook(JSON.parse(data));
+        univerAPI.createWorkbook(data);
     }
 
     getWorkbookData() {
         this._sheet ??= this._dataService.getUniverSheet();
         const { univerAPI } = this._sheet;
         const data = univerAPI.getActiveWorkbook().save();
-        debugger;
         delete data.id;
         delete data.name;
         delete data.sheetOrder;
@@ -66,6 +68,14 @@ export class DefaultPlugin extends Plugin {
             commandName: 'Save',
             data: JSON.stringify(data)
         };
+    }
+
+    updateRange(data) {
+        this._sheet ??= this._dataService.getUniverSheet();
+        const { univerAPI } = this._sheet;
+        const sheet = univerAPI.getActiveWorkbook().getActiveSheet();
+        const range = sheet.getRange(data.range);
+        range.setValue(data.value);
     }
 }
 
