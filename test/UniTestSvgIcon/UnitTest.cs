@@ -4,6 +4,7 @@
 
 using BootstrapBlazor.Components;
 using System.Text.RegularExpressions;
+using static System.Runtime.InteropServices.JavaScript.JSType;
 
 namespace UniTestIconPark;
 
@@ -317,26 +318,46 @@ public partial class UnitTest
             var data = reader.ReadToEnd();
             reader.Close();
 
+            // find viewBox
+            var viewBox = FindViewBox(data);
+
             // find <svg
             var index = data.IndexOf("<svg ");
             if (index > -1)
             {
                 data = data[index..];
             }
-            index = data.IndexOf(">");
+            index = data.IndexOf('>');
             if (index > -1)
             {
                 data = data[(index + 1)..];
             }
+
             var target = data.Replace("</svg>", "").Trim();
             target = target.Replace("fill=\"black\"", "fill=\"currentColor\"");
             target = target.Replace("stroke=\"black\"", "stroke=\"currentColor\"");
-            target = $"    <symbol viewBox=\"0 0 16 16\" id=\"{id}\">{target}</symbol>";
+            target = $"    <symbol viewBox=\"{viewBox}\" id=\"{id}\">{target}</symbol>";
             writer.WriteLine(target);
 
             listWriter.WriteLine($"<UniverIcon Name=\"{id}\"></UniverIcon>");
         }
         writer.WriteLine("</svg>");
         writer.Close();
+    }
+
+    private static string FindViewBox(string svg)
+    {
+        var index = svg.IndexOf(" viewBox=\"");
+        if (index > -1)
+        {
+            index += 10;
+            svg = svg[index..];
+        }
+        index = svg.IndexOf('\"');
+        if (index > -1)
+        {
+            svg = svg[..index];
+        }
+        return svg;
     }
 }
