@@ -11,6 +11,11 @@
     transform: rotate(90deg);
 }
 
+.bi-rotate-315:before {
+    -webkit-transform: rotate(-45deg);
+    transform: rotate(-45deg);
+}
+
 .bi-spin:before {
     -webkit-animation-name: bi-spin;
     animation-name: bi-spin;
