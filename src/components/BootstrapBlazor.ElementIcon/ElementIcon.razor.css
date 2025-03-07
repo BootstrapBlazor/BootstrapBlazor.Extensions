@@ -6,5 +6,4 @@
     .bb-element-icon > svg {
         width: var(--bb-svg-icon-width);
         height: var(--bb-svg-icon-width);
-        fill: currentColor;
     }
