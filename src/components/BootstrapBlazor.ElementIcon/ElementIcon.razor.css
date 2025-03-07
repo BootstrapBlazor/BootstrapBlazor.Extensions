@@ -1,6 +1,5 @@
 ﻿.bb-element-icon {
-    --bb-svg-icon-width: 14px;
-    --bb-svg-icon-color: var(--bs-body-color);
+    --bb-svg-icon-width: 16px;
     display: inline-flex;
 }
 
@@ -8,7 +7,3 @@
         width: var(--bb-svg-icon-width);
         height: var(--bb-svg-icon-width);
     }
-
-        .bb-element-icon > svg > * {
-            stroke: var(--bb-svg-icon-color);
-        }

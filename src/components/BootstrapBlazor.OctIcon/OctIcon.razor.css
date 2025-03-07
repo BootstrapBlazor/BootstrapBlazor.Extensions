@@ -1,0 +1,9 @@
+﻿.bb-oct-icon {
+    --bb-svg-icon-width: 16px;
+    display: inline-flex;
+}
+
+    .bb-oct-icon > svg {
+        width: var(--bb-svg-icon-width);
+        height: var(--bb-svg-icon-width);
+    }

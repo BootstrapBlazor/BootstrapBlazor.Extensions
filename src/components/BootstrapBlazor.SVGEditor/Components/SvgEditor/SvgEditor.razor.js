@@ -1,8 +1,11 @@
-﻿import Data from '../../../BootstrapBlazor/modules/data.js'
+﻿import { addLink } from '../../../BootstrapBlazor/modules/utility.js'
+import Data from '../../../BootstrapBlazor/modules/data.js'
 import Editor from "../../editor/Editor.js"
 
-export function init(id, options) {
+export async function init(id, options) {
     const { preload, interop, callback } = options;
+
+    await addLink('_content/BootstrapBlazor.SvgEditor/svgedit.bundle.css');
 
     /* for available options see the file `docs/tutorials/ConfigOptions.md */
     const svgEditor = new Editor(document.getElementById(id))
