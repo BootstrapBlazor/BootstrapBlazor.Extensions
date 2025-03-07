@@ -178,6 +178,8 @@ Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "BootstrapBlazor.Html2Image"
 EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "BootstrapBlazor.UniverSheet", "src\components\BootstrapBlazor.UniverSheet\BootstrapBlazor.UniverSheet.csproj", "{E30AAB64-BF28-4960-89C1-1F521025F531}"
 EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "BootstrapBlazor.UniverIcon", "src\components\BootstrapBlazor.UniverIcon\BootstrapBlazor.UniverIcon.csproj", "{A657E04C-1495-439E-BC2E-1EEAB2D1B4DA}"
+EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
 		Debug|Any CPU = Debug|Any CPU
@@ -480,6 +482,10 @@ Global
 		{E30AAB64-BF28-4960-89C1-1F521025F531}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{E30AAB64-BF28-4960-89C1-1F521025F531}.Release|Any CPU.ActiveCfg = Release|Any CPU
 		{E30AAB64-BF28-4960-89C1-1F521025F531}.Release|Any CPU.Build.0 = Release|Any CPU
+		{A657E04C-1495-439E-BC2E-1EEAB2D1B4DA}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{A657E04C-1495-439E-BC2E-1EEAB2D1B4DA}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{A657E04C-1495-439E-BC2E-1EEAB2D1B4DA}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{A657E04C-1495-439E-BC2E-1EEAB2D1B4DA}.Release|Any CPU.Build.0 = Release|Any CPU
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE
@@ -563,6 +569,7 @@ Global
 		{C882891F-4A6A-C9BE-AC96-227764A4A46A} = {FF1089BE-C704-4374-B629-C57C08E1798F}
 		{F184D96E-7855-4E3B-B447-D09DBC1C91C6} = {FF1089BE-C704-4374-B629-C57C08E1798F}
 		{E30AAB64-BF28-4960-89C1-1F521025F531} = {FF1089BE-C704-4374-B629-C57C08E1798F}
+		{A657E04C-1495-439E-BC2E-1EEAB2D1B4DA} = {FF1089BE-C704-4374-B629-C57C08E1798F}
 	EndGlobalSection
 	GlobalSection(ExtensibilityGlobals) = postSolution
 		SolutionGuid = {D5EB1960-6F30-4CE1-B375-EAE1F787D6FF}
