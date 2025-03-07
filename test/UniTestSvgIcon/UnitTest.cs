@@ -253,19 +253,22 @@ public partial class UnitTest
             var data = reader.ReadToEnd();
             reader.Close();
 
+            // find viewBox
+            var viewBox = FindViewBox(data);
+
             // find <svg
             var index = data.IndexOf("<svg ");
             if (index > -1)
             {
                 data = data[index..];
             }
-            index = data.IndexOf(">");
+            index = data.IndexOf('>');
             if (index > -1)
             {
                 data = data[(index + 1)..];
             }
             var target = data.Replace("</svg>", "").Trim();
-            target = $"    <symbol viewBox=\"0 0 16 16\" id=\"{id}\">{target}</symbol>";
+            target = $"    <symbol viewBox=\"{viewBox}\" id=\"{id}\">{target}</symbol>";
             writer.WriteLine(target);
 
             listWriter.WriteLine($"<OctIcon Name=\"{id}\"></OctIcon>");
