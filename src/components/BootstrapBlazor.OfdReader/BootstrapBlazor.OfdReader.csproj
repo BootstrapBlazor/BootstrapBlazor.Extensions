@@ -1,29 +1,13 @@
 <Project Sdk="Microsoft.NET.Sdk.Razor">
- 
+
   <PropertyGroup>
-    <Version>0.0.2</Version>
+    <Version>9.0.0</Version>
   </PropertyGroup>
 
   <PropertyGroup>
-    <PackageTags>Bootstrap Blazor Ofd Reader Ofd阅读器 组件 </PackageTags>
-    <Description>Bootstrap UI Ofd Reader components experience</Description>
-    <NoWarn>1591</NoWarn>
+    <PackageTags>Bootstrap Blazor Ofd Reader Ofd 阅读器 组件 </PackageTags>
+    <Description>Bootstrap UI components extensions of OfdReader</Description>
   </PropertyGroup>
-
-  <ItemGroup>
-    <Compile Remove="wwwroot\images\**" />
-    <Content Remove="wwwroot\images\**" />
-    <Content Remove="wwwroot\npm\**" />
-    <EmbeddedResource Remove="wwwroot\images\**" />
-    <None Remove="wwwroot\fonts\**" />
-    <None Remove="wwwroot\images\**" />
-  </ItemGroup>
-  <ItemGroup>
-    <Content Remove="wwwroot\app2.js" />
-    <Content Remove="wwwroot\base_viewer.js" />
-    <Content Remove="wwwroot\index2.html" />
-    <Content Remove="wwwroot\viewer.css" />
-  </ItemGroup>
 
   <ItemGroup>
     <Using Include="BootstrapBlazor.Components" />
@@ -32,5 +16,5 @@
   <ItemGroup>
     <PackageReference Include="BootstrapBlazor" Version="$(BBVersion)" />
   </ItemGroup>
-  
+
 </Project>
