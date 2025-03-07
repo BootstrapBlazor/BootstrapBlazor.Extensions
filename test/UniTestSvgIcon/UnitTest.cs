@@ -69,9 +69,9 @@ public partial class UnitTest
     }
 
     [Theory]
-    [InlineData("filled")]
-    [InlineData("outlined")]
-    [InlineData("twotone")]
+    [InlineData("Filled")]
+    [InlineData("Outlined")]
+    [InlineData("TwoTone")]
     public void AntDesignIcon_Ok(string category)
     {
         var services = new ServiceCollection();
@@ -93,14 +93,14 @@ public partial class UnitTest
         var folder = new DirectoryInfo(downloadFolder);
 
         // 处理 List 文件
-        var iconListFile = Path.Combine(root, $"../../../AntDesign/AntDesignIconList_{category}.razor");
+        var iconListFile = Path.Combine(root, $"../../../AntDesign/AntDesignIconList{category}.razor");
         if (File.Exists(iconListFile))
         {
             File.Delete(iconListFile);
         }
 
         // 处理 svg 文件
-        var svgFile = Path.Combine(root, $"../../../AntDesign/{category}.svg");
+        var svgFile = Path.Combine(root, $"../../../AntDesign/{category.ToLowerInvariant()}.svg");
         if (File.Exists(svgFile))
         {
             File.Delete(svgFile);
@@ -115,22 +115,25 @@ public partial class UnitTest
             var data = reader.ReadToEnd();
             reader.Close();
 
+            // find viewBox
+            var viewBox = FindViewBox(data);
+
             // find <svg
             var index = data.IndexOf("<svg ");
             if (index > -1)
             {
                 data = data[index..];
             }
-            index = data.IndexOf(">");
+            index = data.IndexOf('>');
             if (index > -1)
             {
                 data = data[(index + 1)..];
             }
             var target = data.Replace("</svg>", "").Trim();
-            target = $"    <symbol viewBox=\"0 0 1024 1024\" id=\"{id}\">{target}</symbol>";
+            target = $"    <symbol viewBox=\"{viewBox}\" id=\"{id}\">{target}</symbol>";
             writer.WriteLine(target);
 
-            listWriter.WriteLine($"<AntDesignIcon Name=\"{id}\"></AntDesignIcon>");
+            listWriter.WriteLine($"<AntDesignIcon Name=\"{id}\" Category=\"AntDesignIconCategory.{category}\"></AntDesignIcon>");
         }
         writer.WriteLine("</svg>");
         writer.Close();
