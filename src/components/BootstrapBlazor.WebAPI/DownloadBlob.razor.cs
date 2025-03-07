@@ -47,10 +47,11 @@ public partial class DownloadBlob : IAsyncDisposable
     }
 
     /// <summary>
-    /// 下载文件方法<para></para>通常，此方法用于相对较小的文件 (< 250 MB)
+    /// 下载文件方法<para></para>通常，此方法用于相对较小的文件 (小于 250 MB)
     /// </summary>
     /// <param name="fileName">文件名或者文件路径 | File name or the file path</param>
     /// <param name="memoryStream">数据流,为空则读取 <paramref name="fileName"/>, 默认为 null | data stream, if is null, read <paramref name="fileName"/>, default is null</param>
+    /// <param name="isAndroid"></param>
     /// <returns></returns>
     public virtual async Task<string> DownloadFileFromStream(string fileName, MemoryStream? memoryStream = null, bool isAndroid = false)
     {

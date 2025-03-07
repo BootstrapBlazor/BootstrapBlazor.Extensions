@@ -1,47 +1,25 @@
 <Project Sdk="Microsoft.NET.Sdk.Razor">
-    <PropertyGroup>
-        <TargetFrameworks>net6.0;net7.0;net8.0</TargetFrameworks>
-        <Nullable>enable</Nullable>
-        <ImplicitUsings>enable</ImplicitUsings>
-    </PropertyGroup>
 
-    <PropertyGroup>
-        <Version>8.0.5</Version>
-        <PackageProjectUrl>https://github.com/densen2014/BootstrapBlazor.WebAPI</PackageProjectUrl>
-        <RepositoryUrl>https://github.com/densen2014/BootstrapBlazor.WebAPI</RepositoryUrl>
-        <RepositoryType>git</RepositoryType>
-        <PackageTags>Bootstrap Blazor WebAPI 组件 (浏览器信息/电池信息/网络信息/截屏/录像/上传/Cookie/LocalStorage/WebSerial/语音识别和合成)</PackageTags>
-        <Description>Bootstrap UI WebAPI components experience (Battery info/Network info)</Description>
-        <AssemblyName>BootstrapBlazor.WebAPI</AssemblyName>
-        <RootNamespace>BootstrapBlazor.WebAPI</RootNamespace>
-        <AssemblyOriginatorKeyFile>..\keys\Longbow.Utility.snk</AssemblyOriginatorKeyFile>
-        <SignAssembly>True</SignAssembly>
-        <OutputPath>..\..\..\Bin</OutputPath>
-    </PropertyGroup>
+  <PropertyGroup>
+    <Version>9.0.0</Version>
+  </PropertyGroup>
 
-    <ItemGroup Condition="'$(TargetFramework)' == 'net6.0'">
-        <PackageReference Include="Microsoft.AspNetCore.Components.Web" Version="6.0.10" />
-    </ItemGroup>
-    
-    <ItemGroup Condition="'$(TargetFramework)' == 'net7.0'">
-        <PackageReference Include="Microsoft.AspNetCore.Components.Web" Version="7.0" />
-    </ItemGroup>
+  <PropertyGroup>
+    <PackageTags>Bootstrap Blazor WebAPI 组件 (浏览器信息/电池信息/网络信息/截屏/录像/上传/Cookie/LocalStorage/WebSerial/语音识别和合成)</PackageTags>
+    <Description>Bootstrap UI WebAPI components experience (Battery info/Network info)</Description>
+    <NoWarn>1591</NoWarn>
+  </PropertyGroup>
 
-    <ItemGroup Condition="'$(TargetFramework)' == 'net8.0'">
-        <PackageReference Include="Microsoft.AspNetCore.Components.Web" Version="8.0" />
-    </ItemGroup>
-    
-    <ItemGroup>
-        <PackageReference Include="UAParser" Version="3.1.47" />
-    </ItemGroup> 
-    
+  <ItemGroup>
+    <PackageReference Include="UAParser" Version="3.1.47" />
+  </ItemGroup>
 
-    <!-- 通过移除正常的引用并替换成固定版本的引用，达到无论如何更新都无法生效的目的。 -->
-    <Target Condition="'$(TargetFramework)' == 'net6.0'" Name="ReferenceStaticLegacyPackage" BeforeTargets="CollectPackageReferences">
-        <ItemGroup>
-            <PackageReference Remove="Microsoft.AspNetCore.Components.Web" />
-            <PackageReference Include="Microsoft.AspNetCore.Components.Web" Version="6.0" />
-        </ItemGroup>
-    </Target>
-    
+  <ItemGroup>
+    <Using Include="BootstrapBlazor.Components" />
+  </ItemGroup>
+
+  <ItemGroup>
+    <PackageReference Include="BootstrapBlazor" Version="$(BBVersion)" />
+  </ItemGroup>
+
 </Project>

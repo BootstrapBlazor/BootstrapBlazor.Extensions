@@ -10,6 +10,7 @@ using System.ComponentModel.DataAnnotations;
 using System.Globalization;
 using System.Text;
 using static BootstrapBlazor.AzureServices.TranslateResponse;
+using Console = System.Console;
 
 namespace BootstrapBlazor.AzureServices;
 

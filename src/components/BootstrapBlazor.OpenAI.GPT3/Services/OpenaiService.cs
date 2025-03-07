@@ -173,6 +173,9 @@ public class OpenAiClientService
     /// Completions 完成
     /// </summary>
     /// <param name="prompt"></param>
+    /// <param name="MaxTokens"></param>
+    /// <param name="Temperature"></param>
+    /// <param name="model"></param>
     /// <returns></returns>
     /// <exception cref="Exception"></exception>
     public async Task<string?> Completions(string prompt = "曾几何时", int? MaxTokens = null, float? Temperature = null, string? model = null)
@@ -217,6 +220,8 @@ public class OpenAiClientService
     /// Completions Stream 流式完成, 连续令牌接收结果
     /// </summary>
     /// <param name="prompt"></param>
+    /// <param name="MaxTokens"></param>
+    /// <param name="Temperature"></param>
     /// <returns></returns>
     /// <exception cref="Exception"></exception>
     public async Task<string?> CompletionsStream(string prompt = "曾几何时", int? MaxTokens = null, float? Temperature = null)
@@ -260,6 +265,10 @@ public class OpenAiClientService
     /// DALL-E是一个可以通过文本描述中生成图像的人工智能程序。于2021年1月5日由OpenAI发表。 DALL-E通过120亿参数版本的GPT-3 Transformer模型来理解自然语言输入并生成相应的图片。它既可以生成现实的对象，也能够生成现实中不存在的对象。
     /// </summary>
     /// <param name="prompt"></param>
+    /// <param name="base64"></param>
+    /// <param name="resolution"></param>
+    /// <param name="model"></param>
+    /// <param name="api_version"></param>
     /// <returns></returns>
 
     public async Task<string?> DALLE_CreateImage(string prompt = "镭射猫眼", bool base64 = true, string? resolution = "1024x1024", string? model = "text-to-image", string? api_version = "2022-08-03-preview")

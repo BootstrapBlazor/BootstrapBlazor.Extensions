@@ -14,7 +14,7 @@ namespace BootstrapBlazor.Components;
 /// </summary>
 
 
-public class UAInfo : ClientInfo
+public class UAInfo : UAParser.ClientInfo
 {
     public UAInfo() : base(null, null, null, null)
     {

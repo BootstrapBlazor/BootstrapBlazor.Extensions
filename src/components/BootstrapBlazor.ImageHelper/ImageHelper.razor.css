@@ -19,20 +19,20 @@
 }
 
 .canvas {
-    max-width: 300px;
-    max-height: 300px;
+    max-width: 200px;
+    max-height: 200px;
 }
 
 .video {
-    width: 320px;
-    height: 240px;
+    width: 200px;
+    height: 200px;
 }
 
 .photo {
     border: 1px solid black;
     box-shadow: 2px 2px 3px black;
-    width: 320px;
-    height: 240px;
+    width: 200px;
+    height: 200px;
 }
 
 .startbutton {

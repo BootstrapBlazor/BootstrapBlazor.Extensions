@@ -76,13 +76,12 @@ public class CaptureOptions
 
 public enum EnmuCaptureType
 {
-    /// <summary>
-    // 摄像头
-    /// </summary>
+    //摄像头
+    [Description("摄像头")]
     Camera,
-    /// <summary>
-    /// 屏幕
-    /// </summary>
+
+     //屏幕
+    [Description("屏幕")]
     Screen
 }
 

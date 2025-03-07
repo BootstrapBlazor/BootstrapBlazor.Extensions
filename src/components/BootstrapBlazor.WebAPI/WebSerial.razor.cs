@@ -211,7 +211,7 @@ public partial class WebSerial : IAsyncDisposable
     /// <summary>
     /// 连接状态
     /// </summary>
-    /// <param name="msg"></param>
+    /// <param name="flag"></param>
     /// <returns></returns>
     [JSInvokable]
     public async Task Connect(bool flag)
@@ -311,7 +311,7 @@ public partial class WebSerial : IAsyncDisposable
     /// <summary>
     /// 获取信号回调方法
     /// </summary>
-    /// <param name="msg"></param>
+    /// <param name="signals"></param>
     /// <returns></returns>
     [JSInvokable]
     public async Task GetSignals(WebSerialSignals signals)

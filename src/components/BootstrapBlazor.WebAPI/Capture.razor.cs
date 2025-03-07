@@ -238,7 +238,7 @@ public partial class Capture : IAsyncDisposable
     /// <summary>
     /// 选择摄像头回调方法
     /// </summary>
-    /// <param name="base64encodedstring"></param>
+    /// <param name="deviceID"></param>
     /// <returns></returns>
     [JSInvokable]
     public async Task SelectDeviceID(string deviceID)
@@ -294,12 +294,15 @@ public partial class Capture : IAsyncDisposable
     /// <summary>
     /// 错误回调方法
     /// </summary>
-    /// <param name="error"></param>
+    /// <param name="val"></param>
     /// <returns></returns>
     [JSInvokable]
     public async Task GetDecode(string val)
     {
-        if (OnDecode != null) await OnDecode.Invoke(val);
+        if (OnDecode != null)
+        {
+            await OnDecode.Invoke(val);
+        }
     }
 
     /// <summary>
@@ -310,7 +313,21 @@ public partial class Capture : IAsyncDisposable
     [JSInvokable]
     public async Task GetError(string error)
     {
-        if (OnError != null) await OnError.Invoke(error);
+        if (OnError != null)
+        {
+            await OnError.Invoke(error);
+        }
+        try
+        {
+            if (!string.IsNullOrWhiteSpace(DeviceID))
+            {
+                DeviceID = null;
+                await Storage.RemoveValue("CamsDeviceID");
+            }
+        }
+        catch
+        {
+        }
     }
 
 }

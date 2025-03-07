@@ -125,7 +125,6 @@ public partial class WxQrCode : IAsyncDisposable
 
     /// <summary>
     /// </summary>
-    /// <param name="input"></param>
     /// <param name="options"></param>
     /// <returns></returns>
     public async Task<bool> Init(WxQrCodeOption? options = null)
@@ -209,7 +208,7 @@ public partial class WxQrCode : IAsyncDisposable
     /// <summary>
     /// 选择摄像头回调方法
     /// </summary>
-    /// <param name="base64encodedstring"></param>
+    /// <param name="deviceID"></param>
     /// <returns></returns>
     [JSInvokable]
     public async Task SelectDeviceID(string deviceID)
