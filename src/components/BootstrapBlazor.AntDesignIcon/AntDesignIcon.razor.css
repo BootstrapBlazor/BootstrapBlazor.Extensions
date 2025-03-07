@@ -1,7 +1,6 @@
 ﻿.bb-ant-icon {
     --bb-svg-icon-width: 16px;
     display: inline-flex;
-    color: var(--bb-ant-icon-color, currentColor);
 }
 
     .bb-ant-icon > svg {

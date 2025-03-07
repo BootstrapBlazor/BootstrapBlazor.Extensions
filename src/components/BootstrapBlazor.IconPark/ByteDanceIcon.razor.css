@@ -1,10 +1,10 @@
 ﻿.bb-iconpark-icon {
     --bb-svg-icon-width: 12px;
-    --bb-bd-icon-color: currentColor;
     display: inline-flex;
 }
 
     .bb-iconpark-icon > svg {
         width: var(--bb-svg-icon-width);
         height: var(--bb-svg-icon-width);
+        fill: none;
     }
