@@ -16,7 +16,7 @@ export async function init(id, invoke, data, options) {
 
     Themes.init(MindMap);
 
-    options ??= {};
+    options ||= {};
     options.el = el;
     const d = JSON.parse(data);
     if (d.root === null) {
