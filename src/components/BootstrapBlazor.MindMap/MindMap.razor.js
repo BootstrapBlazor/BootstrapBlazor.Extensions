@@ -16,7 +16,7 @@ export async function init(id, invoke, data, options) {
 
     Themes.init(MindMap);
 
-    options ??= {};
+    options ||= {};
     options.el = el;
     const d = JSON.parse(data);
     if (d.root === null) {
@@ -49,7 +49,7 @@ export function update(id, options) {
 export function execute(id, method, args) {
     const mm = Data.get(id);
     const { mindMap } = mm;
-    const fn = BootstrapBlazor.MindMap?.callbacks[method] ?? mindMap[method];
+    const fn = BootstrapBlazor.MindMap && BootstrapBlazor.MindMap.callbacks[method] || mindMap[method];
     if (fn) {
         fn.apply(mindMap, args);
     }

@@ -184,7 +184,7 @@ const doSearch = async (search, query, filter = null) => {
             updateStatus(search, result.estimatedTotalHits, result.processingTimeMs);
         }
 
-        const cb = BootstrapBlazor.MeiliSearch?.updateList ?? updateList;
+        const cb = BootstrapBlazor.MeiliSearch && BootstrapBlazor.MeiliSearch.updateList || updateList;
         cb(search, result);
     }
 }
