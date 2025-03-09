@@ -4,7 +4,7 @@ export async function execute(selector, methodName, options) {
     let data = null;
     const el = document.querySelector(selector);
     if (el) {
-        options ||= {};
+        options = options || {};
         const fn = methodName === 'toBlob'
             ? htmlToImage[methodName]
             : getMethod(options);
