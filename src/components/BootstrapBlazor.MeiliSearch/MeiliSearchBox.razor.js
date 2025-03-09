@@ -138,7 +138,7 @@ const handlerSearch = search => {
     });
 }
 
-const getScrollIntoViewOptions = options => options.scrollIntoViewOptions ?? {
+const getScrollIntoViewOptions = options => options.scrollIntoViewOptions || {
     behavior: 'smooth',
     block: 'start',
     inline: 'nearest'
