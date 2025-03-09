@@ -44,7 +44,7 @@ export class DefaultPlugin extends Plugin {
     }
 
     setWorkbookData(data) {
-        this._sheet ||= this._dataService.getUniverSheet();
+        this._sheet = this._sheet || this._dataService.getUniverSheet();
         const { univerAPI } = this._sheet;
         const activeWorkbook = univerAPI.getActiveWorkbook()
         const unitId = activeWorkbook?.getId()
@@ -55,7 +55,7 @@ export class DefaultPlugin extends Plugin {
     }
 
     getWorkbookData() {
-        this._sheet ||= this._dataService.getUniverSheet();
+        this._sheet = this._sheet || this._dataService.getUniverSheet();
         const { univerAPI } = this._sheet;
         const data = univerAPI.getActiveWorkbook().save();
         delete data.id;
@@ -71,7 +71,7 @@ export class DefaultPlugin extends Plugin {
     }
 
     updateRange(data) {
-        this._sheet ||= this._dataService.getUniverSheet();
+        this._sheet = this._sheet || this._dataService.getUniverSheet();
         const { univerAPI } = this._sheet;
         const sheet = univerAPI.getActiveWorkbook().getActiveSheet();
         const range = sheet.getRange(data.range);
