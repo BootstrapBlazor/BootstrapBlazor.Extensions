@@ -48,7 +48,6 @@
     .bb-dockview .bb-dockview-panel {
         height: 100%;
         width: 100%;
-        overflow: auto;
     }
 
     .bb-dockview .dv-groupview > .dv-content-container, .dv-render-overlay {
