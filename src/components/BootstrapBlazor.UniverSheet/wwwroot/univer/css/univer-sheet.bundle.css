@@ -6,11 +6,18 @@
 .bb-univer-sheet {
     width: 100%;
     height: 100%;
-}
-
-.bb-univer-sheet {
     overflow: hidden;
 }
+
 .univer-fixed {
     position: absolute;
-}   
+}
+
+.univer-theme {
+    position: relative;
+    z-index: 1200;
+}
+
+.univer-toolbar > div {
+    justify-content: flex-start;
+}
