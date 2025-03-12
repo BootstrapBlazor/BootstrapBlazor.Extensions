@@ -9,10 +9,12 @@ const loadAssets = async () => {
     await addScript('./_content/BootstrapBlazor.UniverSheet/univer/js/univerjs.preset-sheets-core.umd.min.js');
     await addScript('./_content/BootstrapBlazor.UniverSheet/univer/js/univerjs.preset-sheets-drawing.umd.min.js');
     await addScript('./_content/BootstrapBlazor.UniverSheet/univer/js/univerjs.sheets-zen-editor.umd.min.js');
+    await addScript('./_content/BootstrapBlazor.UniverSheet/univer/js/univerjs.preset-sheets-data-validation.umd.min.js');
 
     await addScript('./_content/BootstrapBlazor.UniverSheet/univer/js/univerjs.preset-sheets-core.locales.zh-CN.js');
     await addScript('./_content/BootstrapBlazor.UniverSheet/univer/js/univerjs.preset-sheets-drawing.locales.zhCN.js');
     await addScript('./_content/BootstrapBlazor.UniverSheet/univer/js/univerjs.sheets-zen-editor.locales.zh-CN.js');
+    await addScript('./_content/BootstrapBlazor.UniverSheet/univer/js/univerjs.preset-sheets-data-validation.locales.zh-CN.js');
 
     await addLink('./_content/BootstrapBlazor.UniverSheet/univer/css/univer-sheet.bundle.css');
 }
@@ -27,6 +29,8 @@ export async function createUniverSheetAsync(sheet) {
     const { UniverSheetsCorePreset } = UniverPresetSheetsCore;
     const { UniverSheetsDrawingPreset } = UniverPresetSheetsDrawing;
     const { UniverSheetsZenEditorPlugin } = UniverSheetsZenEditor
+    const { UniverSheetsDataValidationPlugin } = UniverSheetsDataValidation
+    const { UniverSheetsDataValidationUIPlugin } = UniverSheetsDataValidationUi
     const { defaultTheme } = UniverDesign;
     const options = {
         theme: defaultTheme,
@@ -36,11 +40,14 @@ export async function createUniverSheetAsync(sheet) {
                 {},
                 UniverPresetSheetsCoreZhCN,
                 UniverPresetSheetsDrawingZhCN,
-                UniverSheetsZenEditorZhCN
+                UniverSheetsZenEditorZhCN,
+                UniverSheetsDataValidationUiZhCN,
             ),
         },
         plugins: [
-            UniverSheetsZenEditorPlugin
+            UniverSheetsZenEditorPlugin,
+            UniverSheetsDataValidationPlugin,
+            UniverSheetsDataValidationUIPlugin,
         ]
     };
     const plugins = sheet.options.plugins ?? {
@@ -64,7 +71,7 @@ export async function createUniverSheetAsync(sheet) {
 
     const { data } = sheet.options;
     if (data) {
-        univerAPI.createWorkbook(data.data);
+        univerAPI.createWorkbook(typeof data.data === 'object' ? data.data : JSON.parse(data.data));
         delete sheet.options.data;
     }
     else {
