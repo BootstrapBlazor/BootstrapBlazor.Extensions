@@ -71,7 +71,7 @@ export async function createUniverSheetAsync(sheet) {
 
     const { data } = sheet.options;
     if (data) {
-        univerAPI.createWorkbook(typeof data.data === 'object'? data.data : JSON.parse(data.data));
+        univerAPI.createWorkbook(typeof data.data === 'object' ? data.data : JSON.parse(data.data));
         delete sheet.options.data;
     }
     else {
