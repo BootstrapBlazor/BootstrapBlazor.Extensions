@@ -6,11 +6,21 @@ import { getConfig, reloadFromConfig, loadPanelsFromLocalstorage, saveConfig } f
 import './dockview-extensions.js'
 
 const cerateDockview = (el, options) => {
+    console.log(options, 'options');
     // options.renderer = 'always'
     // options.renderer = 'onlyWhenVisible'
     const template = el.querySelector('template');
     const dockview = new DockviewComponent(el, {
         parentElement: el,
+        theme: options.theme || {
+            name: "light",
+            className: "dockview-theme-light",
+            // gap: 3, //group间距
+            // dndOverlayMounting: 'absolute' | 'relative', //拖拽时遮罩层挂载到root还是当前group, 'absolute'有完整过渡动画效果, 'relative'只在当前group显示过渡动画效果
+            // dndPanelOverlay: 'content' | 'group', // 拖拽时遮罩层只覆盖content还是覆盖整个group
+            dndOverlayMounting: 'absolute',
+            dndPanelOverlay: 'group',
+        },
         createComponent: option => new DockviewPanelContent(option)
     });
     initDockview(dockview, options, template);
@@ -26,8 +36,9 @@ const initDockview = (dockview, options, template) => {
     dockview.init = () => {
         const config = getConfig(options);
         dockview.params.floatingGroups = config.floatingGroups || []
-        // console.log(config, 'config');
+        console.log(config, 'config');
         dockview.fromJSON(config);
+        window.dockview = dockview;
     }
 
     dockview.update = options => {
@@ -104,9 +115,9 @@ const initDockview = (dockview, options, template) => {
 
             dockview._inited = true;
             dockview._initialized?.fire()
-            dockview.groups.forEach(group => {
-                observeGroup(group)
-            })
+            // dockview.groups.forEach(group => {
+            //     observeGroup(group)
+            // })
         }, 100);
     })
 
