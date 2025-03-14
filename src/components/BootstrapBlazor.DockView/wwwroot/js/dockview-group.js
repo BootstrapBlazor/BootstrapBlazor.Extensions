@@ -23,7 +23,7 @@ const onAddGroup = group => {
         saveConfig(dockview)
     })
     createGroupActions(group);
-    // dockview._inited && observeGroup(group)
+    dockview._inited && observeGroup(group)
 }
 
 const addGroupWithPanel = (dockview, panel, panels, index) => {
@@ -180,7 +180,7 @@ const disposeGroup = group => {
     const { observer } = group.api.accessor.params;
     if (observer) {
         observer.unobserve(group.header.element);
-        observer.unobserve(group.header.tabContainer);
+        observer.unobserve(group.header.tabs._tabsList);
     }
     removeActionEvent(group);
 }
@@ -497,7 +497,7 @@ const createFloatingGroup = (group, rect, groupType) => {
     activePanel.api.setActive()
     const overlay = dockview.floatingGroups.find(fg => fg.group.id == floatingGroup.id).overlay
     observeOverlayChange(overlay, floatingGroup)
-    // observeGroup(floatingGroup)
+    observeGroup(floatingGroup)
     createGroupActions(floatingGroup, groupType)
     return floatingGroup
 }

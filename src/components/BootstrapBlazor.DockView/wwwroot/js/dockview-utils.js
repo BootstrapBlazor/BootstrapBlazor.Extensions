@@ -6,7 +6,6 @@ import { getConfig, reloadFromConfig, loadPanelsFromLocalstorage, saveConfig } f
 import './dockview-extensions.js'
 
 const cerateDockview = (el, options) => {
-    console.log(options, 'options');
     // options.renderer = 'always'
     // options.renderer = 'onlyWhenVisible'
     const template = el.querySelector('template');
@@ -15,12 +14,11 @@ const cerateDockview = (el, options) => {
         theme: options.theme || {
             name: "light",
             className: "dockview-theme-light",
-            // gap: 3, //group间距
-            // dndOverlayMounting: 'absolute' | 'relative', //拖拽时遮罩层挂载到root还是当前group, 'absolute'有完整过渡动画效果, 'relative'只在当前group显示过渡动画效果
-            // dndPanelOverlay: 'content' | 'group', // 拖拽时遮罩层只覆盖content还是覆盖整个group
-            dndOverlayMounting: 'absolute',
-            dndPanelOverlay: 'group',
+            // gap: 3,
+            dndOverlayMounting: 'absolute', // 'absolute' | 'relative'
+            dndPanelOverlay: 'group', // 'content' | 'group'
         },
+        disableTabsOverflowList: true,
         createComponent: option => new DockviewPanelContent(option)
     });
     initDockview(dockview, options, template);
@@ -36,7 +34,6 @@ const initDockview = (dockview, options, template) => {
     dockview.init = () => {
         const config = getConfig(options);
         dockview.params.floatingGroups = config.floatingGroups || []
-        console.log(config, 'config');
         dockview.fromJSON(config);
         window.dockview = dockview;
     }
@@ -114,10 +111,10 @@ const initDockview = (dockview, options, template) => {
             })
 
             dockview._inited = true;
-            dockview._initialized?.fire()
-            // dockview.groups.forEach(group => {
-            //     observeGroup(group)
-            // })
+            dockview._initialized?.fire();
+            dockview.groups.forEach(group => {
+                observeGroup(group)
+            })
         }, 100);
     })
 
@@ -138,7 +135,7 @@ export const observeGroup = (group) => {
         dockview.params.observer = new ResizeObserver(observerList => requestAnimationFrame(() => resizeObserverHandle(observerList, dockview)));
     }
     dockview.params.observer.observe(group.header.element)
-    dockview.params.observer.observe(group.header.tabContainer)
+    dockview.params.observer.observe(group.header.tabs._tabsList)
     for (let panel of group.panels) {
         if (panel.params.isActive) {
             panel.api.setActive()
@@ -155,7 +152,7 @@ const resizeObserverHandle = (observerList, dockview) => {
 const setWidth = (target, dockview) => {
     let header, tabsContainer
     if (target.classList.contains('dv-tabs-container')) {
-        header = target.parentElement
+        header = target.parentElement.parentElement
         tabsContainer = target
     }
     else {
@@ -170,31 +167,33 @@ const setWidth = (target, dockview) => {
     if (voidWidth === 0) {
         if (tabsContainer.children.length <= 1) return
         const inactiveTabs = header.querySelectorAll('.dv-tabs-container>.dv-tab')
-        const lastTab = inactiveTabs[inactiveTabs.length - 1]
-        const aEle = document.createElement('a')
-        const liEle = document.createElement('li')
-        aEle.className = 'dropdown-item'
-        liEle.tabWidth = lastTab.offsetWidth;
-        aEle.append(lastTab)
-        liEle.append(aEle)
-        dropMenu.insertAdjacentElement("afterbegin", liEle)
+        for (let i = inactiveTabs.length - 1; i >= 0; i--) {
+            const lastTab = inactiveTabs[i]
+            if (lastTab.offsetLeft + lastTab.offsetWidth > lastTab.offsetParent.offsetWidth) {
+                const aEle = document.createElement('a')
+                const liEle = document.createElement('li')
+                aEle.className = 'dropdown-item'
+                liEle.tabWidth = lastTab.offsetWidth;
+                aEle.append(lastTab)
+                liEle.append(aEle)
+                dropMenu.insertAdjacentElement("afterbegin", liEle)
+            }
+        }
     }
     else {
-        let firstLi = dropMenu.querySelector('li:has(.dv-active-tab)') || dropMenu.children[0]
+        const firstLi = dropMenu.children[0]
         if (firstLi) {
-            let firstTab = firstLi.querySelector('.dv-tab')
+            const firstTab = firstLi.querySelector('.dv-tab')
             if (voidWidth > firstLi.tabWidth || tabsContainer.children.length == 0) {
                 firstTab && tabsContainer.append(firstTab)
                 firstLi.remove()
             }
         }
     }
-    setTimeout(() => {
-        if ([...tabsContainer.children].every(tab => !tab.classList.contains('dv-active-tab'))) {
-            const group = dockview.groups.find(g => g.element === header.parentElement)
-            group.panels[0].api.setActive()
-        }
-    }, 100);
+    if ([...tabsContainer.children].every(tab => tab.classList.contains('dv-inactive-tab'))) {
+        const group = dockview.groups.find(g => g.element === header.parentElement)
+        group.panels[0].api.setActive()
+    }
 }
 
 const toggleComponent = (dockview, options) => {
