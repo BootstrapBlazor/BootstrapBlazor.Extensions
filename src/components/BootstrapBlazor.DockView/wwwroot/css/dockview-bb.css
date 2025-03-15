@@ -277,3 +277,10 @@
 .bb-dockview .dv-resize-container-drawer {
     height: calc(100% + 1px) !important;
 }
+
+.bb-dockview .dv-tabs-and-actions-container:has(.dropdown-item) .dv-scrollbar-horizontal {
+    display: none;
+}
+.bb-dockview .dv-scrollable {
+    width: initial;
+}

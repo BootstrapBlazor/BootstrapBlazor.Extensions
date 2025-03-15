@@ -110,11 +110,11 @@ const initDockview = (dockview, options, template) => {
                 observeFloatingGroupLocationChange(fg.group)
             })
 
-            dockview._inited = true;
-            dockview._initialized?.fire();
             dockview.groups.forEach(group => {
                 observeGroup(group)
             })
+            dockview._inited = true;
+            dockview._initialized?.fire();
         }, 100);
     })
 
@@ -166,10 +166,10 @@ const setWidth = (target, dockview) => {
     let dropMenu = dropdown.querySelector('.dropdown-menu')
     if (voidWidth === 0) {
         if (tabsContainer.children.length <= 1) return
-        const inactiveTabs = header.querySelectorAll('.dv-tabs-container>.dv-tab')
-        for (let i = inactiveTabs.length - 1; i >= 0; i--) {
-            const lastTab = inactiveTabs[i]
-            if (lastTab.offsetLeft + lastTab.offsetWidth > lastTab.offsetParent.offsetWidth) {
+        const tabs = tabsContainer.querySelectorAll('.dv-tab')
+        for (let i = tabs.length - 1; i >= 0; i--) {
+            const lastTab = tabs[i]
+            if (lastTab.offsetLeft + lastTab.offsetWidth > tabsContainer.offsetWidth) {
                 const aEle = document.createElement('a')
                 const liEle = document.createElement('li')
                 aEle.className = 'dropdown-item'
@@ -190,7 +190,7 @@ const setWidth = (target, dockview) => {
             }
         }
     }
-    if ([...tabsContainer.children].every(tab => tab.classList.contains('dv-inactive-tab'))) {
+    if (dockview._inited && [...tabsContainer.children].every(tab => tab.classList.contains('dv-inactive-tab'))) {
         const group = dockview.groups.find(g => g.element === header.parentElement)
         group.panels[0].api.setActive()
     }

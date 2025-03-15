@@ -1,6 +1,7 @@
 .dv-scrollable {
   position: relative;
   overflow: hidden;
+  width: 100%;
 }
 .dv-scrollable .dv-scrollbar-horizontal {
   position: absolute;
@@ -576,6 +577,60 @@
 .dockview-theme-light-spaced .dv-resize-container .dv-groupview {
   border: 2px solid rgba(255, 255, 255, 0.1);
 }
+.dv-drop-target {
+  position: relative;
+  --dv-transition-duration: 70ms;
+}
+.dv-drop-target > .dv-drop-target-dropzone {
+  position: absolute;
+  left: 0px;
+  top: 0px;
+  height: 100%;
+  width: 100%;
+  z-index: 1000;
+  pointer-events: none;
+}
+.dv-drop-target > .dv-drop-target-dropzone > .dv-drop-target-selection {
+  position: relative;
+  box-sizing: border-box;
+  height: 100%;
+  width: 100%;
+  border: var(--dv-drag-over-border);
+  background-color: var(--dv-drag-over-background-color);
+  transition: top var(--dv-transition-duration) ease-out, left var(--dv-transition-duration) ease-out, width var(--dv-transition-duration) ease-out, height var(--dv-transition-duration) ease-out, opacity var(--dv-transition-duration) ease-out;
+  will-change: transform;
+  pointer-events: none;
+}
+.dv-drop-target > .dv-drop-target-dropzone > .dv-drop-target-selection.dv-drop-target-top.dv-drop-target-small-vertical {
+  border-top: 1px solid var(--dv-drag-over-border-color);
+}
+.dv-drop-target > .dv-drop-target-dropzone > .dv-drop-target-selection.dv-drop-target-bottom.dv-drop-target-small-vertical {
+  border-bottom: 1px solid var(--dv-drag-over-border-color);
+}
+.dv-drop-target > .dv-drop-target-dropzone > .dv-drop-target-selection.dv-drop-target-left.dv-drop-target-small-horizontal {
+  border-left: 1px solid var(--dv-drag-over-border-color);
+}
+.dv-drop-target > .dv-drop-target-dropzone > .dv-drop-target-selection.dv-drop-target-right.dv-drop-target-small-horizontal {
+  border-right: 1px solid var(--dv-drag-over-border-color);
+}
+.dv-drop-target-container {
+  position: absolute;
+  z-index: 9999;
+  top: 0px;
+  left: 0px;
+  height: 100%;
+  width: 100%;
+  pointer-events: none;
+  overflow: hidden;
+  --dv-transition-duration: 300ms;
+}
+.dv-drop-target-container .dv-drop-target-anchor {
+  position: relative;
+  border: var(--dv-drag-over-border);
+  transition: opacity var(--dv-transition-duration) ease-in, top var(--dv-transition-duration) ease-out, left var(--dv-transition-duration) ease-out, width var(--dv-transition-duration) ease-out, height var(--dv-transition-duration) ease-out;
+  background-color: var(--dv-drag-over-background-color);
+  opacity: 1;
+}
 .dv-dockview {
   position: relative;
   background-color: var(--dv-group-view-background-color);
@@ -632,59 +687,14 @@
   min-height: 0;
   outline: none;
 }
-.dv-drop-target {
-  position: relative;
-  --dv-transition-duration: 70ms;
-}
-.dv-drop-target > .dv-drop-target-dropzone {
-  position: absolute;
-  left: 0px;
-  top: 0px;
+.dv-root-wrapper {
   height: 100%;
   width: 100%;
-  z-index: 1000;
-  pointer-events: none;
 }
-.dv-drop-target > .dv-drop-target-dropzone > .dv-drop-target-selection {
-  position: relative;
-  box-sizing: border-box;
+.dv-grid-view,
+.dv-branch-node {
   height: 100%;
   width: 100%;
-  border: var(--dv-drag-over-border);
-  background-color: var(--dv-drag-over-background-color);
-  transition: top var(--dv-transition-duration) ease-out, left var(--dv-transition-duration) ease-out, width var(--dv-transition-duration) ease-out, height var(--dv-transition-duration) ease-out, opacity var(--dv-transition-duration) ease-out;
-  will-change: transform;
-  pointer-events: none;
-}
-.dv-drop-target > .dv-drop-target-dropzone > .dv-drop-target-selection.dv-drop-target-top.dv-drop-target-small-vertical {
-  border-top: 1px solid var(--dv-drag-over-border-color);
-}
-.dv-drop-target > .dv-drop-target-dropzone > .dv-drop-target-selection.dv-drop-target-bottom.dv-drop-target-small-vertical {
-  border-bottom: 1px solid var(--dv-drag-over-border-color);
-}
-.dv-drop-target > .dv-drop-target-dropzone > .dv-drop-target-selection.dv-drop-target-left.dv-drop-target-small-horizontal {
-  border-left: 1px solid var(--dv-drag-over-border-color);
-}
-.dv-drop-target > .dv-drop-target-dropzone > .dv-drop-target-selection.dv-drop-target-right.dv-drop-target-small-horizontal {
-  border-right: 1px solid var(--dv-drag-over-border-color);
-}
-.dv-drop-target-container {
-  position: absolute;
-  z-index: 9999;
-  top: 0px;
-  left: 0px;
-  height: 100%;
-  width: 100%;
-  pointer-events: none;
-  overflow: hidden;
-  --dv-transition-duration: 300ms;
-}
-.dv-drop-target-container .dv-drop-target-anchor {
-  position: relative;
-  border: var(--dv-drag-over-border);
-  transition: opacity var(--dv-transition-duration) ease-in, top var(--dv-transition-duration) ease-out, left var(--dv-transition-duration) ease-out, width var(--dv-transition-duration) ease-out, height var(--dv-transition-duration) ease-out;
-  background-color: var(--dv-drag-over-background-color);
-  opacity: 1;
 }
 .dv-debug .dv-resize-container .dv-resize-handle-top {
   background-color: red;
@@ -803,15 +813,6 @@
 .dv-debug .dv-render-overlay {
   outline: 1px solid red;
   outline-offset: -1;
-}
-.dv-root-wrapper {
-  height: 100%;
-  width: 100%;
-}
-.dv-grid-view,
-.dv-branch-node {
-  height: 100%;
-  width: 100%;
 }
 .dv-pane-container {
   height: 100%;
@@ -1104,13 +1105,7 @@
   /* Track */
   /* Handle */
 }
-.dv-tabs-container.dv-horizontal .dv-tabs-container .dv-tab:last-child {
-  margin-right: 0;
-}
-.dv-tabs-container.dv-horizontal .dv-tabs-container .dv-tab:not(:nth-last-child(1)) {
-  margin-left: 0;
-}
-.dv-tabs-container.dv-horizontal .dv-tabs-container .dv-tab:not(:first-child)::before {
+.dv-tabs-container.dv-horizontal .dv-tab:not(:first-child)::before {
   content: " ";
   position: absolute;
   top: 0;
@@ -1172,6 +1167,7 @@
 }
 .dv-tabs-and-actions-container.dv-single-tab.dv-full-width-single-tab .dv-tabs-container .dv-tab {
   flex-grow: 1;
+  padding: 0px;
 }
 .dv-tabs-and-actions-container.dv-single-tab.dv-full-width-single-tab .dv-void-container {
   flex-grow: 0;
