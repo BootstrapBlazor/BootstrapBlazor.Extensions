@@ -180,7 +180,7 @@ const disposeGroup = group => {
     const { observer } = group.api.accessor.params;
     if (observer) {
         observer.unobserve(group.header.element);
-        observer.unobserve(group.header.tabContainer);
+        observer.unobserve(group.header.tabs._tabsList);
     }
     removeActionEvent(group);
 }
