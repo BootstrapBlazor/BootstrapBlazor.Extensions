@@ -192,7 +192,7 @@ const setWidth = (target, dockview) => {
     }
     if (dockview._inited && [...tabsContainer.children].every(tab => tab.classList.contains('dv-inactive-tab'))) {
         const group = dockview.groups.find(g => g.element === header.parentElement)
-        group.panels[0].api.setActive()
+        group.panels[0] && group.panels[0].api.setActive()
     }
 }
 

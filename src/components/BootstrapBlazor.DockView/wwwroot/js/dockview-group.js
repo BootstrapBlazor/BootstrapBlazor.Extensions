@@ -63,8 +63,8 @@ const addPanelWidthGroupId = (dockview, panel, index) => {
         if(floatType == 'drawer'){
             floatingGroupRect = {
                 width: drawer.width || 300,
-                height: dockview.height + 1,
-                position: { left: 0, top: -1}
+                height: dockview.height,
+                position: { left: 0, top: 0}
             }
         }
         dockview.addFloatingGroup(group, { ...floatingGroupRect, skipRemoveGroup: true })
@@ -329,7 +329,7 @@ const autoHide = group => {
         const rect = {
           position:{
             left: -9999,
-            top: -1
+            top: 0
           },
           width: drawer.width,
           height: '100%'
