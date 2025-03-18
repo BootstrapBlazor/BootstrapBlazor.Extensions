@@ -17,5 +17,6 @@ jobs:
         uses: actions-cool/issues-helper@v3
         with:
           actions: 'check-inactive'
+          token: ${{ secrets.GITHUB_TOKEN }}
           inactive-label: 'inactive'
           inactive-day: 7
