@@ -1,6 +1,6 @@
 /**
  * dockview-core
- * @version 4.1.0
+ * @version 4.2.0
  * @link https://github.com/mathuo/dockview
  * @license MIT
  */
@@ -5217,9 +5217,15 @@ class Tabs extends CompositeDisposable {
         this._tabsList = document.createElement('div');
         this._tabsList.className = 'dv-tabs-container dv-horizontal';
         this.showTabsOverflowControl = options.showTabsOverflowControl;
-        const scrollbar = new Scrollbar(this._tabsList);
-        this._element = scrollbar.element;
-        this.addDisposables(this._onOverflowTabsChange, this._observerDisposable, scrollbar, this._onWillShowOverlay, this._onDrop, this._onTabDragStart, addDisposableListener(this.element, 'pointerdown', (event) => {
+        if (accessor.options.scrollbars === 'native') {
+            this._element = this._tabsList;
+        }
+        else {
+            const scrollbar = new Scrollbar(this._tabsList);
+            this._element = scrollbar.element;
+            this.addDisposables(scrollbar);
+        }
+        this.addDisposables(this._onOverflowTabsChange, this._observerDisposable, this._onWillShowOverlay, this._onDrop, this._onTabDragStart, addDisposableListener(this.element, 'pointerdown', (event) => {
             if (event.defaultPrevented) {
                 return;
             }
@@ -5644,6 +5650,7 @@ const PROPERTY_KEYS_DOCKVIEW = (() => {
         dndEdges: undefined,
         theme: undefined,
         disableTabsOverflowList: undefined,
+        scrollbars: undefined,
     };
     return Object.keys(properties);
 })();

@@ -1,7 +1,6 @@
 .dv-scrollable {
   position: relative;
   overflow: hidden;
-  width: 100%;
 }
 .dv-scrollable .dv-scrollbar-horizontal {
   position: absolute;
@@ -1024,6 +1023,116 @@
   pointer-events: none;
   background-color: var(--dv-separator-border);
 }
+.dv-watermark {
+  display: flex;
+  height: 100%;
+}
+.dv-tabs-overflow-dropdown-default {
+  height: 100%;
+  color: var(--dv-activegroup-hiddenpanel-tab-color);
+  margin: var(--dv-tab-margin);
+  display: flex;
+  align-items: center;
+  flex-shrink: 0;
+  padding: 0.25rem 0.5rem;
+  cursor: pointer;
+}
+.dv-tabs-overflow-dropdown-default > span {
+  padding-left: 0.25rem;
+}
+.dv-tabs-overflow-dropdown-default > svg {
+  transform: rotate(90deg);
+}
+.dv-tabs-container {
+  display: flex;
+  height: 100%;
+  overflow: auto;
+  scrollbar-width: thin;
+  /* Track */
+  /* Handle */
+}
+.dv-tabs-container.dv-horizontal .dv-tab:not(:first-child)::before {
+  content: " ";
+  position: absolute;
+  top: 0;
+  left: 0;
+  z-index: 5;
+  pointer-events: none;
+  background-color: var(--dv-tab-divider-color);
+  width: 1px;
+  height: 100%;
+}
+.dv-tabs-container::-webkit-scrollbar {
+  height: 3px;
+}
+.dv-tabs-container::-webkit-scrollbar-track {
+  background: transparent;
+}
+.dv-tabs-container::-webkit-scrollbar-thumb {
+  background: var(--dv-tabs-container-scrollbar-color);
+}
+
+.dv-scrollable > .dv-tabs-container {
+  overflow: hidden;
+}
+
+.dv-tab {
+  -webkit-user-drag: element;
+  outline: none;
+  padding: 0.25rem 0.5rem;
+  cursor: pointer;
+  position: relative;
+  box-sizing: border-box;
+  font-size: var(--dv-tab-font-size);
+  margin: var(--dv-tab-margin);
+}
+
+.dv-tabs-overflow-container {
+  flex-direction: column;
+  height: unset;
+  border: 1px solid var(--dv-tab-divider-color);
+  background-color: var(--dv-group-view-background-color);
+}
+.dv-tabs-overflow-container .dv-tab:not(:last-child) {
+  border-bottom: 1px solid var(--dv-tab-divider-color);
+}
+.dv-tabs-overflow-container .dv-active-tab {
+  background-color: var(--dv-activegroup-visiblepanel-tab-background-color);
+  color: var(--dv-activegroup-visiblepanel-tab-color);
+}
+.dv-tabs-overflow-container .dv-inactive-tab {
+  background-color: var(--dv-activegroup-hiddenpanel-tab-background-color);
+  color: var(--dv-activegroup-hiddenpanel-tab-color);
+}
+.dv-tabs-and-actions-container {
+  display: flex;
+  background-color: var(--dv-tabs-and-actions-container-background-color);
+  flex-shrink: 0;
+  box-sizing: border-box;
+  height: var(--dv-tabs-and-actions-container-height);
+  font-size: var(--dv-tabs-and-actions-container-font-size);
+}
+.dv-tabs-and-actions-container.dv-single-tab.dv-full-width-single-tab .dv-scrollable {
+  flex-grow: 1;
+}
+.dv-tabs-and-actions-container.dv-single-tab.dv-full-width-single-tab .dv-tabs-container {
+  flex-grow: 1;
+}
+.dv-tabs-and-actions-container.dv-single-tab.dv-full-width-single-tab .dv-tabs-container .dv-tab {
+  flex-grow: 1;
+  padding: 0px;
+}
+.dv-tabs-and-actions-container.dv-single-tab.dv-full-width-single-tab .dv-void-container {
+  flex-grow: 0;
+}
+.dv-tabs-and-actions-container .dv-void-container {
+  display: flex;
+  flex-grow: 1;
+  cursor: grab;
+}
+.dv-tabs-and-actions-container .dv-right-actions-container {
+  display: flex;
+}
 .dv-dragged {
   transform: translate3d(0px, 0px, 0px); /* forces tab to be drawn on a separate layer (see https://github.com/microsoft/vscode/issues/18733) */
 }
@@ -1080,107 +1189,4 @@
 .dv-tab .dv-default-tab .dv-default-tab-action:hover {
   border-radius: 2px;
   background-color: var(--dv-icon-hover-background-color);
-}
-.dv-watermark {
-  display: flex;
-  height: 100%;
-}
-.dv-tabs-overflow-dropdown-default {
-  height: 100%;
-  color: var(--dv-activegroup-hiddenpanel-tab-color);
-  margin: var(--dv-tab-margin);
-  display: flex;
-  align-items: center;
-  flex-shrink: 0;
-  padding: 0.25rem 0.5rem;
-  cursor: pointer;
-}
-.dv-tabs-overflow-dropdown-default > span {
-  padding-left: 0.25rem;
-}
-.dv-tabs-overflow-dropdown-default > svg {
-  transform: rotate(90deg);
-}
-.dv-tabs-container {
-  display: flex;
-  height: 100%;
-  overflow: hidden;
-  scrollbar-width: thin;
-  /* Track */
-  /* Handle */
-}
-.dv-tabs-container.dv-horizontal .dv-tab:not(:first-child)::before {
-  content: " ";
-  position: absolute;
-  top: 0;
-  left: 0;
-  z-index: 5;
-  pointer-events: none;
-  background-color: var(--dv-tab-divider-color);
-  width: 1px;
-  height: 100%;
-}
-.dv-tabs-container::-webkit-scrollbar {
-  height: 3px;
-}
-.dv-tabs-container::-webkit-scrollbar-track {
-  background: transparent;
-}
-.dv-tabs-container::-webkit-scrollbar-thumb {
-  background: var(--dv-tabs-container-scrollbar-color);
-}
-
-.dv-tab {
-  -webkit-user-drag: element;
-  outline: none;
-  padding: 0.25rem 0.5rem;
-  cursor: pointer;
-  position: relative;
-  box-sizing: border-box;
-  font-size: var(--dv-tab-font-size);
-  margin: var(--dv-tab-margin);
-}
-
-.dv-tabs-overflow-container {
-  flex-direction: column;
-  height: unset;
-  border: 1px solid var(--dv-tab-divider-color);
-  background-color: var(--dv-group-view-background-color);
-}
-.dv-tabs-overflow-container .dv-tab:not(:last-child) {
-  border-bottom: 1px solid var(--dv-tab-divider-color);
-}
-.dv-tabs-overflow-container .dv-active-tab {
-  background-color: var(--dv-activegroup-visiblepanel-tab-background-color);
-  color: var(--dv-activegroup-visiblepanel-tab-color);
-}
-.dv-tabs-overflow-container .dv-inactive-tab {
-  background-color: var(--dv-activegroup-hiddenpanel-tab-background-color);
-  color: var(--dv-activegroup-hiddenpanel-tab-color);
-}
-.dv-tabs-and-actions-container {
-  display: flex;
-  background-color: var(--dv-tabs-and-actions-container-background-color);
-  flex-shrink: 0;
-  box-sizing: border-box;
-  height: var(--dv-tabs-and-actions-container-height);
-  font-size: var(--dv-tabs-and-actions-container-font-size);
-}
-.dv-tabs-and-actions-container.dv-single-tab.dv-full-width-single-tab .dv-tabs-container {
-  flex-grow: 1;
-}
-.dv-tabs-and-actions-container.dv-single-tab.dv-full-width-single-tab .dv-tabs-container .dv-tab {
-  flex-grow: 1;
-  padding: 0px;
-}
-.dv-tabs-and-actions-container.dv-single-tab.dv-full-width-single-tab .dv-void-container {
-  flex-grow: 0;
-}
-.dv-tabs-and-actions-container .dv-void-container {
-  display: flex;
-  flex-grow: 1;
-  cursor: grab;
-}
-.dv-tabs-and-actions-container .dv-right-actions-container {
-  display: flex;
 }
