@@ -91,19 +91,19 @@ const initDockview = (dockview, options, template) => {
                 const { top, right, bottom, left } = floatingGroups.find(g => g.data.id == fg.group.id).position
 
                 fg.group.element.parentElement.style.inset = [top, right, bottom, left]
-                    .map(item => typeof item == 'number' ? (item + 'px') : 'auto' ).join(' ')
+                    .map(item => typeof item == 'number' ? (item + 'px') : 'auto').join(' ')
 
                 // fg.overlay.onDidChangeEnd(e => {
                 //     saveConfig(dockview);
                 // })
                 observeOverlayChange(fg.overlay, fg.group)
                 const { floatType } = fg.group.getParams();
-                if(floatType == 'drawer'){
+                if (floatType == 'drawer') {
                     createDrawerHandle(fg.group)
                 }
                 else {
                     const autoHideBtn = fg.group.header.rightActionsContainer.querySelector('.bb-dockview-control-icon-autohide')
-                    if(autoHideBtn){
+                    if (autoHideBtn) {
                         // autoHideBtn.style.display = 'none'
                     }
                 }

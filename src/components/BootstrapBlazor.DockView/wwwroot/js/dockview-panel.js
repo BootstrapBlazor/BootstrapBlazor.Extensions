@@ -9,14 +9,14 @@ const onAddPanel = panel => {
 }
 const observePanelActiveChange = panel => {
     panel.api.onDidActiveChange(({ isActive }) => {
-        if(isActive && !panel.group.api.isMaximized()){
+        if (isActive && !panel.group.api.isMaximized()) {
             saveConfig(panel.accessor)
             if (panel.group.panels.length < 2) return
             panel.group.panels.filter(p => p != panel.group.activePanel && p.renderer == 'onlyWhenVisible').forEach(p => {
                 appendTemplatePanelEle(p)
             })
         }
-        if(isActive && panel.group.getParams().floatType == 'drawer'){
+        if (isActive && panel.group.getParams().floatType == 'drawer') {
             setDrawerTitle(panel.group)
         }
     })

@@ -305,7 +305,7 @@ const saveConfig = dockview => {
     if (dockview.params.options.enableLocalStorage && dockview._inited === true) {
         saveParamsIsActive(dockview)
         const json = dockview.toJSON();
-        if(dockview.floatingGroups && dockview.floatingGroups.length > 0) {
+        if (dockview.floatingGroups && dockview.floatingGroups.length > 0) {
             json.floatingGroups.forEach((fg, index) => {
                 const width = dockview.floatingGroups[index].group.width
                 fg.position.width = fg.position.width || (width ? width + 2 : 300)

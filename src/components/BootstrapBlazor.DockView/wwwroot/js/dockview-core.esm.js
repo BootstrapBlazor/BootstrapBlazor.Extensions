@@ -1,4 +1,4 @@
-/**
+﻿/**
  * dockview-core
  * @version 4.2.1
  * @link https://github.com/mathuo/dockview
@@ -174,7 +174,7 @@ class Emitter {
                         if (index > -1) {
                             this._listeners.splice(index, 1);
                         }
-                        else if (Emitter.ENABLE_TRACKING) ;
+                        else if (Emitter.ENABLE_TRACKING);
                     },
                 };
             };
@@ -1035,7 +1035,7 @@ class Splitview {
                     };
                 const view = viewDescriptor.view;
                 this.addView(view, sizing, index, true
-                // true skip layout
+                    // true skip layout
                 );
             });
             // Initialize content size and proportions for first layout
@@ -1409,8 +1409,8 @@ class Splitview {
             const offset = i === 0 || visiblePanelsBeforeThisView === 0
                 ? 0
                 : viewLeftOffsets[i - 1] +
-                    (visiblePanelsBeforeThisView / sashCount) *
-                        marginReducedSize;
+                (visiblePanelsBeforeThisView / sashCount) *
+                marginReducedSize;
             if (i < this.viewItems.length - 1) {
                 // calculate sash position
                 const newSize = view.visible
@@ -2415,8 +2415,8 @@ class Gridview {
                 };
             });
             result = new BranchNode(orientation, this.proportionalLayout, this.styles, node.size, // <- orthogonal size - flips at each depth
-            orthogonalSize, // <- size - flips at each depth,
-            this.locked, this.margin, children);
+                orthogonalSize, // <- size - flips at each depth,
+                this.locked, this.margin, children);
         }
         else {
             const view = deserializer.fromJSON(node);
@@ -2454,7 +2454,7 @@ class Gridview {
         const oldRoot = this.root;
         oldRoot.element.remove();
         this._root = new BranchNode(orthogonal(oldRoot.orientation), this.proportionalLayout, this.styles, this.root.orthogonalSize, this.root.size, this.locked, this.margin);
-        if (oldRoot.children.length === 0) ;
+        if (oldRoot.children.length === 0);
         else if (oldRoot.children.length === 1) {
             // can remove one level of redundant branching if there is only a single child
             const childReference = oldRoot.children[0];
@@ -2462,13 +2462,13 @@ class Gridview {
             child.dispose();
             oldRoot.dispose();
             this._root.addChild(
-            /**
-             * the child node will have the same orientation as the new root since
-             * we are removing the inbetween node.
-             * the entire 'tree' must be flipped recursively to ensure that the orientation
-             * flips at each level
-             */
-            flipNode(childReference, childReference.orthogonalSize, childReference.size), Sizing.Distribute, 0);
+                /**
+                 * the child node will have the same orientation as the new root since
+                 * we are removing the inbetween node.
+                 * the entire 'tree' must be flipped recursively to ensure that the orientation
+                 * flips at each level
+                 */
+                flipNode(childReference, childReference.orthogonalSize, childReference.size), Sizing.Distribute, 0);
         }
         else {
             this._root.addChild(oldRoot, Sizing.Distribute, 0);
@@ -2881,7 +2881,7 @@ class BaseGrid extends Resizable {
     }
     updateOptions(options) {
         var _a, _b, _c, _d;
-        if (typeof options.proportionalLayout === 'boolean') ;
+        if (typeof options.proportionalLayout === 'boolean');
         if (options.orientation) {
             this.gridview.orientation = options.orientation;
         }
@@ -3963,7 +3963,7 @@ class Droptarget extends CompositeDisposable {
                     return;
                 }
                 this.markAsUsed(e);
-                if (overrideTraget) ;
+                if (overrideTraget);
                 else if (!this.targetElement) {
                     this.targetElement = document.createElement('div');
                     this.targetElement.className = 'dv-drop-target-dropzone';
@@ -5258,7 +5258,7 @@ class Tabs extends CompositeDisposable {
                 const parentElement = element.parentElement;
                 if (runningWidth < parentElement.scrollLeft ||
                     runningWidth + element.clientWidth >
-                        parentElement.scrollLeft + parentElement.clientWidth) {
+                    parentElement.scrollLeft + parentElement.clientWidth) {
                     parentElement.scrollLeft = runningWidth;
                 }
             }
@@ -7562,14 +7562,14 @@ class Overlay extends CompositeDisposable {
                     top = clamp(y, -Number.MAX_VALUE, Math.max(0, startPosition.originalY + startPosition.originalHeight - Overlay.MINIMUM_HEIGHT));
                     height =
                         startPosition.originalY +
-                            startPosition.originalHeight -
-                            top;
+                        startPosition.originalHeight -
+                        top;
                     bottom = containerRect.height - top - height;
                 };
                 const moveBottom = () => {
                     top =
                         startPosition.originalY -
-                            startPosition.originalHeight;
+                        startPosition.originalHeight;
                     // height = clamp(
                     //     y - top,
                     //     top < 0 &&
@@ -7604,14 +7604,14 @@ class Overlay extends CompositeDisposable {
                     left = clamp(x, -Number.MAX_VALUE, Math.max(0, startPosition.originalX + startPosition.originalWidth - Overlay.MINIMUM_WIDTH));
                     width =
                         startPosition.originalX +
-                            startPosition.originalWidth -
-                            left;
+                        startPosition.originalWidth -
+                        left;
                     right = containerRect.width - left - width;
                 };
                 const moveRight = () => {
                     left =
                         startPosition.originalX -
-                            startPosition.originalWidth;
+                        startPosition.originalWidth;
                     // width = clamp(
                     //     x - left,
                     //     left < 0 &&
@@ -7815,45 +7815,45 @@ class OverlayRenderContainer extends CompositeDisposable {
                 focusContainer.style.zIndex = ''; // reset the z-index, perhaps CSS will take over here
             }
         };
-        const disposable = new CompositeDisposable(observerDisposable, 
-        /**
-         * since container is positioned absoutely we must explicitly forward
-         * the dnd events for the expect behaviours to continue to occur in terms of dnd
-         *
-         * the dnd observer does not need to be conditional on whether the panel is visible since
-         * non-visible panels are 'display: none' and in such case the dnd observer will not fire.
-         */
-        new DragAndDropObserver(focusContainer, {
-            onDragEnd: (e) => {
-                referenceContainer.dropTarget.dnd.onDragEnd(e);
-            },
-            onDragEnter: (e) => {
-                referenceContainer.dropTarget.dnd.onDragEnter(e);
-            },
-            onDragLeave: (e) => {
-                referenceContainer.dropTarget.dnd.onDragLeave(e);
-            },
-            onDrop: (e) => {
-                referenceContainer.dropTarget.dnd.onDrop(e);
-            },
-            onDragOver: (e) => {
-                referenceContainer.dropTarget.dnd.onDragOver(e);
-            },
-        }), panel.api.onDidVisibilityChange(() => {
+        const disposable = new CompositeDisposable(observerDisposable,
             /**
-             * Control the visibility of the content, however even when not visible (display: none)
-             * the content is still maintained within the DOM hence DOM specific attributes
-             * such as scroll position are maintained when next made visible.
+             * since container is positioned absoutely we must explicitly forward
+             * the dnd events for the expect behaviours to continue to occur in terms of dnd
+             *
+             * the dnd observer does not need to be conditional on whether the panel is visible since
+             * non-visible panels are 'display: none' and in such case the dnd observer will not fire.
              */
-            visibilityChanged();
-        }), panel.api.onDidDimensionsChange(() => {
-            if (!panel.api.isVisible) {
-                return;
-            }
-            resize();
-        }), panel.api.onDidLocationChange(() => {
-            correctLayerPosition();
-        }));
+            new DragAndDropObserver(focusContainer, {
+                onDragEnd: (e) => {
+                    referenceContainer.dropTarget.dnd.onDragEnd(e);
+                },
+                onDragEnter: (e) => {
+                    referenceContainer.dropTarget.dnd.onDragEnter(e);
+                },
+                onDragLeave: (e) => {
+                    referenceContainer.dropTarget.dnd.onDragLeave(e);
+                },
+                onDrop: (e) => {
+                    referenceContainer.dropTarget.dnd.onDrop(e);
+                },
+                onDragOver: (e) => {
+                    referenceContainer.dropTarget.dnd.onDragOver(e);
+                },
+            }), panel.api.onDidVisibilityChange(() => {
+                /**
+                 * Control the visibility of the content, however even when not visible (display: none)
+                 * the content is still maintained within the DOM hence DOM specific attributes
+                 * such as scroll position are maintained when next made visible.
+                 */
+                visibilityChanged();
+            }), panel.api.onDidDimensionsChange(() => {
+                if (!panel.api.isVisible) {
+                    return;
+                }
+                resize();
+            }), panel.api.onDidLocationChange(() => {
+                correctLayerPosition();
+            }));
         this.map[panel.api.id].destroy = Disposable.from(() => {
             var _a;
             if (panel.view.content.element.parentElement === focusContainer) {
@@ -8496,7 +8496,7 @@ class DockviewComponent extends BaseGrid {
         const box = getBox();
         const groupId = (_b = (_a = options === null || options === void 0 ? void 0 : options.overridePopoutGroup) === null || _a === void 0 ? void 0 : _a.id) !== null && _b !== void 0 ? _b : this.getNextGroupId();
         const _window = new PopoutWindow(`${this.id}-${groupId}`, // unique id
-        theme !== null && theme !== void 0 ? theme : '', {
+            theme !== null && theme !== void 0 ? theme : '', {
             url: (_e = (_c = options === null || options === void 0 ? void 0 : options.popoutUrl) !== null && _c !== void 0 ? _c : (_d = this.options) === null || _d === void 0 ? void 0 : _d.popoutUrl) !== null && _e !== void 0 ? _e : '/popout.html',
             left: window.screenX + box.left,
             top: window.screenY + box.top,
@@ -8511,196 +8511,196 @@ class DockviewComponent extends BaseGrid {
         return _window
             .open()
             .then((popoutContainer) => {
-            var _a;
-            if (_window.isDisposed) {
-                return false;
-            }
-            if (popoutContainer === null) {
-                popoutWindowDisposable.dispose();
-                return false;
-            }
-            const gready = document.createElement('div');
-            gready.className = 'dv-overlay-render-container';
-            const overlayRenderContainer = new OverlayRenderContainer(gready, this);
-            const referenceGroup = itemToPopout instanceof DockviewPanel
-                ? itemToPopout.group
-                : itemToPopout;
-            const referenceLocation = itemToPopout.api.location.type;
-            /**
-             * The group that is being added doesn't already exist within the DOM, the most likely occurance
-             * of this case is when being called from the `fromJSON(...)` method
-             */
-            const isGroupAddedToDom = referenceGroup.element.parentElement !== null;
-            let group;
-            if (!isGroupAddedToDom) {
-                group = referenceGroup;
-            }
-            else if (options === null || options === void 0 ? void 0 : options.overridePopoutGroup) {
-                group = options.overridePopoutGroup;
-            }
-            else {
-                group = this.createGroup({ id: groupId });
-                this._onDidAddGroup.fire(group);
-            }
-            group.model.renderContainer = overlayRenderContainer;
-            group.layout(_window.window.innerWidth, _window.window.innerHeight);
-            let floatingBox;
-            if (!(options === null || options === void 0 ? void 0 : options.overridePopoutGroup) && isGroupAddedToDom) {
-                if (itemToPopout instanceof DockviewPanel) {
-                    this.movingLock(() => {
-                        const panel = referenceGroup.model.removePanel(itemToPopout);
-                        group.model.openPanel(panel);
-                    });
+                var _a;
+                if (_window.isDisposed) {
+                    return false;
+                }
+                if (popoutContainer === null) {
+                    popoutWindowDisposable.dispose();
+                    return false;
+                }
+                const gready = document.createElement('div');
+                gready.className = 'dv-overlay-render-container';
+                const overlayRenderContainer = new OverlayRenderContainer(gready, this);
+                const referenceGroup = itemToPopout instanceof DockviewPanel
+                    ? itemToPopout.group
+                    : itemToPopout;
+                const referenceLocation = itemToPopout.api.location.type;
+                /**
+                 * The group that is being added doesn't already exist within the DOM, the most likely occurance
+                 * of this case is when being called from the `fromJSON(...)` method
+                 */
+                const isGroupAddedToDom = referenceGroup.element.parentElement !== null;
+                let group;
+                if (!isGroupAddedToDom) {
+                    group = referenceGroup;
+                }
+                else if (options === null || options === void 0 ? void 0 : options.overridePopoutGroup) {
+                    group = options.overridePopoutGroup;
                 }
                 else {
-                    this.movingLock(() => moveGroupWithoutDestroying({
-                        from: referenceGroup,
-                        to: group,
-                    }));
-                    switch (referenceLocation) {
-                        case 'grid':
-                            referenceGroup.api.setVisible(false);
-                            break;
-                        case 'floating':
-                        case 'popout':
-                            floatingBox = (_a = this._floatingGroups
-                                .find((value) => value.group.api.id ===
-                                itemToPopout.api.id)) === null || _a === void 0 ? void 0 : _a.overlay.toJSON();
-                            this.removeGroup(referenceGroup);
-                            break;
-                    }
+                    group = this.createGroup({ id: groupId });
+                    this._onDidAddGroup.fire(group);
                 }
-            }
-            popoutContainer.classList.add('dv-dockview');
-            popoutContainer.style.overflow = 'hidden';
-            popoutContainer.appendChild(gready);
-            popoutContainer.appendChild(group.element);
-            const anchor = document.createElement('div');
-            const dropTargetContainer = new DropTargetAnchorContainer(anchor, { disabled: this.rootDropTargetContainer.disabled });
-            popoutContainer.appendChild(anchor);
-            group.model.dropTargetContainer = dropTargetContainer;
-            group.model.location = {
-                type: 'popout',
-                getWindow: () => _window.window,
-                popoutUrl: options === null || options === void 0 ? void 0 : options.popoutUrl,
-            };
-            if (isGroupAddedToDom &&
-                itemToPopout.api.location.type === 'grid') {
-                itemToPopout.api.setVisible(false);
-            }
-            this.doSetGroupAndPanelActive(group);
-            popoutWindowDisposable.addDisposables(group.api.onDidActiveChange((event) => {
-                var _a;
-                if (event.isActive) {
-                    (_a = _window.window) === null || _a === void 0 ? void 0 : _a.focus();
-                }
-            }), group.api.onWillFocus(() => {
-                var _a;
-                (_a = _window.window) === null || _a === void 0 ? void 0 : _a.focus();
-            }));
-            let returnedGroup;
-            const isValidReferenceGroup = isGroupAddedToDom &&
-                referenceGroup &&
-                this.getPanel(referenceGroup.id);
-            const value = {
-                window: _window,
-                popoutGroup: group,
-                referenceGroup: isValidReferenceGroup
-                    ? referenceGroup.id
-                    : undefined,
-                disposable: {
-                    dispose: () => {
-                        popoutWindowDisposable.dispose();
-                        return returnedGroup;
-                    },
-                },
-            };
-            const _onDidWindowPositionChange = onDidWindowMoveEnd(_window.window);
-            popoutWindowDisposable.addDisposables(_onDidWindowPositionChange, onDidWindowResizeEnd(_window.window, () => {
-                this._onDidPopoutGroupSizeChange.fire({
-                    width: _window.window.innerWidth,
-                    height: _window.window.innerHeight,
-                    group,
-                });
-            }), _onDidWindowPositionChange.event(() => {
-                this._onDidPopoutGroupPositionChange.fire({
-                    screenX: _window.window.screenX,
-                    screenY: _window.window.screenX,
-                    group,
-                });
-            }), 
-            /**
-             * ResizeObserver seems slow here, I do not know why but we don't need it
-             * since we can reply on the window resize event as we will occupy the full
-             * window dimensions
-             */
-            addDisposableListener(_window.window, 'resize', () => {
+                group.model.renderContainer = overlayRenderContainer;
                 group.layout(_window.window.innerWidth, _window.window.innerHeight);
-            }), overlayRenderContainer, Disposable.from(() => {
-                if (this.isDisposed) {
-                    return; // cleanup may run after instance is disposed
-                }
-                if (isGroupAddedToDom &&
-                    this.getPanel(referenceGroup.id)) {
-                    this.movingLock(() => moveGroupWithoutDestroying({
-                        from: group,
-                        to: referenceGroup,
-                    }));
-                    if (!referenceGroup.api.isVisible) {
-                        referenceGroup.api.setVisible(true);
-                    }
-                    if (this.getPanel(group.id)) {
-                        this.doRemoveGroup(group, {
-                            skipPopoutAssociated: true,
-                        });
-                    }
-                }
-                else if (this.getPanel(group.id)) {
-                    group.model.renderContainer =
-                        this.overlayRenderContainer;
-                    group.model.dropTargetContainer =
-                        this.rootDropTargetContainer;
-                    returnedGroup = group;
-                    const alreadyRemoved = !this._popoutGroups.find((p) => p.popoutGroup === group);
-                    if (alreadyRemoved) {
-                        /**
-                         * If this popout group was explicitly removed then we shouldn't run the additional
-                         * steps. To tell if the running of this disposable is the result of this popout group
-                         * being explicitly removed we can check if this popout group is still referenced in
-                         * the `this._popoutGroups` list.
-                         */
-                        return;
-                    }
-                    if (floatingBox) {
-                        this.addFloatingGroup(group, {
-                            height: floatingBox.height,
-                            width: floatingBox.width,
-                            position: floatingBox,
+                let floatingBox;
+                if (!(options === null || options === void 0 ? void 0 : options.overridePopoutGroup) && isGroupAddedToDom) {
+                    if (itemToPopout instanceof DockviewPanel) {
+                        this.movingLock(() => {
+                            const panel = referenceGroup.model.removePanel(itemToPopout);
+                            group.model.openPanel(panel);
                         });
                     }
                     else {
-                        this.doRemoveGroup(group, {
-                            skipDispose: true,
-                            skipActive: true,
-                            skipPopoutReturn: true,
-                        });
-                        group.model.location = { type: 'grid' };
-                        this.movingLock(() => {
-                            // suppress group add events since the group already exists
-                            this.doAddGroup(group, [0]);
-                        });
+                        this.movingLock(() => moveGroupWithoutDestroying({
+                            from: referenceGroup,
+                            to: group,
+                        }));
+                        switch (referenceLocation) {
+                            case 'grid':
+                                referenceGroup.api.setVisible(false);
+                                break;
+                            case 'floating':
+                            case 'popout':
+                                floatingBox = (_a = this._floatingGroups
+                                    .find((value) => value.group.api.id ===
+                                        itemToPopout.api.id)) === null || _a === void 0 ? void 0 : _a.overlay.toJSON();
+                                this.removeGroup(referenceGroup);
+                                break;
+                        }
                     }
-                    this.doSetGroupAndPanelActive(group);
                 }
-            }));
-            this._popoutGroups.push(value);
-            this.updateWatermark();
-            return true;
-        })
+                popoutContainer.classList.add('dv-dockview');
+                popoutContainer.style.overflow = 'hidden';
+                popoutContainer.appendChild(gready);
+                popoutContainer.appendChild(group.element);
+                const anchor = document.createElement('div');
+                const dropTargetContainer = new DropTargetAnchorContainer(anchor, { disabled: this.rootDropTargetContainer.disabled });
+                popoutContainer.appendChild(anchor);
+                group.model.dropTargetContainer = dropTargetContainer;
+                group.model.location = {
+                    type: 'popout',
+                    getWindow: () => _window.window,
+                    popoutUrl: options === null || options === void 0 ? void 0 : options.popoutUrl,
+                };
+                if (isGroupAddedToDom &&
+                    itemToPopout.api.location.type === 'grid') {
+                    itemToPopout.api.setVisible(false);
+                }
+                this.doSetGroupAndPanelActive(group);
+                popoutWindowDisposable.addDisposables(group.api.onDidActiveChange((event) => {
+                    var _a;
+                    if (event.isActive) {
+                        (_a = _window.window) === null || _a === void 0 ? void 0 : _a.focus();
+                    }
+                }), group.api.onWillFocus(() => {
+                    var _a;
+                    (_a = _window.window) === null || _a === void 0 ? void 0 : _a.focus();
+                }));
+                let returnedGroup;
+                const isValidReferenceGroup = isGroupAddedToDom &&
+                    referenceGroup &&
+                    this.getPanel(referenceGroup.id);
+                const value = {
+                    window: _window,
+                    popoutGroup: group,
+                    referenceGroup: isValidReferenceGroup
+                        ? referenceGroup.id
+                        : undefined,
+                    disposable: {
+                        dispose: () => {
+                            popoutWindowDisposable.dispose();
+                            return returnedGroup;
+                        },
+                    },
+                };
+                const _onDidWindowPositionChange = onDidWindowMoveEnd(_window.window);
+                popoutWindowDisposable.addDisposables(_onDidWindowPositionChange, onDidWindowResizeEnd(_window.window, () => {
+                    this._onDidPopoutGroupSizeChange.fire({
+                        width: _window.window.innerWidth,
+                        height: _window.window.innerHeight,
+                        group,
+                    });
+                }), _onDidWindowPositionChange.event(() => {
+                    this._onDidPopoutGroupPositionChange.fire({
+                        screenX: _window.window.screenX,
+                        screenY: _window.window.screenX,
+                        group,
+                    });
+                }),
+                    /**
+                     * ResizeObserver seems slow here, I do not know why but we don't need it
+                     * since we can reply on the window resize event as we will occupy the full
+                     * window dimensions
+                     */
+                    addDisposableListener(_window.window, 'resize', () => {
+                        group.layout(_window.window.innerWidth, _window.window.innerHeight);
+                    }), overlayRenderContainer, Disposable.from(() => {
+                        if (this.isDisposed) {
+                            return; // cleanup may run after instance is disposed
+                        }
+                        if (isGroupAddedToDom &&
+                            this.getPanel(referenceGroup.id)) {
+                            this.movingLock(() => moveGroupWithoutDestroying({
+                                from: group,
+                                to: referenceGroup,
+                            }));
+                            if (!referenceGroup.api.isVisible) {
+                                referenceGroup.api.setVisible(true);
+                            }
+                            if (this.getPanel(group.id)) {
+                                this.doRemoveGroup(group, {
+                                    skipPopoutAssociated: true,
+                                });
+                            }
+                        }
+                        else if (this.getPanel(group.id)) {
+                            group.model.renderContainer =
+                                this.overlayRenderContainer;
+                            group.model.dropTargetContainer =
+                                this.rootDropTargetContainer;
+                            returnedGroup = group;
+                            const alreadyRemoved = !this._popoutGroups.find((p) => p.popoutGroup === group);
+                            if (alreadyRemoved) {
+                                /**
+                                 * If this popout group was explicitly removed then we shouldn't run the additional
+                                 * steps. To tell if the running of this disposable is the result of this popout group
+                                 * being explicitly removed we can check if this popout group is still referenced in
+                                 * the `this._popoutGroups` list.
+                                 */
+                                return;
+                            }
+                            if (floatingBox) {
+                                this.addFloatingGroup(group, {
+                                    height: floatingBox.height,
+                                    width: floatingBox.width,
+                                    position: floatingBox,
+                                });
+                            }
+                            else {
+                                this.doRemoveGroup(group, {
+                                    skipDispose: true,
+                                    skipActive: true,
+                                    skipPopoutReturn: true,
+                                });
+                                group.model.location = { type: 'grid' };
+                                this.movingLock(() => {
+                                    // suppress group add events since the group already exists
+                                    this.doAddGroup(group, [0]);
+                                });
+                            }
+                            this.doSetGroupAndPanelActive(group);
+                        }
+                    }));
+                this._popoutGroups.push(value);
+                this.updateWatermark();
+                return true;
+            })
             .catch((err) => {
-            console.error('dockview: failed to create popout window', err);
-            return false;
-        });
+                console.error('dockview: failed to create popout window', err);
+                return false;
+            });
     }
     addFloatingGroup(item, options) {
         var _a, _b, _c, _d, _e;
@@ -8802,11 +8802,13 @@ class DockviewComponent extends BaseGrid {
             };
         }
         const anchoredBox = getAnchoredBox();
-        const overlay = new Overlay(Object.assign(Object.assign({ container: this.gridview.element, content: group.element }, anchoredBox), { minimumInViewportWidth: this.options.floatingGroupBounds === 'boundedWithinViewport'
+        const overlay = new Overlay(Object.assign(Object.assign({ container: this.gridview.element, content: group.element }, anchoredBox), {
+            minimumInViewportWidth: this.options.floatingGroupBounds === 'boundedWithinViewport'
                 ? undefined
                 : (_c = (_b = this.options.floatingGroupBounds) === null || _b === void 0 ? void 0 : _b.minimumWidthWithinViewport) !== null && _c !== void 0 ? _c : DEFAULT_FLOATING_GROUP_OVERFLOW_SIZE, minimumInViewportHeight: this.options.floatingGroupBounds === 'boundedWithinViewport'
-                ? undefined
-                : (_e = (_d = this.options.floatingGroupBounds) === null || _d === void 0 ? void 0 : _d.minimumHeightWithinViewport) !== null && _e !== void 0 ? _e : DEFAULT_FLOATING_GROUP_OVERFLOW_SIZE }));
+                    ? undefined
+                    : (_e = (_d = this.options.floatingGroupBounds) === null || _d === void 0 ? void 0 : _d.minimumHeightWithinViewport) !== null && _e !== void 0 ? _e : DEFAULT_FLOATING_GROUP_OVERFLOW_SIZE
+        }));
         const el = group.element.querySelector('.dv-void-container');
         if (!el) {
             throw new Error('failed to find drag handle');
@@ -9868,7 +9870,7 @@ class DockviewComponent extends BaseGrid {
         if ('dndEdges' in options) {
             this._rootDropTarget.disabled =
                 typeof options.dndEdges === 'boolean' &&
-                    options.dndEdges === false;
+                options.dndEdges === false;
             if (typeof options.dndEdges === 'object' &&
                 options.dndEdges !== null) {
                 this._rootDropTarget.setOverlayModel(options.dndEdges);
@@ -10261,11 +10263,11 @@ class SplitviewComponent extends Resizable {
         this.panels
             .filter((v) => v !== panel)
             .forEach((v) => {
-            v.api._onDidActiveChange.fire({ isActive: false });
-            if (!skipFocus) {
-                v.focus();
-            }
-        });
+                v.api._onDidActiveChange.fire({ isActive: false });
+                if (!skipFocus) {
+                    v.focus();
+                }
+            });
         panel.api._onDidActiveChange.fire({ isActive: true });
         if (!skipFocus) {
             panel.focus();
@@ -10334,14 +10336,14 @@ class SplitviewComponent extends Resizable {
         const views = this.splitview
             .getViews()
             .map((view, i) => {
-            const size = this.splitview.getViewSize(i);
-            return {
-                size,
-                data: view.toJSON(),
-                snap: !!view.snap,
-                priority: view.priority,
-            };
-        });
+                const size = this.splitview.getViewSize(i);
+                return {
+                    size,
+                    data: view.toJSON(),
+                    snap: !!view.snap,
+                    priority: view.priority,
+                };
+            });
         return {
             views,
             activeView: (_a = this._activePanel) === null || _a === void 0 ? void 0 : _a.id,
@@ -10673,16 +10675,16 @@ class PaneviewComponent extends Resizable {
         const views = this.paneview
             .getPanes()
             .map((view, i) => {
-            const size = this.paneview.getViewSize(i);
-            return {
-                size,
-                data: view.toJSON(),
-                minimumSize: minimum(view.minimumBodySize),
-                maximumSize: maximum(view.maximumBodySize),
-                headerSize: view.headerSize,
-                expanded: view.isExpanded(),
-            };
-        });
+                const size = this.paneview.getViewSize(i);
+                return {
+                    size,
+                    data: view.toJSON(),
+                    minimumSize: minimum(view.minimumBodySize),
+                    maximumSize: maximum(view.maximumBodySize),
+                    headerSize: view.headerSize,
+                    expanded: view.isExpanded(),
+                };
+            });
         return {
             views,
             size: this.paneview.size,
