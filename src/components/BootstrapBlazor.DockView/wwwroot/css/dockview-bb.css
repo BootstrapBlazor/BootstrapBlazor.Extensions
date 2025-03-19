@@ -208,24 +208,6 @@
     transition-duration: .3s;
 }
 
-.ribbon-body.ribbon-body > div,
-.bb-dockview .dv-split-view-container,
-.bb-dockview .dv-split-view-container .dv-view-container .dv-view {
-    overflow: initial;
-}
-
-    .bb-dockview .dv-split-view-container .dv-view-container .dv-view.bb-maximize {
-        z-index: 99;
-    }
-
-    .bb-dockview .dv-split-view-container .dv-view-container > .dv-view > .dv-groupview:not(.empty) {
-        overflow: initial !important;
-    }
-
-.bb-dockview .dv-resize-container .dv-groupview .dv-tabs-and-actions-container {
-    z-index: 12;
-}
-
 .bb-dockview .bb-dockview-btn-wrapper {
     cursor: pointer;
     float: left;
@@ -287,9 +269,6 @@
 
 .bb-dockview .dv-tabs-and-actions-container:has(.dropdown-item) .dv-scrollbar-horizontal {
     display: none;
-}
-.bb-dockview .dv-scrollable {
-    width: initial;
 }
 .bb-dockview .dv-tab.dv-inactive-tab .dv-default-tab .dv-default-tab-action {
     visibility: visible;

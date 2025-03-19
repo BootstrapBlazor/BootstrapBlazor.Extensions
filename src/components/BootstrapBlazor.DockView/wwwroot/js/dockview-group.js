@@ -60,23 +60,23 @@ const addPanelWidthGroupId = (dockview, panel, index) => {
         let floatingGroupRect = rect || {
             width, height: packup?.isPackup ? packup.height : height, position: { left, top }
         }
-        if(floatType == 'drawer'){
+        if (floatType == 'drawer') {
             floatingGroupRect = {
                 width: drawer.width || 300,
                 height: dockview.height,
-                position: { left: 0, top: 0}
+                position: { left: 0, top: 0 }
             }
         }
         dockview.addFloatingGroup(group, { ...floatingGroupRect, skipRemoveGroup: true })
         const overlay = dockview.floatingGroups.find(fg => fg.group.id == group.id).overlay
         observeOverlayChange(overlay, group)
         createGroupActions(group, floatType);
-        if(floatType == 'drawer'){
+        if (floatType == 'drawer') {
             setTimeout(() => createDrawerHandle(group), 0);
         }
         // const floatingGroup = createFloatingGroup(group, floatingGroupRect)
         const autoHideBtn = group.header.rightActionsContainer.querySelector('.bb-dockview-control-icon-autohide')
-        if(autoHideBtn){
+        if (autoHideBtn) {
             // autoHideBtn.style.display = 'none'
         }
 
@@ -195,7 +195,7 @@ const resetActionStates = (group, actionContainer, groupType) => {
     }
     if (showPin(dockview, group) && showFloat(dockview, group)) {
         actionContainer.classList.add('bb-show-pin');
-        if(getPinState(dockview, group, groupType)){
+        if (getPinState(dockview, group, groupType)) {
             actionContainer.classList.add('bb-pin');
         }
     }
@@ -319,22 +319,22 @@ const addActionEvent = group => {
 const autoHide = group => {
     const dockview = group.api.accessor;
     const type = group.model.location.type
-    if(type == 'floating'){
+    if (type == 'floating') {
         dock(group, 'drawer')
     }
-    if(type == 'grid'){
+    if (type == 'grid') {
         if (!canFloat(group)) return;
         // 1、点击图标创建浮动窗口并隐藏
-        const { drawer = {width: 300, visible: true} } = group.getParams()
+        const { drawer = { width: 300, visible: true } } = group.getParams()
         const rect = {
-          position:{
-            left: -9999,
-            top: 0
-          },
-          width: drawer.width,
-          height: '100%'
+            position: {
+                left: -9999,
+                top: 0
+            },
+            width: drawer.width,
+            height: '100%'
         }
-        group.setParams({drawer, floatType: 'drawer'})
+        group.setParams({ drawer, floatType: 'drawer' })
         const floatingGroup = createFloatingGroup(group, rect, 'drawer')
         if (floatingGroup) {
             setTimeout(() => {
@@ -359,7 +359,7 @@ const createDrawerBtn = floatingGroup => {
     btn.innerHTML = title
     btn.setAttribute('groupid', dockview.id + '_' + floatingGroup.id)
     btn.classList.add('drawer-btn')
-    if(floatingGroup.element.parentElement.style.left == '-1px'){
+    if (floatingGroup.element.parentElement.style.left == '-1px') {
         btn.classList.add('active')
     }
 
@@ -369,25 +369,25 @@ const createDrawerBtn = floatingGroup => {
         const parentElement = activePanel.view.content.element.parentElement
         dockview.floatingGroups.forEach(item => {
             const params = item.group.getParams()
-            if(params.floatType == 'drawer' && item.group != floatingGroup){
+            if (params.floatType == 'drawer' && item.group != floatingGroup) {
                 item.group.element.parentElement.style.left = '-9999px'
-                if(activePanel?.renderer == 'always' && parentElement){
+                if (activePanel?.renderer == 'always' && parentElement) {
                     parentElement.style.left = '-9999px'
                 }
             }
         })
-        ;[...btn.parentElement.children].forEach(btnEle => {
-            btnEle.classList.remove('active')
-        })
-        if(fgWrapper.style.left == '-1px'){
+            ;[...btn.parentElement.children].forEach(btnEle => {
+                btnEle.classList.remove('active')
+            })
+        if (fgWrapper.style.left == '-1px') {
             fgWrapper.style.left = '-9999px'
-            if(activePanel?.renderer == 'always' && parentElement){
+            if (activePanel?.renderer == 'always' && parentElement) {
                 parentElement.style.left = '-9999px'
             }
         } else {
             btn.classList.add('active')
             fgWrapper.style.left = '-1px'
-            if(parentElement){
+            if (parentElement) {
                 parentElement.style.left = '0'
             }
         }
@@ -395,7 +395,7 @@ const createDrawerBtn = floatingGroup => {
     })
     const dvEleBox = dockview.element.parentElement
     let btnWrapper = [...dvEleBox.children].find(item => item.classList.contains('bb-dockview-btn-wrapper'))
-    if(!btnWrapper) {
+    if (!btnWrapper) {
         btnWrapper = document.createElement('div')
         btnWrapper.className = 'bb-dockview-btn-wrapper'
         dvEleBox.prepend(btnWrapper)
@@ -413,7 +413,7 @@ const setDrawerTitle = group => {
     const title = group.activePanel?.title || group.panels[0]?.title
     const groupId = group.api.accessor.id + '_' + group.id
     const btnEle = group.api.accessor.element.parentElement.parentElement.querySelector(`.bb-dockview-btn-wrapper>[groupId="${groupId}"]`)
-    if(!btnEle) return
+    if (!btnEle) return
     btnEle.innerHTML = title
 }
 
@@ -444,7 +444,7 @@ const toggleFull = (group, actionContainer, maximize) => {
         maximize ? floatingExitMaximized(group) : floatingMaximize(group);
     }
     maximize ? actionContainer.classList.remove('bb-maximize') : actionContainer.classList.add('bb-maximize')
-    if(maximize){
+    if (maximize) {
         group.element.parentElement.classList.remove('bb-maximize')
     }
     else {
@@ -454,7 +454,7 @@ const toggleFull = (group, actionContainer, maximize) => {
 
 const float = group => {
     if (!canFloat(group)) return;
-    if(group.api.isMaximized()){
+    if (group.api.isMaximized()) {
         toggleFull(group, group.header.rightActionsContainer, true);
     }
     const dockview = group.api.accessor
@@ -475,8 +475,8 @@ const canFloat = group => {
     const dockview = group.api.accessor;
     const gridGroups = dockview.groups.filter(g => g.panels.length > 0 && g.model.location.type === 'grid')
     if (gridGroups.length <= 1) return false;
-    if(group.element.closest('.dv-resize-container')) return
-    if(group.element.querySelector('.dv-resize-container')) return
+    if (group.element.closest('.dv-resize-container')) return
+    if (group.element.querySelector('.dv-resize-container')) return
     return true
 }
 
@@ -503,7 +503,7 @@ const createFloatingGroup = (group, rect, groupType) => {
 }
 const observeOverlayChange = (overlay, group) => {
     overlay.onDidChangeEnd(e => {
-        if(e.eventType == 'drag' && group.getParams().floatType == 'drawer'){
+        if (e.eventType == 'drag' && group.getParams().floatType == 'drawer') {
             removeDrawerBtn(group)
             const parentEle = group.element.parentElement
             parentEle.style.height = `${parentEle.getBoundingClientRect().height}px`
@@ -547,19 +547,19 @@ const dock = (group, floatType) => {
     if (!originGroup) return
     dockview.setVisible(originGroup, true)
     const { drawer } = group.getParams()
-    const inset = group.element.parentElement.style.inset.split(' ').map(item => isNaN(parseFloat(item))?item:parseFloat(item))
+    const inset = group.element.parentElement.style.inset.split(' ').map(item => isNaN(parseFloat(item)) ? item : parseFloat(item))
     const rect = {
         width: group.width + 2,
         height: group.height + 2,
         position: {}
     }
-    ;['top', 'right', 'bottom', 'left'].forEach((key, index) => {
-        if(typeof inset[index] == 'number'){
-            rect.position[key] = inset[index]
-        }
-    })
-    if(floatType == 'drawer'){
-        group.setParams({ drawer: { ...drawer, width: rect.width} })
+        ;['top', 'right', 'bottom', 'left'].forEach((key, index) => {
+            if (typeof inset[index] == 'number') {
+                rect.position[key] = inset[index]
+            }
+        })
+    if (floatType == 'drawer') {
+        group.setParams({ drawer: { ...drawer, width: rect.width } })
         group.removePropsOfParams('floatType')
         removeDrawerBtn(group)
     }
@@ -582,15 +582,15 @@ const down = (group, actionContainer) => {
     if (packup?.isPackup) {
         group.setParams({ packup: { ...packup, isPackup: false } })
         parentEle.style.height = `${packup.height}px`;
-        if(top == 'auto'){
+        if (top == 'auto') {
             parentEle.style.bottom = parseFloat(bottom) - (packup.height - tabHeight) + 'px'
         }
         actionContainer.classList.add('bb-up');
     }
     else {
-        group.setParams({packup: { isPackup: true, height: parseFloat(height) }});
+        group.setParams({ packup: { isPackup: true, height: parseFloat(height) } });
         parentEle.style.height = `${tabHeight}px`;
-        if(top == 'auto'){
+        if (top == 'auto') {
             parentEle.style.bottom = parseFloat(bottom) + (parseFloat(height) - tabHeight) + 'px'
         }
         actionContainer.classList.remove('bb-up')
@@ -607,18 +607,18 @@ close = group => {
 const floatingMaximize = group => {
     const parentEle = group.element.parentElement
     const { width: maxWidth, height: maxHeight } = group.api.accessor;
-    const inset = parentEle.style.inset.split(' ').map(item => isNaN(parseFloat(item))?item:parseFloat(item))
+    const inset = parentEle.style.inset.split(' ').map(item => isNaN(parseFloat(item)) ? item : parseFloat(item))
     const rect = {
         width: group.width + 2,
         height: group.height + 2,
         position: {}
     }
-    ;['top', 'right', 'bottom', 'left'].forEach((key, index) => {
-        if(typeof inset[index] == 'number'){
-            rect.position[key] = inset[index]
-        }
-    })
-    group.setParams({rect})
+        ;['top', 'right', 'bottom', 'left'].forEach((key, index) => {
+            if (typeof inset[index] == 'number') {
+                rect.position[key] = inset[index]
+            }
+        })
+    group.setParams({ rect })
 
     parentEle.style.left = 0;
     parentEle.style.top = 0;
@@ -632,7 +632,7 @@ const floatingExitMaximized = group => {
     const { top, right, bottom, left } = rect.position
 
     parentEle.style.inset = [top, right, bottom, left]
-        .map(item => typeof item == 'number' ? (item + 'px') : 'auto' ).join(' ')
+        .map(item => typeof item == 'number' ? (item + 'px') : 'auto').join(' ')
     parentEle.style.width = `${rect.width}px`;
     parentEle.style.height = `${rect.height}px`;
 }
