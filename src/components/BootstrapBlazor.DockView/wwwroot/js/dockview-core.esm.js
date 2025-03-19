@@ -1,6 +1,6 @@
 /**
  * dockview-core
- * @version 4.2.0
+ * @version 4.2.1
  * @link https://github.com/mathuo/dockview
  * @license MIT
  */
@@ -5450,7 +5450,7 @@ class TabsContainer extends CompositeDisposable {
         this._element.appendChild(this.leftActionsContainer);
         this._element.appendChild(this.voidContainer.element);
         this._element.appendChild(this.rightActionsContainer);
-        this.addDisposables(accessor.onDidOptionsChange(() => {
+        this.addDisposables(this.tabs.onDrop((e) => this._onDrop.fire(e)), this.tabs.onWillShowOverlay((e) => this._onWillShowOverlay.fire(e)), accessor.onDidOptionsChange(() => {
             this.tabs.showTabsOverflowControl =
                 !accessor.options.disableTabsOverflowList;
         }), this.tabs.onOverflowTabsChange((event) => {
@@ -8320,13 +8320,48 @@ class DockviewComponent extends BaseGrid {
         this._onDidActiveGroupChange = new Emitter();
         this.onDidActiveGroupChange = this._onDidActiveGroupChange.event;
         this._moving = false;
+        this._options = options;
         this.popupService = new PopupService(this.element);
-        this.updateDropTargetModel(options);
         this._themeClassnames = new Classnames(this.element);
+        this._api = new DockviewApi(this);
         this.rootDropTargetContainer = new DropTargetAnchorContainer(this.element, { disabled: true });
         this.overlayRenderContainer = new OverlayRenderContainer(this.gridview.element, this);
+        this._rootDropTarget = new Droptarget(this.element, {
+            className: 'dv-drop-target-edge',
+            canDisplayOverlay: (event, position) => {
+                const data = getPanelData();
+                if (data) {
+                    if (data.viewId !== this.id) {
+                        return false;
+                    }
+                    if (position === 'center') {
+                        // center drop target is only allowed if there are no panels in the grid
+                        // floating panels are allowed
+                        return this.gridview.length === 0;
+                    }
+                    return true;
+                }
+                if (position === 'center' && this.gridview.length !== 0) {
+                    /**
+                     * for external events only show the four-corner drag overlays, disable
+                     * the center position so that external drag events can fall through to the group
+                     * and panel drop target handlers
+                     */
+                    return false;
+                }
+                const firedEvent = new DockviewUnhandledDragOverEvent(event, 'edge', position, getPanelData);
+                this._onUnhandledDragOverEvent.fire(firedEvent);
+                return firedEvent.isAccepted;
+            },
+            acceptedTargetZones: ['top', 'bottom', 'left', 'right', 'center'],
+            overlayModel: (_c = options.rootOverlayModel) !== null && _c !== void 0 ? _c : DEFAULT_ROOT_OVERLAY_MODEL,
+            getOverrideTarget: () => { var _a; return (_a = this.rootDropTargetContainer) === null || _a === void 0 ? void 0 : _a.model; },
+        });
+        this.updateDropTargetModel(options);
         toggleClass(this.gridview.element, 'dv-dockview', true);
         toggleClass(this.element, 'dv-debug', !!options.debug);
+        this.updateTheme();
+        this.updateWatermark();
         if (options.debug) {
             this.addDisposables(new StrictEventsSequencing(this));
         }
@@ -8362,41 +8397,7 @@ class DockviewComponent extends BaseGrid {
             for (const group of [...this._popoutGroups]) {
                 group.disposable.dispose();
             }
-        }));
-        this._options = options;
-        this.updateTheme();
-        this._rootDropTarget = new Droptarget(this.element, {
-            className: 'dv-drop-target-edge',
-            canDisplayOverlay: (event, position) => {
-                const data = getPanelData();
-                if (data) {
-                    if (data.viewId !== this.id) {
-                        return false;
-                    }
-                    if (position === 'center') {
-                        // center drop target is only allowed if there are no panels in the grid
-                        // floating panels are allowed
-                        return this.gridview.length === 0;
-                    }
-                    return true;
-                }
-                if (position === 'center' && this.gridview.length !== 0) {
-                    /**
-                     * for external events only show the four-corner drag overlays, disable
-                     * the center position so that external drag events can fall through to the group
-                     * and panel drop target handlers
-                     */
-                    return false;
-                }
-                const firedEvent = new DockviewUnhandledDragOverEvent(event, 'edge', position, getPanelData);
-                this._onUnhandledDragOverEvent.fire(firedEvent);
-                return firedEvent.isAccepted;
-            },
-            acceptedTargetZones: ['top', 'bottom', 'left', 'right', 'center'],
-            overlayModel: (_c = this.options.rootOverlayModel) !== null && _c !== void 0 ? _c : DEFAULT_ROOT_OVERLAY_MODEL,
-            getOverrideTarget: () => { var _a; return (_a = this.rootDropTargetContainer) === null || _a === void 0 ? void 0 : _a.model; },
-        });
-        this.addDisposables(this._rootDropTarget, this._rootDropTarget.onWillShowOverlay((event) => {
+        }), this._rootDropTarget, this._rootDropTarget.onWillShowOverlay((event) => {
             if (this.gridview.length > 0 && event.position === 'center') {
                 // option only available when no panels in primary grid
                 return;
@@ -8451,8 +8452,6 @@ class DockviewComponent extends BaseGrid {
                 }));
             }
         }), this._rootDropTarget);
-        this._api = new DockviewApi(this);
-        this.updateWatermark();
     }
     setVisible(panel, visible) {
         switch (panel.api.location.type) {

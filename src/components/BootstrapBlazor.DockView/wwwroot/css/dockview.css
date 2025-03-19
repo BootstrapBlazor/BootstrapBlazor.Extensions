@@ -248,10 +248,10 @@
   opacity: 0;
   transition: none;
 }
-.dockview-theme-dracula .dv-groupview.dv-active-group > .dv-tabs-and-actions-container > .dv-scrollable > .dv-tabs-container > .dv-tab.dv-active-tab {
+.dockview-theme-dracula .dv-groupview.dv-active-group > .dv-tabs-and-actions-container .dv-tabs-container > .dv-tab.dv-active-tab {
   position: relative;
 }
-.dockview-theme-dracula .dv-groupview.dv-active-group > .dv-tabs-and-actions-container > .dv-scrollable > .dv-tabs-container > .dv-tab.dv-active-tab::after {
+.dockview-theme-dracula .dv-groupview.dv-active-group > .dv-tabs-and-actions-container .dv-tabs-container > .dv-tab.dv-active-tab::after {
   position: absolute;
   left: 0px;
   top: 0px;
@@ -261,10 +261,10 @@
   background-color: #94527e;
   z-index: 999;
 }
-.dockview-theme-dracula .dv-groupview.dv-inactive-group > .dv-tabs-and-actions-container > .dv-scrollable > .dv-tabs-container > .dv-tab.dv-active-tab {
+.dockview-theme-dracula .dv-groupview.dv-inactive-group > .dv-tabs-and-actions-container .dv-tabs-container > .dv-tab.dv-active-tab {
   position: relative;
 }
-.dockview-theme-dracula .dv-groupview.dv-inactive-group > .dv-tabs-and-actions-container > .dv-scrollable > .dv-tabs-container > .dv-tab.dv-active-tab::after {
+.dockview-theme-dracula .dv-groupview.dv-inactive-group > .dv-tabs-and-actions-container .dv-tabs-container > .dv-tab.dv-active-tab::after {
   position: absolute;
   left: 0px;
   bottom: 0px;
@@ -576,6 +576,62 @@
 .dockview-theme-light-spaced .dv-resize-container .dv-groupview {
   border: 2px solid rgba(255, 255, 255, 0.1);
 }
+.dv-dockview {
+  position: relative;
+  background-color: var(--dv-group-view-background-color);
+}
+.dv-dockview .dv-watermark-container {
+  position: absolute;
+  top: 0px;
+  left: 0px;
+  height: 100%;
+  width: 100%;
+  z-index: 1;
+}
+.dv-dockview .dv-overlay-render-container {
+  position: relative;
+}
+
+.dv-groupview.dv-active-group > .dv-tabs-and-actions-container .dv-tabs-container > .dv-tab.dv-active-tab {
+  background-color: var(--dv-activegroup-visiblepanel-tab-background-color);
+  color: var(--dv-activegroup-visiblepanel-tab-color);
+}
+.dv-groupview.dv-active-group > .dv-tabs-and-actions-container .dv-tabs-container > .dv-tab.dv-inactive-tab {
+  background-color: var(--dv-activegroup-hiddenpanel-tab-background-color);
+  color: var(--dv-activegroup-hiddenpanel-tab-color);
+}
+.dv-groupview.dv-inactive-group > .dv-tabs-and-actions-container .dv-tabs-container > .dv-tab.dv-active-tab {
+  background-color: var(--dv-inactivegroup-visiblepanel-tab-background-color);
+  color: var(--dv-inactivegroup-visiblepanel-tab-color);
+}
+.dv-groupview.dv-inactive-group > .dv-tabs-and-actions-container .dv-tabs-container > .dv-tab.dv-inactive-tab {
+  background-color: var(--dv-inactivegroup-hiddenpanel-tab-background-color);
+  color: var(--dv-inactivegroup-hiddenpanel-tab-color);
+}
+
+/**
+ * when a tab is dragged we lose the above stylings because they are conditional on parent elements
+ * therefore we also set some stylings for the dragging event
+ **/
+.dv-tab.dv-tab-dragging {
+  background-color: var(--dv-activegroup-visiblepanel-tab-background-color);
+  color: var(--dv-activegroup-visiblepanel-tab-color);
+}
+.dv-groupview {
+  display: flex;
+  flex-direction: column;
+  height: 100%;
+  background-color: var(--dv-group-view-background-color);
+  overflow: hidden;
+}
+.dv-groupview:focus {
+  outline: none;
+}
+.dv-groupview > .dv-content-container {
+  flex-grow: 1;
+  min-height: 0;
+  outline: none;
+}
 .dv-drop-target {
   position: relative;
   --dv-transition-duration: 70ms;
@@ -629,62 +685,6 @@
   transition: opacity var(--dv-transition-duration) ease-in, top var(--dv-transition-duration) ease-out, left var(--dv-transition-duration) ease-out, width var(--dv-transition-duration) ease-out, height var(--dv-transition-duration) ease-out;
   background-color: var(--dv-drag-over-background-color);
   opacity: 1;
-}
-.dv-dockview {
-  position: relative;
-  background-color: var(--dv-group-view-background-color);
-}
-.dv-dockview .dv-watermark-container {
-  position: absolute;
-  top: 0px;
-  left: 0px;
-  height: 100%;
-  width: 100%;
-  z-index: 1;
-}
-.dv-dockview .dv-overlay-render-container {
-  position: relative;
-}
-
-.dv-groupview.dv-active-group > .dv-tabs-and-actions-container > .dv-scrollable > .dv-tabs-container > .dv-tab.dv-active-tab {
-  background-color: var(--dv-activegroup-visiblepanel-tab-background-color);
-  color: var(--dv-activegroup-visiblepanel-tab-color);
-}
-.dv-groupview.dv-active-group > .dv-tabs-and-actions-container > .dv-scrollable > .dv-tabs-container > .dv-tab.dv-inactive-tab {
-  background-color: var(--dv-activegroup-hiddenpanel-tab-background-color);
-  color: var(--dv-activegroup-hiddenpanel-tab-color);
-}
-.dv-groupview.dv-inactive-group > .dv-tabs-and-actions-container > .dv-scrollable > .dv-tabs-container > .dv-tab.dv-active-tab {
-  background-color: var(--dv-inactivegroup-visiblepanel-tab-background-color);
-  color: var(--dv-inactivegroup-visiblepanel-tab-color);
-}
-.dv-groupview.dv-inactive-group > .dv-tabs-and-actions-container > .dv-scrollable > .dv-tabs-container > .dv-tab.dv-inactive-tab {
-  background-color: var(--dv-inactivegroup-hiddenpanel-tab-background-color);
-  color: var(--dv-inactivegroup-hiddenpanel-tab-color);
-}
-
-/**
- * when a tab is dragged we lose the above stylings because they are conditional on parent elements
- * therefore we also set some stylings for the dragging event
- **/
-.dv-tab.dv-tab-dragging {
-  background-color: var(--dv-activegroup-visiblepanel-tab-background-color);
-  color: var(--dv-activegroup-visiblepanel-tab-color);
-}
-.dv-groupview {
-  display: flex;
-  flex-direction: column;
-  height: 100%;
-  background-color: var(--dv-group-view-background-color);
-  overflow: hidden;
-}
-.dv-groupview:focus {
-  outline: none;
-}
-.dv-groupview > .dv-content-container {
-  flex-grow: 1;
-  min-height: 0;
-  outline: none;
 }
 .dv-root-wrapper {
   height: 100%;
@@ -1023,6 +1023,63 @@
   pointer-events: none;
   background-color: var(--dv-separator-border);
 }
+.dv-dragged {
+  transform: translate3d(0px, 0px, 0px); /* forces tab to be drawn on a separate layer (see https://github.com/microsoft/vscode/issues/18733) */
+}
+
+.dv-tab {
+  flex-shrink: 0;
+}
+.dv-tab:focus-within, .dv-tab:focus {
+  position: relative;
+}
+.dv-tab:focus-within::after, .dv-tab:focus::after {
+  position: absolute;
+  content: "";
+  height: 100%;
+  width: 100%;
+  top: 0px;
+  left: 0px;
+  pointer-events: none;
+  outline: 1px solid var(--dv-tab-divider-color) !important;
+  outline-offset: -1px;
+  z-index: 5;
+}
+.dv-tab.dv-tab-dragging .dv-default-tab-action {
+  background-color: var(--dv-activegroup-visiblepanel-tab-color);
+}
+.dv-tab.dv-active-tab .dv-default-tab .dv-default-tab-action {
+  visibility: visible;
+}
+.dv-tab.dv-inactive-tab .dv-default-tab .dv-default-tab-action {
+  visibility: hidden;
+}
+.dv-tab.dv-inactive-tab .dv-default-tab:hover .dv-default-tab-action {
+  visibility: visible;
+}
+.dv-tab .dv-default-tab {
+  position: relative;
+  height: 100%;
+  display: flex;
+  align-items: center;
+  white-space: nowrap;
+  text-overflow: ellipsis;
+}
+.dv-tab .dv-default-tab .dv-default-tab-content {
+  flex-grow: 1;
+  margin-right: 4px;
+}
+.dv-tab .dv-default-tab .dv-default-tab-action {
+  padding: 4px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  box-sizing: border-box;
+}
+.dv-tab .dv-default-tab .dv-default-tab-action:hover {
+  border-radius: 2px;
+  background-color: var(--dv-icon-hover-background-color);
+}
 .dv-watermark {
   display: flex;
   height: 100%;
@@ -1132,61 +1189,4 @@
 }
 .dv-tabs-and-actions-container .dv-right-actions-container {
   display: flex;
-}
-.dv-dragged {
-  transform: translate3d(0px, 0px, 0px); /* forces tab to be drawn on a separate layer (see https://github.com/microsoft/vscode/issues/18733) */
-}
-
-.dv-tab {
-  flex-shrink: 0;
-}
-.dv-tab:focus-within, .dv-tab:focus {
-  position: relative;
-}
-.dv-tab:focus-within::after, .dv-tab:focus::after {
-  position: absolute;
-  content: "";
-  height: 100%;
-  width: 100%;
-  top: 0px;
-  left: 0px;
-  pointer-events: none;
-  outline: 1px solid var(--dv-tab-divider-color) !important;
-  outline-offset: -1px;
-  z-index: 5;
-}
-.dv-tab.dv-tab-dragging .dv-default-tab-action {
-  background-color: var(--dv-activegroup-visiblepanel-tab-color);
-}
-.dv-tab.dv-active-tab .dv-default-tab .dv-default-tab-action {
-  visibility: visible;
-}
-.dv-tab.dv-inactive-tab .dv-default-tab .dv-default-tab-action {
-  visibility: hidden;
-}
-.dv-tab.dv-inactive-tab .dv-default-tab:hover .dv-default-tab-action {
-  visibility: visible;
-}
-.dv-tab .dv-default-tab {
-  position: relative;
-  height: 100%;
-  display: flex;
-  align-items: center;
-  white-space: nowrap;
-  text-overflow: ellipsis;
-}
-.dv-tab .dv-default-tab .dv-default-tab-content {
-  flex-grow: 1;
-  margin-right: 4px;
-}
-.dv-tab .dv-default-tab .dv-default-tab-action {
-  padding: 4px;
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  box-sizing: border-box;
-}
-.dv-tab .dv-default-tab .dv-default-tab-action:hover {
-  border-radius: 2px;
-  background-color: var(--dv-icon-hover-background-color);
 }
