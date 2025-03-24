@@ -42,6 +42,34 @@ public partial class Mermaid
         .Build();
 
     /// <summary>
+    /// <inheritdoc/>
+    /// </summary>
+    /// <returns></returns>
+    protected override async Task OnParametersSetAsync()
+    {
+        await base.OnParametersSetAsync();
+        await MermaidChanged();
+    }
+
+    /// <summary>
+    /// <inheritdoc/>
+    /// </summary>
+    /// <returns></returns>
+    protected override Task InvokeInitAsync() => InvokeVoidAsync("init", Id, BuildDiagramText());
+
+    /// <summary>
+    /// 内容改变时重新渲染mermaid
+    /// </summary>
+    /// <returns></returns>
+    public Task MermaidChanged() => InvokeVoidAsync("init", Id, BuildDiagramText());
+
+    /// <summary>
+    /// 导出图为 base64 字符串
+    /// </summary>
+    /// <returns>base64 string of the diagram</returns>
+    public Task<string?> ExportBase64MermaidAsync() => InvokeAsync<string>("getContent", Id);
+
+    /// <summary>
     /// 构造 Mermaid 代码
     /// </summary>
     /// <returns></returns>
@@ -72,22 +100,4 @@ public partial class Mermaid
         sb.Append(DiagramString);
         return sb.ToString();
     }
-
-    /// <summary>
-    /// <inheritdoc/>
-    /// </summary>
-    /// <returns></returns>
-    protected override Task InvokeInitAsync() => InvokeVoidAsync("init", Id, BuildDiagramText());
-
-    /// <summary>
-    /// 导出图为 base64 字符串
-    /// </summary>
-    /// <returns>base64 string of the diagram</returns>
-    public Task<string?> ExportBase64MermaidAsync() => InvokeAsync<string>("getContent", Id);
-
-    /// <summary>
-    /// 内容改变时重新渲染mermaid
-    /// </summary>
-    /// <returns></returns>
-    public Task MermaidChanged() => InvokeVoidAsync("init", Id, BuildDiagramText());
 }
