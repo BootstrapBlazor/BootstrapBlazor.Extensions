@@ -90,4 +90,14 @@ public partial class Mermaid
     /// </summary>
     /// <returns></returns>
     public Task MermaidChanged() => InvokeVoidAsync("init", Id, BuildDiagramText());
+
+    /// <summary>
+    /// 内容改变时重新渲染mermaid
+    /// </summary>
+    /// <returns></returns>
+    protected override async Task OnParametersSetAsync()
+    {
+        await base.OnParametersSetAsync();
+        await MermaidChanged();
+    }
 }
