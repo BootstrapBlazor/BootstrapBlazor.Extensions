@@ -6,17 +6,14 @@ import { getConfig, reloadFromConfig, loadPanelsFromLocalstorage, saveConfig } f
 import './dockview-extensions.js'
 
 const cerateDockview = (el, options) => {
-    // options.renderer = 'always'
-    // options.renderer = 'onlyWhenVisible'
     const template = el.querySelector('template');
     const dockview = new DockviewComponent(el, {
         parentElement: el,
-        theme: options.theme || {
-            name: "light",
-            className: "dockview-theme-light",
-            // gap: 3,
-            dndOverlayMounting: 'absolute', // 'absolute' | 'relative'
-            dndPanelOverlay: 'group', // 'content' | 'group'
+        theme: {
+            name: "bb-dockview",
+            className: options.theme || "dockview-theme-light",
+            dndOverlayMounting: 'absolute',
+            dndPanelOverlay: 'group'
         },
         disableTabsOverflowList: true,
         createComponent: option => new DockviewPanelContent(option)

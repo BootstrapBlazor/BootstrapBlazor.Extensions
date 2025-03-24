@@ -140,7 +140,6 @@ public partial class DockViewV2
     private IConfiguration? Configuration { get; set; }
 
     private string? ClassString => CssBuilder.Default("bb-dockview")
-        .AddClass(Theme.ToDescriptionString())
         .AddClassFromAttributes(AdditionalAttributes)
         .Build();
 
@@ -193,6 +192,7 @@ public partial class DockViewV2
         ShowMaximize = ShowMaximize,
         Renderer = Renderer,
         LayoutConfig = LayoutConfig,
+        Theme = Theme.ToDescriptionString(),
         InitializedCallback = nameof(InitializedCallbackAsync),
         PanelVisibleChangedCallback = nameof(PanelVisibleChangedCallbackAsync),
         LockChangedCallback = nameof(LockChangedCallbackAsync),
