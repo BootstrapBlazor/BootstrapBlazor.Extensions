@@ -16,9 +16,7 @@ public partial class DockViewV2
     /// 获得/设置 DockView 名称 默认 null 用于本地存储识别
     /// </summary>
     [Parameter]
-#if NET6_0_OR_GREATER
     [EditorRequired]
-#endif
     [NotNull]
     public string? Name { get; set; }
 
