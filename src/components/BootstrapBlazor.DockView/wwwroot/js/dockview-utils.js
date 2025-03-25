@@ -6,12 +6,13 @@ import { getConfig, reloadFromConfig, loadPanelsFromLocalstorage, saveConfig } f
 import './dockview-extensions.js'
 
 const cerateDockview = (el, options) => {
+    const theme = options.theme || "dockview-theme-light";
     const template = el.querySelector('template');
     const dockview = new DockviewComponent(el, {
         parentElement: el,
         theme: {
             name: "bb-dockview",
-            className: options.theme || "dockview-theme-light",
+            className: theme,
             dndOverlayMounting: 'absolute',
             dndPanelOverlay: 'group'
         },
@@ -33,6 +34,14 @@ const initDockview = (dockview, options, template) => {
         dockview.params.floatingGroups = config.floatingGroups || []
         dockview.fromJSON(config);
         window.dockview = dockview;
+    }
+
+    dockview.switchTheme = theme => {
+        const themeName = `dockview-theme-${theme}`;
+        if (dockview.options.theme.className !== themeName) {
+            dockview.options.theme.className = themeName;
+            dockview.updateTheme();
+        }
     }
 
     dockview.update = options => {
