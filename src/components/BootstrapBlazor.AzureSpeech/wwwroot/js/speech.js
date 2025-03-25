@@ -1,4 +1,4 @@
-﻿import "./microsoft.cognitiveservices.speech.sdk.bundle.js";
+﻿import "./microsoft.cognitiveservices.speech.sdk.bundle-min.js";
 
 var recognizer = undefined;
 var synthesizer = undefined;
