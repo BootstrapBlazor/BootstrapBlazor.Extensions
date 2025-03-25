@@ -10,15 +10,13 @@ namespace BootstrapBlazor.Components;
 /// <summary>
 /// DockViewV2 组件
 /// </summary>
-public partial class DockViewV2
+public partial class DockViewV2 : IDisposable
 {
     /// <summary>
     /// 获得/设置 DockView 名称 默认 null 用于本地存储识别
     /// </summary>
     [Parameter]
-#if NET6_0_OR_GREATER
     [EditorRequired]
-#endif
     [NotNull]
     public string? Name { get; set; }
 
@@ -139,6 +137,10 @@ public partial class DockViewV2
     [NotNull]
     private IConfiguration? Configuration { get; set; }
 
+    [Inject]
+    [NotNull]
+    private IThemeProvider? ThemeProviderService { get; set; }
+
     private string? ClassString => CssBuilder.Default("bb-dockview")
         .AddClassFromAttributes(AdditionalAttributes)
         .Build();
@@ -146,7 +148,7 @@ public partial class DockViewV2
     private readonly List<DockViewComponentBase> _components = [];
 
     [NotNull]
-    private DockViewOptions? _options = default!;
+    private DockViewOptions? _options = null;
 
     /// <summary>
     /// <inheritdoc/>
@@ -157,6 +159,8 @@ public partial class DockViewV2
 
         var section = Configuration.GetSection(nameof(DockViewOptions));
         _options = section.Exists() ? section.Get<DockViewOptions>() : new();
+
+        ThemeProviderService.ThemeChangedAsync += OnThemeChangedAsync;
     }
 
     /// <summary>
@@ -224,6 +228,12 @@ public partial class DockViewV2
     /// <returns></returns>
     public Task<string?> SaveLayout() => InvokeAsync<string?>("save", Id);
 
+    private Task OnThemeChangedAsync(string themeName)
+    {
+        Theme = themeName == "dark" ? DockViewTheme.Dark : DockViewTheme.Light;
+        return Task.CompletedTask;
+    }
+
     /// <summary>
     /// 标签页关闭回调方法 由 JavaScript 调用
     /// </summary>
@@ -270,5 +280,22 @@ public partial class DockViewV2
         {
             await OnSplitterCallbackAsync();
         }
+    }
+
+    private void Dispose(bool disposing)
+    {
+        if (disposing)
+        {
+            ThemeProviderService.ThemeChangedAsync -= OnThemeChangedAsync;
+        }
+    }
+
+    /// <summary>
+    /// <inheritdoc/>
+    /// </summary>
+    public void Dispose()
+    {
+        Dispose(true);
+        GC.SuppressFinalize(this);
     }
 }

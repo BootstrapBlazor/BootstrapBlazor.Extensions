@@ -1,6 +1,7 @@
-﻿import { addLink } from '../../BootstrapBlazor/modules/utility.js'
+﻿import { addLink, getTheme } from '../../BootstrapBlazor/modules/utility.js'
 import { cerateDockview } from '../js/dockview-utils.js'
 import Data from '../../BootstrapBlazor/modules/data.js'
+import EventHandler from "../../BootstrapBlazor/modules/event-handler.js"
 
 export async function init(id, invoke, options) {
     await addLink("./_content/BootstrapBlazor.DockView/css/dockview-bb.css")
@@ -9,8 +10,15 @@ export async function init(id, invoke, options) {
         return;
     }
 
-    const dockview = cerateDockview(el, options)
-    Data.set(id, { el, dockview });
+    if(options.theme === 'dockview-theme-light') {
+        let theme = getTheme();
+        if (theme === 'dark') {
+            options.theme = `dockview-theme-dark`;
+        }
+    }
+    const dockview = cerateDockview(el, options);
+    const updateTheme = e => dockview.switchTheme(e.theme);
+    Data.set(id, { el, dockview, updateTheme });
 
     dockview.on('initialized', () => {
         invoke.invokeMethodAsync(options.initializedCallback);
@@ -24,6 +32,8 @@ export async function init(id, invoke, options) {
     dockview.on('groupSizeChanged', () => {
         invoke.invokeMethodAsync(options.splitterCallback);
     });
+
+    EventHandler.on(document, 'changed.bb.theme', updateTheme);
 }
 
 export function update(id, options) {
@@ -57,6 +67,8 @@ export function dispose(id) {
     Data.remove(id);
 
     if (dock) {
+        EventHandler.off(document, 'changed.bb.theme', dock.updateTheme);
+
         const { dockview } = dock;
         if (dockview) {
             dockview.dispose();
