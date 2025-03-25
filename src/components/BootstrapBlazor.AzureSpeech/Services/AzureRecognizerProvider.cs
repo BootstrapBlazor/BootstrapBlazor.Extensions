@@ -52,6 +52,7 @@ public class AzureRecognizerProvider : IRecognizerProvider, IAsyncDisposable
         {
             Client.Timeout = TimeSpan.FromMilliseconds(SpeechOption.Timeout);
         }
+        Client.DefaultRequestHeaders.Add("Content-Type", "application/x-www-form-urlencoded");
         Client.DefaultRequestHeaders.Add("Ocp-Apim-Subscription-Key", SpeechOption.SubscriptionKey);
     }
 
