@@ -1,4 +1,4 @@
-﻿import { addLink } from '../../BootstrapBlazor/modules/utility.js'
+﻿import { addLink, getTheme } from '../../BootstrapBlazor/modules/utility.js'
 import { cerateDockview } from '../js/dockview-utils.js'
 import Data from '../../BootstrapBlazor/modules/data.js'
 import EventHandler from "../../BootstrapBlazor/modules/event-handler.js"
@@ -10,8 +10,15 @@ export async function init(id, invoke, options) {
         return;
     }
 
-    const dockview = cerateDockview(el, options)
-    Data.set(id, { el, dockview });
+    if(options.theme === 'dockview-theme-light') {
+        let theme = getTheme();
+        if (theme === 'dark') {
+            options.theme = `dockview-theme-dark`;
+        }
+    }
+    const dockview = cerateDockview(el, options);
+    const updateTheme = e => dockview.switchTheme(e.theme);
+    Data.set(id, { el, dockview, updateTheme });
 
     dockview.on('initialized', () => {
         invoke.invokeMethodAsync(options.initializedCallback);
