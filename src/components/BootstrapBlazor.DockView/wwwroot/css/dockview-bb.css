@@ -208,63 +208,75 @@
     transition-duration: .3s;
 }
 
-.bb-dockview .bb-dockview-btn-wrapper {
-    cursor: pointer;
-    float: left;
-    position: absolute;
-    left: 0;
-    top: 0;
-    transform: translate(-100%);
-    user-select: none;
+.ribbon-body.ribbon-body > div,
+.bb-dockview .dv-split-view-container,
+.bb-dockview .dv-split-view-container .dv-view-container .dv-view {
+    overflow: initial;
 }
 
-    .bb-dockview .bb-dockview-btn-wrapper > div {
-        width: 20px;
-        padding: 2px 0;
-        margin-bottom: 10px;
-        position: relative;
-        writing-mode: vertical-lr;
-        text-orientation: sideways;
-        color: var(--dv-inactivegroup-visiblepanel-tab-color);
+    .bb-dockview .dv-split-view-container .dv-view-container > .dv-view > .dv-groupview:has(.dv-resize-container) {
+        overflow: initial !important;
     }
 
-        .bb-dockview .bb-dockview-btn-wrapper > div:hover,
-        .bb-dockview .bb-dockview-btn-wrapper > div.active {
-            color: var(--dv-activegroup-visiblepanel-tab-color);
-        }
 
-            .bb-dockview .bb-dockview-btn-wrapper > div:hover::after,
-            .bb-dockview .bb-dockview-btn-wrapper > div.active::after {
-                content: '';
-                position: absolute;
-                left: -3px;
-                top: 0;
-                width: 3px;
-                height: 100%;
-                background-color: var(--bb-ribbon-menu-bg);
-            }
+.bb-dockview {
+    display: flex;
+}
+    .bb-dockview > div {
+        width: 1%!important;
+        flex: 1;
+    }
 
-        .bb-dockview .bb-dockview-btn-wrapper > div span {
-            display: block;
-            margin-bottom: -5px;
-        }
-
-.bb-dockview:has(>.bb-dockview-btn-wrapper>div) {
-    margin-left: 23px;
-    width: calc(100% - 23px);
+.bb-dockview .bb-dockview-btn-wrapper > div {
+    width: 20px;
+    padding: 2px 0;
+    margin-bottom: 10px;
+    position: relative;
+    cursor: pointer;
+    user-select: none;
+    writing-mode: vertical-lr;
+    text-orientation: sideways;
+    color: var(--dv-inactivegroup-visiblepanel-tab-color);
 }
 
-.bb-dockview .dv-resize-container.dv-resize-container-drawer > div:not(.dv-resize-handle-right):not(.dv-groupview-floating),
+    .bb-dockview .bb-dockview-btn-wrapper > div:hover,
+    .bb-dockview .bb-dockview-btn-wrapper > div.active {
+        color: var(--dv-activegroup-visiblepanel-tab-color);
+    }
+
+        .bb-dockview .bb-dockview-btn-wrapper > div:hover::after,
+        .bb-dockview .bb-dockview-btn-wrapper > div.active::after {
+            content: '';
+            position: absolute;
+            top: 0;
+            width: 3px;
+            height: 100%;
+            background-color: var(--bb-ribbon-menu-bg);
+        }
+        .bb-dockview .bb-dockview-btn-wrapper-right > div:hover::after,
+        .bb-dockview .bb-dockview-btn-wrapper-right > div.active::after {
+            right: 0;
+        }
+
+.bb-dockview .dv-resize-container-drawer {
+    height: 100% !important;
+}
+.bb-dockview .dv-resize-container-drawer:not(.active) {
+    z-index: -1!important;
+}
+
+.bb-dockview .dv-resize-container.dv-resize-container-drawer.bb-resize-container-right {
+    box-shadow: -8px 8px 8px 0px rgba(83, 89, 93, 0.5);
+}
+
+.bb-dockview .dv-resize-container.dv-resize-container-drawer.bb-resize-container-right > div:not(.dv-resize-handle-left):not(.dv-groupview-floating),
+.bb-dockview .dv-resize-container.dv-resize-container-drawer.bb-resize-container-left > div:not(.dv-resize-handle-right):not(.dv-groupview-floating),
 .bb-dockview .dv-resize-container.dv-resize-container-drawer > .dv-groupview-floating > .dv-tabs-and-actions-container .bb-dockview-control-icon-float,
 .bb-dockview .dv-resize-container.dv-resize-container-drawer > .dv-groupview-floating > .dv-tabs-and-actions-container .bb-dockview-control-icon-dock,
 .bb-dockview .dv-resize-container.dv-resize-container-drawer > .dv-groupview-floating > .dv-tabs-and-actions-container .bb-dockview-control-icon-down,
 .bb-dockview .dv-resize-container:not(.dv-resize-container-drawer) > .dv-groupview-floating > .dv-tabs-and-actions-container .bb-dockview-control-icon-pin,
 .bb-dockview .dv-resize-container:not(.dv-resize-container-drawer) > .dv-groupview-floating > .dv-tabs-and-actions-container .bb-dockview-control-icon-pushpin {
     display: none;
-}
-
-.bb-dockview .dv-resize-container-drawer {
-    height: 100% !important;
 }
 
 .bb-dockview .dv-tabs-and-actions-container:has(.dropdown-item) .dv-scrollbar-horizontal {
