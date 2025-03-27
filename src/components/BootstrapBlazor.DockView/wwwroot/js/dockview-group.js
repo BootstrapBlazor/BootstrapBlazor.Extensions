@@ -604,7 +604,7 @@ const dock = (group, floatType) => {
 const down = (group, actionContainer) => {
     const parentEle = group.element.parentElement
     const { top, bottom, height } = parentEle.style
-    const tabHeight = group.activePanel.view.tab.element.offsetHeight + 2
+    const tabHeight = group.header.element.offsetHeight || 30
     const { packup } = group.getParams();
     if (packup?.isPackup) {
         group.setParams({ packup: { ...packup, isPackup: false } })
