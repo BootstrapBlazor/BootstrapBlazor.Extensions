@@ -7229,6 +7229,7 @@ class Overlay extends CompositeDisposable {
         this.onDidChangeEnd = this._onDidChangeEnd.event;
         this.addDisposables(this._onDidChange, this._onDidChangeEnd);
         this._element.className = 'dv-resize-container';
+        this.options.className && this._element.classList.add(this.options.className);
         this._isVisible = true;
         this.setupResize('top');
         this.setupResize('bottom');
@@ -8802,8 +8803,7 @@ class DockviewComponent extends BaseGrid {
             };
         }
         const anchoredBox = getAnchoredBox();
-        const overlay = new Overlay(Object.assign(Object.assign({ container: this.gridview.element, content: group.element }, anchoredBox), {
-            minimumInViewportWidth: this.options.floatingGroupBounds === 'boundedWithinViewport'
+        const overlay = new Overlay(Object.assign(Object.assign({ container: this.gridview.element, content: group.element, className: options === null || options === void 0 ? void 0 : options.className }, anchoredBox), { minimumInViewportWidth: this.options.floatingGroupBounds === 'boundedWithinViewport'
                 ? undefined
                 : (_c = (_b = this.options.floatingGroupBounds) === null || _b === void 0 ? void 0 : _b.minimumWidthWithinViewport) !== null && _c !== void 0 ? _c : DEFAULT_FLOATING_GROUP_OVERFLOW_SIZE, minimumInViewportHeight: this.options.floatingGroupBounds === 'boundedWithinViewport'
                     ? undefined

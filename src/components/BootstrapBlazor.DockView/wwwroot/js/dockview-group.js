@@ -38,7 +38,7 @@ const addGroupWithPanel = (dockview, panel, panels, index) => {
 
 const addPanelWidthGroupId = (dockview, panel, index) => {
     let group = dockview.api.getGroup(panel.groupId)
-    let { rect = {}, packup, floatType, drawer } = panel.params || {}
+    let { rect = {}, packup, floatType, drawer, direction = 'left' } = panel.params || {}
     if (!group) {
         group = dockview.createGroup({ id: panel.groupId })
         // const floatingGroupPosition = isMaximized ? {
@@ -72,7 +72,7 @@ const addPanelWidthGroupId = (dockview, panel, index) => {
         observeOverlayChange(overlay, group)
         createGroupActions(group, floatType);
         if (floatType == 'drawer') {
-            setTimeout(() => createDrawerHandle(group), 0);
+            setTimeout(() => createDrawerHandle(group, direction == 'right'), 0);
         }
         // const floatingGroup = createFloatingGroup(group, floatingGroupRect)
         const autoHideBtn = group.header.rightActionsContainer.querySelector('.bb-dockview-control-icon-autohide')
@@ -326,19 +326,27 @@ const autoHide = group => {
         if (!canFloat(group)) return;
         // 1、点击图标创建浮动窗口并隐藏
         const { drawer = { width: 300, visible: true } } = group.getParams()
+
+        const left = getOffsetFromDockview(group.element)
+        const width = group.element.offsetWidth
+        const dockviewWidth = dockview.element.offsetWidth
+        const isRight = ((left + width) == dockviewWidth && left > 0) || left > (dockviewWidth / 2)
+
         const rect = {
             position: {
-                left: -9999,
+                [isRight ? 'right' : 'left']: 0,
                 top: 0
             },
             width: drawer.width,
-            height: '100%'
+            height: '100%',
+            className: 'dv-resize-container-drawer'
         }
-        group.setParams({ drawer, floatType: 'drawer' })
+        group.setParams({ drawer, floatType: 'drawer', direction: isRight ? 'right' : 'left' })
+
         const floatingGroup = createFloatingGroup(group, rect, 'drawer')
         if (floatingGroup) {
             setTimeout(() => {
-                createDrawerHandle(floatingGroup)
+                createDrawerHandle(floatingGroup, isRight)
             }, 0);
             setTimeout(() => {
                 saveConfig(dockview)
@@ -347,19 +355,31 @@ const autoHide = group => {
     }
 }
 
-const createDrawerHandle = (floatingGroup) => {
-    floatingGroup.element.parentElement.classList.add('dv-resize-container-drawer')
-    createDrawerBtn(floatingGroup)
+function getOffsetFromDockview(element) {
+    let offsetLeft = element.offsetLeft;
+    let parent = element.offsetParent;
+    while (parent && !parent.classList.contains('dv-dockview')) {
+        offsetLeft += parent.offsetLeft;
+        parent = parent.offsetParent;
+    }
+    return offsetLeft
 }
 
-const createDrawerBtn = floatingGroup => {
+const createDrawerHandle = (floatingGroup, isRight) => {
+    const className = isRight ? 'bb-resize-container-right' : 'bb-resize-container-left'
+    floatingGroup.element.parentElement.classList.add('dv-resize-container-drawer')
+    floatingGroup.element.parentElement.classList.add(className)
+    createDrawerBtn(floatingGroup, isRight)
+}
+
+const createDrawerBtn = (floatingGroup, isRight) => {
     const dockview = floatingGroup.api.accessor
     const btn = document.createElement('div')
     const title = floatingGroup.activePanel?.title || floatingGroup.panels[0]?.title
     btn.innerHTML = title
     btn.setAttribute('groupid', dockview.id + '_' + floatingGroup.id)
     btn.classList.add('drawer-btn')
-    if (floatingGroup.element.parentElement.style.left == '-1px') {
+    if (floatingGroup.element.parentElement.classList.contains('active')) {
         btn.classList.add('active')
     }
 
@@ -367,40 +387,43 @@ const createDrawerBtn = floatingGroup => {
         const fgWrapper = floatingGroup.element.parentElement
         const activePanel = floatingGroup.activePanel
         const parentElement = activePanel.view.content.element.parentElement
+        const direction = fgWrapper.style.left == 'auto' ? 'right' : 'left'
         dockview.floatingGroups.forEach(item => {
             const params = item.group.getParams()
             if (params.floatType == 'drawer' && item.group != floatingGroup) {
-                item.group.element.parentElement.style.left = '-9999px'
+                item.group.element.parentElement.classList.remove('active')
                 if (activePanel?.renderer == 'always' && parentElement) {
-                    parentElement.style.left = '-9999px'
+                    parentElement.classList.remove('active');
                 }
             }
         })
-            ;[...btn.parentElement.children].forEach(btnEle => {
-                btnEle.classList.remove('active')
-            })
-        if (fgWrapper.style.left == '-1px') {
-            fgWrapper.style.left = '-9999px'
+        btn.parentElement.parentElement.querySelectorAll('&>aside>.drawer-btn').forEach(btnEle => {
+            btnEle.classList.remove('active')
+        })
+
+        if (fgWrapper.classList.contains('active')) {
+            fgWrapper.classList.remove('active')
             if (activePanel?.renderer == 'always' && parentElement) {
-                parentElement.style.left = '-9999px'
+                parentElement.classList.remove('active')
             }
         } else {
             btn.classList.add('active')
-            fgWrapper.style.left = '-1px'
+            fgWrapper.classList.add('active')
             if (parentElement) {
-                parentElement.style.left = '0'
+                parentElement.classList.add('active')
             }
         }
         saveConfig(dockview)
     })
     const dvEleBox = dockview.element.parentElement
-    let btnWrapper = [...dvEleBox.children].find(item => item.classList.contains('bb-dockview-btn-wrapper'))
+    const className = `bb-dockview-btn-wrapper-${isRight ? 'right' : 'left'}`
+    let btnWrapper = dvEleBox.querySelector(`&>.${className}`)
     if (!btnWrapper) {
-        btnWrapper = document.createElement('div')
-        btnWrapper.className = 'bb-dockview-btn-wrapper'
-        dvEleBox.prepend(btnWrapper)
+        btnWrapper = document.createElement('aside')
+        btnWrapper.className = className + ' bb-dockview-btn-wrapper'
     }
     btnWrapper.append(btn)
+    isRight ? dvEleBox.append(btnWrapper) : dvEleBox.prepend(btnWrapper)
 }
 
 const removeDrawerBtn = group => {
@@ -508,7 +531,10 @@ const observeOverlayChange = (overlay, group) => {
             const parentEle = group.element.parentElement
             parentEle.style.height = `${parentEle.getBoundingClientRect().height}px`
             parentEle.classList.remove('dv-resize-container-drawer')
+            parentEle.classList.remove('bb-resize-container-right')
+            parentEle.classList.remove('bb-resize-container-left')
             group.removePropsOfParams('floatType')
+            group.removePropsOfParams('direction')
             group.header.rightActionsContainer.classList.remove('bb-show-autohide')
             group.header.rightActionsContainer.classList.add('bb-show-float')
             group.header.rightActionsContainer.querySelector('.bb-dockview-control-icon-down').style.display = 'block'
@@ -561,6 +587,7 @@ const dock = (group, floatType) => {
     if (floatType == 'drawer') {
         group.setParams({ drawer: { ...drawer, width: rect.width } })
         group.removePropsOfParams('floatType')
+        group.removePropsOfParams('direction')
         removeDrawerBtn(group)
     }
     else {
