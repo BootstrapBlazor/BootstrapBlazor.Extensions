@@ -127,7 +127,7 @@ const initDockview = (dockview, options, template) => {
                 this.parentElement.querySelectorAll('&>.dv-resize-container-drawer').forEach(item => {
                     item.classList.remove('active')
                 })
-                this.closest('.bb-dockview').querySelectorAll('&>.bb-dockview-btn-wrapper>.drawer-btn').forEach(item => {
+                this.closest('.bb-dockview').querySelectorAll('&>.bb-dockview-aside>.bb-dockview-aside-button').forEach(item => {
                     item.classList.remove('active')
                 })
             })

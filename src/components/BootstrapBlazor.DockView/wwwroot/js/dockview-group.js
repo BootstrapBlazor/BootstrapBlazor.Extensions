@@ -378,7 +378,7 @@ const createDrawerBtn = (floatingGroup, isRight) => {
     const title = floatingGroup.activePanel?.title || floatingGroup.panels[0]?.title
     btn.innerHTML = title
     btn.setAttribute('groupid', dockview.id + '_' + floatingGroup.id)
-    btn.classList.add('drawer-btn')
+    btn.classList.add('bb-dockview-aside-button')
     if (floatingGroup.element.parentElement.classList.contains('active')) {
         btn.classList.add('active')
     }
@@ -397,7 +397,7 @@ const createDrawerBtn = (floatingGroup, isRight) => {
                 }
             }
         })
-        btn.parentElement.parentElement.querySelectorAll('&>aside>.drawer-btn').forEach(btnEle => {
+        btn.parentElement.parentElement.querySelectorAll('&>.bb-dockview-aside>.bb-dockview-aside-button').forEach(btnEle => {
             btnEle.classList.remove('active')
         })
 
@@ -416,11 +416,11 @@ const createDrawerBtn = (floatingGroup, isRight) => {
         saveConfig(dockview)
     })
     const dvEleBox = dockview.element.parentElement
-    const className = `bb-dockview-btn-wrapper-${isRight ? 'right' : 'left'}`
+    const className = `bb-dockview-aside-${isRight ? 'right' : 'left'}`
     let btnWrapper = dvEleBox.querySelector(`&>.${className}`)
     if (!btnWrapper) {
         btnWrapper = document.createElement('aside')
-        btnWrapper.className = className + ' bb-dockview-btn-wrapper'
+        btnWrapper.className = className + ' bb-dockview-aside'
     }
     btnWrapper.append(btn)
     isRight ? dvEleBox.append(btnWrapper) : dvEleBox.prepend(btnWrapper)
@@ -435,7 +435,7 @@ const removeDrawerBtn = group => {
 const setDrawerTitle = group => {
     const title = group.activePanel?.title || group.panels[0]?.title
     const groupId = group.api.accessor.id + '_' + group.id
-    const btnEle = group.api.accessor.element.parentElement.parentElement.querySelector(`.bb-dockview-btn-wrapper>[groupId="${groupId}"]`)
+    const btnEle = group.api.accessor.element.parentElement.parentElement.querySelector(`.bb-dockview-aside>[groupId="${groupId}"]`)
     if (!btnEle) return
     btnEle.innerHTML = title
 }
