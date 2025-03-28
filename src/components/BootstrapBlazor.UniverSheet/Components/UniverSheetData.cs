@@ -21,7 +21,14 @@ public class UniverSheetData
     public string? CommandName { get; set; }
 
     /// <summary>
-    /// 获得/设置 数据 默认 null 未设置
+    /// 获得/设置 表格数据 默认 null 未设置
     /// </summary>
+    /// <remarks>给 UniverSheet Workbook 使用</remarks>
+    public object? WorkbookData { get; set; }
+
+    /// <summary>
+    /// 获得/设置 附加业务数据 默认 null 未设置
+    /// </summary>
+    /// <remarks>给自定义业务使用</remarks>
     public object? Data { get; set; }
 }
