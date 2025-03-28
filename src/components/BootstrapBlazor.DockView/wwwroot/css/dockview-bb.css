@@ -193,14 +193,23 @@
     }
 
 
-.bb-dockview {
-    display: flex;
+.bb-dockview > div:has(> .bb-dockview-aside-left > div) {
+    padding-left: calc(1.5em + .25rem);
 }
+.bb-dockview > div:has(> .bb-dockview-aside-right > div) {
+    padding-right: calc(1.5em + .25rem);
+}
+    .bb-dockview .bb-dockview-aside {
+        position: absolute;
+        height: 100%;
+        top: 0;
+    }
 
-    .bb-dockview > div {
-        flex: 1;
-        width: 1%;
-        min-width: 0;
+    .bb-dockview .bb-dockview-aside-left {
+        left: 0
+    }
+    .bb-dockview .bb-dockview-aside-right {
+        right:0
     }
 
     .bb-dockview .bb-dockview-aside > .bb-dockview-aside-button {

@@ -64,7 +64,7 @@ const addPanelWidthGroupId = (dockview, panel, index) => {
             floatingGroupRect = {
                 width: drawer.width || 300,
                 height: dockview.height,
-                position: { left: 0, top: 0 }
+                position: { [direction]: 0, top: 0 }
             }
         }
         dockview.addFloatingGroup(group, { ...floatingGroupRect, skipRemoveGroup: true })
@@ -329,7 +329,7 @@ const autoHide = group => {
 
         const left = getOffsetFromDockview(group.element)
         const width = group.element.offsetWidth
-        const dockviewWidth = dockview.element.offsetWidth
+        const dockviewWidth = dockview.element.querySelector('&>.dv-dockview').offsetWidth
         const isRight = ((left + width) == dockviewWidth && left > 0) || left > (dockviewWidth / 2)
 
         const rect = {
@@ -415,15 +415,15 @@ const createDrawerBtn = (floatingGroup, isRight) => {
         }
         saveConfig(dockview)
     })
-    const dvEleBox = dockview.element.parentElement
+    const dvEleBox = dockview.element
     const className = `bb-dockview-aside-${isRight ? 'right' : 'left'}`
     let btnWrapper = dvEleBox.querySelector(`&>.${className}`)
     if (!btnWrapper) {
         btnWrapper = document.createElement('aside')
         btnWrapper.className = className + ' bb-dockview-aside'
+        isRight ? dvEleBox.append(btnWrapper) : dvEleBox.prepend(btnWrapper)
     }
     btnWrapper.append(btn)
-    isRight ? dvEleBox.append(btnWrapper) : dvEleBox.prepend(btnWrapper)
 }
 
 const removeDrawerBtn = group => {
