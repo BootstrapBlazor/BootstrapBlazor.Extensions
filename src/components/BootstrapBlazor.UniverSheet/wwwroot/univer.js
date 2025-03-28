@@ -70,12 +70,12 @@ export async function createUniverSheetAsync(sheet) {
         ...options
     });
 
-    const { data: { data } = {} } = sheet.options;
+    const { data } = sheet.options;
     if (data) {
-        const template = typeof data.template === 'string' ? JSON.parse(data.template) : data.template;
-        template && delete data.template;
-        univerAPI.createWorkbook(merge({}, template, { customData: data }));
-        delete sheet.options.data;
+        const { messageName, commandName, data } = data;
+        if (messageName === null && commandName === null && data) {
+            univerAPI.createWorkbook(data);
+        }
     }
     else {
         univerAPI.createUniverSheet();
