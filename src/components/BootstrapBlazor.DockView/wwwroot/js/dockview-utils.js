@@ -6,11 +6,17 @@ import { getConfig, reloadFromConfig, loadPanelsFromLocalstorage, saveConfig } f
 import './dockview-extensions.js'
 
 const cerateDockview = (el, options) => {
-    // options.renderer = 'always'
-    // options.renderer = 'onlyWhenVisible'
+    const theme = options.theme || "dockview-theme-light";
     const template = el.querySelector('template');
     const dockview = new DockviewComponent(el, {
         parentElement: el,
+        theme: {
+            name: "bb-dockview",
+            className: theme,
+            dndOverlayMounting: 'absolute',
+            dndPanelOverlay: 'group'
+        },
+        disableTabsOverflowList: true,
         createComponent: option => new DockviewPanelContent(option)
     });
     initDockview(dockview, options, template);
@@ -26,20 +32,32 @@ const initDockview = (dockview, options, template) => {
     dockview.init = () => {
         const config = getConfig(options);
         dockview.params.floatingGroups = config.floatingGroups || []
-        // console.log(config, 'config');
         dockview.fromJSON(config);
+        window.dockview = dockview;
+    }
+
+    dockview.switchTheme = theme => {
+        const themeName = `dockview-theme-${theme}`;
+        if (dockview.options.theme.className !== themeName) {
+            dockview.options.theme.className = themeName;
+            dockview.updateTheme();
+        }
     }
 
     dockview.update = options => {
         if (options.layoutConfig) {
-            reloadFromConfig(dockview, options)
+            reloadFromConfig(dockview, options);
         }
-        else if (dockview.params.options.lock !== options.lock) {
-            dockview.params.options.lock = options.lock
-            toggleGroupLock(dockview, options)
+        if (dockview.params.options.lock !== options.lock) {
+            dockview.params.options.lock = options.lock;
+            toggleGroupLock(dockview, options);
+        }
+        if (dockview.options.theme.className !== options.theme) {
+            dockview.options.theme.className = options.theme;
+            dockview.updateTheme();
         }
         else {
-            toggleComponent(dockview, options)
+            toggleComponent(dockview, options);
         }
     }
 
@@ -83,30 +101,30 @@ const initDockview = (dockview, options, template) => {
                 const { top, right, bottom, left } = floatingGroups.find(g => g.data.id == fg.group.id).position
 
                 fg.group.element.parentElement.style.inset = [top, right, bottom, left]
-                    .map(item => typeof item == 'number' ? (item + 'px') : 'auto' ).join(' ')
+                    .map(item => typeof item == 'number' ? (item + 'px') : 'auto').join(' ')
 
                 // fg.overlay.onDidChangeEnd(e => {
                 //     saveConfig(dockview);
                 // })
                 observeOverlayChange(fg.overlay, fg.group)
                 const { floatType } = fg.group.getParams();
-                if(floatType == 'drawer'){
+                if (floatType == 'drawer') {
                     createDrawerHandle(fg.group)
                 }
                 else {
                     const autoHideBtn = fg.group.header.rightActionsContainer.querySelector('.bb-dockview-control-icon-autohide')
-                    if(autoHideBtn){
+                    if (autoHideBtn) {
                         // autoHideBtn.style.display = 'none'
                     }
                 }
                 observeFloatingGroupLocationChange(fg.group)
             })
 
-            dockview._inited = true;
-            dockview._initialized?.fire()
             dockview.groups.forEach(group => {
                 observeGroup(group)
             })
+            dockview._inited = true;
+            dockview._initialized?.fire();
         }, 100);
     })
 
@@ -127,7 +145,7 @@ export const observeGroup = (group) => {
         dockview.params.observer = new ResizeObserver(observerList => requestAnimationFrame(() => resizeObserverHandle(observerList, dockview)));
     }
     dockview.params.observer.observe(group.header.element)
-    dockview.params.observer.observe(group.header.tabContainer)
+    dockview.params.observer.observe(group.header.tabs._tabsList)
     for (let panel of group.panels) {
         if (panel.params.isActive) {
             panel.api.setActive()
@@ -144,7 +162,7 @@ const resizeObserverHandle = (observerList, dockview) => {
 const setWidth = (target, dockview) => {
     let header, tabsContainer
     if (target.classList.contains('dv-tabs-container')) {
-        header = target.parentElement
+        header = target.parentElement.parentElement
         tabsContainer = target
     }
     else {
@@ -158,32 +176,34 @@ const setWidth = (target, dockview) => {
     let dropMenu = dropdown.querySelector('.dropdown-menu')
     if (voidWidth === 0) {
         if (tabsContainer.children.length <= 1) return
-        const inactiveTabs = header.querySelectorAll('.dv-tabs-container>.dv-tab')
-        const lastTab = inactiveTabs[inactiveTabs.length - 1]
-        const aEle = document.createElement('a')
-        const liEle = document.createElement('li')
-        aEle.className = 'dropdown-item'
-        liEle.tabWidth = lastTab.offsetWidth;
-        aEle.append(lastTab)
-        liEle.append(aEle)
-        dropMenu.insertAdjacentElement("afterbegin", liEle)
+        const tabs = tabsContainer.querySelectorAll('.dv-tab')
+        for (let i = tabs.length - 1; i >= 0; i--) {
+            const lastTab = tabs[i]
+            if (lastTab.offsetLeft + lastTab.offsetWidth > tabsContainer.offsetWidth) {
+                const aEle = document.createElement('a')
+                const liEle = document.createElement('li')
+                aEle.className = 'dropdown-item'
+                liEle.tabWidth = lastTab.offsetWidth;
+                aEle.append(lastTab)
+                liEle.append(aEle)
+                dropMenu.insertAdjacentElement("afterbegin", liEle)
+            }
+        }
     }
     else {
-        let firstLi = dropMenu.querySelector('li:has(.dv-active-tab)') || dropMenu.children[0]
+        const firstLi = dropMenu.children[0]
         if (firstLi) {
-            let firstTab = firstLi.querySelector('.dv-tab')
+            const firstTab = firstLi.querySelector('.dv-tab')
             if (voidWidth > firstLi.tabWidth || tabsContainer.children.length == 0) {
                 firstTab && tabsContainer.append(firstTab)
                 firstLi.remove()
             }
         }
     }
-    setTimeout(() => {
-        if ([...tabsContainer.children].every(tab => !tab.classList.contains('dv-active-tab'))) {
-            const group = dockview.groups.find(g => g.element === header.parentElement)
-            group.panels[0].api.setActive()
-        }
-    }, 100);
+    if (dockview._inited && [...tabsContainer.children].every(tab => tab.classList.contains('dv-inactive-tab'))) {
+        const group = dockview.groups.find(g => g.element === header.parentElement)
+        group.panels[0] && group.panels[0].api.setActive()
+    }
 }
 
 const toggleComponent = (dockview, options) => {
