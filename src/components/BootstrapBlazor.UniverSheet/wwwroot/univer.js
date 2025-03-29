@@ -32,7 +32,7 @@ export async function createUniverSheetAsync(sheet) {
     const { UniverSheetsDataValidationPlugin } = UniverSheetsDataValidation
     const { UniverSheetsDataValidationUIPlugin } = UniverSheetsDataValidationUi
     const { defaultTheme } = UniverDesign;
-    
+
     const options = {
         theme: sheet.options.theme ?? defaultTheme,
         locale: sheet.options.lang ?? LocaleType.ZH_CN,
@@ -70,15 +70,13 @@ export async function createUniverSheetAsync(sheet) {
         ...options
     });
 
-    const { data: { data } = {} } = sheet.options;
+    const { data } = sheet.options.data || {};
     if (data) {
-        const template = typeof data.template === 'string' ? JSON.parse(data.template) : data.template;
-        template && delete data.template;
-        univerAPI.createWorkbook(merge({}, template, { customData: data }));
-        delete sheet.options.data;
+        const option = typeof data === 'string' ? JSON.parse(data) : data;
+        univerAPI.createWorkbook(option);
     }
     else {
-        univerAPI.createUniverSheet();
+        univerAPI.createWorkbook();
     }
 
     sheet.univer = univer;
