@@ -70,9 +70,15 @@ export async function createUniverSheetAsync(sheet) {
         ...options
     });
 
-    const { workboolData } = sheet.options.data || {};
-    univerAPI.createWorkbook(workboolData);
-
+    const { data } = sheet.options.data || {};
+    if (data) {
+        const option = typeof data === 'string' ? JSON.parse(data) : data;
+        univerAPI.createWorkbook(option);
+    }
+    else {
+        univerAPI.createWorkbook();
+    }
+    
     sheet.univer = univer;
     sheet.univerAPI = univerAPI;
     sheet.dispose = () => {
