@@ -10,6 +10,7 @@
     --bb-dockview-control-dropdown-padding-y: .25rem;
     --bb-dockview-control-dropdown-item-padding-x: 0;
     --bb-dockview-control-dropdown-item-padding-y: 3px;
+    --bb-dockview-aside-width: calc(1.5em + .25rem);
     --dv-tabs-and-actions-container-font-size: 13px;
     --dv-tabs-and-actions-container-height: 35px;
     --dv-active-sash-color: #bcbcbc;
@@ -194,81 +195,80 @@
 
 
 .bb-dockview > div:has(> .bb-dockview-aside-left > div) {
-    padding-left: calc(1.5em + .25rem);
+    padding-left: var(--bb-dockview-aside-width);
 }
+
 .bb-dockview > div:has(> .bb-dockview-aside-right > div) {
-    padding-right: calc(1.5em + .25rem);
+    padding-right: var(--bb-dockview-aside-width);
 }
-    .bb-dockview .bb-dockview-aside {
-        position: absolute;
-        height: 100%;
-        top: 0;
+
+.bb-dockview .bb-dockview-aside {
+    position: absolute;
+    height: 100%;
+    top: 0;
+    width: var(--bb-dockview-aside-width);
+    display: flex;
+    align-items: flex-start;
+    justify-content: center;
+}
+
+.bb-dockview .bb-dockview-aside-left {
+    left: 0
+}
+
+.bb-dockview .bb-dockview-aside-right {
+    right: 0
+}
+
+.bb-dockview .bb-dockview-aside > .bb-dockview-aside-button {
+    position: relative;
+    margin-inline: .25rem;
+    padding-inline: .5rem;
+    cursor: pointer;
+    user-select: none;
+    writing-mode: vertical-lr;
+    text-orientation: sideways;
+    color: var(--dv-inactivegroup-visiblepanel-tab-color);
+    border-radius: 5px;
+}
+
+    .bb-dockview .bb-dockview-aside > .bb-dockview-aside-button:hover,
+    .bb-dockview .bb-dockview-aside > .bb-dockview-aside-button.active {
+        color: var(--dv-activegroup-visiblepanel-tab-color);
+        background-color: var(--dv-icon-hover-background-color);
     }
 
-    .bb-dockview .bb-dockview-aside-left {
-        left: 0
-    }
-    .bb-dockview .bb-dockview-aside-right {
-        right:0
-    }
+.bb-dockview .bb-dockview-aside-right > .bb-dockview-aside-button:hover::after,
+.bb-dockview .bb-dockview-aside-right > .bb-dockview-aside-button.active::after {
+    right: 0;
+}
 
-    .bb-dockview .bb-dockview-aside > .bb-dockview-aside-button {
-        position: relative;
-        padding: .25rem .125rem;
-        margin-bottom: 10px;
-        cursor: pointer;
-        user-select: none;
-        writing-mode: vertical-lr;
-        text-orientation: sideways;
-        color: var(--dv-inactivegroup-visiblepanel-tab-color);
+.bb-dockview .dv-resize-container-drawer {
+    height: 100% !important;
+}
+
+    .bb-dockview .dv-resize-container-drawer:not(.active) {
+        z-index: -1 !important;
     }
 
-        .bb-dockview .bb-dockview-aside > .bb-dockview-aside-button:hover,
-        .bb-dockview .bb-dockview-aside > .bb-dockview-aside-button.active {
-            color: var(--dv-activegroup-visiblepanel-tab-color);
-        }
+.bb-dockview .dv-resize-container.dv-resize-container-drawer.bb-resize-container-right {
+    box-shadow: -8px 8px 8px 0px rgba(83, 89, 93, 0.5);
+}
 
-            .bb-dockview .bb-dockview-aside > .bb-dockview-aside-button:hover::after,
-            .bb-dockview .bb-dockview-aside > .bb-dockview-aside-button.active::after {
-                content: '';
-                position: absolute;
-                top: 0;
-                width: 3px;
-                height: 100%;
-                background-color: var(--bb-ribbon-menu-bg);
-            }
-
-    .bb-dockview .bb-dockview-aside-right > .bb-dockview-aside-button:hover::after,
-    .bb-dockview .bb-dockview-aside-right > .bb-dockview-aside-button.active::after {
-        right: 0;
-    }
-
-    .bb-dockview .dv-resize-container-drawer {
-        height: 100% !important;
-    }
-
-        .bb-dockview .dv-resize-container-drawer:not(.active) {
-            z-index: -1 !important;
-        }
-
-    .bb-dockview .dv-resize-container.dv-resize-container-drawer.bb-resize-container-right {
-        box-shadow: -8px 8px 8px 0px rgba(83, 89, 93, 0.5);
-    }
-
-        .bb-dockview .dv-resize-container.dv-resize-container-drawer.bb-resize-container-right > div:not(.dv-resize-handle-left):not(.dv-groupview-floating),
-        .bb-dockview .dv-resize-container.dv-resize-container-drawer.bb-resize-container-left > div:not(.dv-resize-handle-right):not(.dv-groupview-floating),
-        .bb-dockview .dv-resize-container.dv-resize-container-drawer > .dv-groupview-floating > .dv-tabs-and-actions-container .bb-dockview-control-icon-float,
-        .bb-dockview .dv-resize-container.dv-resize-container-drawer > .dv-groupview-floating > .dv-tabs-and-actions-container .bb-dockview-control-icon-dock,
-        .bb-dockview .dv-resize-container.dv-resize-container-drawer > .dv-groupview-floating > .dv-tabs-and-actions-container .bb-dockview-control-icon-down,
-        .bb-dockview .dv-resize-container:not(.dv-resize-container-drawer) > .dv-groupview-floating > .dv-tabs-and-actions-container .bb-dockview-control-icon-pin,
-        .bb-dockview .dv-resize-container:not(.dv-resize-container-drawer) > .dv-groupview-floating > .dv-tabs-and-actions-container .bb-dockview-control-icon-pushpin {
-            display: none;
-        }
-
-    .bb-dockview .dv-tabs-and-actions-container:has(.dropdown-item) .dv-scrollbar-horizontal {
+    .bb-dockview .dv-resize-container.dv-resize-container-drawer.bb-resize-container-right > div:not(.dv-resize-handle-left):not(.dv-groupview-floating),
+    .bb-dockview .dv-resize-container.dv-resize-container-drawer.bb-resize-container-left > div:not(.dv-resize-handle-right):not(.dv-groupview-floating),
+    .bb-dockview .dv-resize-container.dv-resize-container-drawer > .dv-groupview-floating > .dv-tabs-and-actions-container .bb-dockview-control-icon-float,
+    .bb-dockview .dv-resize-container.dv-resize-container-drawer > .dv-groupview-floating > .dv-tabs-and-actions-container .bb-dockview-control-icon-dock,
+    .bb-dockview .dv-resize-container.dv-resize-container-drawer > .dv-groupview-floating > .dv-tabs-and-actions-container .bb-dockview-control-icon-down,
+    .bb-dockview .dv-resize-container:not(.dv-resize-container-drawer) > .dv-groupview-floating > .dv-tabs-and-actions-container .bb-dockview-control-icon-pin,
+    .bb-dockview .dv-resize-container:not(.dv-resize-container-drawer) > .dv-groupview-floating > .dv-tabs-and-actions-container .bb-dockview-control-icon-pushpin {
         display: none;
     }
 
-    .bb-dockview .dv-tab.dv-inactive-tab .dv-default-tab .dv-default-tab-action {
-        visibility: visible;
-    }
+.bb-dockview .dv-tabs-and-actions-container:has(.dropdown-item) .dv-scrollbar-horizontal {
+    display: none;
+}
+
+.bb-dockview .dv-tab.dv-inactive-tab .dv-default-tab .dv-default-tab-action {
+    visibility: visible;
+}
