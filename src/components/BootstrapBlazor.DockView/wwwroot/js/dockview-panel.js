@@ -65,9 +65,9 @@ const onRemovePanel = event => {
 const appendTemplatePanelEle = (panel) => {
     const dockview = panel.accessor
     if (panel.view.content.element) {
-        if (panel.titleMenuEle) {
-            panel.view.content.element.append(panel.titleMenuEle)
-        }
+        // if (panel.titleMenuEle) {
+        //     panel.view.content.element.append(panel.titleMenuEle)
+        // }
         if (dockview.params.template) {
             dockview.params.template.append(panel.view.content.element)
         }
@@ -103,6 +103,7 @@ const updateTitle = panel => {
         if (titleBarElement) {
             titleBarElement.removeAttribute('title');
             tabEle.insertAdjacentElement("afterbegin", titleBarElement);
+            panel.titleMenuEle = titleBarElement;
         }
     }
 }

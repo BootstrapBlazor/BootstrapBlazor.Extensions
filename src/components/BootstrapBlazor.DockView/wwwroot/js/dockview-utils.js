@@ -107,9 +107,9 @@ const initDockview = (dockview, options, template) => {
                 //     saveConfig(dockview);
                 // })
                 observeOverlayChange(fg.overlay, fg.group)
-                const { floatType } = fg.group.getParams();
+                const { floatType, direction } = fg.group.getParams();
                 if (floatType == 'drawer') {
-                    createDrawerHandle(fg.group)
+                    createDrawerHandle(fg.group, direction == 'right')
                 }
                 else {
                     const autoHideBtn = fg.group.header.rightActionsContainer.querySelector('.bb-dockview-control-icon-autohide')
@@ -122,6 +122,14 @@ const initDockview = (dockview, options, template) => {
 
             dockview.groups.forEach(group => {
                 observeGroup(group)
+            })
+            dockview.element.querySelector('&>.dv-dockview>.dv-branch-node').addEventListener('click', function (e) {
+                this.parentElement.querySelectorAll('&>.dv-resize-container-drawer').forEach(item => {
+                    item.classList.remove('active')
+                })
+                this.closest('.bb-dockview').querySelectorAll('&>.bb-dockview-aside>.bb-dockview-aside-button').forEach(item => {
+                    item.classList.remove('active')
+                })
             })
             dockview._inited = true;
             dockview._initialized?.fire();

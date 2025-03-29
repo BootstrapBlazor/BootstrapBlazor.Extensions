@@ -1,31 +1,5 @@
 ﻿@import './dockview.css';
 
-[data-bs-theme='dark'] .bb-dockview {
-    --dv-background-color: black;
-    --dv-paneview-active-outline-color: dodgerblue;
-    --dv-tabs-and-actions-container-font-size: 13px;
-    --dv-tabs-and-actions-container-height: 35px;
-    --dv-drag-over-background-color: rgba(83, 89, 93, 0.5);
-    --dv-drag-over-border-color: white;
-    --dv-tabs-container-scrollbar-color: #888;
-    --dv-icon-hover-background-color: rgba(90, 93, 94, 0.31);
-    --dv-floating-box-shadow: 8px 8px 8px 0px rgba(83, 89, 93, 0.5);
-    --dv-group-view-background-color: #1e1e1e;
-    --dv-tabs-and-actions-container-background-color: #252526;
-    --dv-activegroup-visiblepanel-tab-background-color: #1e1e1e;
-    --dv-activegroup-hiddenpanel-tab-background-color: #2d2d2d;
-    --dv-inactivegroup-visiblepanel-tab-background-color: #1e1e1e;
-    --dv-inactivegroup-hiddenpanel-tab-background-color: #2d2d2d;
-    --dv-tab-divider-color: #1e1e1e;
-    --dv-activegroup-visiblepanel-tab-color: white;
-    --dv-activegroup-hiddenpanel-tab-color: #969696;
-    --dv-inactivegroup-visiblepanel-tab-color: #8f8f8f;
-    --dv-inactivegroup-hiddenpanel-tab-color: #626262;
-    --dv-separator-border: rgb(68, 68, 68);
-    --dv-paneview-header-border-color: rgba(204, 204, 204, 0.2);
-    --dv-active-sash-color: #595959;
-}
-
 .bb-dockview {
     --bb-dockview-padding: .25rem;
     --bb-dockview-tab-line-height: 21px;
@@ -36,6 +10,7 @@
     --bb-dockview-control-dropdown-padding-y: .25rem;
     --bb-dockview-control-dropdown-item-padding-x: 0;
     --bb-dockview-control-dropdown-item-padding-y: 3px;
+    --bb-dockview-aside-width: calc(1.5em + .25rem);
     --dv-tabs-and-actions-container-font-size: 13px;
     --dv-tabs-and-actions-container-height: 35px;
     --dv-active-sash-color: #bcbcbc;
@@ -45,12 +20,12 @@
     position: relative;
 }
 
-.bb-dockview > div {
-    --dv-tabs-and-actions-container-height: 30px;
-    --bb-dockview-tab-line-height: 30px;
-    --bb-dockview-tab-padding: 0 3px;
-    --dv-tabs-and-actions-container-font-size: 12px;
-}
+    .bb-dockview > div {
+        --dv-tabs-and-actions-container-height: 30px;
+        --bb-dockview-tab-line-height: 30px;
+        --bb-dockview-tab-padding: 0 3px;
+        --dv-tabs-and-actions-container-font-size: 12px;
+    }
 
     .bb-dockview .bb-dockview-panel {
         height: 100%;
@@ -208,68 +183,92 @@
     transition-duration: .3s;
 }
 
-.bb-dockview .bb-dockview-btn-wrapper {
-    cursor: pointer;
-    float: left;
-    position: absolute;
-    left: 0;
-    top: 0;
-    transform: translate(-100%);
-    user-select: none;
+.ribbon-body.ribbon-body > div,
+.bb-dockview .dv-split-view-container,
+.bb-dockview .dv-split-view-container .dv-view-container .dv-view {
+    overflow: initial;
 }
 
-    .bb-dockview .bb-dockview-btn-wrapper > div {
-        width: 20px;
-        padding: 2px 0;
-        margin-bottom: 10px;
-        position: relative;
-        writing-mode: vertical-lr;
-        text-orientation: sideways;
-        color: var(--dv-inactivegroup-visiblepanel-tab-color);
+    .bb-dockview .dv-split-view-container .dv-view-container > .dv-view > .dv-groupview:has(.dv-resize-container) {
+        overflow: initial !important;
     }
 
-        .bb-dockview .bb-dockview-btn-wrapper > div:hover,
-        .bb-dockview .bb-dockview-btn-wrapper > div.active {
-            color: var(--dv-activegroup-visiblepanel-tab-color);
-        }
 
-            .bb-dockview .bb-dockview-btn-wrapper > div:hover::after,
-            .bb-dockview .bb-dockview-btn-wrapper > div.active::after {
-                content: '';
-                position: absolute;
-                left: -3px;
-                top: 0;
-                width: 3px;
-                height: 100%;
-                background-color: var(--bb-ribbon-menu-bg);
-            }
-
-        .bb-dockview .bb-dockview-btn-wrapper > div span {
-            display: block;
-            margin-bottom: -5px;
-        }
-
-.bb-dockview:has(>.bb-dockview-btn-wrapper>div) {
-    margin-left: 23px;
-    width: calc(100% - 23px);
+.bb-dockview > div:has(> .bb-dockview-aside-left > div) {
+    padding-left: var(--bb-dockview-aside-width);
 }
 
-.bb-dockview .dv-resize-container.dv-resize-container-drawer > div:not(.dv-resize-handle-right):not(.dv-groupview-floating),
-.bb-dockview .dv-resize-container.dv-resize-container-drawer > .dv-groupview-floating > .dv-tabs-and-actions-container .bb-dockview-control-icon-float,
-.bb-dockview .dv-resize-container.dv-resize-container-drawer > .dv-groupview-floating > .dv-tabs-and-actions-container .bb-dockview-control-icon-dock,
-.bb-dockview .dv-resize-container.dv-resize-container-drawer > .dv-groupview-floating > .dv-tabs-and-actions-container .bb-dockview-control-icon-down,
-.bb-dockview .dv-resize-container:not(.dv-resize-container-drawer) > .dv-groupview-floating > .dv-tabs-and-actions-container .bb-dockview-control-icon-pin,
-.bb-dockview .dv-resize-container:not(.dv-resize-container-drawer) > .dv-groupview-floating > .dv-tabs-and-actions-container .bb-dockview-control-icon-pushpin {
-    display: none;
+.bb-dockview > div:has(> .bb-dockview-aside-right > div) {
+    padding-right: var(--bb-dockview-aside-width);
+}
+
+.bb-dockview .bb-dockview-aside {
+    position: absolute;
+    height: 100%;
+    top: 0;
+    width: var(--bb-dockview-aside-width);
+    display: flex;
+    align-items: flex-start;
+    justify-content: center;
+}
+
+.bb-dockview .bb-dockview-aside-left {
+    left: 0
+}
+
+.bb-dockview .bb-dockview-aside-right {
+    right: 0
+}
+
+.bb-dockview .bb-dockview-aside > .bb-dockview-aside-button {
+    position: relative;
+    margin-inline: .25rem;
+    padding-inline: .5rem;
+    cursor: pointer;
+    user-select: none;
+    writing-mode: vertical-lr;
+    text-orientation: sideways;
+    color: var(--dv-inactivegroup-visiblepanel-tab-color);
+    border-radius: 5px;
+}
+
+    .bb-dockview .bb-dockview-aside > .bb-dockview-aside-button:hover,
+    .bb-dockview .bb-dockview-aside > .bb-dockview-aside-button.active {
+        color: var(--dv-activegroup-visiblepanel-tab-color);
+        background-color: var(--dv-icon-hover-background-color);
+    }
+
+.bb-dockview .bb-dockview-aside-right > .bb-dockview-aside-button:hover::after,
+.bb-dockview .bb-dockview-aside-right > .bb-dockview-aside-button.active::after {
+    right: 0;
 }
 
 .bb-dockview .dv-resize-container-drawer {
     height: 100% !important;
 }
 
+    .bb-dockview .dv-resize-container-drawer:not(.active) {
+        z-index: -1 !important;
+    }
+
+.bb-dockview .dv-resize-container.dv-resize-container-drawer.bb-resize-container-right {
+    box-shadow: -8px 8px 8px 0px rgba(83, 89, 93, 0.5);
+}
+
+    .bb-dockview .dv-resize-container.dv-resize-container-drawer.bb-resize-container-right > div:not(.dv-resize-handle-left):not(.dv-groupview-floating),
+    .bb-dockview .dv-resize-container.dv-resize-container-drawer.bb-resize-container-left > div:not(.dv-resize-handle-right):not(.dv-groupview-floating),
+    .bb-dockview .dv-resize-container.dv-resize-container-drawer > .dv-groupview-floating > .dv-tabs-and-actions-container .bb-dockview-control-icon-float,
+    .bb-dockview .dv-resize-container.dv-resize-container-drawer > .dv-groupview-floating > .dv-tabs-and-actions-container .bb-dockview-control-icon-dock,
+    .bb-dockview .dv-resize-container.dv-resize-container-drawer > .dv-groupview-floating > .dv-tabs-and-actions-container .bb-dockview-control-icon-down,
+    .bb-dockview .dv-resize-container:not(.dv-resize-container-drawer) > .dv-groupview-floating > .dv-tabs-and-actions-container .bb-dockview-control-icon-pin,
+    .bb-dockview .dv-resize-container:not(.dv-resize-container-drawer) > .dv-groupview-floating > .dv-tabs-and-actions-container .bb-dockview-control-icon-pushpin {
+        display: none;
+    }
+
 .bb-dockview .dv-tabs-and-actions-container:has(.dropdown-item) .dv-scrollbar-horizontal {
     display: none;
 }
+
 .bb-dockview .dv-tab.dv-inactive-tab .dv-default-tab .dv-default-tab-action {
     visibility: visible;
 }
