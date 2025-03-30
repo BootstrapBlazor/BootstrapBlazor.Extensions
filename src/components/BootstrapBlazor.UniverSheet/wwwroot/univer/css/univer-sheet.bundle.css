@@ -18,6 +18,6 @@
     z-index: 1200;
 }
 
-.univer-theme [role="toolbar"] .univer-justify-center {
-    justify-content: flex-start;
-}
+    .univer-theme [role="toolbar"] > div {
+        justify-content: flex-start;
+    }
