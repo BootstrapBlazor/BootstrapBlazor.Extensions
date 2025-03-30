@@ -1,8 +1,7 @@
 ﻿import DataService from './data-service.js'
 
-const { Plugin, Injector, setDependencies, UniverInstanceType } = UniverCore;
+const { Plugin, Injector, setDependencies } = UniverCore;
 
-// 定义插件类
 export class DefaultPlugin extends Plugin {
     static pluginName = 'DefaultPlugin';
 
@@ -65,7 +64,7 @@ export class DefaultPlugin extends Plugin {
         delete data.resources;
         return {
             messageName: null,
-            commandName: 'Save',
+            commandName: null,
             data: JSON.stringify(data)
         };
     }
