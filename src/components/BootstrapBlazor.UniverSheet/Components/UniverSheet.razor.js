@@ -13,13 +13,19 @@ export async function init(id, invoke, options) {
         el,
         invoke,
         data,
-        theme, lang, plugins
+        plugins,
+        theme,
+        lang: getLang(lang || "")
     };
 
     await createUniverSheetAsync(univerSheet);
     Data.set(id, univerSheet);
 
     invoke.invokeMethodAsync('TriggerReadyAsync');
+}
+
+const getLang = lang => {
+    return lang.replace('-', '');
 }
 
 export function execute(id, data) {
