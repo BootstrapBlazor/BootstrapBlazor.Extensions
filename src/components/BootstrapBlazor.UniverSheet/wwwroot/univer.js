@@ -19,7 +19,6 @@ const loadAssets = async () => {
     await addLink('./_content/BootstrapBlazor.UniverSheet/univer/css/univer-sheet.bundle.css');
 }
 
-
 export async function createUniverSheetAsync(sheet) {
     await loadAssets();
 
@@ -70,7 +69,7 @@ export async function createUniverSheetAsync(sheet) {
         ...options
     });
 
-    const { data } = sheet.options.data || {};
+    const { data } = sheet.options || {};
     if (data) {
         const option = typeof data === 'string' ? JSON.parse(data) : data;
         univerAPI.createWorkbook(option);
