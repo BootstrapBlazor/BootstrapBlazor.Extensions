@@ -27,10 +27,10 @@ export class DefaultPlugin extends Plugin {
     }
 
     receiveData(payload) {
-        const { messageName, commandName, data } = payload;
+        const { messageName, commandName, data, workbookData } = payload;
         if (messageName === null) {
             if (commandName === 'SetWorkbook') {
-                this.setWorkbookData(JSON.parse(data));
+                this.setWorkbookData(JSON.parse(workbookData));
             }
             else if (commandName === 'GetWorkbook') {
                 return this.getWorkbookData();
