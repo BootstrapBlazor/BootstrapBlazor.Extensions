@@ -33,8 +33,8 @@ export async function createUniverSheetAsync(sheet) {
     const { defaultTheme } = UniverDesign;
 
     const options = {
-        theme: sheet.options.theme ?? defaultTheme,
-        locale: sheet.options.lang ?? LocaleType.ZH_CN,
+        theme: sheet.theme ?? defaultTheme,
+        locale: sheet.lang ?? LocaleType.ZH_CN,
         locales: {
             [LocaleType.ZH_CN]: merge(
                 {},
@@ -50,7 +50,7 @@ export async function createUniverSheetAsync(sheet) {
             UniverSheetsDataValidationUIPlugin,
         ]
     };
-    const plugins = sheet.options.plugins ?? {
+    const plugins = sheet.plugins ?? {
         DefaultPlugin: '_content/BootstrapBlazor.UniverSheet/plugin.js'
     };
     for (const name in plugins) {
@@ -69,9 +69,9 @@ export async function createUniverSheetAsync(sheet) {
         ...options
     });
 
-    const { data } = sheet.options || {};
-    if (data) {
-        const option = typeof data === 'string' ? JSON.parse(data) : data;
+    const { workbookData } = sheet.data || {};
+    if (workbookData) {
+        const option = typeof workbookData === 'string' ? JSON.parse(workbookData) : workbookData;
         univerAPI.createWorkbook(option);
     }
     else {
