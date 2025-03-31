@@ -3,6 +3,7 @@
 // Website: https://www.blazor.zone or https://argozhang.github.io/
 
 using Microsoft.AspNetCore.Components;
+using System.Globalization;
 
 namespace BootstrapBlazor.Components;
 
@@ -46,6 +47,16 @@ public partial class UniverSheet
         .Build();
 
     private UniverSheetData? _lastData;
+
+    /// <summary>
+    /// <inheritdoc/>
+    /// </summary>
+    protected override void OnParametersSet()
+    {
+        base.OnParametersSet();
+
+        Lang ??= CultureInfo.CurrentUICulture.Name;
+    }
 
     /// <summary>
     /// <inheritdoc/>
