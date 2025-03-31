@@ -1,8 +1,7 @@
 ﻿import DataService from './data-service.js'
 
-const { Plugin, Injector, setDependencies, UniverInstanceType } = UniverCore;
+const { Plugin, Injector, setDependencies } = UniverCore;
 
-// 定义插件类
 export class DefaultPlugin extends Plugin {
     static pluginName = 'DefaultPlugin';
 
@@ -28,10 +27,10 @@ export class DefaultPlugin extends Plugin {
     }
 
     receiveData(payload) {
-        const { messageName, commandName, data } = payload;
+        const { messageName, commandName, data, workbookData } = payload;
         if (messageName === null) {
             if (commandName === 'SetWorkbook') {
-                this.setWorkbookData(JSON.parse(data));
+                this.setWorkbookData(JSON.parse(workbookData));
             }
             else if (commandName === 'GetWorkbook') {
                 return this.getWorkbookData();
@@ -65,7 +64,7 @@ export class DefaultPlugin extends Plugin {
         delete data.resources;
         return {
             messageName: null,
-            commandName: 'Save',
+            commandName: null,
             data: JSON.stringify(data)
         };
     }
