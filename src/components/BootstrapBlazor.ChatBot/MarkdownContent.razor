@@ -1,0 +1,17 @@
+﻿@namespace BootstrapBlazor.Components
+@inherits IdComponentBase
+
+<div id="@Id">
+    @((MarkupString)(_markdown ?? string.Empty))
+</div>
+
+<style>
+    .think {
+        margin-bottom: 1rem;
+        font-size: 0.75rem;
+        font-weight: 400;
+        color: #A0A0A0;
+        border-left: 3px solid #dfdbdb;
+        padding-left: 10px;
+    }
+</style>
