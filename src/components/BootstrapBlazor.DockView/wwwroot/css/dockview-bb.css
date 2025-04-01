@@ -209,11 +209,12 @@
     width: var(--bb-dockview-aside-width);
     display: flex;
     align-items: flex-start;
-    justify-content: center;
+    justify-content: start;
+    flex-direction: column;
 }
 
 .bb-dockview .bb-dockview-aside-left {
-    left: 0
+    left: 2px;
 }
 
 .bb-dockview .bb-dockview-aside-right {
