@@ -209,7 +209,7 @@
     width: var(--bb-dockview-aside-width);
     display: flex;
     align-items: flex-start;
-    justify-content: start;
+    justify-content: flex-start;
     flex-direction: column;
 }
 
