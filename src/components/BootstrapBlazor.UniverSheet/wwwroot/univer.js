@@ -21,6 +21,7 @@ const loadAssets = async lang => {
 }
 
 export async function createUniverSheetAsync(sheet) {
+    sheet.lang = sheet.lang ?? 'en-US';
     await loadAssets(sheet.lang);
     
     const { el } = sheet;
