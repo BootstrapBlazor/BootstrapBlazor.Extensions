@@ -576,6 +576,60 @@
 .dockview-theme-light-spaced .dv-resize-container .dv-groupview {
   border: 2px solid rgba(255, 255, 255, 0.1);
 }
+.dv-drop-target {
+  position: relative;
+  --dv-transition-duration: 70ms;
+}
+.dv-drop-target > .dv-drop-target-dropzone {
+  position: absolute;
+  left: 0px;
+  top: 0px;
+  height: 100%;
+  width: 100%;
+  z-index: 1000;
+  pointer-events: none;
+}
+.dv-drop-target > .dv-drop-target-dropzone > .dv-drop-target-selection {
+  position: relative;
+  box-sizing: border-box;
+  height: 100%;
+  width: 100%;
+  border: var(--dv-drag-over-border);
+  background-color: var(--dv-drag-over-background-color);
+  transition: top var(--dv-transition-duration) ease-out, left var(--dv-transition-duration) ease-out, width var(--dv-transition-duration) ease-out, height var(--dv-transition-duration) ease-out, opacity var(--dv-transition-duration) ease-out;
+  will-change: transform;
+  pointer-events: none;
+}
+.dv-drop-target > .dv-drop-target-dropzone > .dv-drop-target-selection.dv-drop-target-top.dv-drop-target-small-vertical {
+  border-top: 1px solid var(--dv-drag-over-border-color);
+}
+.dv-drop-target > .dv-drop-target-dropzone > .dv-drop-target-selection.dv-drop-target-bottom.dv-drop-target-small-vertical {
+  border-bottom: 1px solid var(--dv-drag-over-border-color);
+}
+.dv-drop-target > .dv-drop-target-dropzone > .dv-drop-target-selection.dv-drop-target-left.dv-drop-target-small-horizontal {
+  border-left: 1px solid var(--dv-drag-over-border-color);
+}
+.dv-drop-target > .dv-drop-target-dropzone > .dv-drop-target-selection.dv-drop-target-right.dv-drop-target-small-horizontal {
+  border-right: 1px solid var(--dv-drag-over-border-color);
+}
+.dv-drop-target-container {
+  position: absolute;
+  z-index: 9999;
+  top: 0px;
+  left: 0px;
+  height: 100%;
+  width: 100%;
+  pointer-events: none;
+  overflow: hidden;
+  --dv-transition-duration: 300ms;
+}
+.dv-drop-target-container .dv-drop-target-anchor {
+  position: relative;
+  border: var(--dv-drag-over-border);
+  transition: opacity var(--dv-transition-duration) ease-in, top var(--dv-transition-duration) ease-out, left var(--dv-transition-duration) ease-out, width var(--dv-transition-duration) ease-out, height var(--dv-transition-duration) ease-out;
+  background-color: var(--dv-drag-over-background-color);
+  opacity: 1;
+}
 .dv-dockview {
   position: relative;
   background-color: var(--dv-group-view-background-color);
@@ -631,60 +685,6 @@
   flex-grow: 1;
   min-height: 0;
   outline: none;
-}
-.dv-drop-target {
-  position: relative;
-  --dv-transition-duration: 70ms;
-}
-.dv-drop-target > .dv-drop-target-dropzone {
-  position: absolute;
-  left: 0px;
-  top: 0px;
-  height: 100%;
-  width: 100%;
-  z-index: 1000;
-  pointer-events: none;
-}
-.dv-drop-target > .dv-drop-target-dropzone > .dv-drop-target-selection {
-  position: relative;
-  box-sizing: border-box;
-  height: 100%;
-  width: 100%;
-  border: var(--dv-drag-over-border);
-  background-color: var(--dv-drag-over-background-color);
-  transition: top var(--dv-transition-duration) ease-out, left var(--dv-transition-duration) ease-out, width var(--dv-transition-duration) ease-out, height var(--dv-transition-duration) ease-out, opacity var(--dv-transition-duration) ease-out;
-  will-change: transform;
-  pointer-events: none;
-}
-.dv-drop-target > .dv-drop-target-dropzone > .dv-drop-target-selection.dv-drop-target-top.dv-drop-target-small-vertical {
-  border-top: 1px solid var(--dv-drag-over-border-color);
-}
-.dv-drop-target > .dv-drop-target-dropzone > .dv-drop-target-selection.dv-drop-target-bottom.dv-drop-target-small-vertical {
-  border-bottom: 1px solid var(--dv-drag-over-border-color);
-}
-.dv-drop-target > .dv-drop-target-dropzone > .dv-drop-target-selection.dv-drop-target-left.dv-drop-target-small-horizontal {
-  border-left: 1px solid var(--dv-drag-over-border-color);
-}
-.dv-drop-target > .dv-drop-target-dropzone > .dv-drop-target-selection.dv-drop-target-right.dv-drop-target-small-horizontal {
-  border-right: 1px solid var(--dv-drag-over-border-color);
-}
-.dv-drop-target-container {
-  position: absolute;
-  z-index: 9999;
-  top: 0px;
-  left: 0px;
-  height: 100%;
-  width: 100%;
-  pointer-events: none;
-  overflow: hidden;
-  --dv-transition-duration: 300ms;
-}
-.dv-drop-target-container .dv-drop-target-anchor {
-  position: relative;
-  border: var(--dv-drag-over-border);
-  transition: opacity var(--dv-transition-duration) ease-in, top var(--dv-transition-duration) ease-out, left var(--dv-transition-duration) ease-out, width var(--dv-transition-duration) ease-out, height var(--dv-transition-duration) ease-out;
-  background-color: var(--dv-drag-over-background-color);
-  opacity: 1;
 }
 .dv-root-wrapper {
   height: 100%;
@@ -1080,10 +1080,6 @@
   border-radius: 2px;
   background-color: var(--dv-icon-hover-background-color);
 }
-.dv-watermark {
-  display: flex;
-  height: 100%;
-}
 .dv-tabs-overflow-dropdown-default {
   height: 100%;
   color: var(--dv-activegroup-hiddenpanel-tab-color);
@@ -1189,4 +1185,8 @@
 }
 .dv-tabs-and-actions-container .dv-right-actions-container {
   display: flex;
+}
+.dv-watermark {
+  display: flex;
+  height: 100%;
 }
