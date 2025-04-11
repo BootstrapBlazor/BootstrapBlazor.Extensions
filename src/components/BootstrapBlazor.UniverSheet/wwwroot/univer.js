@@ -11,11 +11,13 @@ const loadAssets = async lang => {
     await addScript('./_content/BootstrapBlazor.UniverSheet/univer/univerjs.preset-sheets-drawing/index.umd.min.js');
     await addScript('./_content/BootstrapBlazor.UniverSheet/univer/univerjs.sheets-zen-editor/index.umd.min.js');
     await addScript('./_content/BootstrapBlazor.UniverSheet/univer/univerjs.preset-sheets-data-validation/index.umd.min.js');
-
+    await addScript('./_content/BootstrapBlazor.UniverSheet/univer/univerjs.preset-sheets-advanced/index.umd.min.js');
+    
     await addScript(`./_content/BootstrapBlazor.UniverSheet/univer/univerjs.preset-sheets-core/locales/${lang}.js`);
     await addScript(`./_content/BootstrapBlazor.UniverSheet/univer/univerjs.preset-sheets-drawing/locales/${lang}.js`);
     await addScript(`./_content/BootstrapBlazor.UniverSheet/univer/univerjs.sheets-zen-editor/locales/${lang}.js`);
     await addScript(`./_content/BootstrapBlazor.UniverSheet/univer/univerjs.preset-sheets-data-validation/locales/${lang}.js`);
+    await addScript(`./_content/BootstrapBlazor.UniverSheet/univer/univerjs.preset-sheets-advanced/locales/${lang}.js`);
 
     await addLink('./_content/BootstrapBlazor.UniverSheet/univer/univer-sheet.bundle.css');
 }
@@ -29,9 +31,11 @@ export async function createUniverSheetAsync(sheet) {
     const { createUniver } = UniverPresets;
     const { UniverSheetsCorePreset } = UniverPresetSheetsCore;
     const { UniverSheetsDrawingPreset } = UniverPresetSheetsDrawing;
+    const { UniverSheetsAdvancedPreset } = UniverPresetSheetsAdvanced;
     const { UniverSheetsZenEditorPlugin } = UniverSheetsZenEditor
     const { UniverSheetsDataValidationPlugin } = UniverSheetsDataValidation
     const { UniverSheetsDataValidationUIPlugin } = UniverSheetsDataValidationUi
+
     const lang = sheet.lang.replace('-', '')
     const langStr = lang.charAt(0).toUpperCase() + lang.slice(1)
     const options = {
@@ -44,6 +48,7 @@ export async function createUniverSheetAsync(sheet) {
                 window[`UniverPresetSheetsDrawing${langStr}`],
                 window[`UniverSheetsZenEditor${langStr}`],
                 window[`UniverSheetsDataValidationUi${langStr}`],
+                window[`UniverPresetSheetsAdvanced${langStr}`],
             ),
         },
         plugins: [
@@ -67,6 +72,7 @@ export async function createUniverSheetAsync(sheet) {
                 container: el
             }),
             UniverSheetsDrawingPreset(),
+            UniverSheetsAdvancedPreset()
         ],
         ...options
     });
