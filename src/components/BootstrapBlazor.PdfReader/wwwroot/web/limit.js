@@ -17,8 +17,19 @@ function onBodyLoad() {
     }
 
     if (getQueryVariable("wm"))
-    { 
-        document.getElementById("watermark").value = getQueryVariable("wm");
+    {
+        if (getQueryVariable("wmonlydemo") && getQueryVariable("wmonlydemo")=='true')
+        {
+            document.addEventListener('fullscreenchange', () => {
+                if (document.fullscreenElement === document.getElementById("viewerContainer") ) {
+                    document.getElementById("watermark").value = getQueryVariable("wm");
+                } else {
+                    document.getElementById("watermark").value = '';
+                }
+            });
+        } else {
+            document.getElementById("watermark").value = getQueryVariable("wm");
+        }
     }
 }
 

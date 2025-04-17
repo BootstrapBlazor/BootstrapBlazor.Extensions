@@ -14,4 +14,4 @@ export function setWatermark(watermark, element) {
     //elmnt.style.display = "none";
     //var d = y.getElementById("watermark");
     //y.getElementById("watermark").value = watermark;
-}
+} 
