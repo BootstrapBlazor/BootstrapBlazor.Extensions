@@ -54,17 +54,21 @@ class DefaultTableExport(IServiceProvider serviceProvider) : ITableExport
         options ??= serviceProvider.GetRequiredService<IOptions<BootstrapBlazorOptions>>().Value.TableSettings.TableExportOptions;
         cols ??= Utility.GetTableColumns<TModel>();
 
-        var configuration = new OpenXmlConfiguration()
+        IConfiguration? configuration = null;
+        if (excelType == ExcelType.XLSX)
         {
-            AutoFilter = options.AutoFilter,
-            EnableAutoWidth = options.EnableAutoWidth,
-        };
+            configuration = new OpenXmlConfiguration()
+            {
+                AutoFilter = options.EnableAutoFilter,
+                EnableAutoWidth = options.EnableAutoWidth,
+            };
+        }
 
         var lookupService = serviceProvider.GetRequiredService<ILookupService>();
         var value = new ExportDataReader<TModel>(items, cols, options, lookupService);
 
         using var stream = new MemoryStream();
-        await MiniExcel.SaveAsAsync(stream, value, excelType: excelType,configuration: configuration);
+        await MiniExcel.SaveAsAsync(stream, value, excelType: excelType, configuration: configuration);
 
         fileName ??= $"ExportData_{DateTime.Now:yyyyMMddHHmmss}.{GetExtension()}";
         stream.Position = 0;
