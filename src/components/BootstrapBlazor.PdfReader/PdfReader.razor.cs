@@ -190,6 +190,10 @@ public partial class PdfReader : IAsyncDisposable
             var userAgent = await Module!.InvokeAsync<string>("getUserAgent");
             var parser = Parser.GetDefault();
             ClientInfo = parser.Parse(userAgent);
+            if (!WatermarkDemoModeOnly)
+            { 
+                WatermarkDemoModeOnly = await Module.InvokeAsync<bool>("getGlobalWatermark");
+            }
             await Refresh();
         }
     }

@@ -8,10 +8,6 @@ export async function showPdf(baseurl, element, stream) {
     const urlblob = URL.createObjectURL(blob);
     element.src = baseurl.replace('(1)',  urlblob);
 }
-export function setWatermark(watermark, element) {
-    console.log(element.contentWindow.document)
-    var elmnt = element.contentWindow.document.getElementById("watermark");
-    //elmnt.style.display = "none";
-    //var d = y.getElementById("watermark");
-    //y.getElementById("watermark").value = watermark;
+export function getGlobalWatermark() {
+    return document.body.getAttribute('data-bb-watermark') == 'true';
 } 
