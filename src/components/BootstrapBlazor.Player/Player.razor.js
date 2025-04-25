@@ -116,7 +116,6 @@ const handlerEventName = (name, p) => {
     player.on(name, () => {
         const fire = el.getAttribute('data-bb-event') === 'true';
         if (fire) {
-            console.log(name);
             invoke.invokeMethodAsync(method, name);
         }
     });
