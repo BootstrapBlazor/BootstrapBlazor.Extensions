@@ -369,6 +369,7 @@ const createDrawerHandle = (floatingGroup, isRight) => {
     const className = isRight ? 'bb-resize-container-right' : 'bb-resize-container-left'
     floatingGroup.element.parentElement.classList.add('dv-resize-container-drawer')
     floatingGroup.element.parentElement.classList.add(className)
+    floatingGroup.activePanel.view.content.element.parentElement.classList.add('dv-render-overlay-float-drawer')
     createDrawerBtn(floatingGroup, isRight)
 }
 
@@ -393,7 +394,7 @@ const createDrawerBtn = (floatingGroup, isRight) => {
             if (params.floatType == 'drawer' && item.group != floatingGroup) {
                 item.group.element.parentElement.classList.remove('active')
                 if (activePanel?.renderer == 'always' && parentElement) {
-                    parentElement.classList.remove('active');
+                    item.group.activePanel.view.content.element.parentElement.classList.remove('active');
                 }
             }
         })
@@ -533,6 +534,8 @@ const observeOverlayChange = (overlay, group) => {
             parentEle.classList.remove('dv-resize-container-drawer')
             parentEle.classList.remove('bb-resize-container-right')
             parentEle.classList.remove('bb-resize-container-left')
+            group.activePanel.view.content.element.parentElement.classList.remove('active')
+            group.activePanel.view.content.element.parentElement.classList.remove('dv-render-overlay-float-drawer')
             group.removePropsOfParams('floatType')
             group.removePropsOfParams('direction')
             group.header.rightActionsContainer.classList.remove('bb-show-autohide')
@@ -589,6 +592,8 @@ const dock = (group, floatType) => {
         group.removePropsOfParams('floatType')
         group.removePropsOfParams('direction')
         removeDrawerBtn(group)
+        group.activePanel.view.content.element.parentElement.classList.remove('active')
+        group.activePanel.view.content.element.parentElement.classList.remove('dv-render-overlay-float-drawer')
     }
     else {
         group.setParams({ rect })

@@ -248,7 +248,8 @@
     height: 100% !important;
 }
 
-    .bb-dockview .dv-resize-container-drawer:not(.active) {
+    .bb-dockview .dv-resize-container-drawer:not(.active),
+    .bb-dockview .dv-render-overlay-float-drawer:not(.active) {
         z-index: -1 !important;
     }
 
