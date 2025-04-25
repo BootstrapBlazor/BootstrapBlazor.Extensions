@@ -3,6 +3,7 @@
 // Website: https://www.blazor.zone or https://argozhang.github.io/
 
 using Microsoft.AspNetCore.Components;
+using System.Globalization;
 using System.Reflection.Metadata;
 
 namespace BootstrapBlazor.Components;
@@ -97,7 +98,7 @@ public partial class Markdown : IAsyncDisposable
 
         Option.PreviewStyle = PreviewStyle.ToDescriptionString();
         Option.InitialEditType = InitialEditType.ToDescriptionString();
-        Option.Language = Language;
+        Option.Language = Language ?? CultureInfo.CurrentUICulture.Name;
         Option.Placeholder = Placeholder;
         Option.Height = $"{Height}px";
         Option.MinHeight = $"{MinHeight}px";
