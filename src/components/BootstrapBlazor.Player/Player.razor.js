@@ -36,6 +36,8 @@ export async function init(id, invoke, method, options) {
             ...options
         }
         p.player = new Plyr(el, config);
+        handlerEvents(p);
+
         if (source.sources.length === 0) {
             return;
         }
@@ -62,8 +64,68 @@ const initHls = (p, options) => {
                 setTimeout(() => hls.subtitleTrack = player.currentTrack, 50);
             });
             p.player = player;
+            handlerEvents(p);
         });
     }
+}
+
+export function reload(id, options) {
+    const p = Data.get(id);
+    if (p === null) {
+        return;
+    }
+
+    const { player, hls } = p;
+    const source = options.source.sources;
+    delete options.source;
+    if (hls) {
+        if (source.length > 0) {
+            const src = source[0].src;
+            hls.loadSource(src);
+        }
+    }
+    else {
+        player.poster = source.poster ?? options.poster;
+        player.source = source;
+    }
+}
+
+export function setPoster(id, poster) {
+    const p = Data.get(id);
+    if (p) {
+        const { player } = p;
+        player.poster = poster;
+    }
+}
+
+export function dispose(id) {
+    const p = Data.get(id);
+    Data.remove(id);
+
+    if (p) {
+        const { player } = p;
+        if (player) {
+            player.destroy();
+            player = null;
+        }
+    }
+}
+
+const handlerEventName = (name, p) => {
+    const { el, invoke, method, player } = p;
+    player.on(name, () => {
+        const fire = el.getAttribute('data-bb-event') === 'true';
+        if (fire) {
+            console.log(name);
+            invoke.invokeMethodAsync(method, name);
+        }
+    });
+}
+
+const handlerEvents = p => {
+    ['ready', 'play', 'pause', 'ended', 'enterfullscreen', 'exitfullscreen', 'languagechange'].forEach(name => {
+        handlerEventName(name, p);
+    });
 }
 
 const setLang = (option) => {
@@ -111,49 +173,4 @@ const setLang = (option) => {
             480: 'SD',
         }
     }
-}
-
-export function reload(id, options) {
-    const p = Data.get(id);
-    if (p === null) {
-        return;
-    }
-
-    const { player, hls } = p;
-    const source = options.source.sources;
-    delete options.source;
-    if (hls) {
-        if (source.length > 0) {
-            const src = source[0].src;
-            hls.loadSource(src);
-        }
-    }
-    else {
-        player.poster = source.poster ?? options.poster;
-        player.source = source;
-    }
-}
-
-export function setPoster(id, poster) {
-    execute(id, p => {
-        const { player } = p;
-        player.poster = poster;
-    });
-}
-
-const execute = (id, callback) => {
-    const p = Data.get(id);
-    if (p) {
-        callback(p);
-    }
-}
-
-export function dispose(id) {
-    const p = Data.get(id);
-    Data.remove(id);
-
-    execute(id, player => {
-        player.destroy();
-        player = null;
-    });
 }
