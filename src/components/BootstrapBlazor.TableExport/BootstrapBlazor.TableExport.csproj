@@ -1,7 +1,7 @@
 ﻿<Project Sdk="Microsoft.NET.Sdk.Razor">
 
   <PropertyGroup>
-    <Version>9.2.3</Version>
+    <Version>9.2.4</Version>
     <SuppressTfmSupportBuildWarnings>true</SuppressTfmSupportBuildWarnings>
   </PropertyGroup>
 
@@ -12,7 +12,7 @@
 
   <ItemGroup>
     <PackageReference Include="BootstrapBlazor" Version="9.5.8" />
-    <PackageReference Include="MiniExcel" Version="1.40.0" />
+    <PackageReference Include="MiniExcel" Version="1.41.0" />
   </ItemGroup>
 
   <ItemGroup>
