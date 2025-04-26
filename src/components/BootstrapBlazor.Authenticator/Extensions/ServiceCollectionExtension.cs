@@ -4,7 +4,6 @@
 
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.DependencyInjection.Extensions;
-using Microsoft.Extensions.Options;
 
 namespace BootstrapBlazor.Components;
 
@@ -22,7 +21,7 @@ public static class ServiceCollectionExtension
     public static IServiceCollection AddBootstrapBlazorAuthenticator(this IServiceCollection services, Action<
     AuthenticatorOptions>? configOptions = null)
     {
-        services.TryAddSingleton<IAuthenticatorService, DefaultAuthenticatorServices>();
+        services.TryAddSingleton<ITOTPService, DefaultTOTPServices>();
         services.AddOptionsMonitor<AuthenticatorOptions>();
         services.Configure<AuthenticatorOptions>(options =>
         {

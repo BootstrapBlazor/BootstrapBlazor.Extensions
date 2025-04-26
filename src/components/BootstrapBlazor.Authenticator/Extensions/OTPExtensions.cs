@@ -15,7 +15,7 @@ internal static class OTPExtensions
 
     public static OtpNet.OtpType ToType(this OTPType type) => type switch
     {
-        OTPType.Hotp => OtpNet.OtpType.Hotp,
+        OTPType.HOTP => OtpNet.OtpType.Hotp,
         _ => OtpNet.OtpType.Totp
     };
 }
