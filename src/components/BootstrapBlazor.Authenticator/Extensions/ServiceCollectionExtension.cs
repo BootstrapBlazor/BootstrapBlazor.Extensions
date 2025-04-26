@@ -21,7 +21,7 @@ public static class ServiceCollectionExtension
     public static IServiceCollection AddBootstrapBlazorAuthenticator(this IServiceCollection services, Action<
     AuthenticatorOptions>? configOptions = null)
     {
-        services.TryAddSingleton<ITOTPService, DefaultTOTPServices>();
+        services.TryAddSingleton<ITotpService, DefaultTotpServices>();
         services.AddOptionsMonitor<AuthenticatorOptions>();
         services.Configure<AuthenticatorOptions>(options =>
         {

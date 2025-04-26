@@ -6,16 +6,16 @@ namespace BootstrapBlazor.Components;
 
 internal static class OTPExtensions
 {
-    public static OtpNet.OtpHashMode ToMode(this OTPHashMode mode) => mode switch
+    public static OtpNet.OtpHashMode ToMode(this OtpHashMode mode) => mode switch
     {
-        OTPHashMode.Sha256 => OtpNet.OtpHashMode.Sha256,
-        OTPHashMode.Sha512 => OtpNet.OtpHashMode.Sha512,
+        OtpHashMode.Sha256 => OtpNet.OtpHashMode.Sha256,
+        OtpHashMode.Sha512 => OtpNet.OtpHashMode.Sha512,
         _ => OtpNet.OtpHashMode.Sha1
     };
 
-    public static OtpNet.OtpType ToType(this OTPType type) => type switch
+    public static OtpNet.OtpType ToType(this OtpType type) => type switch
     {
-        OTPType.HOTP => OtpNet.OtpType.Hotp,
+        OtpType.Hotp => OtpNet.OtpType.Hotp,
         _ => OtpNet.OtpType.Totp
     };
 }

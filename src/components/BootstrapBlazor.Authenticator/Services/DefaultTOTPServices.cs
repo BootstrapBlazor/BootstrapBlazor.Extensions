@@ -7,9 +7,9 @@ using OtpNet;
 
 namespace BootstrapBlazor.Components;
 
-class DefaultTOTPServices(IOptionsMonitor<AuthenticatorOptions> optionsMonitor) : ITOTPService
+class DefaultTotpServices(IOptionsMonitor<AuthenticatorOptions> optionsMonitor) : ITotpService
 {
-    public TOTPInstanceBase? TOTPInstance { get; private set; }
+    public TotpInstanceBase? Instance { get; private set; }
 
     public string GenerateOtpUri(AuthenticatorOptions? options = null)
     {
@@ -23,15 +23,15 @@ class DefaultTOTPServices(IOptionsMonitor<AuthenticatorOptions> optionsMonitor) 
     public string Compute(string secretKey, DateTime? timestamp = null)
     {
         var instance = new Totp(Base32Encoding.ToBytes(secretKey));
-        TOTPInstance = new DefaultTOTPInstance(instance);
+        Instance = new DefaultTOTPInstance(instance);
         return timestamp == null ? instance.ComputeTotp() : instance.ComputeTotp(timestamp.Value);
     }
 
     public int GetRemainingSeconds(DateTime? timestamp = null)
     {
-        if (TOTPInstance != null)
+        if (Instance != null)
         {
-            return timestamp == null ? TOTPInstance.GetRemainingSeconds() : TOTPInstance.GetRemainingSeconds(timestamp.Value);
+            return timestamp == null ? Instance.GetRemainingSeconds() : Instance.GetRemainingSeconds(timestamp.Value);
         }
         var instance = new Totp(Base32Encoding.ToBytes("OMM2LVLFX6QJHMYI"));
         return timestamp == null ? instance.RemainingSeconds() : instance.RemainingSeconds(timestamp.Value);
@@ -50,16 +50,16 @@ class DefaultTOTPServices(IOptionsMonitor<AuthenticatorOptions> optionsMonitor) 
 
     public bool Verify(string code, DateTime? timestamp = null)
     {
-        if (TOTPInstance != null)
+        if (Instance != null)
         {
-            return timestamp == null ? TOTPInstance.Verify(code) : TOTPInstance.Verify(code, timestamp.Value);
+            return timestamp == null ? Instance.Verify(code) : Instance.Verify(code, timestamp.Value);
         }
         var instance = new Totp(Base32Encoding.ToBytes("OMM2LVLFX6QJHMYI"));
         return timestamp == null ? instance.VerifyTotp(code, out _) : instance.VerifyTotp(timestamp.Value, code, out _);
     }
 }
 
-class DefaultTOTPInstance(Totp instance) : TOTPInstanceBase
+class DefaultTOTPInstance(Totp instance) : TotpInstanceBase
 {
     public override int GetRemainingSeconds(DateTime? timestamp = null)
     {
