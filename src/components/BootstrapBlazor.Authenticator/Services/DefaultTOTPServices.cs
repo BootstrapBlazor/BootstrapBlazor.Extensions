@@ -9,6 +9,7 @@ namespace BootstrapBlazor.Components;
 
 class DefaultTotpServices(IOptionsMonitor<AuthenticatorOptions> optionsMonitor) : ITotpService
 {
+    [NotNull]
     public TotpInstanceBase? Instance { get; private set; }
 
     public string GenerateOtpUri(AuthenticatorOptions? options = null)
@@ -23,7 +24,7 @@ class DefaultTotpServices(IOptionsMonitor<AuthenticatorOptions> optionsMonitor) 
     public string Compute(string secretKey, DateTime? timestamp = null)
     {
         var instance = new Totp(Base32Encoding.ToBytes(secretKey));
-        Instance = new DefaultTOTPInstance(instance);
+        Instance = new DefaultTotpInstance(instance);
         return timestamp == null ? instance.ComputeTotp() : instance.ComputeTotp(timestamp.Value);
     }
 
@@ -59,7 +60,7 @@ class DefaultTotpServices(IOptionsMonitor<AuthenticatorOptions> optionsMonitor) 
     }
 }
 
-class DefaultTOTPInstance(Totp instance) : TotpInstanceBase
+class DefaultTotpInstance(Totp instance) : TotpInstanceBase
 {
     public override int GetRemainingSeconds(DateTime? timestamp = null)
     {
