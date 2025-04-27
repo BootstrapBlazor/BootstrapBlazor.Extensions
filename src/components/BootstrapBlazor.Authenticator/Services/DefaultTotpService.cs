@@ -21,9 +21,9 @@ class DefaultTotpService(IOptionsMonitor<OtpOptions> optionsMonitor) : ITotpServ
         return uri.ToString();
     }
 
-    public string Compute(string secretKey, int step = 6, OtpHashMode mode = OtpHashMode.Sha1, int totpSize = 6, DateTime? timestamp = null)
+    public string Compute(string secretKey, int period = 30, OtpHashMode mode = OtpHashMode.Sha1, int digits = 6, DateTime? timestamp = null)
     {
-        var instance = new Totp(Base32Encoding.ToBytes(secretKey), step, mode.ToMode(), totpSize, timeCorrection: null);
+        var instance = new Totp(Base32Encoding.ToBytes(secretKey), period, mode.ToMode(), digits, timeCorrection: null);
         Instance = new DefaultTotpInstance(instance);
         return timestamp == null ? instance.ComputeTotp() : instance.ComputeTotp(timestamp.Value);
     }
