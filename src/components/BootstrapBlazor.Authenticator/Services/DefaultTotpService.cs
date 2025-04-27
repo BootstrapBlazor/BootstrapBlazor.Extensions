@@ -7,12 +7,12 @@ using OtpNet;
 
 namespace BootstrapBlazor.Components;
 
-class DefaultTotpServices(IOptionsMonitor<AuthenticatorOptions> optionsMonitor) : ITotpService
+class DefaultTotpService(IOptionsMonitor<OtpOptions> optionsMonitor) : ITotpService
 {
     [NotNull]
     public TotpInstanceBase? Instance { get; private set; }
 
-    public string GenerateOtpUri(AuthenticatorOptions? options = null)
+    public string GenerateOtpUri(OtpOptions? options = null)
     {
         options ??= optionsMonitor.CurrentValue;
         var type = options.Type.ToType();
@@ -21,9 +21,9 @@ class DefaultTotpServices(IOptionsMonitor<AuthenticatorOptions> optionsMonitor) 
         return uri.ToString();
     }
 
-    public string Compute(string secretKey, DateTime? timestamp = null)
+    public string Compute(string secretKey, int step = 6, OtpHashMode mode = OtpHashMode.Sha1, int totpSize = 6, DateTime? timestamp = null)
     {
-        var instance = new Totp(Base32Encoding.ToBytes(secretKey));
+        var instance = new Totp(Base32Encoding.ToBytes(secretKey), step, mode.ToMode(), totpSize, timeCorrection: null);
         Instance = new DefaultTotpInstance(instance);
         return timestamp == null ? instance.ComputeTotp() : instance.ComputeTotp(timestamp.Value);
     }

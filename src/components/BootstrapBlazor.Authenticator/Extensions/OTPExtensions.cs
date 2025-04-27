@@ -4,7 +4,7 @@
 
 namespace BootstrapBlazor.Components;
 
-internal static class OTPExtensions
+internal static class OtpExtensions
 {
     public static OtpNet.OtpHashMode ToMode(this OtpHashMode mode) => mode switch
     {

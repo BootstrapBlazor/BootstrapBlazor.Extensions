@@ -3,27 +3,25 @@
 // Website: https://www.blazor.zone or https://argozhang.github.io/
 
 using Microsoft.Extensions.DependencyInjection;
-using Microsoft.Extensions.DependencyInjection.Extensions;
 
 namespace BootstrapBlazor.Components;
 
 /// <summary>
-/// BootstrapBlazor 服务扩展类
+/// BootstrapBlazor service extensions
 /// </summary>
 public static class ServiceCollectionExtension
 {
     /// <summary>
-    /// 添加百度文字识别服务
+    /// Inject <see cref="ITotpService"/> service extension method.
     /// </summary>
     /// <param name="services"></param>
     /// <param name="configOptions"></param>
     /// <returns></returns>
-    public static IServiceCollection AddBootstrapBlazorAuthenticator(this IServiceCollection services, Action<
-    AuthenticatorOptions>? configOptions = null)
+    public static IServiceCollection AddBootstrapBlazorTotpService(this IServiceCollection services, Action<
+    OtpOptions>? configOptions = null)
     {
-        services.TryAddSingleton<ITotpService, DefaultTotpServices>();
-        services.AddOptionsMonitor<AuthenticatorOptions>();
-        services.Configure<AuthenticatorOptions>(options =>
+        services.AddSingleton<ITotpService, DefaultTotpService>();
+        services.Configure<OtpOptions>(options =>
         {
             configOptions?.Invoke(options);
 
