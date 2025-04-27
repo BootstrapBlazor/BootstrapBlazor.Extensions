@@ -15,8 +15,4 @@
     <PackageReference Include="Otp.NET" Version="1.4.0" />
   </ItemGroup>
 
-  <ItemGroup>
-    <ProjectReference Include="..\..\..\..\BootstrapBlazor\src\BootstrapBlazor\BootstrapBlazor.csproj" />
-  </ItemGroup>
-
 </Project>
