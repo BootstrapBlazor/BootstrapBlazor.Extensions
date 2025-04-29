@@ -321,25 +321,25 @@ public partial class PdfReader : IAsyncDisposable
     /// </summary>
     /// <param name="stream"></param>
     /// <param name="forceLoad">default true</param>
-    /// <param name="islocalFile"></param>
+    /// <param name="isLocalFile"></param>
     /// <returns></returns>
-    public virtual async Task ShowPdf(Stream stream, bool forceLoad = true, bool islocalFile = false)
+    public virtual async Task ShowPdf(Stream stream, bool forceLoad = true, bool isLocalFile = false)
     {
         if (Module == null)
         {
             Stream = stream;
         }
-        else if (islocalFile)
+        else if (isLocalFile)
         {
             if (forceLoad)
             {
                 streamCache = new byte[stream.Length];
-                stream.Read(streamCache, 0, (int)stream.Length);
+                _ = stream.Read(streamCache, 0, (int)stream.Length);
             }
             if (streamCache == null)
             {
                 streamCache = new byte[stream.Length];
-                stream.Read(streamCache, 0, (int)stream.Length);
+                _ = stream.Read(streamCache, 0, (int)stream.Length);
             }
             if (streamCache != null)
             {
