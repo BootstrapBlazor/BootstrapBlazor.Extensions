@@ -132,6 +132,12 @@ public partial class PdfReader : IAsyncDisposable
     public string? Watermark { get; set; }
 
     /// <summary>
+    /// 获得/设置 水印内容仅在全屏演示状态显示
+    /// </summary> 
+    [Parameter]
+    public bool WatermarkDemoModeOnly { get; set; }
+
+    /// <summary>
     /// Debug
     /// </summary>
     [Parameter]
@@ -184,6 +190,10 @@ public partial class PdfReader : IAsyncDisposable
             var userAgent = await Module!.InvokeAsync<string>("getUserAgent");
             var parser = Parser.GetDefault();
             ClientInfo = parser.Parse(userAgent);
+            if (!WatermarkDemoModeOnly)
+            { 
+                WatermarkDemoModeOnly = await Module.InvokeAsync<bool>("getGlobalWatermark");
+            }
             await Refresh();
         }
     }
@@ -291,7 +301,7 @@ public partial class PdfReader : IAsyncDisposable
 
     }
 
-    private string GenUrl(bool filemode = true) => $"{ViewerBase}?file={(filemode ? HttpUtility.UrlEncode(FileName) : "(1)")}#page={Page}&navpanes={(Navpanes ? 0 : 1)}&toolbar={(Toolbar ? 0 : 1)}&statusbar={(Statusbar ? 0 : 1)}&pagemode={(Pagemode ?? EnumPageMode.Thumbs).ToString().ToLower()}&search={Search}" + (Zoom != null ? $"&zoom={Zoom.GetEnumName()}" : "") + (Watermark != null ? $"&wm={Watermark}" : "");
+    private string GenUrl(bool filemode = true) => $"{ViewerBase}?file={(filemode ? HttpUtility.UrlEncode(FileName) : "(1)")}#page={Page}&navpanes={(Navpanes ? 0 : 1)}&toolbar={(Toolbar ? 0 : 1)}&statusbar={(Statusbar ? 0 : 1)}&pagemode={(Pagemode ?? EnumPageMode.Thumbs).ToString().ToLower()}&search={Search}" + (Zoom != null ? $"&zoom={Zoom.GetEnumName()}" : "") + (Watermark != null ? $"&wm={Watermark}" : "") + (WatermarkDemoModeOnly ? $"&wmonlydemo=true" : "");
 
 
     /// <summary>
@@ -311,25 +321,25 @@ public partial class PdfReader : IAsyncDisposable
     /// </summary>
     /// <param name="stream"></param>
     /// <param name="forceLoad">default true</param>
-    /// <param name="islocalFile"></param>
+    /// <param name="isLocalFile"></param>
     /// <returns></returns>
-    public virtual async Task ShowPdf(Stream stream, bool forceLoad = true, bool islocalFile = false)
+    public virtual async Task ShowPdf(Stream stream, bool forceLoad = true, bool isLocalFile = false)
     {
         if (Module == null)
         {
             Stream = stream;
         }
-        else if (islocalFile)
+        else if (isLocalFile)
         {
             if (forceLoad)
             {
                 streamCache = new byte[stream.Length];
-                stream.Read(streamCache, 0, (int)stream.Length);
+                _ = stream.Read(streamCache, 0, (int)stream.Length);
             }
             if (streamCache == null)
             {
                 streamCache = new byte[stream.Length];
-                stream.Read(streamCache, 0, (int)stream.Length);
+                _ = stream.Read(streamCache, 0, (int)stream.Length);
             }
             if (streamCache != null)
             {

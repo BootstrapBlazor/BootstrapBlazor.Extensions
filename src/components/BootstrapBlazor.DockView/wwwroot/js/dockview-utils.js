@@ -124,7 +124,7 @@ const initDockview = (dockview, options, template) => {
                 observeGroup(group)
             })
             dockview.element.querySelector('&>.dv-dockview>.dv-branch-node').addEventListener('click', function (e) {
-                this.parentElement.querySelectorAll('&>.dv-resize-container-drawer').forEach(item => {
+                this.parentElement.querySelectorAll('&>.dv-resize-container-drawer, &>.dv-render-overlay-float-drawer').forEach(item => {
                     item.classList.remove('active')
                 })
                 this.closest('.bb-dockview').querySelectorAll('&>.bb-dockview-aside>.bb-dockview-aside-button').forEach(item => {

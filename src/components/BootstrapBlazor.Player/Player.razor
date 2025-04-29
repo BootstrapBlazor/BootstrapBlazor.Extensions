@@ -4,10 +4,10 @@
 
 @if (Mode == PlayerMode.Audio)
 {
-    <audio id="@Id" playsinline controls crossorigin>
+    <audio id="@Id" playsinline controls crossorigin data-bb-event="@EventString">
     </audio>
 }
 else {
-    <video id="@Id" playsinline controls crossorigin>
+    <video id="@Id" playsinline controls crossorigin data-bb-event="@EventString">
     </video>
 }

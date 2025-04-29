@@ -10,7 +10,7 @@ export async function init(id, invoke, options) {
         return;
     }
 
-    if(options.theme === 'dockview-theme-light') {
+    if (options.theme === 'dockview-theme-light') {
         let theme = getTheme();
         if (theme === 'dark') {
             options.theme = `dockview-theme-dark`;
