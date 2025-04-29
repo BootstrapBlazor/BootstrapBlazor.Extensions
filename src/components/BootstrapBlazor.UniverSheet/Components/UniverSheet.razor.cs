@@ -51,6 +51,16 @@ public partial class UniverSheet
     /// <summary>
     /// <inheritdoc/>
     /// </summary>
+    protected override void OnInitialized()
+    {
+        base.OnInitialized();
+
+        _lastData = Data;
+    }
+
+    /// <summary>
+    /// <inheritdoc/>
+    /// </summary>
     protected override void OnParametersSet()
     {
         base.OnParametersSet();
