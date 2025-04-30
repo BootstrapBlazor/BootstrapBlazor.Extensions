@@ -1,9 +1,39 @@
 /**
  * dockview-core
- * @version 4.2.3
+ * @version 4.2.4
  * @link https://github.com/mathuo/dockview
  * @license MIT
  */
+function styleInject(css, ref) {
+  if ( ref === void 0 ) ref = {};
+  var insertAt = ref.insertAt;
+
+  if (typeof document === 'undefined') { return; }
+
+  var head = document.head || document.getElementsByTagName('head')[0];
+  var style = document.createElement('style');
+  style.type = 'text/css';
+
+  if (insertAt === 'top') {
+    if (head.firstChild) {
+      head.insertBefore(style, head.firstChild);
+    } else {
+      head.appendChild(style);
+    }
+  } else {
+    head.appendChild(style);
+  }
+
+  if (style.styleSheet) {
+    style.styleSheet.cssText = css;
+  } else {
+    style.appendChild(document.createTextNode(css));
+  }
+}
+
+var css_248z = ".dv-scrollable {\n  position: relative;\n  overflow: hidden;\n}\n.dv-scrollable .dv-scrollbar-horizontal {\n  position: absolute;\n  bottom: 0px;\n  left: 0px;\n  height: 4px;\n  border-radius: 2px;\n  background-color: transparent;\n  transition-property: background-color;\n  transition-timing-function: ease-in-out;\n  transition-duration: 1s;\n  transition-delay: 0s;\n}\n.dv-scrollable:hover .dv-scrollbar-horizontal, .dv-scrollable.dv-scrollable-resizing .dv-scrollbar-horizontal, .dv-scrollable.dv-scrollable-scrolling .dv-scrollbar-horizontal {\n  background-color: var(--dv-scrollbar-background-color, rgba(255, 255, 255, 0.25));\n}\n.dv-svg {\n  display: inline-block;\n  fill: currentcolor;\n  line-height: 1;\n  stroke: currentcolor;\n  stroke-width: 0;\n}\n.dockview-theme-dark {\n  --dv-paneview-active-outline-color: dodgerblue;\n  --dv-tabs-and-actions-container-font-size: 13px;\n  --dv-tabs-and-actions-container-height: 35px;\n  --dv-drag-over-background-color: rgba(83, 89, 93, 0.5);\n  --dv-drag-over-border-color: transparent;\n  --dv-tabs-container-scrollbar-color: #888;\n  --dv-icon-hover-background-color: rgba(90, 93, 94, 0.31);\n  --dv-floating-box-shadow: 8px 8px 8px 0px rgba(83, 89, 93, 0.5);\n  --dv-overlay-z-index: 999;\n  --dv-tab-font-size: inherit;\n  --dv-border-radius: 0px;\n  --dv-tab-margin: 0;\n  --dv-sash-color: transparent;\n  --dv-active-sash-color: transparent;\n  --dv-active-sash-transition-duration: 0.1s;\n  --dv-active-sash-transition-delay: 0.5s;\n  --dv-group-view-background-color: #1e1e1e;\n  --dv-tabs-and-actions-container-background-color: #252526;\n  --dv-activegroup-visiblepanel-tab-background-color: #1e1e1e;\n  --dv-activegroup-hiddenpanel-tab-background-color: #2d2d2d;\n  --dv-inactivegroup-visiblepanel-tab-background-color: #1e1e1e;\n  --dv-inactivegroup-hiddenpanel-tab-background-color: #2d2d2d;\n  --dv-tab-divider-color: #1e1e1e;\n  --dv-activegroup-visiblepanel-tab-color: white;\n  --dv-activegroup-hiddenpanel-tab-color: #969696;\n  --dv-inactivegroup-visiblepanel-tab-color: #8f8f8f;\n  --dv-inactivegroup-hiddenpanel-tab-color: #626262;\n  --dv-separator-border: rgb(68, 68, 68);\n  --dv-paneview-header-border-color: rgba(204, 204, 204, 0.2);\n}\n.dockview-theme-dark .dv-drop-target-container .dv-drop-target-anchor.dv-drop-target-anchor-container-changed {\n  opacity: 0;\n  transition: none;\n}\n\n.dockview-theme-light {\n  --dv-paneview-active-outline-color: dodgerblue;\n  --dv-tabs-and-actions-container-font-size: 13px;\n  --dv-tabs-and-actions-container-height: 35px;\n  --dv-drag-over-background-color: rgba(83, 89, 93, 0.5);\n  --dv-drag-over-border-color: transparent;\n  --dv-tabs-container-scrollbar-color: #888;\n  --dv-icon-hover-background-color: rgba(90, 93, 94, 0.31);\n  --dv-floating-box-shadow: 8px 8px 8px 0px rgba(83, 89, 93, 0.5);\n  --dv-overlay-z-index: 999;\n  --dv-tab-font-size: inherit;\n  --dv-border-radius: 0px;\n  --dv-tab-margin: 0;\n  --dv-sash-color: transparent;\n  --dv-active-sash-color: transparent;\n  --dv-active-sash-transition-duration: 0.1s;\n  --dv-active-sash-transition-delay: 0.5s;\n  --dv-group-view-background-color: white;\n  --dv-tabs-and-actions-container-background-color: #f3f3f3;\n  --dv-activegroup-visiblepanel-tab-background-color: white;\n  --dv-activegroup-hiddenpanel-tab-background-color: #ececec;\n  --dv-inactivegroup-visiblepanel-tab-background-color: white;\n  --dv-inactivegroup-hiddenpanel-tab-background-color: #ececec;\n  --dv-tab-divider-color: white;\n  --dv-activegroup-visiblepanel-tab-color: rgb(51, 51, 51);\n  --dv-activegroup-hiddenpanel-tab-color: rgba(51, 51, 51, 0.7);\n  --dv-inactivegroup-visiblepanel-tab-color: rgba(51, 51, 51, 0.7);\n  --dv-inactivegroup-hiddenpanel-tab-color: rgba(51, 51, 51, 0.35);\n  --dv-separator-border: rgba(128, 128, 128, 0.35);\n  --dv-paneview-header-border-color: rgb(51, 51, 51);\n  --dv-scrollbar-background-color: rgba(0, 0, 0, 0.25);\n}\n.dockview-theme-light .dv-drop-target-container .dv-drop-target-anchor.dv-drop-target-anchor-container-changed {\n  opacity: 0;\n  transition: none;\n}\n\n.dockview-theme-vs {\n  --dv-paneview-active-outline-color: dodgerblue;\n  --dv-tabs-and-actions-container-font-size: 13px;\n  --dv-tabs-and-actions-container-height: 35px;\n  --dv-drag-over-background-color: rgba(83, 89, 93, 0.5);\n  --dv-drag-over-border-color: transparent;\n  --dv-tabs-container-scrollbar-color: #888;\n  --dv-icon-hover-background-color: rgba(90, 93, 94, 0.31);\n  --dv-floating-box-shadow: 8px 8px 8px 0px rgba(83, 89, 93, 0.5);\n  --dv-overlay-z-index: 999;\n  --dv-tab-font-size: inherit;\n  --dv-border-radius: 0px;\n  --dv-tab-margin: 0;\n  --dv-sash-color: transparent;\n  --dv-active-sash-color: transparent;\n  --dv-active-sash-transition-duration: 0.1s;\n  --dv-active-sash-transition-delay: 0.5s;\n  --dv-group-view-background-color: #1e1e1e;\n  --dv-tabs-and-actions-container-background-color: #252526;\n  --dv-activegroup-visiblepanel-tab-background-color: #1e1e1e;\n  --dv-activegroup-hiddenpanel-tab-background-color: #2d2d2d;\n  --dv-inactivegroup-visiblepanel-tab-background-color: #1e1e1e;\n  --dv-inactivegroup-hiddenpanel-tab-background-color: #2d2d2d;\n  --dv-tab-divider-color: #1e1e1e;\n  --dv-activegroup-visiblepanel-tab-color: white;\n  --dv-activegroup-hiddenpanel-tab-color: #969696;\n  --dv-inactivegroup-visiblepanel-tab-color: #8f8f8f;\n  --dv-inactivegroup-hiddenpanel-tab-color: #626262;\n  --dv-separator-border: rgb(68, 68, 68);\n  --dv-paneview-header-border-color: rgba(204, 204, 204, 0.2);\n  --dv-tabs-and-actions-container-background-color: #2d2d30;\n  --dv-tabs-and-actions-container-height: 20px;\n  --dv-tabs-and-actions-container-font-size: 11px;\n  --dv-activegroup-visiblepanel-tab-background-color: #007acc;\n  --dv-inactivegroup-visiblepanel-tab-background-color: #3f3f46;\n  --dv-activegroup-visiblepanel-tab-color: white;\n  --dv-activegroup-hiddenpanel-tab-color: white;\n  --dv-inactivegroup-visiblepanel-tab-color: white;\n  --dv-inactivegroup-hiddenpanel-tab-color: white;\n}\n.dockview-theme-vs .dv-drop-target-container .dv-drop-target-anchor.dv-drop-target-anchor-container-changed {\n  opacity: 0;\n  transition: none;\n}\n.dockview-theme-vs .dv-groupview.dv-active-group > .dv-tabs-and-actions-container {\n  box-sizing: content-box;\n  border-bottom: 2px solid var(--dv-activegroup-visiblepanel-tab-background-color);\n}\n.dockview-theme-vs .dv-groupview.dv-active-group > .dv-tabs-and-actions-container .dv-tab.dv-active-tab {\n  border-top: 2px solid var(--dv-activegroup-visiblepanel-tab-background-color);\n}\n.dockview-theme-vs .dv-groupview.dv-active-group > .dv-tabs-and-actions-container .dv-tab.dv-inactive-tab {\n  border-top: 2px solid var(--dv-activegroup-hiddenpanel-tab-background-color);\n}\n.dockview-theme-vs .dv-groupview.dv-inactive-group > .dv-tabs-and-actions-container {\n  box-sizing: content-box;\n  border-bottom: 2px solid var(--dv-inactivegroup-visiblepanel-tab-background-color);\n}\n.dockview-theme-vs .dv-groupview.dv-inactive-group > .dv-tabs-and-actions-container .dv-tab.dv-active-tab {\n  border-top: 2px solid var(--dv-inactivegroup-visiblepanel-tab-background-color);\n}\n.dockview-theme-vs .dv-groupview.dv-inactive-group > .dv-tabs-and-actions-container .dv-tab.dv-inactive-tab {\n  border-top: 2px solid var(--dv-inactivegroup-hiddenpanel-tab-background-color);\n}\n\n.dockview-theme-abyss {\n  --dv-paneview-active-outline-color: dodgerblue;\n  --dv-tabs-and-actions-container-font-size: 13px;\n  --dv-tabs-and-actions-container-height: 35px;\n  --dv-drag-over-background-color: rgba(83, 89, 93, 0.5);\n  --dv-drag-over-border-color: transparent;\n  --dv-tabs-container-scrollbar-color: #888;\n  --dv-icon-hover-background-color: rgba(90, 93, 94, 0.31);\n  --dv-floating-box-shadow: 8px 8px 8px 0px rgba(83, 89, 93, 0.5);\n  --dv-overlay-z-index: 999;\n  --dv-tab-font-size: inherit;\n  --dv-border-radius: 0px;\n  --dv-tab-margin: 0;\n  --dv-sash-color: transparent;\n  --dv-active-sash-color: transparent;\n  --dv-active-sash-transition-duration: 0.1s;\n  --dv-active-sash-transition-delay: 0.5s;\n  --dv-color-abyss-dark: #000c18;\n  --dv-color-abyss: #10192c;\n  --dv-color-abyss-light: #1c1c2a;\n  --dv-color-abyss-lighter: #2b2b4a;\n  --dv-color-abyss-accent: rgb(91, 30, 207);\n  --dv-color-abyss-primary-text: white;\n  --dv-color-abyss-secondary-text: rgb(148, 151, 169);\n  --dv-group-view-background-color: var(--dv-color-abyss-dark);\n  --dv-tabs-and-actions-container-background-color: var(\n      --dv-color-abyss-light\n  );\n  --dv-activegroup-visiblepanel-tab-background-color: var(\n      --dv-color-abyss-dark\n  );\n  --dv-activegroup-hiddenpanel-tab-background-color: var(--dv-color-abyss);\n  --dv-inactivegroup-visiblepanel-tab-background-color: var(\n      --dv-color-abyss-dark\n  );\n  --dv-inactivegroup-hiddenpanel-tab-background-color: var(--dv-color-abyss);\n  --dv-tab-divider-color: var(--dv-color-abyss-lighter);\n  --dv-activegroup-visiblepanel-tab-color: white;\n  --dv-activegroup-hiddenpanel-tab-color: rgba(255, 255, 255, 0.5);\n  --dv-inactivegroup-visiblepanel-tab-color: rgba(255, 255, 255, 0.5);\n  --dv-inactivegroup-hiddenpanel-tab-color: rgba(255, 255, 255, 0.25);\n  --dv-separator-border: var(--dv-color-abyss-lighter);\n  --dv-paneview-header-border-color: var(--dv-color-abyss-lighter);\n  --dv-paneview-active-outline-color: #596f99;\n}\n.dockview-theme-abyss .dv-drop-target-container .dv-drop-target-anchor.dv-drop-target-anchor-container-changed {\n  opacity: 0;\n  transition: none;\n}\n\n.dockview-theme-dracula {\n  --dv-paneview-active-outline-color: dodgerblue;\n  --dv-tabs-and-actions-container-font-size: 13px;\n  --dv-tabs-and-actions-container-height: 35px;\n  --dv-drag-over-background-color: rgba(83, 89, 93, 0.5);\n  --dv-drag-over-border-color: transparent;\n  --dv-tabs-container-scrollbar-color: #888;\n  --dv-icon-hover-background-color: rgba(90, 93, 94, 0.31);\n  --dv-floating-box-shadow: 8px 8px 8px 0px rgba(83, 89, 93, 0.5);\n  --dv-overlay-z-index: 999;\n  --dv-tab-font-size: inherit;\n  --dv-border-radius: 0px;\n  --dv-tab-margin: 0;\n  --dv-sash-color: transparent;\n  --dv-active-sash-color: transparent;\n  --dv-active-sash-transition-duration: 0.1s;\n  --dv-active-sash-transition-delay: 0.5s;\n  --dv-group-view-background-color: #282a36;\n  --dv-tabs-and-actions-container-background-color: #191a21;\n  --dv-activegroup-visiblepanel-tab-background-color: #282a36;\n  --dv-activegroup-hiddenpanel-tab-background-color: #21222c;\n  --dv-inactivegroup-visiblepanel-tab-background-color: #282a36;\n  --dv-inactivegroup-hiddenpanel-tab-background-color: #21222c;\n  --dv-tab-divider-color: #191a21;\n  --dv-activegroup-visiblepanel-tab-color: rgb(248, 248, 242);\n  --dv-activegroup-hiddenpanel-tab-color: rgb(98, 114, 164);\n  --dv-inactivegroup-visiblepanel-tab-color: rgba(248, 248, 242, 0.5);\n  --dv-inactivegroup-hiddenpanel-tab-color: rgba(98, 114, 164, 0.5);\n  --dv-separator-border: #bd93f9;\n  --dv-paneview-header-border-color: #bd93f9;\n  --dv-paneview-active-outline-color: #6272a4;\n}\n.dockview-theme-dracula .dv-drop-target-container .dv-drop-target-anchor.dv-drop-target-anchor-container-changed {\n  opacity: 0;\n  transition: none;\n}\n.dockview-theme-dracula .dv-groupview.dv-active-group > .dv-tabs-and-actions-container .dv-tabs-container > .dv-tab.dv-active-tab {\n  position: relative;\n}\n.dockview-theme-dracula .dv-groupview.dv-active-group > .dv-tabs-and-actions-container .dv-tabs-container > .dv-tab.dv-active-tab::after {\n  position: absolute;\n  left: 0px;\n  top: 0px;\n  content: \"\";\n  width: 100%;\n  height: 1px;\n  background-color: #94527e;\n  z-index: 999;\n}\n.dockview-theme-dracula .dv-groupview.dv-inactive-group > .dv-tabs-and-actions-container .dv-tabs-container > .dv-tab.dv-active-tab {\n  position: relative;\n}\n.dockview-theme-dracula .dv-groupview.dv-inactive-group > .dv-tabs-and-actions-container .dv-tabs-container > .dv-tab.dv-active-tab::after {\n  position: absolute;\n  left: 0px;\n  bottom: 0px;\n  content: \"\";\n  width: 100%;\n  height: 1px;\n  background-color: #5e3d5a;\n  z-index: 999;\n}\n\n.dockview-theme-replit {\n  --dv-paneview-active-outline-color: dodgerblue;\n  --dv-tabs-and-actions-container-font-size: 13px;\n  --dv-tabs-and-actions-container-height: 35px;\n  --dv-drag-over-background-color: rgba(83, 89, 93, 0.5);\n  --dv-drag-over-border-color: transparent;\n  --dv-tabs-container-scrollbar-color: #888;\n  --dv-icon-hover-background-color: rgba(90, 93, 94, 0.31);\n  --dv-floating-box-shadow: 8px 8px 8px 0px rgba(83, 89, 93, 0.5);\n  --dv-overlay-z-index: 999;\n  --dv-tab-font-size: inherit;\n  --dv-border-radius: 0px;\n  --dv-tab-margin: 0;\n  --dv-sash-color: transparent;\n  --dv-active-sash-color: transparent;\n  --dv-active-sash-transition-duration: 0.1s;\n  --dv-active-sash-transition-delay: 0.5s;\n  padding: 10px;\n  background-color: #ebeced;\n  --dv-group-view-background-color: #ebeced;\n  --dv-tabs-and-actions-container-background-color: #fcfcfc;\n  --dv-activegroup-visiblepanel-tab-background-color: #f0f1f2;\n  --dv-activegroup-hiddenpanel-tab-background-color: #fcfcfc;\n  --dv-inactivegroup-visiblepanel-tab-background-color: #f0f1f2;\n  --dv-inactivegroup-hiddenpanel-tab-background-color: #fcfcfc;\n  --dv-tab-divider-color: transparent;\n  --dv-activegroup-visiblepanel-tab-color: rgb(51, 51, 51);\n  --dv-activegroup-hiddenpanel-tab-color: rgb(51, 51, 51);\n  --dv-inactivegroup-visiblepanel-tab-color: rgb(51, 51, 51);\n  --dv-inactivegroup-hiddenpanel-tab-color: rgb(51, 51, 51);\n  --dv-separator-border: transparent;\n  --dv-paneview-header-border-color: rgb(51, 51, 51);\n  --dv-sash-color: #cfd1d3;\n  --dv-active-sash-color: #babbbb;\n}\n.dockview-theme-replit .dv-drop-target-container .dv-drop-target-anchor.dv-drop-target-anchor-container-changed {\n  opacity: 0;\n  transition: none;\n}\n.dockview-theme-replit .dv-resize-container:has(> .dv-groupview) {\n  border-radius: 8px;\n}\n.dockview-theme-replit .dv-resize-container {\n  border-radius: 10px !important;\n  border: none;\n}\n.dockview-theme-replit .dv-groupview {\n  overflow: hidden;\n  border-radius: 10px;\n}\n.dockview-theme-replit .dv-groupview .dv-tabs-and-actions-container {\n  border-bottom: 1px solid rgba(128, 128, 128, 0.35);\n}\n.dockview-theme-replit .dv-groupview .dv-tabs-and-actions-container .dv-tab {\n  margin: 4px;\n  border-radius: 8px;\n}\n.dockview-theme-replit .dv-groupview .dv-tabs-and-actions-container .dv-tab .dv-svg {\n  height: 8px;\n  width: 8px;\n}\n.dockview-theme-replit .dv-groupview .dv-tabs-and-actions-container .dv-tab:hover {\n  background-color: #e4e5e6 !important;\n}\n.dockview-theme-replit .dv-groupview .dv-content-container {\n  background-color: #fcfcfc;\n}\n.dockview-theme-replit .dv-groupview.dv-active-group {\n  border: 1px solid rgba(128, 128, 128, 0.35);\n}\n.dockview-theme-replit .dv-groupview.dv-inactive-group {\n  border: 1px solid transparent;\n}\n.dockview-theme-replit .dv-vertical > .dv-sash-container > .dv-sash {\n  background-color: transparent;\n}\n.dockview-theme-replit .dv-vertical > .dv-sash-container > .dv-sash:not(.disabled)::after {\n  content: \"\";\n  height: 4px;\n  width: 40px;\n  border-radius: 2px;\n  top: 50%;\n  left: 50%;\n  transform: translate(-50%, -50%);\n  background-color: var(--dv-sash-color);\n  position: absolute;\n}\n.dockview-theme-replit .dv-vertical > .dv-sash-container > .dv-sash:not(.disabled):hover, .dockview-theme-replit .dv-vertical > .dv-sash-container > .dv-sash:not(.disabled):active {\n  background-color: transparent;\n}\n.dockview-theme-replit .dv-vertical > .dv-sash-container > .dv-sash:not(.disabled):hover::after, .dockview-theme-replit .dv-vertical > .dv-sash-container > .dv-sash:not(.disabled):active::after {\n  background-color: var(--dv-active-sash-color);\n}\n.dockview-theme-replit .dv-horizontal > .dv-sash-container > .dv-sash {\n  background-color: transparent;\n}\n.dockview-theme-replit .dv-horizontal > .dv-sash-container > .dv-sash:not(.disabled)::after {\n  content: \"\";\n  height: 40px;\n  width: 4px;\n  border-radius: 2px;\n  top: 50%;\n  left: 50%;\n  transform: translate(-50%, -50%);\n  background-color: var(--dv-sash-color);\n  position: absolute;\n}\n.dockview-theme-replit .dv-horizontal > .dv-sash-container > .dv-sash:not(.disabled):hover, .dockview-theme-replit .dv-horizontal > .dv-sash-container > .dv-sash:not(.disabled):active {\n  background-color: transparent;\n}\n.dockview-theme-replit .dv-horizontal > .dv-sash-container > .dv-sash:not(.disabled):hover::after, .dockview-theme-replit .dv-horizontal > .dv-sash-container > .dv-sash:not(.disabled):active::after {\n  background-color: var(--dv-active-sash-color);\n}\n\n.dockview-theme-abyss-spaced {\n  --dv-paneview-active-outline-color: dodgerblue;\n  --dv-tabs-and-actions-container-font-size: 13px;\n  --dv-tabs-and-actions-container-height: 35px;\n  --dv-drag-over-background-color: rgba(83, 89, 93, 0.5);\n  --dv-drag-over-border-color: transparent;\n  --dv-tabs-container-scrollbar-color: #888;\n  --dv-icon-hover-background-color: rgba(90, 93, 94, 0.31);\n  --dv-floating-box-shadow: 8px 8px 8px 0px rgba(83, 89, 93, 0.5);\n  --dv-overlay-z-index: 999;\n  --dv-tab-font-size: inherit;\n  --dv-border-radius: 0px;\n  --dv-tab-margin: 0;\n  --dv-sash-color: transparent;\n  --dv-active-sash-color: transparent;\n  --dv-active-sash-transition-duration: 0.1s;\n  --dv-active-sash-transition-delay: 0.5s;\n  --dv-tab-font-size: 12px;\n  --dv-border-radius: 20px;\n  --dv-tab-margin: 0.5rem 0.25rem;\n  --dv-tabs-and-actions-container-height: 44px;\n  --dv-border-radius: 20px;\n  --dv-color-abyss-dark: rgb(11, 6, 17);\n  --dv-color-abyss: #16121f;\n  --dv-color-abyss-light: #201d2b;\n  --dv-color-abyss-lighter: #2a2837;\n  --dv-color-abyss-accent: rgb(91, 30, 207);\n  --dv-color-abyss-primary-text: white;\n  --dv-color-abyss-secondary-text: rgb(148, 151, 169);\n  --dv-drag-over-border: 2px solid var(--dv-color-abyss-accent);\n  --dv-drag-over-background-color: \"\";\n  --dv-group-view-background-color: var(--dv-color-abyss-dark);\n  --dv-tabs-and-actions-container-background-color: var(--dv-color-abyss);\n  --dv-activegroup-visiblepanel-tab-background-color: var(\n      --dv-color-abyss-lighter\n  );\n  --dv-activegroup-hiddenpanel-tab-background-color: var(\n      --dv-color-abyss-light\n  );\n  --dv-inactivegroup-visiblepanel-tab-background-color: var(\n      --dv-color-abyss-lighter\n  );\n  --dv-inactivegroup-hiddenpanel-tab-background-color: var(\n      --dv-color-abyss-light\n  );\n  --dv-tab-divider-color: transparent;\n  --dv-activegroup-visiblepanel-tab-color: var(--dv-color-abyss-primary-text);\n  --dv-activegroup-hiddenpanel-tab-color: var(\n      --dv-color-abyss-secondary-text\n  );\n  --dv-inactivegroup-visiblepanel-tab-color: var(\n      --dv-color-abyss-primary-text\n  );\n  --dv-inactivegroup-hiddenpanel-tab-color: var(\n      --dv-color-abyss-secondary-text\n  );\n  --dv-separator-border: transparent;\n  --dv-paneview-header-border-color: rgb(51, 51, 51);\n  --dv-active-sash-color: var(--dv-color-abyss-accent);\n  --dv-floating-box-shadow: 8px 8px 8px 0px rgba(0, 0, 0, 0.5);\n  padding: 10px;\n  background-color: var(--dv-color-abyss-dark);\n}\n.dockview-theme-abyss-spaced .dv-resize-container:has(> .dv-groupview) {\n  border-radius: 8px;\n}\n.dockview-theme-abyss-spaced .dv-sash {\n  border-radius: 4px;\n}\n.dockview-theme-abyss-spaced .dv-drop-target-anchor {\n  border-radius: calc(var(--dv-border-radius) / 4);\n}\n.dockview-theme-abyss-spaced .dv-drop-target-anchor.dv-drop-target-content {\n  border-radius: var(--dv-border-radius);\n}\n.dockview-theme-abyss-spaced .dv-resize-container {\n  border-radius: var(--dv-border-radius) !important;\n  border: none;\n}\n.dockview-theme-abyss-spaced .dv-tabs-overflow-container,\n.dockview-theme-abyss-spaced .dv-tabs-overflow-dropdown-default {\n  border-radius: 8px;\n  height: unset !important;\n}\n.dockview-theme-abyss-spaced .dv-tab {\n  border-radius: 8px;\n}\n.dockview-theme-abyss-spaced .dv-tab .dv-svg {\n  height: 8px;\n  width: 8px;\n}\n.dockview-theme-abyss-spaced .dv-groupview {\n  border-radius: var(--dv-border-radius);\n}\n.dockview-theme-abyss-spaced .dv-groupview .dv-tabs-and-actions-container {\n  padding: 0px calc(var(--dv-border-radius) / 2);\n}\n.dockview-theme-abyss-spaced .dv-groupview .dv-content-container {\n  background-color: var(--dv-tabs-and-actions-container-background-color);\n}\n.dockview-theme-abyss-spaced .dv-resize-container .dv-groupview {\n  border: 2px solid var(--dv-color-abyss-dark);\n}\n\n.dockview-theme-light-spaced {\n  --dv-paneview-active-outline-color: dodgerblue;\n  --dv-tabs-and-actions-container-font-size: 13px;\n  --dv-tabs-and-actions-container-height: 35px;\n  --dv-drag-over-background-color: rgba(83, 89, 93, 0.5);\n  --dv-drag-over-border-color: transparent;\n  --dv-tabs-container-scrollbar-color: #888;\n  --dv-icon-hover-background-color: rgba(90, 93, 94, 0.31);\n  --dv-floating-box-shadow: 8px 8px 8px 0px rgba(83, 89, 93, 0.5);\n  --dv-overlay-z-index: 999;\n  --dv-tab-font-size: inherit;\n  --dv-border-radius: 0px;\n  --dv-tab-margin: 0;\n  --dv-sash-color: transparent;\n  --dv-active-sash-color: transparent;\n  --dv-active-sash-transition-duration: 0.1s;\n  --dv-active-sash-transition-delay: 0.5s;\n  --dv-tab-font-size: 12px;\n  --dv-border-radius: 20px;\n  --dv-tab-margin: 0.5rem 0.25rem;\n  --dv-tabs-and-actions-container-height: 44px;\n  --dv-border-radius: 20px;\n  --dv-drag-over-border: 2px solid rgb(91, 30, 207);\n  --dv-drag-over-background-color: \"\";\n  --dv-group-view-background-color: #f6f5f9;\n  --dv-tabs-and-actions-container-background-color: white;\n  --dv-activegroup-visiblepanel-tab-background-color: #ededf0;\n  --dv-activegroup-hiddenpanel-tab-background-color: #f9f9fa;\n  --dv-inactivegroup-visiblepanel-tab-background-color: #ededf0;\n  --dv-inactivegroup-hiddenpanel-tab-background-color: #f9f9fa;\n  --dv-tab-divider-color: transparent;\n  --dv-activegroup-visiblepanel-tab-color: rgb(104, 107, 130);\n  --dv-activegroup-hiddenpanel-tab-color: rgb(148, 151, 169);\n  --dv-inactivegroup-visiblepanel-tab-color: rgb(104, 107, 130);\n  --dv-inactivegroup-hiddenpanel-tab-color: rgb(148, 151, 169);\n  --dv-separator-border: transparent;\n  --dv-paneview-header-border-color: rgb(51, 51, 51);\n  --dv-active-sash-color: rgb(91, 30, 207);\n  --dv-floating-box-shadow: 8px 8px 8px 0px rgba(0, 0, 0, 0.1);\n  padding: 10px;\n  background-color: #f6f5f9;\n  --dv-scrollbar-background-color: rgba(0, 0, 0, 0.25);\n}\n.dockview-theme-light-spaced .dv-resize-container:has(> .dv-groupview) {\n  border-radius: 8px;\n}\n.dockview-theme-light-spaced .dv-sash {\n  border-radius: 4px;\n}\n.dockview-theme-light-spaced .dv-drop-target-anchor {\n  border-radius: calc(var(--dv-border-radius) / 4);\n}\n.dockview-theme-light-spaced .dv-drop-target-anchor.dv-drop-target-content {\n  border-radius: var(--dv-border-radius);\n}\n.dockview-theme-light-spaced .dv-resize-container {\n  border-radius: var(--dv-border-radius) !important;\n  border: none;\n}\n.dockview-theme-light-spaced .dv-tabs-overflow-container,\n.dockview-theme-light-spaced .dv-tabs-overflow-dropdown-default {\n  border-radius: 8px;\n  height: unset !important;\n}\n.dockview-theme-light-spaced .dv-tab {\n  border-radius: 8px;\n}\n.dockview-theme-light-spaced .dv-tab .dv-svg {\n  height: 8px;\n  width: 8px;\n}\n.dockview-theme-light-spaced .dv-groupview {\n  border-radius: var(--dv-border-radius);\n}\n.dockview-theme-light-spaced .dv-groupview .dv-tabs-and-actions-container {\n  padding: 0px calc(var(--dv-border-radius) / 2);\n}\n.dockview-theme-light-spaced .dv-groupview .dv-content-container {\n  background-color: var(--dv-tabs-and-actions-container-background-color);\n}\n.dockview-theme-light-spaced .dv-resize-container .dv-groupview {\n  border: 2px solid rgba(255, 255, 255, 0.1);\n}\n.dv-drop-target {\n  position: relative;\n  --dv-transition-duration: 70ms;\n}\n.dv-drop-target > .dv-drop-target-dropzone {\n  position: absolute;\n  left: 0px;\n  top: 0px;\n  height: 100%;\n  width: 100%;\n  z-index: 1000;\n  pointer-events: none;\n}\n.dv-drop-target > .dv-drop-target-dropzone > .dv-drop-target-selection {\n  position: relative;\n  box-sizing: border-box;\n  height: 100%;\n  width: 100%;\n  border: var(--dv-drag-over-border);\n  background-color: var(--dv-drag-over-background-color);\n  transition: top var(--dv-transition-duration) ease-out, left var(--dv-transition-duration) ease-out, width var(--dv-transition-duration) ease-out, height var(--dv-transition-duration) ease-out, opacity var(--dv-transition-duration) ease-out;\n  will-change: transform;\n  pointer-events: none;\n}\n.dv-drop-target > .dv-drop-target-dropzone > .dv-drop-target-selection.dv-drop-target-top.dv-drop-target-small-vertical {\n  border-top: 1px solid var(--dv-drag-over-border-color);\n}\n.dv-drop-target > .dv-drop-target-dropzone > .dv-drop-target-selection.dv-drop-target-bottom.dv-drop-target-small-vertical {\n  border-bottom: 1px solid var(--dv-drag-over-border-color);\n}\n.dv-drop-target > .dv-drop-target-dropzone > .dv-drop-target-selection.dv-drop-target-left.dv-drop-target-small-horizontal {\n  border-left: 1px solid var(--dv-drag-over-border-color);\n}\n.dv-drop-target > .dv-drop-target-dropzone > .dv-drop-target-selection.dv-drop-target-right.dv-drop-target-small-horizontal {\n  border-right: 1px solid var(--dv-drag-over-border-color);\n}\n.dv-drop-target-container {\n  position: absolute;\n  z-index: 9999;\n  top: 0px;\n  left: 0px;\n  height: 100%;\n  width: 100%;\n  pointer-events: none;\n  overflow: hidden;\n  --dv-transition-duration: 300ms;\n}\n.dv-drop-target-container .dv-drop-target-anchor {\n  position: relative;\n  border: var(--dv-drag-over-border);\n  transition: opacity var(--dv-transition-duration) ease-in, top var(--dv-transition-duration) ease-out, left var(--dv-transition-duration) ease-out, width var(--dv-transition-duration) ease-out, height var(--dv-transition-duration) ease-out;\n  background-color: var(--dv-drag-over-background-color);\n  opacity: 1;\n}\n.dv-dockview {\n  position: relative;\n  background-color: var(--dv-group-view-background-color);\n}\n.dv-dockview .dv-watermark-container {\n  position: absolute;\n  top: 0px;\n  left: 0px;\n  height: 100%;\n  width: 100%;\n  z-index: 1;\n}\n.dv-dockview .dv-overlay-render-container {\n  position: relative;\n}\n\n.dv-groupview.dv-active-group > .dv-tabs-and-actions-container .dv-tabs-container > .dv-tab.dv-active-tab {\n  background-color: var(--dv-activegroup-visiblepanel-tab-background-color);\n  color: var(--dv-activegroup-visiblepanel-tab-color);\n}\n.dv-groupview.dv-active-group > .dv-tabs-and-actions-container .dv-tabs-container > .dv-tab.dv-inactive-tab {\n  background-color: var(--dv-activegroup-hiddenpanel-tab-background-color);\n  color: var(--dv-activegroup-hiddenpanel-tab-color);\n}\n.dv-groupview.dv-inactive-group > .dv-tabs-and-actions-container .dv-tabs-container > .dv-tab.dv-active-tab {\n  background-color: var(--dv-inactivegroup-visiblepanel-tab-background-color);\n  color: var(--dv-inactivegroup-visiblepanel-tab-color);\n}\n.dv-groupview.dv-inactive-group > .dv-tabs-and-actions-container .dv-tabs-container > .dv-tab.dv-inactive-tab {\n  background-color: var(--dv-inactivegroup-hiddenpanel-tab-background-color);\n  color: var(--dv-inactivegroup-hiddenpanel-tab-color);\n}\n\n/**\n * when a tab is dragged we lose the above stylings because they are conditional on parent elements\n * therefore we also set some stylings for the dragging event\n **/\n.dv-tab.dv-tab-dragging {\n  background-color: var(--dv-activegroup-visiblepanel-tab-background-color);\n  color: var(--dv-activegroup-visiblepanel-tab-color);\n}\n.dv-groupview {\n  display: flex;\n  flex-direction: column;\n  height: 100%;\n  background-color: var(--dv-group-view-background-color);\n  overflow: hidden;\n}\n.dv-groupview:focus {\n  outline: none;\n}\n.dv-groupview > .dv-content-container {\n  flex-grow: 1;\n  min-height: 0;\n  outline: none;\n}\n.dv-debug .dv-resize-container .dv-resize-handle-top {\n  background-color: red;\n}\n.dv-debug .dv-resize-container .dv-resize-handle-bottom {\n  background-color: green;\n}\n.dv-debug .dv-resize-container .dv-resize-handle-left {\n  background-color: yellow;\n}\n.dv-debug .dv-resize-container .dv-resize-handle-right {\n  background-color: blue;\n}\n.dv-debug .dv-resize-container .dv-resize-handle-topleft,\n.dv-debug .dv-resize-container .dv-resize-handle-topright,\n.dv-debug .dv-resize-container .dv-resize-handle-bottomleft,\n.dv-debug .dv-resize-container .dv-resize-handle-bottomright {\n  background-color: cyan;\n}\n\n.dv-resize-container {\n  --dv-overlay-z-index: var(--dv-overlay-z-index, 999);\n  position: absolute;\n  z-index: calc(var(--dv-overlay-z-index) - 2);\n  border: 1px solid var(--dv-tab-divider-color);\n  box-shadow: var(--dv-floating-box-shadow);\n}\n.dv-resize-container.dv-hidden {\n  display: none;\n}\n.dv-resize-container.dv-resize-container-dragging {\n  opacity: 0.5;\n}\n.dv-resize-container .dv-resize-handle-top {\n  height: 4px;\n  width: calc(100% - 8px);\n  left: 4px;\n  top: -2px;\n  z-index: var(--dv-overlay-z-index);\n  position: absolute;\n  cursor: ns-resize;\n}\n.dv-resize-container .dv-resize-handle-bottom {\n  height: 4px;\n  width: calc(100% - 8px);\n  left: 4px;\n  bottom: -2px;\n  z-index: var(--dv-overlay-z-index);\n  position: absolute;\n  cursor: ns-resize;\n}\n.dv-resize-container .dv-resize-handle-left {\n  height: calc(100% - 8px);\n  width: 4px;\n  left: -2px;\n  top: 4px;\n  z-index: var(--dv-overlay-z-index);\n  position: absolute;\n  cursor: ew-resize;\n}\n.dv-resize-container .dv-resize-handle-right {\n  height: calc(100% - 8px);\n  width: 4px;\n  right: -2px;\n  top: 4px;\n  z-index: var(--dv-overlay-z-index);\n  position: absolute;\n  cursor: ew-resize;\n}\n.dv-resize-container .dv-resize-handle-topleft {\n  height: 4px;\n  width: 4px;\n  top: -2px;\n  left: -2px;\n  z-index: var(--dv-overlay-z-index);\n  position: absolute;\n  cursor: nw-resize;\n}\n.dv-resize-container .dv-resize-handle-topright {\n  height: 4px;\n  width: 4px;\n  right: -2px;\n  top: -2px;\n  z-index: var(--dv-overlay-z-index);\n  position: absolute;\n  cursor: ne-resize;\n}\n.dv-resize-container .dv-resize-handle-bottomleft {\n  height: 4px;\n  width: 4px;\n  left: -2px;\n  bottom: -2px;\n  z-index: var(--dv-overlay-z-index);\n  position: absolute;\n  cursor: sw-resize;\n}\n.dv-resize-container .dv-resize-handle-bottomright {\n  height: 4px;\n  width: 4px;\n  right: -2px;\n  bottom: -2px;\n  z-index: var(--dv-overlay-z-index);\n  position: absolute;\n  cursor: se-resize;\n}\n.dv-render-overlay {\n  --dv-overlay-z-index: var(--dv-overlay-z-index, 999);\n  position: absolute;\n  z-index: 1;\n  height: 100%;\n}\n.dv-render-overlay.dv-render-overlay-float {\n  z-index: calc(var(--dv-overlay-z-index) - 1);\n}\n\n.dv-debug .dv-render-overlay {\n  outline: 1px solid red;\n  outline-offset: -1;\n}\n.dv-root-wrapper {\n  height: 100%;\n  width: 100%;\n}\n.dv-grid-view,\n.dv-branch-node {\n  height: 100%;\n  width: 100%;\n}\n.dv-pane-container {\n  height: 100%;\n  width: 100%;\n}\n.dv-pane-container.dv-animated .dv-view {\n  transition-duration: 0.15s;\n  transition-timing-function: ease-out;\n}\n.dv-pane-container .dv-view {\n  overflow: hidden;\n  display: flex;\n  flex-direction: column;\n  padding: 0px !important;\n}\n.dv-pane-container .dv-view:not(:first-child)::before {\n  background-color: transparent !important;\n}\n.dv-pane-container .dv-view:not(:first-child) .dv-pane > .dv-pane-header {\n  border-top: 1px solid var(--dv-paneview-header-border-color);\n}\n.dv-pane-container .dv-view .dv-default-header {\n  background-color: var(--dv-group-view-background-color);\n  color: var(--dv-activegroup-visiblepanel-tab-color);\n  display: flex;\n  padding: 0px 8px;\n  cursor: pointer;\n}\n.dv-pane-container .dv-view .dv-default-header .dv-pane-header-icon {\n  display: flex;\n  justify-content: center;\n  align-items: center;\n}\n.dv-pane-container .dv-view .dv-default-header > span {\n  padding-left: 8px;\n  flex-grow: 1;\n}\n.dv-pane-container:first-of-type > .dv-pane > .dv-pane-header {\n  border-top: none !important;\n}\n.dv-pane-container .dv-pane {\n  display: flex;\n  flex-direction: column;\n  overflow: hidden;\n  height: 100%;\n}\n.dv-pane-container .dv-pane .dv-pane-header {\n  box-sizing: border-box;\n  user-select: none;\n  position: relative;\n  outline: none;\n}\n.dv-pane-container .dv-pane .dv-pane-header.dv-pane-draggable {\n  cursor: pointer;\n}\n.dv-pane-container .dv-pane .dv-pane-header:focus:before, .dv-pane-container .dv-pane .dv-pane-header:focus-within:before {\n  position: absolute;\n  top: 0;\n  left: 0;\n  width: 100%;\n  height: 100%;\n  z-index: 5;\n  content: \"\";\n  pointer-events: none;\n  outline: 1px solid;\n  outline-width: -1px;\n  outline-style: solid;\n  outline-offset: -1px;\n  outline-color: var(--dv-paneview-active-outline-color);\n}\n.dv-pane-container .dv-pane .dv-pane-body {\n  overflow-y: auto;\n  overflow-x: hidden;\n  flex-grow: 1;\n  position: relative;\n  outline: none;\n}\n.dv-pane-container .dv-pane .dv-pane-body:focus:before, .dv-pane-container .dv-pane .dv-pane-body:focus-within:before {\n  position: absolute;\n  top: 0;\n  left: 0;\n  width: 100%;\n  height: 100%;\n  z-index: 5;\n  content: \"\";\n  pointer-events: none;\n  outline: 1px solid;\n  outline-width: -1px;\n  outline-style: solid;\n  outline-offset: -1px;\n  outline-color: var(--dv-paneview-active-outline-color);\n}\n.dv-debug .dv-split-view-container .dv-sash-container .dv-sash.dv-enabled {\n  background-color: black;\n}\n.dv-debug .dv-split-view-container .dv-sash-container .dv-sash.dv-disabled {\n  background-color: orange;\n}\n.dv-debug .dv-split-view-container .dv-sash-container .dv-sash.dv-maximum {\n  background-color: green;\n}\n.dv-debug .dv-split-view-container .dv-sash-container .dv-sash.dv-minimum {\n  background-color: red;\n}\n\n.dv-split-view-container {\n  position: relative;\n  overflow: hidden;\n  height: 100%;\n  width: 100%;\n}\n.dv-split-view-container.dv-splitview-disabled > .dv-sash-container > .dv-sash {\n  pointer-events: none;\n}\n.dv-split-view-container.dv-animation .dv-view,\n.dv-split-view-container.dv-animation .dv-sash {\n  transition-duration: 0.15s;\n  transition-timing-function: ease-out;\n}\n.dv-split-view-container.dv-horizontal {\n  height: 100%;\n}\n.dv-split-view-container.dv-horizontal > .dv-sash-container > .dv-sash {\n  height: 100%;\n  width: 4px;\n}\n.dv-split-view-container.dv-horizontal > .dv-sash-container > .dv-sash.dv-enabled {\n  cursor: ew-resize;\n}\n.dv-split-view-container.dv-horizontal > .dv-sash-container > .dv-sash.dv-disabled {\n  cursor: default;\n}\n.dv-split-view-container.dv-horizontal > .dv-sash-container > .dv-sash.dv-maximum {\n  cursor: w-resize;\n}\n.dv-split-view-container.dv-horizontal > .dv-sash-container > .dv-sash.dv-minimum {\n  cursor: e-resize;\n}\n.dv-split-view-container.dv-horizontal > .dv-view-container > .dv-view:not(:first-child)::before {\n  height: 100%;\n  width: 1px;\n}\n.dv-split-view-container.dv-vertical {\n  width: 100%;\n}\n.dv-split-view-container.dv-vertical > .dv-sash-container > .dv-sash {\n  width: 100%;\n  height: 4px;\n}\n.dv-split-view-container.dv-vertical > .dv-sash-container > .dv-sash.dv-enabled {\n  cursor: ns-resize;\n}\n.dv-split-view-container.dv-vertical > .dv-sash-container > .dv-sash.dv-disabled {\n  cursor: default;\n}\n.dv-split-view-container.dv-vertical > .dv-sash-container > .dv-sash.dv-maximum {\n  cursor: n-resize;\n}\n.dv-split-view-container.dv-vertical > .dv-sash-container > .dv-sash.dv-minimum {\n  cursor: s-resize;\n}\n.dv-split-view-container.dv-vertical > .dv-view-container > .dv-view {\n  width: 100%;\n}\n.dv-split-view-container.dv-vertical > .dv-view-container > .dv-view:not(:first-child)::before {\n  height: 1px;\n  width: 100%;\n}\n.dv-split-view-container .dv-sash-container {\n  height: 100%;\n  width: 100%;\n  position: absolute;\n}\n.dv-split-view-container .dv-sash-container .dv-sash {\n  position: absolute;\n  z-index: 99;\n  outline: none;\n  user-select: none;\n  -webkit-user-select: none;\n  -moz-user-select: none;\n  -ms-user-select: none;\n  touch-action: none;\n  background-color: var(--dv-sash-color, transparent);\n}\n.dv-split-view-container .dv-sash-container .dv-sash:not(.disabled):active, .dv-split-view-container .dv-sash-container .dv-sash:not(.disabled):hover {\n  background-color: var(--dv-active-sash-color, transparent);\n  transition-property: background-color;\n  transition-timing-function: ease-in-out;\n  transition-duration: var(--dv-active-sash-transition-duration, 0.1s);\n  transition-delay: var(--dv-active-sash-transition-delay, 0.5s);\n}\n.dv-split-view-container .dv-view-container {\n  position: relative;\n  height: 100%;\n  width: 100%;\n}\n.dv-split-view-container .dv-view-container .dv-view {\n  height: 100%;\n  box-sizing: border-box;\n  overflow: auto;\n  position: absolute;\n}\n.dv-split-view-container.dv-separator-border .dv-view:not(:first-child)::before {\n  content: \" \";\n  position: absolute;\n  top: 0;\n  left: 0;\n  z-index: 5;\n  pointer-events: none;\n  background-color: var(--dv-separator-border);\n}\n.dv-tabs-overflow-dropdown-default {\n  height: 100%;\n  color: var(--dv-activegroup-hiddenpanel-tab-color);\n  margin: var(--dv-tab-margin);\n  display: flex;\n  align-items: center;\n  flex-shrink: 0;\n  padding: 0.25rem 0.5rem;\n  cursor: pointer;\n}\n.dv-tabs-overflow-dropdown-default > span {\n  padding-left: 0.25rem;\n}\n.dv-tabs-overflow-dropdown-default > svg {\n  transform: rotate(90deg);\n}\n.dv-tabs-container {\n  display: flex;\n  height: 100%;\n  overflow: auto;\n  scrollbar-width: thin;\n  /* Track */\n  /* Handle */\n}\n.dv-tabs-container.dv-horizontal .dv-tab:not(:first-child)::before {\n  content: \" \";\n  position: absolute;\n  top: 0;\n  left: 0;\n  z-index: 5;\n  pointer-events: none;\n  background-color: var(--dv-tab-divider-color);\n  width: 1px;\n  height: 100%;\n}\n.dv-tabs-container::-webkit-scrollbar {\n  height: 3px;\n}\n.dv-tabs-container::-webkit-scrollbar-track {\n  background: transparent;\n}\n.dv-tabs-container::-webkit-scrollbar-thumb {\n  background: var(--dv-tabs-container-scrollbar-color);\n}\n\n.dv-scrollable > .dv-tabs-container {\n  overflow: hidden;\n}\n\n.dv-tab {\n  -webkit-user-drag: element;\n  outline: none;\n  padding: 0.25rem 0.5rem;\n  cursor: pointer;\n  position: relative;\n  box-sizing: border-box;\n  font-size: var(--dv-tab-font-size);\n  margin: var(--dv-tab-margin);\n}\n\n.dv-tabs-overflow-container {\n  flex-direction: column;\n  height: unset;\n  border: 1px solid var(--dv-tab-divider-color);\n  background-color: var(--dv-group-view-background-color);\n}\n.dv-tabs-overflow-container .dv-tab:not(:last-child) {\n  border-bottom: 1px solid var(--dv-tab-divider-color);\n}\n.dv-tabs-overflow-container .dv-active-tab {\n  background-color: var(--dv-activegroup-visiblepanel-tab-background-color);\n  color: var(--dv-activegroup-visiblepanel-tab-color);\n}\n.dv-tabs-overflow-container .dv-inactive-tab {\n  background-color: var(--dv-activegroup-hiddenpanel-tab-background-color);\n  color: var(--dv-activegroup-hiddenpanel-tab-color);\n}\n.dv-tabs-and-actions-container {\n  display: flex;\n  background-color: var(--dv-tabs-and-actions-container-background-color);\n  flex-shrink: 0;\n  box-sizing: border-box;\n  height: var(--dv-tabs-and-actions-container-height);\n  font-size: var(--dv-tabs-and-actions-container-font-size);\n}\n.dv-tabs-and-actions-container.dv-single-tab.dv-full-width-single-tab .dv-scrollable {\n  flex-grow: 1;\n}\n.dv-tabs-and-actions-container.dv-single-tab.dv-full-width-single-tab .dv-tabs-container {\n  flex-grow: 1;\n}\n.dv-tabs-and-actions-container.dv-single-tab.dv-full-width-single-tab .dv-tabs-container .dv-tab {\n  flex-grow: 1;\n  padding: 0px;\n}\n.dv-tabs-and-actions-container.dv-single-tab.dv-full-width-single-tab .dv-void-container {\n  flex-grow: 0;\n}\n.dv-tabs-and-actions-container .dv-void-container {\n  display: flex;\n  flex-grow: 1;\n  cursor: grab;\n}\n.dv-tabs-and-actions-container .dv-right-actions-container {\n  display: flex;\n}\n.dv-dragged {\n  transform: translate3d(0px, 0px, 0px); /* forces tab to be drawn on a separate layer (see https://github.com/microsoft/vscode/issues/18733) */\n}\n\n.dv-tab {\n  flex-shrink: 0;\n}\n.dv-tab:focus-within, .dv-tab:focus {\n  position: relative;\n}\n.dv-tab:focus-within::after, .dv-tab:focus::after {\n  position: absolute;\n  content: \"\";\n  height: 100%;\n  width: 100%;\n  top: 0px;\n  left: 0px;\n  pointer-events: none;\n  outline: 1px solid var(--dv-tab-divider-color) !important;\n  outline-offset: -1px;\n  z-index: 5;\n}\n.dv-tab.dv-tab-dragging .dv-default-tab-action {\n  background-color: var(--dv-activegroup-visiblepanel-tab-color);\n}\n.dv-tab.dv-active-tab .dv-default-tab .dv-default-tab-action {\n  visibility: visible;\n}\n.dv-tab.dv-inactive-tab .dv-default-tab .dv-default-tab-action {\n  visibility: hidden;\n}\n.dv-tab.dv-inactive-tab .dv-default-tab:hover .dv-default-tab-action {\n  visibility: visible;\n}\n.dv-tab .dv-default-tab {\n  position: relative;\n  height: 100%;\n  display: flex;\n  align-items: center;\n  white-space: nowrap;\n  text-overflow: ellipsis;\n}\n.dv-tab .dv-default-tab .dv-default-tab-content {\n  flex-grow: 1;\n  margin-right: 4px;\n}\n.dv-tab .dv-default-tab .dv-default-tab-action {\n  padding: 4px;\n  display: flex;\n  align-items: center;\n  justify-content: center;\n  box-sizing: border-box;\n}\n.dv-tab .dv-default-tab .dv-default-tab-action:hover {\n  border-radius: 2px;\n  background-color: var(--dv-icon-hover-background-color);\n}\n.dv-watermark {\n  display: flex;\n  height: 100%;\n}";
+styleInject(css_248z);
+
 class TransferObject {
 }
 class PanelTransfer extends TransferObject {
@@ -174,7 +204,7 @@ class Emitter {
                         if (index > -1) {
                             this._listeners.splice(index, 1);
                         }
-                        else if (Emitter.ENABLE_TRACKING);
+                        else if (Emitter.ENABLE_TRACKING) ;
                     },
                 };
             };
@@ -636,6 +666,44 @@ function onDidWindowResizeEnd(element, cb) {
     }));
     return disposable;
 }
+function shiftAbsoluteElementIntoView(element, root, options = { buffer: 10 }) {
+    const buffer = options.buffer;
+    const rect = element.getBoundingClientRect();
+    const rootRect = element.getBoundingClientRect();
+    const viewportWidth = root.clientWidth;
+    const viewportHeight = root.clientHeight;
+    let translateX = 0;
+    let translateY = 0;
+    const left = rect.left - rootRect.left;
+    const top = rect.top - rootRect.top;
+    const bottom = rect.bottom - rootRect.bottom;
+    const right = rect.right - rootRect.right;
+    // Check horizontal overflow
+    if (left < buffer) {
+        translateX = buffer - left;
+    }
+    else if (right > viewportWidth - buffer) {
+        translateX = viewportWidth - right - buffer;
+    }
+    // Check vertical overflow
+    if (top < buffer) {
+        translateY = buffer - top;
+    }
+    else if (bottom > viewportHeight - buffer) {
+        translateY = viewportHeight - bottom - buffer;
+    }
+    // Apply the translation if needed
+    if (translateX !== 0 || translateY !== 0) {
+        element.style.transform = `translate(${translateX}px, ${translateY}px)`;
+    }
+}
+function findRelativeZIndexParent(el) {
+    let tmp = el;
+    while (tmp && (tmp.style.zIndex === 'auto' || tmp.style.zIndex === '')) {
+        tmp = tmp.parentElement;
+    }
+    return tmp;
+}
 
 function tail(arr) {
     if (arr.length === 0) {
@@ -1035,7 +1103,7 @@ class Splitview {
                     };
                 const view = viewDescriptor.view;
                 this.addView(view, sizing, index, true
-                    // true skip layout
+                // true skip layout
                 );
             });
             // Initialize content size and proportions for first layout
@@ -1409,8 +1477,8 @@ class Splitview {
             const offset = i === 0 || visiblePanelsBeforeThisView === 0
                 ? 0
                 : viewLeftOffsets[i - 1] +
-                (visiblePanelsBeforeThisView / sashCount) *
-                marginReducedSize;
+                    (visiblePanelsBeforeThisView / sashCount) *
+                        marginReducedSize;
             if (i < this.viewItems.length - 1) {
                 // calculate sash position
                 const newSize = view.visible
@@ -2415,8 +2483,8 @@ class Gridview {
                 };
             });
             result = new BranchNode(orientation, this.proportionalLayout, this.styles, node.size, // <- orthogonal size - flips at each depth
-                orthogonalSize, // <- size - flips at each depth,
-                this.locked, this.margin, children);
+            orthogonalSize, // <- size - flips at each depth,
+            this.locked, this.margin, children);
         }
         else {
             const view = deserializer.fromJSON(node);
@@ -2454,7 +2522,7 @@ class Gridview {
         const oldRoot = this.root;
         oldRoot.element.remove();
         this._root = new BranchNode(orthogonal(oldRoot.orientation), this.proportionalLayout, this.styles, this.root.orthogonalSize, this.root.size, this.locked, this.margin);
-        if (oldRoot.children.length === 0);
+        if (oldRoot.children.length === 0) ;
         else if (oldRoot.children.length === 1) {
             // can remove one level of redundant branching if there is only a single child
             const childReference = oldRoot.children[0];
@@ -2462,13 +2530,13 @@ class Gridview {
             child.dispose();
             oldRoot.dispose();
             this._root.addChild(
-                /**
-                 * the child node will have the same orientation as the new root since
-                 * we are removing the inbetween node.
-                 * the entire 'tree' must be flipped recursively to ensure that the orientation
-                 * flips at each level
-                 */
-                flipNode(childReference, childReference.orthogonalSize, childReference.size), Sizing.Distribute, 0);
+            /**
+             * the child node will have the same orientation as the new root since
+             * we are removing the inbetween node.
+             * the entire 'tree' must be flipped recursively to ensure that the orientation
+             * flips at each level
+             */
+            flipNode(childReference, childReference.orthogonalSize, childReference.size), Sizing.Distribute, 0);
         }
         else {
             this._root.addChild(oldRoot, Sizing.Distribute, 0);
@@ -2881,7 +2949,7 @@ class BaseGrid extends Resizable {
     }
     updateOptions(options) {
         var _a, _b, _c, _d;
-        if (typeof options.proportionalLayout === 'boolean');
+        if (typeof options.proportionalLayout === 'boolean') ;
         if (options.orientation) {
             this.gridview.orientation = options.orientation;
         }
@@ -3963,7 +4031,7 @@ class Droptarget extends CompositeDisposable {
                     return;
                 }
                 this.markAsUsed(e);
-                if (overrideTraget);
+                if (overrideTraget) ;
                 else if (!this.targetElement) {
                     this.targetElement = document.createElement('div');
                     this.targetElement.className = 'dv-drop-target-dropzone';
@@ -5258,7 +5326,7 @@ class Tabs extends CompositeDisposable {
                 const parentElement = element.parentElement;
                 if (runningWidth < parentElement.scrollLeft ||
                     runningWidth + element.clientWidth >
-                    parentElement.scrollLeft + parentElement.clientWidth) {
+                        parentElement.scrollLeft + parentElement.clientWidth) {
                     parentElement.scrollLeft = runningWidth;
                 }
             }
@@ -5602,7 +5670,7 @@ class TabsContainer extends CompositeDisposable {
                 toggleClass(wrapper, 'dv-tab', true);
                 toggleClass(wrapper, 'dv-active-tab', panelObject.api.isActive);
                 toggleClass(wrapper, 'dv-inactive-tab', !panelObject.api.isActive);
-                wrapper.addEventListener('mousedown', () => {
+                wrapper.addEventListener('pointerdown', () => {
                     this.accessor.popupService.close();
                     tab.element.scrollIntoView();
                     tab.panel.api.setActive();
@@ -5610,9 +5678,13 @@ class TabsContainer extends CompositeDisposable {
                 wrapper.appendChild(child);
                 el.appendChild(wrapper);
             }
+            const relativeParent = findRelativeZIndexParent(root);
             this.accessor.popupService.openPopover(el, {
                 x: event.clientX,
                 y: event.clientY,
+                zIndex: (relativeParent === null || relativeParent === void 0 ? void 0 : relativeParent.style.zIndex)
+                    ? `calc(${relativeParent.style.zIndex} * 2)`
+                    : undefined,
             });
         }));
     }
@@ -7563,14 +7635,14 @@ class Overlay extends CompositeDisposable {
                     top = clamp(y, -Number.MAX_VALUE, Math.max(0, startPosition.originalY + startPosition.originalHeight - Overlay.MINIMUM_HEIGHT));
                     height =
                         startPosition.originalY +
-                        startPosition.originalHeight -
-                        top;
+                            startPosition.originalHeight -
+                            top;
                     bottom = containerRect.height - top - height;
                 };
                 const moveBottom = () => {
                     top =
                         startPosition.originalY -
-                        startPosition.originalHeight;
+                            startPosition.originalHeight;
                     // height = clamp(
                     //     y - top,
                     //     top < 0 &&
@@ -7605,14 +7677,14 @@ class Overlay extends CompositeDisposable {
                     left = clamp(x, -Number.MAX_VALUE, Math.max(0, startPosition.originalX + startPosition.originalWidth - Overlay.MINIMUM_WIDTH));
                     width =
                         startPosition.originalX +
-                        startPosition.originalWidth -
-                        left;
+                            startPosition.originalWidth -
+                            left;
                     right = containerRect.width - left - width;
                 };
                 const moveRight = () => {
                     left =
                         startPosition.originalX -
-                        startPosition.originalWidth;
+                            startPosition.originalWidth;
                     // width = clamp(
                     //     x - left,
                     //     left < 0 &&
@@ -8107,10 +8179,11 @@ class PopupService extends CompositeDisposable {
         }), this._activeDisposable);
     }
     openPopover(element, position) {
+        var _a;
         this.close();
         const wrapper = document.createElement('div');
         wrapper.style.position = 'absolute';
-        wrapper.style.zIndex = '99';
+        wrapper.style.zIndex = (_a = position.zIndex) !== null && _a !== void 0 ? _a : 'var(--dv-overlay-z-index)';
         wrapper.appendChild(element);
         const anchorBox = this._element.getBoundingClientRect();
         const offsetX = anchorBox.left;
@@ -8134,6 +8207,9 @@ class PopupService extends CompositeDisposable {
             }
             this.close();
         }));
+        requestAnimationFrame(() => {
+            shiftAbsoluteElementIntoView(wrapper, this.root);
+        });
     }
     close() {
         if (this._active) {
@@ -9705,27 +9781,29 @@ class DockviewComponent extends BaseGrid {
                     selectedPopoutGroup.disposable.dispose();
                 }
             }
-            const referenceLocation = getGridLocation(to.element);
-            const dropLocation = getRelativeLocation(this.gridview.orientation, referenceLocation, target);
-            // let size = this.getGroupShape(to, target)
-            // size = size ? size / 2 : size
-            // this.gridview.addView(from, size, dropLocation);
-            let size;
-            switch (this.gridview.orientation) {
-                case Orientation.VERTICAL:
-                    size =
-                        referenceLocation.length % 2 == 0
-                            ? from.api.width
-                            : from.api.height;
-                    break;
-                case Orientation.HORIZONTAL:
-                    size =
-                        referenceLocation.length % 2 == 0
-                            ? from.api.height
-                            : from.api.width;
-                    break;
+            if (from.api.location.type !== 'popout') {
+                const referenceLocation = getGridLocation(to.element);
+                const dropLocation = getRelativeLocation(this.gridview.orientation, referenceLocation, target);
+                // let size = this.getGroupShape(to, target)
+                // size = size ? size / 2 : size
+                // this.gridview.addView(from, size, dropLocation);
+                let size;
+                switch (this.gridview.orientation) {
+                    case Orientation.VERTICAL:
+                        size =
+                            referenceLocation.length % 2 == 0
+                                ? from.api.width
+                                : from.api.height;
+                        break;
+                    case Orientation.HORIZONTAL:
+                        size =
+                            referenceLocation.length % 2 == 0
+                                ? from.api.height
+                                : from.api.width;
+                        break;
+                }
+                this.gridview.addView(from, size, dropLocation);
             }
-            this.gridview.addView(from, size, dropLocation);
         }
         from.panels.forEach((panel) => {
             this._onDidMovePanel.fire({ panel, from });
@@ -9869,7 +9947,7 @@ class DockviewComponent extends BaseGrid {
         if ('dndEdges' in options) {
             this._rootDropTarget.disabled =
                 typeof options.dndEdges === 'boolean' &&
-                options.dndEdges === false;
+                    options.dndEdges === false;
             if (typeof options.dndEdges === 'object' &&
                 options.dndEdges !== null) {
                 this._rootDropTarget.setOverlayModel(options.dndEdges);
@@ -10262,11 +10340,11 @@ class SplitviewComponent extends Resizable {
         this.panels
             .filter((v) => v !== panel)
             .forEach((v) => {
-                v.api._onDidActiveChange.fire({ isActive: false });
-                if (!skipFocus) {
-                    v.focus();
-                }
-            });
+            v.api._onDidActiveChange.fire({ isActive: false });
+            if (!skipFocus) {
+                v.focus();
+            }
+        });
         panel.api._onDidActiveChange.fire({ isActive: true });
         if (!skipFocus) {
             panel.focus();
@@ -10335,14 +10413,14 @@ class SplitviewComponent extends Resizable {
         const views = this.splitview
             .getViews()
             .map((view, i) => {
-                const size = this.splitview.getViewSize(i);
-                return {
-                    size,
-                    data: view.toJSON(),
-                    snap: !!view.snap,
-                    priority: view.priority,
-                };
-            });
+            const size = this.splitview.getViewSize(i);
+            return {
+                size,
+                data: view.toJSON(),
+                snap: !!view.snap,
+                priority: view.priority,
+            };
+        });
         return {
             views,
             activeView: (_a = this._activePanel) === null || _a === void 0 ? void 0 : _a.id,
@@ -10674,16 +10752,16 @@ class PaneviewComponent extends Resizable {
         const views = this.paneview
             .getPanes()
             .map((view, i) => {
-                const size = this.paneview.getViewSize(i);
-                return {
-                    size,
-                    data: view.toJSON(),
-                    minimumSize: minimum(view.minimumBodySize),
-                    maximumSize: maximum(view.maximumBodySize),
-                    headerSize: view.headerSize,
-                    expanded: view.isExpanded(),
-                };
-            });
+            const size = this.paneview.getViewSize(i);
+            return {
+                size,
+                data: view.toJSON(),
+                minimumSize: minimum(view.minimumBodySize),
+                maximumSize: maximum(view.maximumBodySize),
+                headerSize: view.headerSize,
+                expanded: view.isExpanded(),
+            };
+        });
         return {
             views,
             size: this.paneview.size,
@@ -10914,3 +10992,4 @@ function createPaneview(element, options) {
 }
 
 export { BaseGrid, ContentContainer, DefaultDockviewDeserialzier, DefaultTab, DockviewApi, DockviewComponent, CompositeDisposable as DockviewCompositeDisposable, DockviewDidDropEvent, Disposable as DockviewDisposable, Emitter as DockviewEmitter, Event as DockviewEvent, DockviewGroupPanel, DockviewGroupPanelModel, MutableDisposable as DockviewMutableDisposable, DockviewPanel, DockviewUnhandledDragOverEvent, DockviewWillDropEvent, DraggablePaneviewPanel, Gridview, GridviewApi, GridviewComponent, GridviewPanel, LayoutPriority, Orientation, PROPERTY_KEYS_DOCKVIEW, PROPERTY_KEYS_GRIDVIEW, PROPERTY_KEYS_PANEVIEW, PROPERTY_KEYS_SPLITVIEW, PaneFramework, PaneTransfer, PanelTransfer, Paneview, PaneviewApi, PaneviewComponent, PaneviewPanel, PaneviewUnhandledDragOverEvent, SashState, Sizing, Splitview, SplitviewApi, SplitviewComponent, SplitviewPanel, Tab, WillShowOverlayLocationEvent, createDockview, createGridview, createPaneview, createSplitview, directionToPosition, getDirectionOrientation, getGridLocation, getLocationOrientation, getPaneData, getPanelData, getRelativeLocation, indexInParent, isGridBranchNode, isGroupOptionsWithGroup, isGroupOptionsWithPanel, isPanelOptionsWithGroup, isPanelOptionsWithPanel, orthogonal, positionToDirection, themeAbyss, themeAbyssSpaced, themeDark, themeDracula, themeLight, themeLightSpaced, themeReplit, themeVisualStudio, toTarget };
+//# sourceMappingURL=dockview-core.esm.js.map
