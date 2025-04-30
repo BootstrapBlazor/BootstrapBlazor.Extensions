@@ -214,16 +214,18 @@
 }
 
 .bb-dockview .bb-dockview-aside-left {
-    left: 2px;
+    left: 0;
+    border-right: 1px solid var(--bs-border-color);
 }
 
 .bb-dockview .bb-dockview-aside-right {
-    right: 0
+    right: 0;
+    border-left: 1px solid var(--bs-border-color);
 }
 
 .bb-dockview .bb-dockview-aside > .bb-dockview-aside-button {
     position: relative;
-    margin-inline: .25rem;
+    margin: .25rem 2px;
     padding-inline: .5rem;
     cursor: pointer;
     user-select: none;

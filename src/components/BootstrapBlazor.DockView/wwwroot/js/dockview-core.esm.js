@@ -1,6 +1,6 @@
 /**
  * dockview-core
- * @version 4.2.3
+ * @version 4.2.4
  * @link https://github.com/mathuo/dockview
  * @license MIT
  */
@@ -174,7 +174,7 @@ class Emitter {
                         if (index > -1) {
                             this._listeners.splice(index, 1);
                         }
-                        else if (Emitter.ENABLE_TRACKING);
+                        else if (Emitter.ENABLE_TRACKING) ;
                     },
                 };
             };
@@ -636,6 +636,44 @@ function onDidWindowResizeEnd(element, cb) {
     }));
     return disposable;
 }
+function shiftAbsoluteElementIntoView(element, root, options = { buffer: 10 }) {
+    const buffer = options.buffer;
+    const rect = element.getBoundingClientRect();
+    const rootRect = element.getBoundingClientRect();
+    const viewportWidth = root.clientWidth;
+    const viewportHeight = root.clientHeight;
+    let translateX = 0;
+    let translateY = 0;
+    const left = rect.left - rootRect.left;
+    const top = rect.top - rootRect.top;
+    const bottom = rect.bottom - rootRect.bottom;
+    const right = rect.right - rootRect.right;
+    // Check horizontal overflow
+    if (left < buffer) {
+        translateX = buffer - left;
+    }
+    else if (right > viewportWidth - buffer) {
+        translateX = viewportWidth - right - buffer;
+    }
+    // Check vertical overflow
+    if (top < buffer) {
+        translateY = buffer - top;
+    }
+    else if (bottom > viewportHeight - buffer) {
+        translateY = viewportHeight - bottom - buffer;
+    }
+    // Apply the translation if needed
+    if (translateX !== 0 || translateY !== 0) {
+        element.style.transform = `translate(${translateX}px, ${translateY}px)`;
+    }
+}
+function findRelativeZIndexParent(el) {
+    let tmp = el;
+    while (tmp && (tmp.style.zIndex === 'auto' || tmp.style.zIndex === '')) {
+        tmp = tmp.parentElement;
+    }
+    return tmp;
+}
 
 function tail(arr) {
     if (arr.length === 0) {
@@ -1035,7 +1073,7 @@ class Splitview {
                     };
                 const view = viewDescriptor.view;
                 this.addView(view, sizing, index, true
-                    // true skip layout
+                // true skip layout
                 );
             });
             // Initialize content size and proportions for first layout
@@ -1409,8 +1447,8 @@ class Splitview {
             const offset = i === 0 || visiblePanelsBeforeThisView === 0
                 ? 0
                 : viewLeftOffsets[i - 1] +
-                (visiblePanelsBeforeThisView / sashCount) *
-                marginReducedSize;
+                    (visiblePanelsBeforeThisView / sashCount) *
+                        marginReducedSize;
             if (i < this.viewItems.length - 1) {
                 // calculate sash position
                 const newSize = view.visible
@@ -2415,8 +2453,8 @@ class Gridview {
                 };
             });
             result = new BranchNode(orientation, this.proportionalLayout, this.styles, node.size, // <- orthogonal size - flips at each depth
-                orthogonalSize, // <- size - flips at each depth,
-                this.locked, this.margin, children);
+            orthogonalSize, // <- size - flips at each depth,
+            this.locked, this.margin, children);
         }
         else {
             const view = deserializer.fromJSON(node);
@@ -2454,7 +2492,7 @@ class Gridview {
         const oldRoot = this.root;
         oldRoot.element.remove();
         this._root = new BranchNode(orthogonal(oldRoot.orientation), this.proportionalLayout, this.styles, this.root.orthogonalSize, this.root.size, this.locked, this.margin);
-        if (oldRoot.children.length === 0);
+        if (oldRoot.children.length === 0) ;
         else if (oldRoot.children.length === 1) {
             // can remove one level of redundant branching if there is only a single child
             const childReference = oldRoot.children[0];
@@ -2462,13 +2500,13 @@ class Gridview {
             child.dispose();
             oldRoot.dispose();
             this._root.addChild(
-                /**
-                 * the child node will have the same orientation as the new root since
-                 * we are removing the inbetween node.
-                 * the entire 'tree' must be flipped recursively to ensure that the orientation
-                 * flips at each level
-                 */
-                flipNode(childReference, childReference.orthogonalSize, childReference.size), Sizing.Distribute, 0);
+            /**
+             * the child node will have the same orientation as the new root since
+             * we are removing the inbetween node.
+             * the entire 'tree' must be flipped recursively to ensure that the orientation
+             * flips at each level
+             */
+            flipNode(childReference, childReference.orthogonalSize, childReference.size), Sizing.Distribute, 0);
         }
         else {
             this._root.addChild(oldRoot, Sizing.Distribute, 0);
@@ -2881,7 +2919,7 @@ class BaseGrid extends Resizable {
     }
     updateOptions(options) {
         var _a, _b, _c, _d;
-        if (typeof options.proportionalLayout === 'boolean');
+        if (typeof options.proportionalLayout === 'boolean') ;
         if (options.orientation) {
             this.gridview.orientation = options.orientation;
         }
@@ -3963,7 +4001,7 @@ class Droptarget extends CompositeDisposable {
                     return;
                 }
                 this.markAsUsed(e);
-                if (overrideTraget);
+                if (overrideTraget) ;
                 else if (!this.targetElement) {
                     this.targetElement = document.createElement('div');
                     this.targetElement.className = 'dv-drop-target-dropzone';
@@ -5258,7 +5296,7 @@ class Tabs extends CompositeDisposable {
                 const parentElement = element.parentElement;
                 if (runningWidth < parentElement.scrollLeft ||
                     runningWidth + element.clientWidth >
-                    parentElement.scrollLeft + parentElement.clientWidth) {
+                        parentElement.scrollLeft + parentElement.clientWidth) {
                     parentElement.scrollLeft = runningWidth;
                 }
             }
@@ -5602,7 +5640,7 @@ class TabsContainer extends CompositeDisposable {
                 toggleClass(wrapper, 'dv-tab', true);
                 toggleClass(wrapper, 'dv-active-tab', panelObject.api.isActive);
                 toggleClass(wrapper, 'dv-inactive-tab', !panelObject.api.isActive);
-                wrapper.addEventListener('mousedown', () => {
+                wrapper.addEventListener('pointerdown', () => {
                     this.accessor.popupService.close();
                     tab.element.scrollIntoView();
                     tab.panel.api.setActive();
@@ -5610,9 +5648,13 @@ class TabsContainer extends CompositeDisposable {
                 wrapper.appendChild(child);
                 el.appendChild(wrapper);
             }
+            const relativeParent = findRelativeZIndexParent(root);
             this.accessor.popupService.openPopover(el, {
                 x: event.clientX,
                 y: event.clientY,
+                zIndex: (relativeParent === null || relativeParent === void 0 ? void 0 : relativeParent.style.zIndex)
+                    ? `calc(${relativeParent.style.zIndex} * 2)`
+                    : undefined,
             });
         }));
     }
@@ -7563,14 +7605,14 @@ class Overlay extends CompositeDisposable {
                     top = clamp(y, -Number.MAX_VALUE, Math.max(0, startPosition.originalY + startPosition.originalHeight - Overlay.MINIMUM_HEIGHT));
                     height =
                         startPosition.originalY +
-                        startPosition.originalHeight -
-                        top;
+                            startPosition.originalHeight -
+                            top;
                     bottom = containerRect.height - top - height;
                 };
                 const moveBottom = () => {
                     top =
                         startPosition.originalY -
-                        startPosition.originalHeight;
+                            startPosition.originalHeight;
                     // height = clamp(
                     //     y - top,
                     //     top < 0 &&
@@ -7605,14 +7647,14 @@ class Overlay extends CompositeDisposable {
                     left = clamp(x, -Number.MAX_VALUE, Math.max(0, startPosition.originalX + startPosition.originalWidth - Overlay.MINIMUM_WIDTH));
                     width =
                         startPosition.originalX +
-                        startPosition.originalWidth -
-                        left;
+                            startPosition.originalWidth -
+                            left;
                     right = containerRect.width - left - width;
                 };
                 const moveRight = () => {
                     left =
                         startPosition.originalX -
-                        startPosition.originalWidth;
+                            startPosition.originalWidth;
                     // width = clamp(
                     //     x - left,
                     //     left < 0 &&
@@ -8107,10 +8149,11 @@ class PopupService extends CompositeDisposable {
         }), this._activeDisposable);
     }
     openPopover(element, position) {
+        var _a;
         this.close();
         const wrapper = document.createElement('div');
         wrapper.style.position = 'absolute';
-        wrapper.style.zIndex = '99';
+        wrapper.style.zIndex = (_a = position.zIndex) !== null && _a !== void 0 ? _a : 'var(--dv-overlay-z-index)';
         wrapper.appendChild(element);
         const anchorBox = this._element.getBoundingClientRect();
         const offsetX = anchorBox.left;
@@ -8134,6 +8177,9 @@ class PopupService extends CompositeDisposable {
             }
             this.close();
         }));
+        requestAnimationFrame(() => {
+            shiftAbsoluteElementIntoView(wrapper, this.root);
+        });
     }
     close() {
         if (this._active) {
@@ -9705,27 +9751,29 @@ class DockviewComponent extends BaseGrid {
                     selectedPopoutGroup.disposable.dispose();
                 }
             }
-            const referenceLocation = getGridLocation(to.element);
-            const dropLocation = getRelativeLocation(this.gridview.orientation, referenceLocation, target);
-            // let size = this.getGroupShape(to, target)
-            // size = size ? size / 2 : size
-            // this.gridview.addView(from, size, dropLocation);
-            let size;
-            switch (this.gridview.orientation) {
-                case Orientation.VERTICAL:
-                    size =
-                        referenceLocation.length % 2 == 0
-                            ? from.api.width
-                            : from.api.height;
-                    break;
-                case Orientation.HORIZONTAL:
-                    size =
-                        referenceLocation.length % 2 == 0
-                            ? from.api.height
-                            : from.api.width;
-                    break;
+            if (from.api.location.type !== 'popout') {
+                const referenceLocation = getGridLocation(to.element);
+                const dropLocation = getRelativeLocation(this.gridview.orientation, referenceLocation, target);
+                // let size = this.getGroupShape(to, target)
+                // size = size ? size / 2 : size
+                // this.gridview.addView(from, size, dropLocation);
+                let size;
+                switch (this.gridview.orientation) {
+                    case Orientation.VERTICAL:
+                        size =
+                            referenceLocation.length % 2 == 0
+                                ? from.api.width
+                                : from.api.height;
+                        break;
+                    case Orientation.HORIZONTAL:
+                        size =
+                            referenceLocation.length % 2 == 0
+                                ? from.api.height
+                                : from.api.width;
+                        break;
+                }
+                this.gridview.addView(from, size, dropLocation);
             }
-            this.gridview.addView(from, size, dropLocation);
         }
         from.panels.forEach((panel) => {
             this._onDidMovePanel.fire({ panel, from });
@@ -9869,7 +9917,7 @@ class DockviewComponent extends BaseGrid {
         if ('dndEdges' in options) {
             this._rootDropTarget.disabled =
                 typeof options.dndEdges === 'boolean' &&
-                options.dndEdges === false;
+                    options.dndEdges === false;
             if (typeof options.dndEdges === 'object' &&
                 options.dndEdges !== null) {
                 this._rootDropTarget.setOverlayModel(options.dndEdges);
@@ -10262,11 +10310,11 @@ class SplitviewComponent extends Resizable {
         this.panels
             .filter((v) => v !== panel)
             .forEach((v) => {
-                v.api._onDidActiveChange.fire({ isActive: false });
-                if (!skipFocus) {
-                    v.focus();
-                }
-            });
+            v.api._onDidActiveChange.fire({ isActive: false });
+            if (!skipFocus) {
+                v.focus();
+            }
+        });
         panel.api._onDidActiveChange.fire({ isActive: true });
         if (!skipFocus) {
             panel.focus();
@@ -10335,14 +10383,14 @@ class SplitviewComponent extends Resizable {
         const views = this.splitview
             .getViews()
             .map((view, i) => {
-                const size = this.splitview.getViewSize(i);
-                return {
-                    size,
-                    data: view.toJSON(),
-                    snap: !!view.snap,
-                    priority: view.priority,
-                };
-            });
+            const size = this.splitview.getViewSize(i);
+            return {
+                size,
+                data: view.toJSON(),
+                snap: !!view.snap,
+                priority: view.priority,
+            };
+        });
         return {
             views,
             activeView: (_a = this._activePanel) === null || _a === void 0 ? void 0 : _a.id,
@@ -10674,16 +10722,16 @@ class PaneviewComponent extends Resizable {
         const views = this.paneview
             .getPanes()
             .map((view, i) => {
-                const size = this.paneview.getViewSize(i);
-                return {
-                    size,
-                    data: view.toJSON(),
-                    minimumSize: minimum(view.minimumBodySize),
-                    maximumSize: maximum(view.maximumBodySize),
-                    headerSize: view.headerSize,
-                    expanded: view.isExpanded(),
-                };
-            });
+            const size = this.paneview.getViewSize(i);
+            return {
+                size,
+                data: view.toJSON(),
+                minimumSize: minimum(view.minimumBodySize),
+                maximumSize: maximum(view.maximumBodySize),
+                headerSize: view.headerSize,
+                expanded: view.isExpanded(),
+            };
+        });
         return {
             views,
             size: this.paneview.size,
