@@ -27,19 +27,17 @@ class DefaultPdfService : IHtml2Pdf
 
     private static Task<byte[]> GeneratePdfFromHtmlAsync(string html, List<string>? fonts = null) => Task.Run(() =>
     {
-        ConverterProperties? converterProperties = null;
+        var converterProperties = new ConverterProperties();
+        var fontProvider = new DefaultFontProvider(registerStandardPdfFonts: true, registerShippedFonts: true, registerSystemFonts: true);
         if (fonts != null)
         {
-            var fontProvider = new DefaultFontProvider(registerStandardPdfFonts: false, registerShippedFonts: false, registerSystemFonts: false);
             foreach (var font in fonts)
             {
                 var fontProgram = FontProgramFactory.CreateFont(font);
                 fontProvider.AddFont(fontProgram);
             }
-
-            converterProperties = new ConverterProperties();
-            converterProperties.SetFontProvider(fontProvider);
         }
+        converterProperties.SetFontProvider(fontProvider);
 
         var stream = new MemoryStream();
         HtmlConverter.ConvertToPdf(html, stream, converterProperties);
