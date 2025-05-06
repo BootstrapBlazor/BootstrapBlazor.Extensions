@@ -182,6 +182,8 @@ Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "BootstrapBlazor.ChatBot", "
 EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "BootstrapBlazor.Authenticator", "src\components\BootstrapBlazor.Authenticator\BootstrapBlazor.Authenticator.csproj", "{1FDDF0AD-7AB6-4706-A183-26C680817BB4}"
 EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "BootstrapBlazor.Graph", "src\components\BootstrapBlazor.Graph\BootstrapBlazor.Graph.csproj", "{CED55D86-57CF-CB0D-E880-370C44C0DB1F}"
+EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
 		Debug|Any CPU = Debug|Any CPU
@@ -492,6 +494,10 @@ Global
 		{1FDDF0AD-7AB6-4706-A183-26C680817BB4}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{1FDDF0AD-7AB6-4706-A183-26C680817BB4}.Release|Any CPU.ActiveCfg = Release|Any CPU
 		{1FDDF0AD-7AB6-4706-A183-26C680817BB4}.Release|Any CPU.Build.0 = Release|Any CPU
+		{CED55D86-57CF-CB0D-E880-370C44C0DB1F}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{CED55D86-57CF-CB0D-E880-370C44C0DB1F}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{CED55D86-57CF-CB0D-E880-370C44C0DB1F}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{CED55D86-57CF-CB0D-E880-370C44C0DB1F}.Release|Any CPU.Build.0 = Release|Any CPU
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE
@@ -577,6 +583,7 @@ Global
 		{A657E04C-1495-439E-BC2E-1EEAB2D1B4DA} = {FF1089BE-C704-4374-B629-C57C08E1798F}
 		{2F37FBF4-5C1C-4493-B614-0E8361432621} = {FF1089BE-C704-4374-B629-C57C08E1798F}
 		{1FDDF0AD-7AB6-4706-A183-26C680817BB4} = {FF1089BE-C704-4374-B629-C57C08E1798F}
+		{CED55D86-57CF-CB0D-E880-370C44C0DB1F} = {FF1089BE-C704-4374-B629-C57C08E1798F}
 	EndGlobalSection
 	GlobalSection(ExtensibilityGlobals) = postSolution
 		SolutionGuid = {D5EB1960-6F30-4CE1-B375-EAE1F787D6FF}
