@@ -1,6 +1,6 @@
 /**
  * dockview-core
- * @version 4.2.4
+ * @version 4.2.5
  * @link https://github.com/mathuo/dockview
  * @license MIT
  */
@@ -639,9 +639,7 @@ function onDidWindowResizeEnd(element, cb) {
 function shiftAbsoluteElementIntoView(element, root, options = { buffer: 10 }) {
     const buffer = options.buffer;
     const rect = element.getBoundingClientRect();
-    const rootRect = element.getBoundingClientRect();
-    const viewportWidth = root.clientWidth;
-    const viewportHeight = root.clientHeight;
+    const rootRect = root.getBoundingClientRect();
     let translateX = 0;
     let translateY = 0;
     const left = rect.left - rootRect.left;
@@ -652,15 +650,15 @@ function shiftAbsoluteElementIntoView(element, root, options = { buffer: 10 }) {
     if (left < buffer) {
         translateX = buffer - left;
     }
-    else if (right > viewportWidth - buffer) {
-        translateX = viewportWidth - right - buffer;
+    else if (right > buffer) {
+        translateX = -buffer - right;
     }
     // Check vertical overflow
     if (top < buffer) {
         translateY = buffer - top;
     }
-    else if (bottom > viewportHeight - buffer) {
-        translateY = viewportHeight - bottom - buffer;
+    else if (bottom > buffer) {
+        translateY = -bottom - buffer;
     }
     // Apply the translation if needed
     if (translateX !== 0 || translateY !== 0) {
@@ -4940,6 +4938,8 @@ function addGhostImage(dataTransfer, ghostElement, options) {
     var _a, _b;
     // class dockview provides to force ghost image to be drawn on a different layer and prevent weird rendering issues
     addClasses(ghostElement, 'dv-dragged');
+    // move the element off-screen initially otherwise it may in some cases be rendered at (0,0) momentarily
+    ghostElement.style.top = '-9999px';
     document.body.appendChild(ghostElement);
     dataTransfer.setDragImage(ghostElement, (_a = options === null || options === void 0 ? void 0 : options.x) !== null && _a !== void 0 ? _a : 0, (_b = options === null || options === void 0 ? void 0 : options.y) !== null && _b !== void 0 ? _b : 0);
     setTimeout(() => {
