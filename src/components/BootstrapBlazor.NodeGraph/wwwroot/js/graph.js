@@ -10468,7 +10468,13 @@ async function init(f, t) {
 }
 let nodeGraphServiceRef = null;
 function createLGraph(f) {
-  return new LGraph(f);
+  let t = new LGraph(f);
+  return graphInstance = t, t;
+}
+let graphInstance;
+function getNodeById(f) {
+  let t = graphInstance.getNodeById(f);
+  return t || null;
 }
 function createLGraphCanvas(f, t) {
   let i = new LGraphCanvas(f, t), n = f.parentNode, s = () => {
@@ -10497,10 +10503,15 @@ function registerNodeType(f) {
   var i;
   let t = (i = class extends LGraphNode {
     constructor() {
-      super(f.displayName), f.inputs.forEach((n) => this.addInput(n.name, n.type)), f.outputs.forEach((n) => this.addOutput(n.name, n.type));
+      super(f.displayName), f.inputs.forEach((n) => this.addInput(n.name, n.type)), f.outputs.forEach((n) => this.addOutput(n.name, n.type)), f.widgets.forEach((n) => {
+        let s = null;
+        n.hasCallback && (s = async (o) => {
+          await (nodeGraphServiceRef == null ? void 0 : nodeGraphServiceRef.invokeMethodAsync("OnNodeWidgetCallback", f.typePath, n.widgetId, o, this.id));
+        }), this.addWidget(n.widgetType, n.displayName, n.value, s, n.widgetOptions);
+      });
     }
-    onExecute() {
-      f.hasAction && (nodeGraphServiceRef == null || nodeGraphServiceRef.invokeMethodAsync("OnNodeActionExecuted", f.typePath, this));
+    async onExecute() {
+      f.hasAction && await (nodeGraphServiceRef == null ? void 0 : nodeGraphServiceRef.invokeMethodAsync("OnNodeActionExecuted", f.typePath, this.id));
     }
   }, c(i, "title", f.displayName), i);
   LiteGraph.registerNodeType(f.typePath, t);
@@ -10509,6 +10520,7 @@ export {
   constructGraphNode,
   createLGraph,
   createLGraphCanvas,
+  getNodeById,
   init,
   registerNodeType
 };

@@ -12,4 +12,9 @@ public class Graph
     {
         GraphRef = lGraphRef;
     }
+
+    public async Task RunStep(int step, bool ignoreErrors = true, int? limits = null)
+    {
+        await GraphRef.InvokeVoidAsync("runStep", step, ignoreErrors, limits);
+    }
 }

@@ -12,6 +12,10 @@ namespace BootstrapBlazor.Components.Interfaces;
 public interface INodeWidget
 {
     /// <summary>
+    /// 组件ID，需要在当前节点下唯一
+    /// </summary>
+    public string WidgetId { get; set; }
+    /// <summary>
     /// 节点组件类型
     /// </summary>
     public NodeWidgetType WidgetType { get; }
@@ -34,7 +38,7 @@ public interface INodeWidget
     /// <summary>
     /// 回调函数
     /// </summary>
-    public Func<object?, NodeWidget, GraphNode, Task>? Callback { get; set; }
+    public Func<object?, GraphNode, Task>? Callback { get; set; }
 }
 
 /// <inheritdoc />
@@ -53,5 +57,5 @@ public interface INodeWidget<TValue, TOption> : INodeWidget where TOption : Widg
     /// <summary>
     /// 回调函数
     /// </summary>
-    public new Func<TValue?, NodeWidget, GraphNode, Task>? Callback { get; set; }
+    public new Func<TValue?, GraphNode, Task>? Callback { get; set; }
 }

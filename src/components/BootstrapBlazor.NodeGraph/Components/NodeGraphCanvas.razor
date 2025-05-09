@@ -11,6 +11,7 @@
 </div>
 
 @code {
+    public Graph Graph { get; private set; } = null!;
 
     private string? ClassString => CssBuilder.Default("graph-main-container")
         .AddClassFromAttributes(AdditionalAttributes)
@@ -20,16 +21,21 @@
     private ElementReference _graphCanvas;
 
     /// <inheritdoc />
-    protected override async Task InvokeInitAsync()
+    protected override async Task OnAfterRenderAsync(bool firstRender)
     {
-        // 初始化并添加引用
-        await InvokeVoidAsync("init", Id, DotNetObjectReference.Create(NodeGraphService));
-        // 创建图表配置
-        var graphRef = await InvokeAsync<IJSObjectReference>("createLGraph");
-        // var graph = new Graph(graphRef!);
-        // 创建图表画布
-        _graphCanvasRef = await InvokeAsync<IJSObjectReference>("createLGraphCanvas", _graphCanvas, graphRef)
-                          ?? throw new InvalidOperationException("Create GraphCanvas failed!");
+        await base.OnAfterRenderAsync(firstRender);
+        if (firstRender)
+        {
+            // 初始化并添加引用
+            await InvokeVoidAsync("init", Id, DotNetObjectReference.Create(NodeGraphService));
+            // 创建图表配置
+            var graphRef = await InvokeAsync<IJSObjectReference>("createLGraph");
+            Graph = new Graph(graphRef!);
+            // var graph = new Graph(graphRef!);
+            // 创建图表画布
+            _graphCanvasRef = await InvokeAsync<IJSObjectReference>("createLGraphCanvas", _graphCanvas, graphRef)
+                              ?? throw new InvalidOperationException("Create GraphCanvas failed!");
+        }
     }
 
 }

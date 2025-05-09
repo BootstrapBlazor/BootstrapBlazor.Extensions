@@ -39,6 +39,9 @@ public enum NodeWidgetType
 public abstract class NodeWidget : INodeWidget
 {
     /// <inheritdoc />
+    public string WidgetId { get; set; } = string.Empty;
+
+    /// <inheritdoc />
     public abstract NodeWidgetType WidgetType { get; }
 
     /// <inheritdoc />
@@ -51,7 +54,7 @@ public abstract class NodeWidget : INodeWidget
     public WidgetOptions? WidgetOptions { get; set; }
 
     /// <inheritdoc />
-    public Func<object?, NodeWidget, GraphNode, Task>? Callback { get; set; }
+    public Func<object?, GraphNode, Task>? Callback { get; set; }
 }
 
 /// <inheritdoc cref="NodeWidget" />
@@ -69,7 +72,7 @@ public abstract class NodeWidget<TValue, TOption> : NodeWidget, INodeWidget<TVal
     }
 
     /// <inheritdoc />
-    public new Func<TValue?, NodeWidget, GraphNode, Task>? Callback
+    public new Func<TValue?, GraphNode, Task>? Callback
     {
         get
         {
@@ -78,7 +81,7 @@ public abstract class NodeWidget<TValue, TOption> : NodeWidget, INodeWidget<TVal
                 return null;
             }
 
-            return (v, widget, node) => base.Callback.Invoke(v, widget, node);
+            return (v, node) => base.Callback.Invoke(v, node);
         }
         set
         {
@@ -88,7 +91,7 @@ public abstract class NodeWidget<TValue, TOption> : NodeWidget, INodeWidget<TVal
             }
             else
             {
-                base.Callback = (v, widget, node) => value((TValue?)v, widget, node);
+                base.Callback = (v, node) => value((TValue?)v, node);
             }
         }
     }

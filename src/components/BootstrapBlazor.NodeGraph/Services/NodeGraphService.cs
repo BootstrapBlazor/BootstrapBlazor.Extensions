@@ -4,6 +4,8 @@
 
 using BootstrapBlazor.Components.Data.Interop;
 using BootstrapBlazor.Components.Interfaces;
+using Microsoft.Extensions.Logging;
+using System.Text.Json;
 
 namespace BootstrapBlazor.Components;
 
@@ -12,14 +14,16 @@ public class NodeGraphService : IAsyncDisposable
     private IJSRuntime _jsRuntime;
     private DotNetObjectReference<NodeGraphService> _reference;
     private readonly Lazy<Task<IJSObjectReference>> _moduleTask;
+    private readonly ILogger<NodeGraphService> _logger;
 
-    public NodeGraphService(IJSRuntime jsRuntime)
+    public NodeGraphService(IJSRuntime jsRuntime, ILogger<NodeGraphService> logger)
     {
         _jsRuntime = jsRuntime;
         _moduleTask = new Lazy<Task<IJSObjectReference>>(_jsRuntime
             .InvokeAsync<IJSObjectReference>("import", "./_content/BootstrapBlazor.NodeGraph/js/Graph.js")
             .AsTask());
         _reference = DotNetObjectReference.Create(this);
+        _logger = logger;
     }
 
     /// <inheritdoc />
@@ -28,11 +32,23 @@ public class NodeGraphService : IAsyncDisposable
         if (_moduleTask.IsValueCreated)
         {
             var module = await _moduleTask.Value;
-            await module.DisposeAsync();
+            try
+            {
+                await module.DisposeAsync();
+            }
+            catch (JSDisconnectedException)
+            {
+            }
         }
     }
 
-    private Dictionary<string, Func<GraphNode, Task>> _nodeExecuteActions = new();
+    class NodeTemplate
+    {
+        public Func<GraphNode, Task>? NodeExecuteAction { get; set; }
+        public Dictionary<string, Func<object?, GraphNode, Task>?> WidgetCallbacks { get; set; } = new();
+    }
+
+    private Dictionary<string, NodeTemplate> _registeredNodes = new();
 
     /// <summary>
     /// 注册新的节点类型到图形编辑器
@@ -41,29 +57,78 @@ public class NodeGraphService : IAsyncDisposable
     /// <param name="displayName">节点的名称</param>
     /// <param name="inputs">输入槽位</param>
     /// <param name="outputs">输出槽位</param>
+    /// <param name="widgets">节点组件</param>
     /// <param name="onExecute">执行方法</param>
+    /// <exception cref="ArgumentNullException">节点中的组件必须设置ID</exception>
     public async Task RegisterNodeType(
         string typePath, string displayName,
-        List<INodeSlot> inputs,
-        List<INodeSlot> outputs,
-        Func<GraphNode, Task>? onExecute)
+        List<INodeSlot>? inputs = null,
+        List<INodeSlot>? outputs = null,
+        List<NodeWidget>? widgets = null,
+        Func<GraphNode, Task>? onExecute = null)
     {
-        var graphNodeConfig = new GraphNodeConfig
+        var nodeTemplate = new NodeTemplate();
+        // 判断是否已经注册过
+        if (_registeredNodes.ContainsKey(typePath))
         {
-            TypePath = typePath,
-            DisplayName = displayName,
-            Inputs = inputs.Select(i => new NodeSlot { Name = i.Name, Type = i.ValueType.FullName }).ToList(),
-            Outputs = outputs.Select(i => new NodeSlot { Name = i.Name, Type = i.ValueType.FullName }).ToList()
-        };
+            _registeredNodes.Remove(typePath);
+            // TODO: 更新节点
+        }
+
+        _registeredNodes.Add(typePath, nodeTemplate);
+
+        var graphNodeConfig = new GraphNodeConfigDto { TypePath = typePath, DisplayName = displayName, };
+        if (inputs != null)
+        {
+            graphNodeConfig.Inputs = inputs.Select(i => new NodeSlotDto
+            {
+                Name = i.Name, Type = i.ValueType.FullName ?? i.ValueType.Name
+            }).ToList();
+        }
+
+        if (outputs != null)
+        {
+            graphNodeConfig.Outputs = outputs.Select(i => new NodeSlotDto
+            {
+                Name = i.Name, Type = i.ValueType.FullName ?? i.ValueType.Name
+            }).ToList();
+        }
+
+        widgets?.ForEach(w =>
+        {
+            if (string.IsNullOrWhiteSpace(w.WidgetId))
+            {
+                throw new ArgumentNullException(nameof(w.WidgetId), "WidgetId cannot be null or empty.");
+            }
+
+            if (nodeTemplate.WidgetCallbacks.ContainsKey(w.WidgetId))
+            {
+                throw new InvalidOperationException($"Widget {w.WidgetId} is already registered.");
+            }
+
+            nodeTemplate.WidgetCallbacks.Add(w.WidgetId, w.Callback);
+
+            var widget = new WidgetDto
+            {
+                WidgetId = w.WidgetId,
+                WidgetType = w.WidgetType.ToDescriptionString(),
+                DisplayName = w.DisplayName,
+                Value = w.Value,
+                WidgetOptions = w.WidgetOptions,
+                HasCallback = w.Callback != null
+            };
+            graphNodeConfig.Widgets.Add(widget);
+        });
+
         // 注册执行回调
         if (onExecute != null)
         {
-            _nodeExecuteActions[typePath] = onExecute;
+            nodeTemplate.NodeExecuteAction = onExecute;
             graphNodeConfig.HasAction = true;
         }
         else
         {
-            _nodeExecuteActions.Remove(typePath);
+            nodeTemplate.NodeExecuteAction = null;
             graphNodeConfig.HasAction = false;
         }
 
@@ -75,12 +140,63 @@ public class NodeGraphService : IAsyncDisposable
     /// 执行节点操作Js回调
     /// </summary>
     [JSInvokable]
-    public async Task OnNodeActionExecuted(string typePath, IJSObjectReference nodeInstance)
+    public async Task OnNodeActionExecuted(string typePath, object nodeId)
     {
+        var module = await _moduleTask.Value;
+        var nodeInstance = await module.InvokeAsync<IJSObjectReference>("getNodeById", nodeId);
         var graphNode = new GraphNode(nodeInstance);
-        if (_nodeExecuteActions.TryGetValue(typePath, out var action))
+        if (_registeredNodes.TryGetValue(typePath, out var template))
         {
-            await action.Invoke(graphNode);
+            if (template.NodeExecuteAction != null)
+            {
+                await template.NodeExecuteAction.Invoke(graphNode);
+            }
+        }
+        else
+        {
+            throw new InvalidOperationException($"Node type {typePath} not registered.");
+        }
+    }
+
+    /// <summary>
+    /// 执行节点组件回调
+    /// </summary>
+    [JSInvokable]
+    public async Task OnNodeWidgetCallback(
+        string typePath, string widgetId,
+        object? value, object? nodeId)
+    {
+        // await nodeInstance.InvokeVoidAsync("test");
+        if (_registeredNodes.TryGetValue(typePath, out var template))
+        {
+            if (template.WidgetCallbacks.TryGetValue(widgetId, out var callback))
+            {
+                if (callback != null)
+                {
+                    var module = await _moduleTask.Value;
+                    var nodeInstance = await module.InvokeAsync<IJSObjectReference>("getNodeById", nodeId);
+                    var graphNode = new GraphNode(nodeInstance);
+                    var valuePhase = value;
+                    if (value is JsonElement jsonElement)
+                    {
+                        valuePhase = jsonElement.ValueKind switch
+                        {
+                            JsonValueKind.String => jsonElement.GetString(),
+                            JsonValueKind.Number => jsonElement.GetDouble(),
+                            JsonValueKind.True => true,
+                            JsonValueKind.False => false,
+                            JsonValueKind.Null => null,
+                            _ => valuePhase
+                        };
+                    }
+
+                    await callback.Invoke(valuePhase, graphNode);
+                }
+            }
+            else
+            {
+                throw new InvalidOperationException($"Widget {widgetId} not registered for node type {typePath}.");
+            }
         }
         else
         {

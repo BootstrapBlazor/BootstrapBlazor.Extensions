@@ -21,21 +21,16 @@ public class GraphNode : IAsyncDisposable
 
     public ValueTask<T?> GetInputData<T>(int slotIndex)
     {
-        return _graphNodeReference.InvokeAsync<T?>("getInputData", slotIndex);
+        return _graphNodeReference.InvokeAsync<T?>( "getInputData", slotIndex);
     }
 
     public ValueTask<T?> GetOutputData<T>(int slotIndex)
     {
-        return _graphNodeReference.InvokeAsync<T?>("getOutputData", slotIndex);
-    }
-
-    public ValueTask SetInputData<T>(int slotIndex, T inputData)
-    {
-        return _graphNodeReference.InvokeVoidAsync("setInputData", inputData);
+        return _graphNodeReference.InvokeAsync<T?>( "getOutputData", slotIndex);
     }
 
     public ValueTask SetOutputData<T>(int slotIndex, T outputData)
     {
-        return _graphNodeReference.InvokeVoidAsync("setOutputData", outputData);
+        return _graphNodeReference.InvokeVoidAsync( "setOutputData", slotIndex, outputData);
     }
 }
