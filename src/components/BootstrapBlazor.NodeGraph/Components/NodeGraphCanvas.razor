@@ -3,6 +3,7 @@
 @attribute [JSModuleAutoLoader("./_content/BootstrapBlazor.NodeGraph/js/Graph.js", AutoInvokeDispose = false, JSObjectReference = true)]
 @inherits BootstrapModuleComponentBase
 
+@inject NodeGraphService NodeGraphService
 @inject ILogger<NodeGraphCanvas> Logger
 
 <div class="@ClassString" @attributes="@AdditionalAttributes" id="@Id">
@@ -15,22 +16,20 @@
         .AddClassFromAttributes(AdditionalAttributes)
         .Build();
 
-    [Parameter]
-    public Graph? Graph { get; set; }
-
     private IJSObjectReference _graphCanvasRef = null!;
     private ElementReference _graphCanvas;
-
 
     /// <inheritdoc />
     protected override async Task InvokeInitAsync()
     {
-        await InvokeVoidAsync("init", Id);
+        // 初始化并添加引用
+        await InvokeVoidAsync("init", Id, DotNetObjectReference.Create(NodeGraphService));
+        // 创建图表配置
         var graphRef = await InvokeAsync<IJSObjectReference>("createLGraph");
-        Graph = new Graph(graphRef!);
+        // var graph = new Graph(graphRef!);
+        // 创建图表画布
         _graphCanvasRef = await InvokeAsync<IJSObjectReference>("createLGraphCanvas", _graphCanvas, graphRef)
-                         ?? throw new InvalidOperationException("Create GraphCanvas failed!");
-        // await InvokeVoidAsync("constructGraphNode", "测试节点");
+                          ?? throw new InvalidOperationException("Create GraphCanvas failed!");
     }
 
 }

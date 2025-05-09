@@ -10463,9 +10463,10 @@ function clamp(f, t, i) {
   return t > f ? t : i < f ? i : f;
 }
 loadPolyfills();
-async function init(f) {
-  document.getElementById(f), addLink("./_content/BootstrapBlazor.NodeGraph/css/graph.css");
+async function init(f, t) {
+  document.getElementById(f), addLink("./_content/BootstrapBlazor.NodeGraph/css/graph.css"), nodeGraphServiceRef = t;
 }
+let nodeGraphServiceRef = null;
 function createLGraph(f) {
   return new LGraph(f);
 }
@@ -10492,9 +10493,22 @@ function constructGraphNode(f) {
   }, c(i, "title", f), i);
   LiteGraph.registerNodeType("basic/testNode", t);
 }
+function registerNodeType(f) {
+  var i;
+  let t = (i = class extends LGraphNode {
+    constructor() {
+      super(f.displayName), f.inputs.forEach((n) => this.addInput(n.name, n.type)), f.outputs.forEach((n) => this.addOutput(n.name, n.type));
+    }
+    onExecute() {
+      f.hasAction && (nodeGraphServiceRef == null || nodeGraphServiceRef.invokeMethodAsync("OnNodeActionExecuted", f.typePath, this));
+    }
+  }, c(i, "title", f.displayName), i);
+  LiteGraph.registerNodeType(f.typePath, t);
+}
 export {
   constructGraphNode,
   createLGraph,
   createLGraphCanvas,
-  init
+  init,
+  registerNodeType
 };
