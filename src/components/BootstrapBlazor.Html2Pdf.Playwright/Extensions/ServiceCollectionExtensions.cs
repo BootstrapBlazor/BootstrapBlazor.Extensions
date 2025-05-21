@@ -9,17 +9,17 @@ namespace Microsoft.Extensions.DependencyInjection;
 /// <summary>
 /// BootstrapBlazor 服务扩展类
 /// </summary>
-public static class BootstrapBlazorHtml2PdfiTextServiceExtensions
+public static class BootstrapBlazorHtml2PdfServiceExtensions
 {
     /// <summary>
     /// 添加 AzureOpenAIService 服务
     /// </summary>
     /// <param name="services"></param>
-    public static IServiceCollection AddBootstrapBlazorHtml2PdfiTextService(this IServiceCollection services)
+    public static IServiceCollection AddBootstrapBlazorHtml2PdfUsePlaywrightService(this IServiceCollection services)
     {
         services.AddSingleton<IHtml2Pdf, DefaultPdfService>();
 #if NET8_0_OR_GREATER
-        services.AddKeyedSingleton<IHtml2Pdf, DefaultPdfService>("BootstrapBlazor.Html2Pdf.iText");
+        services.AddKeyedSingleton<IHtml2Pdf, DefaultPdfService>("BootstrapBlazor.Html2Pdf.Playwright");
 #endif
         return services;
     }
