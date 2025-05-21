@@ -58,6 +58,19 @@
     display: block;
 }
 
+.modal-body .note-form-group:not(:last-child) {
+    margin-bottom: 0.5rem;
+}
+
+.note-form-label,
+.note-group-select-from-files {
+    margin-bottom: .5rem;
+}
+
+.form-check sn-checkbox-open-in-new-window .form-check-input {
+    margin-right: .5rem;
+}
+
 [data-bs-theme='dark'] .editor .note-btn {
     --bs-btn-bg: #404349;
     --bs-btn-hover-bg: #51545a;
