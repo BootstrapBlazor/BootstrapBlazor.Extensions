@@ -3,7 +3,6 @@ import Data from '../BootstrapBlazor/modules/data.js';
 
 export async function init(id, invoke, domain, options) {
     await addScript('./_content/BootstrapBlazor.JitsiMeet/external_api.js');
-console.log(options)
     const el = document.getElementById(id);
     options.parentNode = el;
     options.onload = () => {
