@@ -2,7 +2,6 @@
 import DataService from './data-service.js'
 
 const loadAssets = async lang => {
-    console.log(lang, 'lang');
     await addScript('./_content/BootstrapBlazor.UniverSheet/univer/react.production.min.js');
     await addScript('./_content/BootstrapBlazor.UniverSheet/univer/react-dom.production.min.js');
     await addScript('./_content/BootstrapBlazor.UniverSheet/univer/rxjs.umd.min.js');
@@ -12,7 +11,7 @@ const loadAssets = async lang => {
     await addScript('./_content/BootstrapBlazor.UniverSheet/univer/univerjs.sheets-zen-editor/index.umd.min.js');
     await addScript('./_content/BootstrapBlazor.UniverSheet/univer/univerjs.preset-sheets-data-validation/index.umd.min.js');
     await addScript('./_content/BootstrapBlazor.UniverSheet/univer/univerjs.preset-sheets-advanced/index.umd.min.js');
-    
+
     await addScript(`./_content/BootstrapBlazor.UniverSheet/univer/univerjs.preset-sheets-core/locales/${lang}.js`);
     await addScript(`./_content/BootstrapBlazor.UniverSheet/univer/univerjs.preset-sheets-drawing/locales/${lang}.js`);
     await addScript(`./_content/BootstrapBlazor.UniverSheet/univer/univerjs.sheets-zen-editor/locales/${lang}.js`);
@@ -25,7 +24,7 @@ const loadAssets = async lang => {
 export async function createUniverSheetAsync(sheet) {
     sheet.lang = sheet.lang ?? 'en-US';
     await loadAssets(sheet.lang);
-    
+
     const { el } = sheet;
     const { LocaleType, merge } = UniverCore;
     const { createUniver } = UniverPresets;
