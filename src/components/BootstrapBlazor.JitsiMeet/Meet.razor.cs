@@ -2,6 +2,9 @@
 
 namespace BootstrapBlazor.Components;
 
+/// <summary>
+/// Meet 组件用于显示会议室
+/// </summary>
 public partial class Meet
 {
     /// <summary>
