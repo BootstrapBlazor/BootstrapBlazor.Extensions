@@ -188,6 +188,8 @@ Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "BootstrapBlazor.Html2Pdf.Pl
 EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "BootstrapBlazor.JitsiMeet", "src\components\BootstrapBlazor.JitsiMeet\BootstrapBlazor.JitsiMeet.csproj", "{08458CA3-BF81-48E8-870D-9389DC037808}"
 EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "BootstrapBlazor.PdfViewer", "src\components\BootstrapBlazor.PdfViewer\BootstrapBlazor.PdfViewer.csproj", "{4757B038-70E4-40B0-9B73-700EE5632B07}"
+EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
 		Debug|Any CPU = Debug|Any CPU
@@ -510,6 +512,10 @@ Global
 		{08458CA3-BF81-48E8-870D-9389DC037808}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{08458CA3-BF81-48E8-870D-9389DC037808}.Release|Any CPU.ActiveCfg = Release|Any CPU
 		{08458CA3-BF81-48E8-870D-9389DC037808}.Release|Any CPU.Build.0 = Release|Any CPU
+		{4757B038-70E4-40B0-9B73-700EE5632B07}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{4757B038-70E4-40B0-9B73-700EE5632B07}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{4757B038-70E4-40B0-9B73-700EE5632B07}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{4757B038-70E4-40B0-9B73-700EE5632B07}.Release|Any CPU.Build.0 = Release|Any CPU
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE
@@ -598,6 +604,7 @@ Global
 		{CED55D86-57CF-CB0D-E880-370C44C0DB1F} = {FF1089BE-C704-4374-B629-C57C08E1798F}
 		{F3043A78-1942-4524-BDC4-7E88F56DF3D5} = {FF1089BE-C704-4374-B629-C57C08E1798F}
 		{08458CA3-BF81-48E8-870D-9389DC037808} = {FF1089BE-C704-4374-B629-C57C08E1798F}
+		{4757B038-70E4-40B0-9B73-700EE5632B07} = {FF1089BE-C704-4374-B629-C57C08E1798F}
 	EndGlobalSection
 	GlobalSection(ExtensibilityGlobals) = postSolution
 		SolutionGuid = {D5EB1960-6F30-4CE1-B375-EAE1F787D6FF}
