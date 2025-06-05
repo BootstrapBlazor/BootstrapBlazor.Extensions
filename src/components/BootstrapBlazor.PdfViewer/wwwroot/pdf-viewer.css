@@ -1,0 +1,9 @@
+﻿.bb-pdf-viewer-container {
+    width: 100%;
+    height: var(--bb-pdf-viewer-height, 500px);
+}
+
+.bb-pdf-viewer {
+    width: 100%;
+    height: 100%;
+}
