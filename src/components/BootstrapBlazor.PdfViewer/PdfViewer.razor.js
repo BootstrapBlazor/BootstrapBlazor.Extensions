@@ -8,8 +8,7 @@ export async function init(id, invoke, options) {
     const pdfViewer = { el, invoke, options };
     Data.set(id, pdfViewer);
 
-    const url = el.getAttribute('data-bb-url');
-    await loadPdf(id, url);
+    await loadPdf(id, options.url);
 }
 
 export async function loadPdf(id, url) {
@@ -21,6 +20,9 @@ export async function loadPdf(id, url) {
         return;
     }
 
+    delete pdfViewer.frame;
+    el.innerHTML = '';
+
     if (url) {
         const { frame } = pdfViewer;
         const viewer = frame || createFrame(el);
@@ -29,11 +31,12 @@ export async function loadPdf(id, url) {
                 invoke.invokeMethodAsync(options.loadedCallaback);
             };
         }
+
+        const useGoogleDocs = el.getAttribute('data-bb-google-docs') === 'true';
+        if (useGoogleDocs) {
+            url = `http://docs.google.com/viewer?url=${url}`
+        }
         viewer.src = url;
-    }
-    else {
-        delete pdfViewer.frame;
-        el.innerHTML = '';
     }
 }
 
