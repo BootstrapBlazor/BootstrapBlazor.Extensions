@@ -23,6 +23,18 @@ public partial class PdfViewer
     [Parameter]
     public string? Height { get; set; }
 
+    /// <summary>
+    /// Gets or sets the document loaded event callback.
+    /// </summary>
+    [Parameter]
+    public Func<Task>? OnLoaded { get; set; }
+
+    /// <summary>
+    /// Gets or sets the document loaded event callback.
+    /// </summary>
+    [Parameter]
+    public Func<Task>? NotSupportCallback { get; set; }
+
     private string? ClassString => CssBuilder.Default("bb-pdf-viewer-container")
         .AddClassFromAttributes(AdditionalAttributes)
         .Build();
@@ -58,5 +70,35 @@ public partial class PdfViewer
     /// <inheritdoc/>
     /// </summary>
     /// <returns></returns>
-    protected override Task InvokeInitAsync() => InvokeVoidAsync("init", Id);
+    protected override Task InvokeInitAsync() => InvokeVoidAsync("init", Id, Interop, new
+    {
+        LoadedCallaback = nameof(TriggerOnLoaded),
+        NotSupportCallback = nameof(TriggerNotSupportCallback)
+    });
+
+    /// <summary>
+    /// Trigger OnLoaded callback when the PDF document is loaded.
+    /// </summary>
+    /// <returns></returns>
+    [JSInvokable]
+    public async Task TriggerOnLoaded()
+    {
+        if (OnLoaded != null)
+        {
+            await OnLoaded();
+        }
+    }
+
+    /// <summary>
+    /// Trigger NotSupportCallback when the PDF viewer does not support the document.
+    /// </summary>
+    /// <returns></returns>
+    [JSInvokable]
+    public async Task TriggerNotSupportCallback()
+    {
+        if (NotSupportCallback != null)
+        {
+            await NotSupportCallback();
+        }
+    }
 }

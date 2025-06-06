@@ -1,23 +1,34 @@
 ﻿import { addLink } from "../BootstrapBlazor/modules/utility.js"
 import Data from "../BootstrapBlazor/modules/data.js"
 
-export async function init(id) {
+export async function init(id, invoke, options) {
     await addLink("./_content/BootstrapBlazor.PdfViewer/pdf-viewer.css");
 
     const el = document.getElementById(id);
-    const pdfViewer = { el };
+    const pdfViewer = { el, invoke, options };
     Data.set(id, pdfViewer);
 
     const url = el.getAttribute('data-bb-url');
-    loadPdf(id, url);
+    await loadPdf(id, url);
 }
 
-export function loadPdf(id, url) {
+export async function loadPdf(id, url) {
     const pdfViewer = Data.get(id);
-    const { el } = pdfViewer;
+    const { el, invoke, options } = pdfViewer;
+
+    if (!navigator.pdfViewerEnabled) {
+        await invoke.invokeMethodAsync(options.notSupportCallback);
+        return;
+    }
+
     if (url) {
         const { frame } = pdfViewer;
         const viewer = frame || createFrame(el);
+        if (options.loadedCallaback) {
+            viewer.onload = () => {
+                invoke.invokeMethodAsync(options.loadedCallaback);
+            };
+        }
         viewer.src = url;
     }
     else {
