@@ -6,6 +6,7 @@ export async function init(id, invoke, options) {
 
     if (!navigator.pdfViewerEnabled) {
         await invoke.invokeMethodAsync(options.notSupportCallback);
+        return;
     }
 
     const el = document.getElementById(id);
