@@ -35,6 +35,12 @@ public partial class PdfViewer
     [Parameter]
     public Func<Task>? NotSupportCallback { get; set; }
 
+    /// <summary>
+    /// Gets or sets whether to use Google Docs for PDF rendering. Default is false.
+    /// </summary>
+    [Parameter]
+    public bool UseGoogleDocs { get; set; } = false;
+
     private string? ClassString => CssBuilder.Default("bb-pdf-viewer-container")
         .AddClassFromAttributes(AdditionalAttributes)
         .Build();
@@ -44,6 +50,9 @@ public partial class PdfViewer
         .Build();
 
     private string? _url;
+    private bool _useGoogleDocs;
+
+    private string? UseGoogleDocsString => UseGoogleDocs ? "true" : null;
 
     /// <summary>
     /// <inheritdoc/>
@@ -57,11 +66,25 @@ public partial class PdfViewer
         if (firstRender)
         {
             _url = Url;
+            _useGoogleDocs = UseGoogleDocs;
+            return;
         }
 
+        var rerender = false;
         if (_url != Url)
         {
             _url = Url;
+            rerender = true;
+        }
+
+        if (_useGoogleDocs != UseGoogleDocs)
+        {
+            _useGoogleDocs = UseGoogleDocs;
+            rerender = true;
+        }
+
+        if (rerender)
+        {
             await InvokeVoidAsync("loadPdf", Id, _url);
         }
     }
@@ -73,7 +96,8 @@ public partial class PdfViewer
     protected override Task InvokeInitAsync() => InvokeVoidAsync("init", Id, Interop, new
     {
         LoadedCallaback = nameof(TriggerOnLoaded),
-        NotSupportCallback = nameof(TriggerNotSupportCallback)
+        NotSupportCallback = nameof(TriggerNotSupportCallback),
+        Url
     });
 
     /// <summary>
