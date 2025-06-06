@@ -9,10 +9,10 @@ export async function init(id, invoke, options) {
     Data.set(id, pdfViewer);
 
     const url = el.getAttribute('data-bb-url');
-    loadPdf(id, url);
+    await loadPdf(id, url);
 }
 
-export function loadPdf(id, url) {
+export async function loadPdf(id, url) {
     const pdfViewer = Data.get(id);
     const { el, invoke, options } = pdfViewer;
 
