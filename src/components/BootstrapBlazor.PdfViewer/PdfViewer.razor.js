@@ -4,11 +4,6 @@ import Data from "../BootstrapBlazor/modules/data.js"
 export async function init(id, invoke, options) {
     await addLink("./_content/BootstrapBlazor.PdfViewer/pdf-viewer.css");
 
-    if (!navigator.pdfViewerEnabled) {
-        await invoke.invokeMethodAsync(options.notSupportCallback);
-        return;
-    }
-
     const el = document.getElementById(id);
     const pdfViewer = { el, invoke, options };
     Data.set(id, pdfViewer);
@@ -19,9 +14,15 @@ export async function init(id, invoke, options) {
 
 export function loadPdf(id, url) {
     const pdfViewer = Data.get(id);
-    const { el } = pdfViewer;
+    const { el, invoke, options } = pdfViewer;
+
+    if (!navigator.pdfViewerEnabled) {
+        await invoke.invokeMethodAsync(options.notSupportCallback);
+        return;
+    }
+
     if (url) {
-        const { frame, invoke, options } = pdfViewer;
+        const { frame } = pdfViewer;
         const viewer = frame || createFrame(el);
         if (options.loadedCallaback) {
             viewer.onload = () => {
