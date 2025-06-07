@@ -34,7 +34,7 @@ public partial class ImageCropper
     /// 获得/设置 剪裁调整结束回调方法
     /// </summary>
     [Parameter]
-    public Func<Task>? OnCropEndAsync { get; set; }
+    public Func<ImageCropperData, Task>? OnCropEndAsync { get; set; }
 
     /// <summary>
     /// 获取/设置 裁剪选项
@@ -170,11 +170,11 @@ public partial class ImageCropper
     /// </summary>
     /// <returns></returns>
     [JSInvokable]
-    public async Task TriggerOnCropEndAsync()
+    public async Task TriggerOnCropEndAsync(ImageCropperData data)
     {
-        if(OnCropEndAsync != null)
+        if (OnCropEndAsync != null)
         {
-            await Task.CompletedTask;
+            await OnCropEndAsync(data);
         }
     }
 }

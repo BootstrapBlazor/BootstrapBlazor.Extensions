@@ -11,7 +11,18 @@ export async function init(id, invoke, options) {
     }
 
     const image = el.querySelector(".bb-cropper-image");
-    const cropper = new Cropper(image, getOptions(options.options));
+    const { options: op, triggerOnCropEndAsync } = options;
+    if (triggerOnCropEndAsync) {
+        let cropData = null;
+        op.cropend = () => {
+            invoke.invokeMethodAsync(triggerOnCropEndAsync, cropData);
+            cropData = null;
+        }
+        op.crop = e => {
+            cropData = e.detail;
+        }
+    }
+    const cropper = new Cropper(image, getOptions(op));
 
     Data.set(id, { el, invoke, options, cropper });
 }
