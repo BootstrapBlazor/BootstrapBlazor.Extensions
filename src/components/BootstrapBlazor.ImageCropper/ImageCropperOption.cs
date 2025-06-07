@@ -210,4 +210,10 @@ public class ImageCropperOption
     /// </summary>
     [JsonIgnore(Condition = JsonIgnoreCondition.WhenWritingNull)]
     public string? Radius { get; set; }
+
+    /// <summary>
+    /// 获得/设置 预览元素 Selector 
+    /// </summary>
+    [JsonIgnore(Condition = JsonIgnoreCondition.WhenWritingNull)]
+    public string? Preview { get; set; }
 }
