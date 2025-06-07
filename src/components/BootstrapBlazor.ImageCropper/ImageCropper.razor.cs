@@ -3,6 +3,7 @@
 // Website: https://www.blazor.zone or https://argozhang.github.io/
 
 using Microsoft.AspNetCore.Components;
+using Microsoft.JSInterop;
 
 namespace BootstrapBlazor.Components;
 
@@ -28,6 +29,12 @@ public partial class ImageCropper
     /// </summary>
     [Parameter]
     public Func<ImageCropperResult, Task>? OnCropAsync { get; set; }
+
+    /// <summary>
+    /// 获得/设置 剪裁框调整大小位置回调方法
+    /// </summary>
+    [Parameter]
+    public Func<ImageCropperData, Task>? OnCropChangedAsync { get; set; }
 
     /// <summary>
     /// 获取/设置 裁剪选项
@@ -81,10 +88,14 @@ public partial class ImageCropper
     /// <inheritdoc/>
     /// </summary>
     /// <returns></returns>
-    protected override Task InvokeInitAsync() => InvokeVoidAsync("init", Id, Options ?? new());
+    protected override Task InvokeInitAsync() => InvokeVoidAsync("init", Id, Interop, new
+    {
+        Options = Options ?? new(),
+        TriggerOnCropEndAsync = OnCropChangedAsync != null ? nameof(TriggerOnCropChangedAsync) : null,
+    });
 
     /// <summary>
-    /// 剪裁方法 自动触发 <see cref="OnCropAsync"/> 回调方法
+    /// 剪裁方法 触发 <see cref="OnCropAsync"/> 回调方法
     /// </summary>
     public async Task<string?> Crop()
     {
@@ -153,4 +164,17 @@ public partial class ImageCropper
     /// <param name="angle">旋转角度</param>
     /// <returns></returns>
     public async Task Rotate(int angle) => await InvokeVoidAsync("rotate", Id, angle);
+
+    /// <summary>
+    /// 
+    /// </summary>
+    /// <returns></returns>
+    [JSInvokable]
+    public async Task TriggerOnCropChangedAsync(ImageCropperData data)
+    {
+        if (OnCropChangedAsync != null)
+        {
+            await OnCropChangedAsync(data);
+        }
+    }
 }
