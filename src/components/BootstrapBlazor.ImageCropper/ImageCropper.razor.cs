@@ -39,10 +39,11 @@ public partial class ImageCropper
     /// 获取/设置 裁剪形状（矩形/圆形）默认 <see cref="ImageCropperShape.Rectangle"/>
     /// </summary>
     [Parameter]
+    [Obsolete("已弃用，使用 ImageCropperOption.IsRound 参数代替；Deprecated, use ImageCropperOption.IsRound parameter instead")]
     public ImageCropperShape CropperShape { get; set; }
 
     private string? ClassString => CssBuilder.Default("bb-cropper")
-        .AddClass("is-round", CropperShape == ImageCropperShape.Round)
+        .AddClass("is-round", Options?.IsRound ?? false)
         .AddClassFromAttributes(AdditionalAttributes)
         .Build();
 
