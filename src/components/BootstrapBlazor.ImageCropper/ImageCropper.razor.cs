@@ -31,10 +31,10 @@ public partial class ImageCropper
     public Func<ImageCropperResult, Task>? OnCropAsync { get; set; }
 
     /// <summary>
-    /// 获得/设置 剪裁调整结束回调方法
+    /// 获得/设置 剪裁框调整大小位置回调方法
     /// </summary>
     [Parameter]
-    public Func<ImageCropperData, Task>? OnCropEndAsync { get; set; }
+    public Func<ImageCropperData, Task>? OnCropChangedAsync { get; set; }
 
     /// <summary>
     /// 获取/设置 裁剪选项
@@ -91,11 +91,11 @@ public partial class ImageCropper
     protected override Task InvokeInitAsync() => InvokeVoidAsync("init", Id, Interop, new
     {
         Options = Options ?? new(),
-        TriggerOnCropEndAsync = OnCropEndAsync != null ? nameof(TriggerOnCropEndAsync) : null,
+        TriggerOnCropEndAsync = OnCropChangedAsync != null ? nameof(TriggerOnCropChangedAsync) : null,
     });
 
     /// <summary>
-    /// 剪裁方法 自动触发 <see cref="OnCropAsync"/> 回调方法
+    /// 剪裁方法 触发 <see cref="OnCropAsync"/> 回调方法
     /// </summary>
     public async Task<string?> Crop()
     {
@@ -170,11 +170,11 @@ public partial class ImageCropper
     /// </summary>
     /// <returns></returns>
     [JSInvokable]
-    public async Task TriggerOnCropEndAsync(ImageCropperData data)
+    public async Task TriggerOnCropChangedAsync(ImageCropperData data)
     {
-        if (OnCropEndAsync != null)
+        if (OnCropChangedAsync != null)
         {
-            await OnCropEndAsync(data);
+            await OnCropChangedAsync(data);
         }
     }
 }
