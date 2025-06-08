@@ -39,7 +39,10 @@ public partial class PdfViewer
     /// Gets or sets whether to use Google Docs for PDF rendering. Default is false.
     /// </summary>
     [Parameter]
-    public bool UseGoogleDocs { get; set; } = false;
+    public bool UseGoogleDocs { get; set; }
+
+    [Inject, NotNull]
+    private NavigationManager? NavigationManager { get; set; }
 
     private string? ClassString => CssBuilder.Default("bb-pdf-viewer-container")
         .AddClassFromAttributes(AdditionalAttributes)
@@ -85,7 +88,7 @@ public partial class PdfViewer
 
         if (rerender)
         {
-            await InvokeVoidAsync("loadPdf", Id, _url);
+            await InvokeVoidAsync("loadPdf", Id, GetAbsoluteUri(_url));
         }
     }
 
@@ -97,8 +100,19 @@ public partial class PdfViewer
     {
         LoadedCallaback = nameof(TriggerOnLoaded),
         NotSupportCallback = nameof(TriggerNotSupportCallback),
-        Url
+        Url = GetAbsoluteUri(Url)
     });
+
+    private string GetAbsoluteUri(string? url)
+    {
+        url ??= string.Empty;
+        if (string.IsNullOrEmpty(url) || !UseGoogleDocs)
+        {
+            return url;
+        }
+        var uri = NavigationManager.ToAbsoluteUri(url);
+        return uri.AbsoluteUri;
+    }
 
     /// <summary>
     /// Trigger OnLoaded callback when the PDF document is loaded.
