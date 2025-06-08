@@ -34,7 +34,7 @@ export async function loadPdf(id, url) {
 
         const useGoogleDocs = el.getAttribute('data-bb-google-docs') === 'true';
         if (useGoogleDocs) {
-            url = `http://docs.google.com/viewer?url=${url}`
+            url = `https://docs.google.com/viewer?url=${url}`
         }
         viewer.src = url;
     }
