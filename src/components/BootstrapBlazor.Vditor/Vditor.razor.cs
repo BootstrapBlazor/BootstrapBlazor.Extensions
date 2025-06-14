@@ -128,7 +128,7 @@ public partial class Vditor
     {
         if (_vditor != null)
         {
-            await _vditor.InvokeVoidAsync("insertValue", Id, value, render);
+            await _vditor.InvokeVoidAsync("insertValue", value, render);
         }
     }
 
