@@ -189,7 +189,7 @@ public partial class Vditor
     {
         if (_vditor != null)
         {
-            await _vditor.InvokeVoidAsync("disable");
+            await _vditor.InvokeVoidAsync("disabled");
         }
     }
 
