@@ -5,8 +5,13 @@ namespace BootstrapBlazor.Components;
 /// <summary>
 /// Vditor 配置类
 /// </summary>
-public class VditorOptions
+public struct VditorOptions
 {
+    /// <summary>
+    /// 构造函数
+    /// </summary>
+    public VditorOptions() { }
+
     /// <summary>
     /// 获得/设置 编辑器模式。默认 <see cref="VditorMode.IR"/>
     /// </summary>
