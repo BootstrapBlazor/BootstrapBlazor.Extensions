@@ -60,6 +60,8 @@ public partial class Vditor
     public Func<string, Task>? OnCtrlEnterAsync { get; set; }
 
     private string? ClassString => CssBuilder.Default("bb-vditor")
+        .AddClass(CssClass)
+        .AddClass(ValidCss)
         .AddClassFromAttributes(AdditionalAttributes)
         .Build();
 
