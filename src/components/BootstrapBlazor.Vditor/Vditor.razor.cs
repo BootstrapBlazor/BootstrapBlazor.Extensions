@@ -161,7 +161,7 @@ public partial class Vditor
     /// <summary>
     /// 返回选中的字符串
     /// </summary>
-    public async ValueTask<string?> GetSelectAsync()
+    public async ValueTask<string?> GetSelectionAsync()
     {
         string? ret = null;
         if (_vditor != null)
