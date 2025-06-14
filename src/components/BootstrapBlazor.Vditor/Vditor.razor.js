@@ -7,7 +7,7 @@ export async function init(id, invoke, options) {
         return;
     }
 
-    await addLink('./_content/BootstrapBlazor.Vditor/css/index.css');
+    await addLink('./_content/BootstrapBlazor.Vditor/css/vditor.css');
     await addScript('./_content/BootstrapBlazor.Vditor/js/vditor.js');
 
     const { options: op, value } = options;
