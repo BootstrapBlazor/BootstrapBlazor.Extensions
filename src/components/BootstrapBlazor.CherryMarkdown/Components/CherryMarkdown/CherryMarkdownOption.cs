@@ -23,4 +23,9 @@ internal class CherryMarkdownOption
     /// 工具栏选项
     /// </summary>
     public ToolbarSettings? Toolbars { get; set; }
+
+    /// <summary>
+    /// 是否使用 Katex 渲染数学公式
+    /// </summary>
+    public bool UseKatex { get; set; }
 }

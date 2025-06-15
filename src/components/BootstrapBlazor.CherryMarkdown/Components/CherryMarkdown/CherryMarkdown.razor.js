@@ -1,10 +1,18 @@
-﻿import '../../js/cherry-markdown.min.js'
-import { addLink } from '../../../BootstrapBlazor/modules/utility.js'
+﻿import '../../js/cherry-markdown.core.js'
+import { addLink, addScript } from '../../../BootstrapBlazor/modules/utility.js'
 import Data from '../../../BootstrapBlazor/modules/data.js'
 
 export async function init(id, invoker, options, callback) {
     await addLink('./_content/BootstrapBlazor.CherryMarkdown/css/cherry-markdown.min.css')
 
+    if (options.useKatex){
+        await addScript('./_content/BootstrapBlazor.CherryMarkdown/js/katex.min.js')
+        await addLink('./_content/BootstrapBlazor.CherryMarkdown/css/katex.min.css')
+        options.engine = {syntax : { mathBlock: {engine: 'katex', },
+                inlineMath: {engine: 'katex'}}}
+        options.externals = {katex: window.katex}
+    }
+    delete options.useKatexuseKatex
     const el = document.getElementById(id);
     if (el === null) {
         return;
@@ -43,9 +51,7 @@ export async function init(id, invoker, options, callback) {
 
     md._editor = new Cherry({
         el: md._element,
-        value: md._options.value,
-        editor: md._options.editor,
-        toolbars: md._options.toolbars,
+        ... md._options,
         callback: {
             afterChange: (markdown, html) => {
                 md._invoker.invokeMethodAsync('Update', [markdown, html])

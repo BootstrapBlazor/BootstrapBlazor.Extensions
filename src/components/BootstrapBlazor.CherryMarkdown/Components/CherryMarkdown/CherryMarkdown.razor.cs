@@ -25,6 +25,12 @@ public partial class CherryMarkdown
     [Parameter]
     public ToolbarSettings? ToolbarSettings { get; set; }
 
+    /// <summary>
+    /// 获得/ 设置 是否使用 Katex 渲染数学公式
+    /// </summary>
+    [Parameter]
+    public bool UseKatex { get; set; }
+
     private string? _lastValue;
     /// <summary>
     /// 获得/设置 组件值
@@ -71,6 +77,7 @@ public partial class CherryMarkdown
 
         _lastValue = Value;
         Option.Value = Value;
+        Option.UseKatex = UseKatex;
         Option.Editor = EditorSettings ?? new EditorSettings();
         Option.Toolbars = ToolbarSettings ?? new ToolbarSettings();
         if (IsViewer == true)
