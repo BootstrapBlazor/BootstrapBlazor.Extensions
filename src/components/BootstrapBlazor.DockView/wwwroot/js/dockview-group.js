@@ -172,6 +172,9 @@ const createGroupActions = (group, groupType) => {
     setTimeout(() => {
         groupType = groupType || group.getParams()?.floatType
         resetActionStates(group, actionContainer, groupType);
+        if (showUp(group) && getUpState(group)) {
+            group.panels.forEach(panel => panel.view.content.element.classList.add('bb-overflowHidden'))
+        }
     }, 0)
     addActionEvent(group, actionContainer);
 }
@@ -618,6 +621,7 @@ const down = (group, actionContainer) => {
             parentEle.style.bottom = parseFloat(bottom) - (packup.height - tabHeight) + 'px'
         }
         actionContainer.classList.add('bb-up');
+        group.panels.forEach(panel => panel.view.content.element.classList.remove('bb-overflowHidden'))
     }
     else {
         group.setParams({ packup: { isPackup: true, height: parseFloat(height) } });
@@ -626,6 +630,7 @@ const down = (group, actionContainer) => {
             parentEle.style.bottom = parseFloat(bottom) + (parseFloat(height) - tabHeight) + 'px'
         }
         actionContainer.classList.remove('bb-up')
+        group.panels.forEach(panel => panel.view.content.element.classList.add('bb-overflowHidden'))
     }
     saveConfig(group.api.accessor)
 }
