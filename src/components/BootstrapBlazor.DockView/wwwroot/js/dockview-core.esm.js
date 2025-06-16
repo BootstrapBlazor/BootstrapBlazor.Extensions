@@ -1,6 +1,6 @@
 /**
  * dockview-core
- * @version 4.2.5
+ * @version 4.3.1
  * @link https://github.com/mathuo/dockview
  * @license MIT
  */
@@ -185,7 +185,10 @@ class Emitter {
         return this._event;
     }
     fire(e) {
-        this._last = e;
+        var _a;
+        if ((_a = this.options) === null || _a === void 0 ? void 0 : _a.replay) {
+            this._last = e;
+        }
         for (const listener of this._listeners) {
             listener.callback(e);
         }
@@ -3950,9 +3953,9 @@ class Droptarget extends CompositeDisposable {
             onDragOver: (e) => {
                 var _a, _b, _c, _d, _e, _f, _g;
                 Droptarget.ACTUAL_TARGET = this;
-                const overrideTraget = (_b = (_a = this.options).getOverrideTarget) === null || _b === void 0 ? void 0 : _b.call(_a);
+                const overrideTarget = (_b = (_a = this.options).getOverrideTarget) === null || _b === void 0 ? void 0 : _b.call(_a);
                 if (this._acceptedTargetZonesSet.size === 0) {
-                    if (overrideTraget) {
+                    if (overrideTarget) {
                         return;
                     }
                     this.removeDropTarget();
@@ -3979,7 +3982,7 @@ class Droptarget extends CompositeDisposable {
                     return;
                 }
                 if (!this.options.canDisplayOverlay(e, quadrant)) {
-                    if (overrideTraget) {
+                    if (overrideTarget) {
                         return;
                     }
                     this.removeDropTarget();
@@ -3999,7 +4002,7 @@ class Droptarget extends CompositeDisposable {
                     return;
                 }
                 this.markAsUsed(e);
-                if (overrideTraget) ;
+                if (overrideTarget) ;
                 else if (!this.targetElement) {
                     this.targetElement = document.createElement('div');
                     this.targetElement.className = 'dv-drop-target-dropzone';
@@ -5108,7 +5111,7 @@ class VoidContainer extends CompositeDisposable {
             this.accessor.doSetGroupActive(this.group);
         }));
         const handler = new GroupDragHandler(this._element, accessor, group);
-        this.dropTraget = new Droptarget(this._element, {
+        this.dropTarget = new Droptarget(this._element, {
             acceptedTargetZones: ['center'],
             canDisplayOverlay: (event, position) => {
                 const data = getPanelData();
@@ -5119,12 +5122,12 @@ class VoidContainer extends CompositeDisposable {
             },
             getOverrideTarget: () => { var _a; return (_a = group.model.dropTargetContainer) === null || _a === void 0 ? void 0 : _a.model; },
         });
-        this.onWillShowOverlay = this.dropTraget.onWillShowOverlay;
+        this.onWillShowOverlay = this.dropTarget.onWillShowOverlay;
         this.addDisposables(handler, handler.onDragStart((event) => {
             this._onDragStart.fire(event);
-        }), this.dropTraget.onDrop((event) => {
+        }), this.dropTarget.onDrop((event) => {
             this._onDrop.fire(event);
-        }), this.dropTraget);
+        }), this.dropTarget);
     }
 }
 
@@ -8350,7 +8353,7 @@ class DockviewComponent extends BaseGrid {
         this.onDidPopoutGroupPositionChange = this._onDidPopoutGroupPositionChange.event;
         this._onDidLayoutFromJSON = new Emitter();
         this.onDidLayoutFromJSON = this._onDidLayoutFromJSON.event;
-        this._onDidActivePanelChange = new Emitter();
+        this._onDidActivePanelChange = new Emitter({ replay: true });
         this.onDidActivePanelChange = this._onDidActivePanelChange.event;
         this._onDidMovePanel = new Emitter();
         this.onDidMovePanel = this._onDidMovePanel.event;
@@ -8569,9 +8572,11 @@ class DockviewComponent extends BaseGrid {
             const gready = document.createElement('div');
             gready.className = 'dv-overlay-render-container';
             const overlayRenderContainer = new OverlayRenderContainer(gready, this);
-            const referenceGroup = itemToPopout instanceof DockviewPanel
-                ? itemToPopout.group
-                : itemToPopout;
+            const referenceGroup = (options === null || options === void 0 ? void 0 : options.referenceGroup)
+                ? options.referenceGroup
+                : itemToPopout instanceof DockviewPanel
+                    ? itemToPopout.group
+                    : itemToPopout;
             const referenceLocation = itemToPopout.api.location.type;
             /**
              * The group that is being added doesn't already exist within the DOM, the most likely occurance
@@ -9063,7 +9068,7 @@ class DockviewComponent extends BaseGrid {
         return result;
     }
     fromJSON(data) {
-        var _a, _b, _c;
+        var _a, _b;
         this.clear();
         if (typeof data !== 'object' || data === null) {
             throw new Error('serialized layout must be a non-null object');
@@ -9135,12 +9140,11 @@ class DockviewComponent extends BaseGrid {
             for (const serializedPopoutGroup of serializedPopoutGroups) {
                 const { data, position, gridReferenceGroup, url } = serializedPopoutGroup;
                 const group = createGroupFromSerializedState(data);
-                this.addPopoutGroup((_c = (gridReferenceGroup
-                    ? this.getPanel(gridReferenceGroup)
-                    : undefined)) !== null && _c !== void 0 ? _c : group, {
+                this.addPopoutGroup(group, {
                     position: position !== null && position !== void 0 ? position : undefined,
-                    overridePopoutGroup: gridReferenceGroup
-                        ? group
+                    overridePopoutGroup: gridReferenceGroup ? group : undefined,
+                    referenceGroup: gridReferenceGroup
+                        ? this.getPanel(gridReferenceGroup)
                         : undefined,
                     popoutUrl: url,
                 });

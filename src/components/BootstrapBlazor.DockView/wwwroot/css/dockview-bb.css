@@ -276,3 +276,7 @@
 .bb-dockview .dv-tab.dv-inactive-tab .dv-default-tab .dv-default-tab-action {
     visibility: visible;
 }
+
+.bb-dockview .bb-overflowHidden {
+    overflow: hidden;
+}
