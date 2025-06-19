@@ -12,7 +12,7 @@ class DefaultTcpSocketFactory(IServiceProvider provider) : ITcpSocketFactory
 {
     private readonly ConcurrentDictionary<string, ITcpSocketClient> _pool = new();
 
-    public ITcpSocketClient GetOrCreate(string host, int port = 0, SocketMode mode = SocketMode.Client)
+    public ITcpSocketClient GetOrCreate(string host, int port = 0)
     {
         return _pool.GetOrAdd($"{host}:{port}", key =>
         {
@@ -22,6 +22,16 @@ class DefaultTcpSocketFactory(IServiceProvider provider) : ITcpSocketFactory
             };
             return client;
         });
+    }
+
+    public ITcpSocketClient? Remove(string host, int port)
+    {
+        ITcpSocketClient? client = null;
+        if (_pool.TryRemove($"{host}:{port}", out var c))
+        {
+            client = c;
+        }
+        return client;
     }
 
     private void Dispose(bool disposing)
