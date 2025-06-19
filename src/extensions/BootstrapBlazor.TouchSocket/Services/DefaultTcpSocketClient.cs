@@ -12,14 +12,18 @@ namespace BootstrapBlazor.Components;
 class DefaultTcpSocketClient : ITcpSocketClient
 {
     private TcpClient? _client;
+    private IDataPackageHandler? _dataPackageHandler;
+    private CancellationTokenSource? _receiveCancellationTokenSource;
+    private IPEndPoint? _remoteEndPoint;
 
     public bool IsConnected => _client?.Connected ?? false;
 
-    public IPEndPoint LocalEndPoint { get; }
+    public IPEndPoint LocalEndPoint { get; set; }
 
+    [NotNull]
     public ILogger<DefaultTcpSocketClient>? Logger { get; set; }
 
-    public IDataPackageAdapter? DataPackageAdapter { get; set; }
+    public int ReceiveBufferSize { get; set; } = 1024 * 10;
 
     public DefaultTcpSocketClient(string host, int port = 0)
     {
@@ -28,7 +32,15 @@ class DefaultTcpSocketClient : ITcpSocketClient
 
     private static IPAddress GetIPAddress(string host) => host.Equals("localhost", StringComparison.OrdinalIgnoreCase)
         ? IPAddress.Loopback
-        : IPAddress.TryParse(host, out var ip) ? ip : Dns.GetHostAddresses(host).FirstOrDefault() ?? IPAddress.Loopback;
+        : IPAddress.TryParse(host, out var ip) ? ip : IPAddressByHostName;
+
+    [ExcludeFromCodeCoverage]
+    private static IPAddress IPAddressByHostName => Dns.GetHostAddresses(Dns.GetHostName(), AddressFamily.InterNetwork).FirstOrDefault() ?? IPAddress.Loopback;
+
+    public void SetDataHandler(IDataPackageHandler handler)
+    {
+        _dataPackageHandler = handler;
+    }
 
     public Task<bool> ConnectAsync(string host, int port, CancellationToken token = default)
     {
@@ -44,18 +56,24 @@ class DefaultTcpSocketClient : ITcpSocketClient
             // 释放资源
             Close();
 
-            // 创建新的 TouchSocketClient 实例
+            // 创建新的 TcpClient 实例
             _client ??= new TcpClient(LocalEndPoint);
             await _client.ConnectAsync(endPoint, token);
+
+            // 开始接收数据
+            _ = Task.Run(ReceiveAsync, token);
+
+            LocalEndPoint = (IPEndPoint)_client.Client.LocalEndPoint!;
+            _remoteEndPoint = endPoint;
             ret = true;
         }
         catch (OperationCanceledException ex)
         {
-            LogWarning(ex, $"TCP Socket connect operation was canceled to {endPoint}");
+            Logger.LogWarning(ex, "TCP Socket connect operation was canceled from {LocalEndPoint} to {RemoteEndPoint}", LocalEndPoint, endPoint);
         }
         catch (Exception ex)
         {
-            LogError(ex, $"TCP Socket connection failed to {endPoint}");
+            Logger.LogError(ex, "TCP Socket connection failed from {LocalEndPoint} to {RemoteEndPoint}", LocalEndPoint, endPoint);
         }
         return ret;
     }
@@ -64,67 +82,72 @@ class DefaultTcpSocketClient : ITcpSocketClient
     {
         if (_client is not { Connected: true })
         {
-            throw new InvalidOperationException("TCP Socket is not connected.");
+            throw new InvalidOperationException($"TCP Socket is not connected {LocalEndPoint}");
         }
 
         var ret = false;
         try
         {
+            if (_dataPackageHandler != null)
+            {
+                data = await _dataPackageHandler.SendAsync(data);
+            }
             var stream = _client.GetStream();
             await stream.WriteAsync(data, token);
             ret = true;
         }
         catch (OperationCanceledException ex)
         {
-            LogWarning(ex, $"TCP Socket send operation was canceled to {_client.Client.RemoteEndPoint}");
+            Logger.LogWarning(ex, "TCP Socket send operation was canceled from {LocalEndPoint} to {RemoteEndPoint}", LocalEndPoint, _remoteEndPoint);
         }
         catch (Exception ex)
         {
-            LogError(ex, $"TCP Socket send failed to {_client.Client.RemoteEndPoint}");
+            Logger.LogError(ex, "TCP Socket send failed from {LocalEndPoint} to {RemoteEndPoint}", LocalEndPoint, _remoteEndPoint);
         }
         return ret;
     }
 
-    public async Task<Memory<byte>> ReceiveAsync(int bufferSize = 1024 * 10, CancellationToken token = default)
+    private async Task ReceiveAsync()
     {
-        if (_client is not { Connected: true })
+        _receiveCancellationTokenSource ??= new();
+        while (_receiveCancellationTokenSource is { IsCancellationRequested: false })
         {
-            throw new InvalidOperationException("TCP Socket is not connected.");
-        }
-
-        var block = ArrayPool<byte>.Shared.Rent(bufferSize);
-        var buffer = new Memory<byte>(block);
-        try
-        {
-            var stream = _client.GetStream();
-            var len = await stream.ReadAsync(buffer, token);
-            if (len == 0)
+            if (_client is not { Connected: true })
             {
-                LogInformation($"TCP Socket received {len} data from {_client.Client.RemoteEndPoint}");
+                throw new InvalidOperationException($"TCP Socket is not connected {LocalEndPoint}");
             }
-            else
-            {
-                buffer = buffer[..len];
 
-                if (DataPackageAdapter != null)
+            try
+            {
+                using var block = MemoryPool<byte>.Shared.Rent(ReceiveBufferSize);
+                var buffer = block.Memory;
+                var stream = _client.GetStream();
+                var len = await stream.ReadAsync(buffer, _receiveCancellationTokenSource.Token);
+                if (len == 0)
                 {
-                    buffer = await DataPackageAdapter.ReceiveAsync(buffer);
+                    // 远端主机关闭链路
+                    Logger.LogInformation("TCP Socket {LocalEndPoint} received 0 data closed by {RemoteEndPoint}", LocalEndPoint, _remoteEndPoint);
+                    break;
+                }
+                else
+                {
+                    buffer = buffer[..len];
+
+                    if (_dataPackageHandler != null)
+                    {
+                        await _dataPackageHandler.ReceiveAsync(buffer);
+                    }
                 }
             }
+            catch (OperationCanceledException ex)
+            {
+                Logger.LogWarning(ex, "TCP Socket receive operation was canceled from {LocalEndPoint} to {RemoteEndPoint}", LocalEndPoint, _remoteEndPoint);
+            }
+            catch (Exception ex)
+            {
+                Logger.LogError(ex, "TCP Socket receive failed from {LocalEndPoint} to {RemoteEndPoint}", LocalEndPoint, _remoteEndPoint);
+            }
         }
-        catch (OperationCanceledException ex)
-        {
-            LogWarning(ex, $"TCP Socket receive operation was canceled to {_client.Client.RemoteEndPoint}");
-        }
-        catch (Exception ex)
-        {
-            LogError(ex, $"TCP Socket receive failed to {_client.Client.RemoteEndPoint}");
-        }
-        finally
-        {
-            ArrayPool<byte>.Shared.Return(block);
-        }
-        return buffer;
     }
 
     public void Close()
@@ -132,25 +155,21 @@ class DefaultTcpSocketClient : ITcpSocketClient
         Dispose(true);
     }
 
-    private void LogInformation(string message)
-    {
-        Logger?.LogInformation("{message}", message);
-    }
-
-    private void LogWarning(Exception ex, string message)
-    {
-        Logger?.LogWarning(ex, "{message}", message);
-    }
-
-    private void LogError(Exception ex, string message)
-    {
-        Logger?.LogError(ex, "{message}", message);
-    }
-
     private void Dispose(bool disposing)
     {
         if (disposing)
         {
+            _remoteEndPoint = null;
+
+            // 取消接收数据的任务
+            if (_receiveCancellationTokenSource is not null)
+            {
+                _receiveCancellationTokenSource.Cancel();
+                _receiveCancellationTokenSource.Dispose();
+                _receiveCancellationTokenSource = null;
+            }
+
+            // 释放 TcpClient 资源
             if (_client != null)
             {
                 _client.Close();
