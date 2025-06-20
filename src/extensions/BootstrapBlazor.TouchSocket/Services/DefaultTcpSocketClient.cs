@@ -42,13 +42,13 @@ class DefaultTcpSocketClient : ITcpSocketClient
         _dataPackageHandler = handler;
     }
 
-    public Task<bool> ConnectAsync(string host, int port, CancellationToken token = default)
+    public ValueTask<bool> ConnectAsync(string host, int port, CancellationToken token = default)
     {
         var endPoint = new IPEndPoint(GetIPAddress(host), port);
         return ConnectAsync(endPoint, token);
     }
 
-    public async Task<bool> ConnectAsync(IPEndPoint endPoint, CancellationToken token = default)
+    public async ValueTask<bool> ConnectAsync(IPEndPoint endPoint, CancellationToken token = default)
     {
         var ret = false;
         try
@@ -78,7 +78,7 @@ class DefaultTcpSocketClient : ITcpSocketClient
         return ret;
     }
 
-    public async Task<bool> SendAsync(Memory<byte> data, CancellationToken token = default)
+    public async ValueTask<bool> SendAsync(ReadOnlyMemory<byte> data, CancellationToken token = default)
     {
         if (_client is not { Connected: true })
         {
