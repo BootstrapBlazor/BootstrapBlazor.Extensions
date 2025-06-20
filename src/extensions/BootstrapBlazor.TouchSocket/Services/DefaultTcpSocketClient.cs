@@ -37,6 +37,8 @@ class DefaultTcpSocketClient : ITcpSocketClient
     [ExcludeFromCodeCoverage]
     private static IPAddress IPAddressByHostName => Dns.GetHostAddresses(Dns.GetHostName(), AddressFamily.InterNetwork).FirstOrDefault() ?? IPAddress.Loopback;
 
+    public Func<ReadOnlyMemory<byte>, ValueTask>? ReceivedCallBack { get; set; }
+
     public void SetDataHandler(IDataPackageHandler handler)
     {
         _dataPackageHandler = handler;
