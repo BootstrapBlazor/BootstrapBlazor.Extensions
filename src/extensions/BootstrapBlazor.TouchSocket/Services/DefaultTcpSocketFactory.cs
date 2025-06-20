@@ -8,7 +8,7 @@ using System.Collections.Concurrent;
 
 namespace BootstrapBlazor.Components;
 
-class DefaultTcpSocketFactory(IServiceProvider provider) : ITcpSocketFactory
+class DefaultTcpSocketFactory : ITcpSocketFactory
 {
     private readonly ConcurrentDictionary<string, ITcpSocketClient> _pool = new();
 
@@ -16,10 +16,7 @@ class DefaultTcpSocketFactory(IServiceProvider provider) : ITcpSocketFactory
     {
         return _pool.GetOrAdd($"{host}:{port}", key =>
         {
-            var client = new DefaultTcpSocketClient(host, port)
-            {
-                Logger = provider.GetService<ILogger<DefaultTcpSocketClient>>()
-            };
+            var client = new TouchSocketTcpClient();
             return client;
         });
     }
