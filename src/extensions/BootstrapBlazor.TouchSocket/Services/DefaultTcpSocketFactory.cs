@@ -5,26 +5,33 @@
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Logging;
 using System.Collections.Concurrent;
+using System.Net;
+using System.Runtime.Versioning;
 
 namespace BootstrapBlazor.Components;
 
-class DefaultTcpSocketFactory : ITcpSocketFactory
+[UnsupportedOSPlatform("browser")]
+sealed class DefaultTcpSocketFactory(IServiceProvider provider) : ITcpSocketFactory
 {
     private readonly ConcurrentDictionary<string, ITcpSocketClient> _pool = new();
 
-    public ITcpSocketClient GetOrCreate(string host, int port = 0)
+    public ITcpSocketClient GetOrCreate(string name, Func<string, IPEndPoint> valueFactory)
     {
-        return _pool.GetOrAdd($"{host}:{port}", key =>
+        return _pool.GetOrAdd(name, key =>
         {
-            var client = new TouchSocketTcpClient();
+            var endPoint = valueFactory(key);
+            var client = new DefaultTcpSocketClient(endPoint)
+            {
+                Logger = provider.GetService<ILogger<DefaultTcpSocketClient>>()
+            };
             return client;
         });
     }
 
-    public ITcpSocketClient? Remove(string host, int port)
+    public ITcpSocketClient? Remove(string name)
     {
         ITcpSocketClient? client = null;
-        if (_pool.TryRemove($"{host}:{port}", out var c))
+        if (_pool.TryRemove(name, out var c))
         {
             client = c;
         }
