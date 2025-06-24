@@ -2,7 +2,7 @@
 import Data from "../BootstrapBlazor/modules/data.js"
 
 export async function init(id, invoke, options) {
-    await addLink("./_content/BootstrapBlazor.OfficeDocumentViewer/office-viewer.css");
+    await addLink("./_content/BootstrapBlazor.OfficeViewer/office-viewer.css");
 
     const el = document.getElementById(id);
     const officeViewer = { el, invoke, options };
