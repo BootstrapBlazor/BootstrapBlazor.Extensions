@@ -6,10 +6,16 @@ using Microsoft.AspNetCore.Components;
 
 namespace BootstrapBlazor.Components;
 
+/// <summary>
+/// Represents a viewer component for displaying Office documents in a web application.
+/// </summary>
+/// <remarks>The <see cref="OfficeDocumentViewer"/> component allows users to display Office files such as Word,
+/// Excel, or PowerPoint documents. It provides configurable options for the document URL, viewer height, and a callback
+/// for when the document is loaded.</remarks>
 public partial class OfficeDocumentViewer
 {
     /// <summary>
-    /// Gets or sets the url for the PDF file to be displayed.
+    /// Gets or sets the url for the Office file to be displayed.
     /// </summary>
     [Parameter]
     public string? Url { get; set; }
