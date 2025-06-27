@@ -12,7 +12,7 @@ namespace Microsoft.Extensions.DependencyInjection;
 public static class BootstrapBlazorTouchSocketServiceExtensions
 {
     /// <summary>
-    /// 添加 AzureOpenAIService 服务
+    /// 添加 TouchSocket 服务
     /// </summary>
     /// <param name="services"></param>
     public static IServiceCollection AddBootstrapBlazorTouchSocketService(this IServiceCollection services)
