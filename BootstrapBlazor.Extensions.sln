@@ -194,7 +194,7 @@ Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "BootstrapBlazor.Vditor", "s
 EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "BootstrapBlazor.TouchSocket", "src\extensions\BootstrapBlazor.TouchSocket\BootstrapBlazor.TouchSocket.csproj", "{FD23CEA1-78EB-85D7-8EDF-047657355B52}"
 EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "BootstrapBlazor.OfficeDocumentViewer", "src\components\BootstrapBlazor.OfficeDocumentViewer\BootstrapBlazor.OfficeDocumentViewer.csproj", "{B2B4B85C-06AE-411C-8E29-C9A4AF473548}"
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "BootstrapBlazor.OfficeViewer", "src\components\BootstrapBlazor.OfficeViewer\BootstrapBlazor.OfficeViewer.csproj", "{2436940C-5920-D801-8A81-721F4C20A355}"
 EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
@@ -530,10 +530,10 @@ Global
 		{FD23CEA1-78EB-85D7-8EDF-047657355B52}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{FD23CEA1-78EB-85D7-8EDF-047657355B52}.Release|Any CPU.ActiveCfg = Release|Any CPU
 		{FD23CEA1-78EB-85D7-8EDF-047657355B52}.Release|Any CPU.Build.0 = Release|Any CPU
-		{B2B4B85C-06AE-411C-8E29-C9A4AF473548}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
-		{B2B4B85C-06AE-411C-8E29-C9A4AF473548}.Debug|Any CPU.Build.0 = Debug|Any CPU
-		{B2B4B85C-06AE-411C-8E29-C9A4AF473548}.Release|Any CPU.ActiveCfg = Release|Any CPU
-		{B2B4B85C-06AE-411C-8E29-C9A4AF473548}.Release|Any CPU.Build.0 = Release|Any CPU
+		{2436940C-5920-D801-8A81-721F4C20A355}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{2436940C-5920-D801-8A81-721F4C20A355}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{2436940C-5920-D801-8A81-721F4C20A355}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{2436940C-5920-D801-8A81-721F4C20A355}.Release|Any CPU.Build.0 = Release|Any CPU
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE
@@ -625,7 +625,7 @@ Global
 		{4757B038-70E4-40B0-9B73-700EE5632B07} = {FF1089BE-C704-4374-B629-C57C08E1798F}
 		{D417E1B9-D146-4983-81D0-79F3193B322B} = {FF1089BE-C704-4374-B629-C57C08E1798F}
 		{FD23CEA1-78EB-85D7-8EDF-047657355B52} = {7B29E81D-92DE-46C8-8EDC-1B48C8F12BC2}
-		{B2B4B85C-06AE-411C-8E29-C9A4AF473548} = {FF1089BE-C704-4374-B629-C57C08E1798F}
+		{2436940C-5920-D801-8A81-721F4C20A355} = {FF1089BE-C704-4374-B629-C57C08E1798F}
 	EndGlobalSection
 	GlobalSection(ExtensibilityGlobals) = postSolution
 		SolutionGuid = {D5EB1960-6F30-4CE1-B375-EAE1F787D6FF}
