@@ -198,6 +198,8 @@ Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "BootstrapBlazor.OfficeViewe
 EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "UnitTestTouchSocket", "test\UnitTestTouchSocket\UnitTestTouchSocket.csproj", "{23D21A45-64A3-704C-27C0-73399048ED03}"
 EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "BootstrapBlazor", "..\BootstrapBlazor\src\BootstrapBlazor\BootstrapBlazor.csproj", "{C8C8F286-4D4C-C5F9-6ADD-C1BCE188E040}"
+EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
 		Debug|Any CPU = Debug|Any CPU
@@ -540,6 +542,10 @@ Global
 		{23D21A45-64A3-704C-27C0-73399048ED03}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{23D21A45-64A3-704C-27C0-73399048ED03}.Release|Any CPU.ActiveCfg = Release|Any CPU
 		{23D21A45-64A3-704C-27C0-73399048ED03}.Release|Any CPU.Build.0 = Release|Any CPU
+		{C8C8F286-4D4C-C5F9-6ADD-C1BCE188E040}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{C8C8F286-4D4C-C5F9-6ADD-C1BCE188E040}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{C8C8F286-4D4C-C5F9-6ADD-C1BCE188E040}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{C8C8F286-4D4C-C5F9-6ADD-C1BCE188E040}.Release|Any CPU.Build.0 = Release|Any CPU
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE
@@ -633,6 +639,7 @@ Global
 		{FD23CEA1-78EB-85D7-8EDF-047657355B52} = {7B29E81D-92DE-46C8-8EDC-1B48C8F12BC2}
 		{2436940C-5920-D801-8A81-721F4C20A355} = {FF1089BE-C704-4374-B629-C57C08E1798F}
 		{23D21A45-64A3-704C-27C0-73399048ED03} = {B6A98ADE-D26A-4D0B-8978-AB7AC915F5AE}
+		{C8C8F286-4D4C-C5F9-6ADD-C1BCE188E040} = {7B29E81D-92DE-46C8-8EDC-1B48C8F12BC2}
 	EndGlobalSection
 	GlobalSection(ExtensibilityGlobals) = postSolution
 		SolutionGuid = {D5EB1960-6F30-4CE1-B375-EAE1F787D6FF}

@@ -15,11 +15,10 @@ public static class BootstrapBlazorTouchSocketServiceExtensions
     /// 添加 TouchSocket 服务
     /// </summary>
     /// <param name="services"></param>
-    public static IServiceCollection AddBootstrapBlazorTouchSocketService(this IServiceCollection services)
+    public static IServiceCollection AddBootstrapBlazorTouchSocketProviderService(this IServiceCollection services)
     {
-        services.AddSingleton<ITcpSocketFactory, DefaultTcpSocketFactory>();
+        services.AddTransient<ISocketClientProvider, DefaultTcpSocketProvider>();
 
-        // TBD: 这里注入 TouchSocket 相关服务
         return services;
     }
 }
