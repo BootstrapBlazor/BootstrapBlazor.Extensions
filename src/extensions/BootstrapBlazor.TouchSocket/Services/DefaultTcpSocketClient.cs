@@ -110,7 +110,7 @@ sealed class DefaultTcpSocketClient(IPEndPoint localEndPoint) : TcpSocketClientB
                 data = await DataPackageHandler.SendAsync(data, sendToken);
             }
 
-            await _client.SendAsync(data).WaitAsync(sendToken);
+            await _client.SendAsync(data,sendToken);
             ret = true;
         }
         catch (OperationCanceledException ex)
