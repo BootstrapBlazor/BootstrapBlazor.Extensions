@@ -92,7 +92,7 @@ const initDockview = (dockview, options, template) => {
             const delPanels = delPanelsStr && JSON.parse(delPanelsStr) || []
             panels.forEach(panel => {
                 const visible = panel.params.visible
-                if(!visible){
+                if (!visible) {
                     dockview.removePanel(panel)
                 }
                 dockview._panelVisibleChanged?.fire({ title: panel.title, status: visible });
