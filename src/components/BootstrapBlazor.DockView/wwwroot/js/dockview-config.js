@@ -55,7 +55,8 @@ const renewConfigFromOptions = (config, options) => {
         if (panel) {
             optionPanel.params = {
                 ...panel.params,
-                ...optionPanel.params
+                ...optionPanel.params,
+                visible: panel.params.visible
             }
             config.panels[panel.id] = optionPanel
         }
@@ -232,6 +233,10 @@ const getTree = (contentItem, { width, height, orientation }, parent, panels, ge
     if (contentItem.type === 'row' || contentItem.type === 'column') {
         obj.type = 'branch';
         obj.size = getSize(boxSize, contentItem.width || contentItem.height) || size
+        if(contentItem.content.length == 0 || contentItem.content.every(item => !item.visible)){
+            obj.size = 0
+        }
+
         obj.data = contentItem.content.map(item => getTree(item, { width, height, orientation }, contentItem, panels, getGroupId, options))
     }
     else if (contentItem.type === 'group') {
@@ -279,24 +284,22 @@ const getLeafNode = (contentItem, size, boxSize, parent, panels, getGroupId, opt
     const visible = contentItem.visible !== false;
     const data = {
         type: 'leaf',
-        visible,
+        visible: true,
         size: getSize(boxSize, contentItem.width || contentItem.height) || size,
         data: {
             id: getGroupId(),
             activeView: contentItem.id,
             hideHeader: contentItem.showHeader === false,
-            views: visible ? [contentItem.id] : []
+            views: [contentItem.id]
         }
     };
-    if (visible) {
-        panels[contentItem.id] = {
-            id: contentItem.id,
-            title: contentItem.title,
-            renderer: contentItem.renderer || options.renderer,
-            tabComponent: contentItem.componentName,
-            contentComponent: contentItem.componentName,
-            params: { ...contentItem, parentId: parent.id }
-        }
+    panels[contentItem.id] = {
+        id: contentItem.id,
+        title: contentItem.title,
+        renderer: contentItem.renderer || options.renderer,
+        tabComponent: contentItem.componentName,
+        contentComponent: contentItem.componentName,
+        params: { ...contentItem, parentId: parent.id }
     }
     return data;
 }

@@ -97,7 +97,7 @@ const addPanelWidthGroupId = (dockview, panel, index) => {
         renderer: panel.renderer,
         component: panel.component,
         position: { referenceGroup: group, index: index || 0 },
-        params: { ...panel.params, rect, packup }
+        params: { ...panel.params, rect, packup, visible: true }
     })
     dockview._panelVisibleChanged?.fire({ title: panel.title, status: true });
 }
