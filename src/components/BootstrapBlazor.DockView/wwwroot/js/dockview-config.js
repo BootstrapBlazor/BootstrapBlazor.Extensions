@@ -198,6 +198,7 @@ const removePanel = (branch, panel, parent) => {
 const getConfigFromContent = options => {
     const { width, height } = { width: 800, height: 600 };
     const getGroupId = getGroupIdFunc()
+    options = filterEmptyContent(options)
     const panels = {}, rootType = options.content[0].type
     const orientation = rootType === 'column' ? 'VERTICAL' : 'HORIZONTAL';
     const root = getTree(options.content[0], { width, height, orientation }, options, panels, getGroupId, options)
@@ -212,7 +213,17 @@ const getGroupIdFunc = () => {
     let currentId = 0;
     return () => `${currentId++}`;
 }
-
+const filterEmptyContent = function(data) {
+    if (!data || typeof data !== 'object') return data;
+    
+    if (Array.isArray(data.content)) {
+        data.content = data.content
+            .map(item => filterEmptyContent(item))
+            .filter(item => !(Array.isArray(item.content) && item.content.length === 0));
+    }
+    
+    return data;
+}
 const getTree = (contentItem, { width, height, orientation }, parent, panels, getGroupId, options) => {
     const length = parent.content.length;
     const boxSize = orientation === 'HORIZONTAL' ? width : height;
@@ -233,10 +244,6 @@ const getTree = (contentItem, { width, height, orientation }, parent, panels, ge
     if (contentItem.type === 'row' || contentItem.type === 'column') {
         obj.type = 'branch';
         obj.size = getSize(boxSize, contentItem.width || contentItem.height) || size
-        if(contentItem.content.length == 0 || contentItem.content.every(item => !item.visible)){
-            obj.size = 0
-        }
-
         obj.data = contentItem.content.map(item => getTree(item, { width, height, orientation }, contentItem, panels, getGroupId, options))
     }
     else if (contentItem.type === 'group') {
