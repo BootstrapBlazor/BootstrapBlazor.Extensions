@@ -45,9 +45,6 @@ const initDockview = (dockview, options, template) => {
     }
 
     dockview.update = options => {
-        if (options.layoutConfig) {
-            reloadFromConfig(dockview, options);
-        }
         if (dockview.params.options.lock !== options.lock) {
             dockview.params.options.lock = options.lock;
             toggleGroupLock(dockview, options);
@@ -55,6 +52,9 @@ const initDockview = (dockview, options, template) => {
         if (dockview.options.theme.className !== options.theme) {
             dockview.options.theme.className = options.theme;
             dockview.updateTheme();
+        }
+        if (options.layoutConfig) {
+            reloadFromConfig(dockview, options);
         }
         else {
             toggleComponent(dockview, options);
@@ -91,11 +91,7 @@ const initDockview = (dockview, options, template) => {
             const delPanelsStr = localStorage.getItem(dockview.params.options.localStorageKey + '-panels')
             const delPanels = delPanelsStr && JSON.parse(delPanelsStr) || []
             panels.forEach(panel => {
-                const visible = panel.params.visible
-                if (!visible) {
-                    dockview.removePanel(panel)
-                }
-                dockview._panelVisibleChanged?.fire({ title: panel.title, status: visible });
+                dockview._panelVisibleChanged?.fire({ title: panel.title, status: true });
             })
             delPanels.forEach(panel => {
                 dockview._panelVisibleChanged?.fire({ title: panel.title, status: false });
