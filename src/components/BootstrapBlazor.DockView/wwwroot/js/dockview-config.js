@@ -317,9 +317,25 @@ const saveConfig = dockview => {
         const json = dockview.toJSON();
         if (dockview.floatingGroups && dockview.floatingGroups.length > 0) {
             json.floatingGroups.forEach((fg, index) => {
-                const width = dockview.floatingGroups[index].group.width
-                fg.position.width = fg.position.width || (width ? width + 2 : 300)
-                fg.position.height = fg.position.height || dockview.floatingGroups[index].group.height
+                const group = dockview.floatingGroups[index].group
+                if (fg.position.width > 0) {
+                    group.panels.forEach(panel => {
+                        !panel.params.currentPosition && (panel.params.currentPosition = {})
+                        panel.params.currentPosition.width = fg.position.width
+                    })
+                }
+                else {
+                    fg.position.width = group.params.currentPosition.width || 500
+                }
+                if (fg.position.height > 0) {
+                    group.panels.forEach(panel => {
+                        !panel.params.currentPosition && (panel.params.currentPosition = {})
+                        panel.params.currentPosition.height = fg.position.height
+                    })
+                }
+                else {
+                    fg.position.height = group.params.currentPosition.height || 350
+                }
             })
         }
         localStorage.setItem(dockview.params.options.localStorageKey, JSON.stringify(json));
