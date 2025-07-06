@@ -1129,6 +1129,10 @@
 .dv-tabs-and-actions-container .dv-right-actions-container {
   display: flex;
 }
+.dv-watermark {
+  display: flex;
+  height: 100%;
+}
 .dv-dragged {
   transform: translate3d(0px, 0px, 0px); /* forces tab to be drawn on a separate layer (see https://github.com/microsoft/vscode/issues/18733) */
 }
@@ -1185,8 +1189,4 @@
 .dv-tab .dv-default-tab .dv-default-tab-action:hover {
   border-radius: 2px;
   background-color: var(--dv-icon-hover-background-color);
-}
-.dv-watermark {
-  display: flex;
-  height: 100%;
 }

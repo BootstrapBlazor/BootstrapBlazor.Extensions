@@ -1,6 +1,6 @@
 /**
  * dockview-core
- * @version 4.3.1
+ * @version 4.4.0
  * @link https://github.com/mathuo/dockview
  * @license MIT
  */
@@ -3618,6 +3618,9 @@ class DockviewApi {
     }
     get onDidPopoutGroupPositionChange() {
         return this.component.onDidPopoutGroupPositionChange;
+    }
+    get onDidOpenPopoutWindowFail() {
+        return this.component.onDidOpenPopoutWindowFail;
     }
     /**
      * All panel objects.
@@ -8351,6 +8354,8 @@ class DockviewComponent extends BaseGrid {
         this.onDidPopoutGroupSizeChange = this._onDidPopoutGroupSizeChange.event;
         this._onDidPopoutGroupPositionChange = new Emitter();
         this.onDidPopoutGroupPositionChange = this._onDidPopoutGroupPositionChange.event;
+        this._onDidOpenPopoutWindowFail = new Emitter();
+        this.onDidOpenPopoutWindowFail = this._onDidOpenPopoutWindowFail.event;
         this._onDidLayoutFromJSON = new Emitter();
         this.onDidLayoutFromJSON = this._onDidLayoutFromJSON.event;
         this._onDidActivePanelChange = new Emitter({ replay: true });
@@ -8415,7 +8420,7 @@ class DockviewComponent extends BaseGrid {
         if (options.debug) {
             this.addDisposables(new StrictEventsSequencing(this));
         }
-        this.addDisposables(this.rootDropTargetContainer, this.overlayRenderContainer, this._onWillDragPanel, this._onWillDragGroup, this._onWillShowOverlay, this._onDidActivePanelChange, this._onDidAddPanel, this._onDidRemovePanel, this._onDidLayoutFromJSON, this._onDidDrop, this._onWillDrop, this._onDidMovePanel, this._onDidAddGroup, this._onDidRemoveGroup, this._onDidActiveGroupChange, this._onUnhandledDragOverEvent, this._onDidMaximizedGroupChange, this._onDidOptionsChange, this._onDidPopoutGroupSizeChange, this._onDidPopoutGroupPositionChange, this.onDidViewVisibilityChangeMicroTaskQueue(() => {
+        this.addDisposables(this.rootDropTargetContainer, this.overlayRenderContainer, this._onWillDragPanel, this._onWillDragGroup, this._onWillShowOverlay, this._onDidActivePanelChange, this._onDidAddPanel, this._onDidRemovePanel, this._onDidLayoutFromJSON, this._onDidDrop, this._onWillDrop, this._onDidMovePanel, this._onDidAddGroup, this._onDidRemoveGroup, this._onDidActiveGroupChange, this._onUnhandledDragOverEvent, this._onDidMaximizedGroupChange, this._onDidOptionsChange, this._onDidPopoutGroupSizeChange, this._onDidPopoutGroupPositionChange, this._onDidOpenPopoutWindowFail, this.onDidViewVisibilityChangeMicroTaskQueue(() => {
             this.updateWatermark();
         }), this.onDidAdd((event) => {
             if (!this._moving) {
@@ -8565,13 +8570,6 @@ class DockviewComponent extends BaseGrid {
             if (_window.isDisposed) {
                 return false;
             }
-            if (popoutContainer === null) {
-                popoutWindowDisposable.dispose();
-                return false;
-            }
-            const gready = document.createElement('div');
-            gready.className = 'dv-overlay-render-container';
-            const overlayRenderContainer = new OverlayRenderContainer(gready, this);
             const referenceGroup = (options === null || options === void 0 ? void 0 : options.referenceGroup)
                 ? options.referenceGroup
                 : itemToPopout instanceof DockviewPanel
@@ -8579,7 +8577,7 @@ class DockviewComponent extends BaseGrid {
                     : itemToPopout;
             const referenceLocation = itemToPopout.api.location.type;
             /**
-             * The group that is being added doesn't already exist within the DOM, the most likely occurance
+             * The group that is being added doesn't already exist within the DOM, the most likely occurrence
              * of this case is when being called from the `fromJSON(...)` method
              */
             const isGroupAddedToDom = referenceGroup.element.parentElement !== null;
@@ -8592,8 +8590,28 @@ class DockviewComponent extends BaseGrid {
             }
             else {
                 group = this.createGroup({ id: groupId });
-                this._onDidAddGroup.fire(group);
+                if (popoutContainer) {
+                    this._onDidAddGroup.fire(group);
+                }
             }
+            if (popoutContainer === null) {
+                console.error('dockview: failed to create popout. perhaps you need to allow pop-ups for this website');
+                popoutWindowDisposable.dispose();
+                this._onDidOpenPopoutWindowFail.fire();
+                // if the popout window was blocked, we need to move the group back to the reference group
+                // and set it to visible
+                this.movingLock(() => moveGroupWithoutDestroying({
+                    from: group,
+                    to: referenceGroup,
+                }));
+                if (!referenceGroup.api.isVisible) {
+                    referenceGroup.api.setVisible(true);
+                }
+                return false;
+            }
+            const gready = document.createElement('div');
+            gready.className = 'dv-overlay-render-container';
+            const overlayRenderContainer = new OverlayRenderContainer(gready, this);
             group.model.renderContainer = overlayRenderContainer;
             group.layout(_window.window.innerWidth, _window.window.innerHeight);
             let floatingBox;
@@ -8750,7 +8768,7 @@ class DockviewComponent extends BaseGrid {
             return true;
         })
             .catch((err) => {
-            console.error('dockview: failed to create popout window', err);
+            console.error('dockview: failed to create popout.', err);
             return false;
         });
     }

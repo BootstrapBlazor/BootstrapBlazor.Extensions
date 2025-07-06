@@ -45,9 +45,6 @@ const initDockview = (dockview, options, template) => {
     }
 
     dockview.update = options => {
-        if (options.layoutConfig) {
-            reloadFromConfig(dockview, options);
-        }
         if (dockview.params.options.lock !== options.lock) {
             dockview.params.options.lock = options.lock;
             toggleGroupLock(dockview, options);
@@ -55,6 +52,9 @@ const initDockview = (dockview, options, template) => {
         if (dockview.options.theme.className !== options.theme) {
             dockview.options.theme.className = options.theme;
             dockview.updateTheme();
+        }
+        if (options.layoutConfig) {
+            reloadFromConfig(dockview, options);
         }
         else {
             toggleComponent(dockview, options);
