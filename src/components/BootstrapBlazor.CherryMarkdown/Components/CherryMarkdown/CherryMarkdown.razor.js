@@ -58,6 +58,11 @@ export async function init(id, invoke, options, callback) {
         },
         fileUpload: fileUpload
     };
+
+    if (op.locale) {
+        op.locale = op.locale.replace('-', '_');
+    }
+
     const editor = new Cherry(op);
     const md = { invoke, editor };
     Data.set(id, md);
