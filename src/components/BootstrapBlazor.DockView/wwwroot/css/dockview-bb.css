@@ -27,8 +27,14 @@
         --dv-tabs-and-actions-container-font-size: 12px;
     }
 
+    .bb-dockview .dockview-theme-light {
+        --dv-floating-box-shadow: 0px 0px 0px 1px var(--bs-border-color), 0px 6px 12px -3px #25292e0a, 0px 6px 18px 0px #25292e1f;
+    }
+
     .bb-dockview .dv-resize-container {
-        border: 1px solid var(--bs-border-color);
+        border: none;
+        border-radius: var(--bs-border-radius);
+        overflow: hidden;
     }
 
     .bb-dockview .bb-dockview-panel {
