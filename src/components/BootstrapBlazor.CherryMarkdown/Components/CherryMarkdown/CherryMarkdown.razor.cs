@@ -67,6 +67,12 @@ public partial class CherryMarkdown
     public bool IsViewer { get; set; }
 
     /// <summary>
+    /// 获取/设置 组件语言
+    /// </summary>
+    [Parameter]
+    public string Locale { get; set; } = "zh-CN";
+
+    /// <summary>
     /// <inheritdoc/>
     /// </summary>
     /// <param name="firstRender"></param>
@@ -93,7 +99,7 @@ public partial class CherryMarkdown
     /// </summary>
     /// <returns></returns>
     protected override Task InvokeInitAsync() => InvokeVoidAsync("init", Id, Interop,
-        new { Value, IsSupportMath, IsViewer, Editor = EditorSettings ?? new(), Toolbars = ToolbarSettings ?? new() },
+        new { Value, IsSupportMath, IsViewer, Locale, Editor = EditorSettings ?? new(), Toolbars = ToolbarSettings ?? new() },
         nameof(Upload));
 
     /// <summary>
