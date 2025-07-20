@@ -3,6 +3,7 @@
 // Website: https://www.blazor.zone or https://argozhang.github.io/
 
 using System.Buffers;
+using System.Diagnostics;
 using System.IO.Pipelines;
 using System.Net;
 using TouchSocket.Core;
@@ -10,14 +11,12 @@ using TouchSocket.Sockets;
 
 namespace BootstrapBlazor.Components;
 
-sealed class DefaultTcpSocketProvider : TcpClientBase, ISocketClientProvider
+internal sealed class DefaultTcpSocketProvider : TcpClientBase, ISocketClientProvider
 {
-    private readonly Pipe _pipe = new();
-
     /// <summary>
     /// <inheritdoc/>
     /// </summary>
-    public bool IsConnected => Online;
+    public bool IsConnected => base.Online;
 
     /// <summary>
     /// <inheritdoc/>
@@ -27,29 +26,36 @@ sealed class DefaultTcpSocketProvider : TcpClientBase, ISocketClientProvider
     /// <summary>
     /// <inheritdoc/>
     /// </summary>
-    public async ValueTask<bool> ConnectAsync(IPEndPoint endPoint, CancellationToken token = default)
+    public async ValueTask CloseAsync()
     {
-        await SetupAsync(new TouchSocketConfig()
-            .SetBindIPHost(new IPHost(LocalEndPoint.Address, LocalEndPoint.Port))
-            .SetRemoteIPHost(new IPHost(endPoint.Address, endPoint.Port)));
-        await TcpConnectAsync(int.MaxValue, token);
-        if (Online)
-        {
-            if (MainSocket.LocalEndPoint is IPEndPoint localEndPoint)
-            {
-                LocalEndPoint = localEndPoint;
-            }
-        }
-        return Online;
+        await base.CloseAsync(string.Empty);
     }
 
     /// <summary>
     /// <inheritdoc/>
     /// </summary>
-    public async ValueTask<bool> SendAsync(ReadOnlyMemory<byte> data, CancellationToken token = default)
+    public async ValueTask<bool> ConnectAsync(IPEndPoint endPoint, CancellationToken token = default)
     {
-        await ProtectedDefaultSendAsync(data, token);
-        return true;
+        await SetupAsync(new TouchSocketConfig()
+            .SetBindIPHost(new IPHost(LocalEndPoint.Address, LocalEndPoint.Port))
+            .SetRemoteIPHost(new IPHost(endPoint.Address, endPoint.Port)));
+
+        try
+        {
+            await TcpConnectAsync(int.MaxValue, token);
+            Debug.Assert(MainSocket != null, "MainSocket cannot be null after connection.");
+            Debug.Assert(base.Online, "Online should be true after successful connection.");
+            if (MainSocket.LocalEndPoint is IPEndPoint localEndPoint)
+            {
+                LocalEndPoint = localEndPoint;
+            }
+            return true;
+        }
+        catch (Exception ex)
+        {
+            this.Logger?.Exception(this, ex);
+            return false;
+        }
     }
 
     /// <summary>
@@ -57,28 +63,61 @@ sealed class DefaultTcpSocketProvider : TcpClientBase, ISocketClientProvider
     /// </summary>
     public async ValueTask<int> ReceiveAsync(Memory<byte> buffer, CancellationToken token = default)
     {
-        var result = await _pipe.Reader.ReadAsync(token);
+        token.ThrowIfCancellationRequested();
+        this.ThrowIfTcpClientNotConnected();
+        this.ThrowIfDisposed();
+
+        var result = await base.Transport.Input.ReadAsync(token);
         if (result.IsCompleted)
         {
             return 0;
         }
+        var length = (int)Math.Min(result.Buffer.Length, buffer.Length);
 
-        result.Buffer.CopyTo(buffer.Span);
-        return (int)result.Buffer.Length;
-    }
+        var sequence = result.Buffer.Slice(0, length);
 
-    protected override async ValueTask<bool> OnTcpReceiving(ByteBlock byteBlock)
-    {
-        await _pipe.Writer.WriteAsync(byteBlock.Memory);
-        await _pipe.Writer.FlushAsync();
-        return true;
+        sequence.CopyTo(buffer.Span);
+        base.Transport.Input.AdvanceTo(sequence.End);
+        return length;
     }
 
     /// <summary>
     /// <inheritdoc/>
     /// </summary>
-    public async ValueTask CloseAsync()
+    public async ValueTask<bool> SendAsync(ReadOnlyMemory<byte> data, CancellationToken token = default)
     {
-        await CloseAsync(string.Empty);
+        token.ThrowIfCancellationRequested();
+        base.ThrowIfTcpClientNotConnected();
+        base.ThrowIfDisposed();
+        var pipeWriter = base.Transport.Output;
+        var locker = base.Transport.SemaphoreSlimForWriter;
+        await locker.WaitAsync(token);
+        try
+        {
+            pipeWriter.Write(data.Span);
+            var result = await pipeWriter.FlushAsync(token);
+            if (result.IsCanceled || result.IsCompleted)
+            {
+                return false;
+            }
+            return true;
+        }
+        catch (Exception ex)
+        {
+            this.Logger?.Exception(this, ex);
+            return false;
+        }
+        finally
+        {
+            locker.Release();
+        }
+    }
+
+    protected override sealed async Task ReceiveLoopAsync(ITransport transport)
+    {
+        //重写接收循环方法
+        //此处不做任何数据读取
+        //让数据直接到ReceiveAsync使用管道直接读取数据
+        await Task.Delay(-1, transport.ClosedToken);
     }
 }
