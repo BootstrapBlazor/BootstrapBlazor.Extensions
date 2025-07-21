@@ -10,6 +10,11 @@ DockviewComponent.prototype.on = function (eventType, callback) {
 const dispose = DockviewComponent.prototype.dispose;
 DockviewComponent.prototype.dispose = function () {
     this.params.observer?.disconnect();
+    this.groups.forEach(group => {
+        if (group.mutationObserver) {
+            group.mutationObserver.disconnect();
+        }
+    })
     saveConfig(this);
     dispose.call(this);
 }

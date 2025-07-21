@@ -55,7 +55,8 @@ const renewConfigFromOptions = (config, options) => {
         if (panel) {
             optionPanel.params = {
                 ...panel.params,
-                ...optionPanel.params
+                ...optionPanel.params,
+                visible: panel.params.visible
             }
             config.panels[panel.id] = optionPanel
         }
@@ -197,6 +198,7 @@ const removePanel = (branch, panel, parent) => {
 const getConfigFromContent = options => {
     const { width, height } = { width: 800, height: 600 };
     const getGroupId = getGroupIdFunc()
+    options = filterEmptyContent(options)
     const panels = {}, rootType = options.content[0].type
     const orientation = rootType === 'column' ? 'VERTICAL' : 'HORIZONTAL';
     const root = getTree(options.content[0], { width, height, orientation }, options, panels, getGroupId, options)
@@ -211,7 +213,17 @@ const getGroupIdFunc = () => {
     let currentId = 0;
     return () => `${currentId++}`;
 }
-
+const filterEmptyContent = function(data) {
+    if (!data || typeof data !== 'object') return data;
+    
+    if (Array.isArray(data.content)) {
+        data.content = data.content
+            .map(item => filterEmptyContent(item))
+            .filter(item => !(Array.isArray(item.content) && item.content.length === 0));
+    }
+    
+    return data;
+}
 const getTree = (contentItem, { width, height, orientation }, parent, panels, getGroupId, options) => {
     const length = parent.content.length;
     const boxSize = orientation === 'HORIZONTAL' ? width : height;
@@ -279,24 +291,22 @@ const getLeafNode = (contentItem, size, boxSize, parent, panels, getGroupId, opt
     const visible = contentItem.visible !== false;
     const data = {
         type: 'leaf',
-        visible,
+        visible: true,
         size: getSize(boxSize, contentItem.width || contentItem.height) || size,
         data: {
             id: getGroupId(),
             activeView: contentItem.id,
             hideHeader: contentItem.showHeader === false,
-            views: visible ? [contentItem.id] : []
+            views: [contentItem.id]
         }
     };
-    if (visible) {
-        panels[contentItem.id] = {
-            id: contentItem.id,
-            title: contentItem.title,
-            renderer: contentItem.renderer || options.renderer,
-            tabComponent: contentItem.componentName,
-            contentComponent: contentItem.componentName,
-            params: { ...contentItem, parentId: parent.id }
-        }
+    panels[contentItem.id] = {
+        id: contentItem.id,
+        title: contentItem.title,
+        renderer: contentItem.renderer || options.renderer,
+        tabComponent: contentItem.componentName,
+        contentComponent: contentItem.componentName,
+        params: { ...contentItem, parentId: parent.id }
     }
     return data;
 }
@@ -307,9 +317,25 @@ const saveConfig = dockview => {
         const json = dockview.toJSON();
         if (dockview.floatingGroups && dockview.floatingGroups.length > 0) {
             json.floatingGroups.forEach((fg, index) => {
-                const width = dockview.floatingGroups[index].group.width
-                fg.position.width = fg.position.width || (width ? width + 2 : 300)
-                fg.position.height = fg.position.height || dockview.floatingGroups[index].group.height
+                const group = dockview.floatingGroups[index].group
+                if (fg.position.width > 0) {
+                    group.panels.forEach(panel => {
+                        !panel.params.currentPosition && (panel.params.currentPosition = {})
+                        panel.params.currentPosition.width = fg.position.width
+                    })
+                }
+                else {
+                    fg.position.width = group.params.currentPosition.width || 500
+                }
+                if (fg.position.height > 0) {
+                    group.panels.forEach(panel => {
+                        !panel.params.currentPosition && (panel.params.currentPosition = {})
+                        panel.params.currentPosition.height = fg.position.height
+                    })
+                }
+                else {
+                    fg.position.height = group.params.currentPosition.height || 350
+                }
             })
         }
         localStorage.setItem(dockview.params.options.localStorageKey, JSON.stringify(json));

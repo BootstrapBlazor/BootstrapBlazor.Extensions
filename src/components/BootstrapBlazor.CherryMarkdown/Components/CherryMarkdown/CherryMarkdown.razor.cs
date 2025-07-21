@@ -3,6 +3,7 @@
 // Website: https://www.blazor.zone or https://argozhang.github.io/
 
 using Microsoft.AspNetCore.Components;
+using System.Globalization;
 
 namespace BootstrapBlazor.Components;
 
@@ -67,6 +68,25 @@ public partial class CherryMarkdown
     public bool IsViewer { get; set; }
 
     /// <summary>
+    /// 获取/设置 组件语言
+    /// </summary>
+    [Parameter]
+    public string? Language { get; set; }
+
+    /// <summary>
+    /// <inheritdoc/>
+    /// </summary>
+    protected override void OnParametersSet()
+    {
+        base.OnParametersSet();
+
+        if (string.IsNullOrEmpty(Language))
+        {
+            Language = CultureInfo.CurrentUICulture.Name;
+        }
+    }
+
+    /// <summary>
     /// <inheritdoc/>
     /// </summary>
     /// <param name="firstRender"></param>
@@ -93,7 +113,7 @@ public partial class CherryMarkdown
     /// </summary>
     /// <returns></returns>
     protected override Task InvokeInitAsync() => InvokeVoidAsync("init", Id, Interop,
-        new { Value, IsSupportMath, IsViewer, Editor = EditorSettings ?? new(), Toolbars = ToolbarSettings ?? new() },
+        new { Value, IsSupportMath, IsViewer, Locale = Language, Editor = EditorSettings ?? new(), Toolbars = ToolbarSettings ?? new() },
         nameof(Upload));
 
     /// <summary>
