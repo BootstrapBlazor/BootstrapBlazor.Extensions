@@ -292,6 +292,7 @@
   --dv-active-sash-color: transparent;
   --dv-active-sash-transition-duration: 0.1s;
   --dv-active-sash-transition-delay: 0.5s;
+  box-sizing: border-box;
   padding: 10px;
   background-color: #ebeced;
   --dv-group-view-background-color: #ebeced;
@@ -411,6 +412,7 @@
   --dv-tab-margin: 0.5rem 0.25rem;
   --dv-tabs-and-actions-container-height: 44px;
   --dv-border-radius: 20px;
+  box-sizing: border-box;
   --dv-color-abyss-dark: rgb(11, 6, 17);
   --dv-color-abyss: #16121f;
   --dv-color-abyss-light: #201d2b;
@@ -515,6 +517,7 @@
   --dv-tab-margin: 0.5rem 0.25rem;
   --dv-tabs-and-actions-container-height: 44px;
   --dv-border-radius: 20px;
+  box-sizing: border-box;
   --dv-drag-over-border: 2px solid rgb(91, 30, 207);
   --dv-drag-over-background-color: "";
   --dv-group-view-background-color: #f6f5f9;
@@ -1023,6 +1026,63 @@
   pointer-events: none;
   background-color: var(--dv-separator-border);
 }
+.dv-dragged {
+  transform: translate3d(0px, 0px, 0px); /* forces tab to be drawn on a separate layer (see https://github.com/microsoft/vscode/issues/18733) */
+}
+
+.dv-tab {
+  flex-shrink: 0;
+}
+.dv-tab:focus-within, .dv-tab:focus {
+  position: relative;
+}
+.dv-tab:focus-within::after, .dv-tab:focus::after {
+  position: absolute;
+  content: "";
+  height: 100%;
+  width: 100%;
+  top: 0px;
+  left: 0px;
+  pointer-events: none;
+  outline: 1px solid var(--dv-tab-divider-color) !important;
+  outline-offset: -1px;
+  z-index: 5;
+}
+.dv-tab.dv-tab-dragging .dv-default-tab-action {
+  background-color: var(--dv-activegroup-visiblepanel-tab-color);
+}
+.dv-tab.dv-active-tab .dv-default-tab .dv-default-tab-action {
+  visibility: visible;
+}
+.dv-tab.dv-inactive-tab .dv-default-tab .dv-default-tab-action {
+  visibility: hidden;
+}
+.dv-tab.dv-inactive-tab .dv-default-tab:hover .dv-default-tab-action {
+  visibility: visible;
+}
+.dv-tab .dv-default-tab {
+  position: relative;
+  height: 100%;
+  display: flex;
+  align-items: center;
+  white-space: nowrap;
+  text-overflow: ellipsis;
+}
+.dv-tab .dv-default-tab .dv-default-tab-content {
+  flex-grow: 1;
+  margin-right: 4px;
+}
+.dv-tab .dv-default-tab .dv-default-tab-action {
+  padding: 4px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  box-sizing: border-box;
+}
+.dv-tab .dv-default-tab .dv-default-tab-action:hover {
+  border-radius: 2px;
+  background-color: var(--dv-icon-hover-background-color);
+}
 .dv-tabs-overflow-dropdown-default {
   height: 100%;
   color: var(--dv-activegroup-hiddenpanel-tab-color);
@@ -1132,61 +1192,4 @@
 .dv-watermark {
   display: flex;
   height: 100%;
-}
-.dv-dragged {
-  transform: translate3d(0px, 0px, 0px); /* forces tab to be drawn on a separate layer (see https://github.com/microsoft/vscode/issues/18733) */
-}
-
-.dv-tab {
-  flex-shrink: 0;
-}
-.dv-tab:focus-within, .dv-tab:focus {
-  position: relative;
-}
-.dv-tab:focus-within::after, .dv-tab:focus::after {
-  position: absolute;
-  content: "";
-  height: 100%;
-  width: 100%;
-  top: 0px;
-  left: 0px;
-  pointer-events: none;
-  outline: 1px solid var(--dv-tab-divider-color) !important;
-  outline-offset: -1px;
-  z-index: 5;
-}
-.dv-tab.dv-tab-dragging .dv-default-tab-action {
-  background-color: var(--dv-activegroup-visiblepanel-tab-color);
-}
-.dv-tab.dv-active-tab .dv-default-tab .dv-default-tab-action {
-  visibility: visible;
-}
-.dv-tab.dv-inactive-tab .dv-default-tab .dv-default-tab-action {
-  visibility: hidden;
-}
-.dv-tab.dv-inactive-tab .dv-default-tab:hover .dv-default-tab-action {
-  visibility: visible;
-}
-.dv-tab .dv-default-tab {
-  position: relative;
-  height: 100%;
-  display: flex;
-  align-items: center;
-  white-space: nowrap;
-  text-overflow: ellipsis;
-}
-.dv-tab .dv-default-tab .dv-default-tab-content {
-  flex-grow: 1;
-  margin-right: 4px;
-}
-.dv-tab .dv-default-tab .dv-default-tab-action {
-  padding: 4px;
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  box-sizing: border-box;
-}
-.dv-tab .dv-default-tab .dv-default-tab-action:hover {
-  border-radius: 2px;
-  background-color: var(--dv-icon-hover-background-color);
 }

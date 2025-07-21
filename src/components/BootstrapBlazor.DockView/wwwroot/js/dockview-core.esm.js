@@ -1,6 +1,6 @@
 /**
  * dockview-core
- * @version 4.4.0
+ * @version 4.5.0
  * @link https://github.com/mathuo/dockview
  * @license MIT
  */
@@ -4990,7 +4990,7 @@ class Tab extends CompositeDisposable {
         this._element = document.createElement('div');
         this._element.className = 'dv-tab';
         this._element.tabIndex = 0;
-        this._element.draggable = true;
+        this._element.draggable = !this.accessor.options.disableDnd;
         toggleClass(this.element, 'dv-inactive-tab', true);
         const dragHandler = new TabDragHandler(this._element, this.accessor, this.group, this.panel);
         this.dropTarget = new Droptarget(this._element, {
@@ -5037,6 +5037,9 @@ class Tab extends CompositeDisposable {
         }
         this.content = part;
         this._element.appendChild(this.content.element);
+    }
+    updateDragAndDropState() {
+        this._element.draggable = !this.accessor.options.disableDnd;
     }
     dispose() {
         super.dispose();
@@ -5109,7 +5112,7 @@ class VoidContainer extends CompositeDisposable {
         this.onDragStart = this._onDragStart.event;
         this._element = document.createElement('div');
         this._element.className = 'dv-void-container';
-        this._element.draggable = true;
+        this._element.draggable = !this.accessor.options.disableDnd;
         this.addDisposables(this._onDrop, this._onDragStart, addDisposableListener(this._element, 'pointerdown', () => {
             this.accessor.doSetGroupActive(this.group);
         }));
@@ -5131,6 +5134,9 @@ class VoidContainer extends CompositeDisposable {
         }), this.dropTarget.onDrop((event) => {
             this._onDrop.fire(event);
         }), this.dropTarget);
+    }
+    updateDragAndDropState() {
+        this._element.draggable = !this.accessor.options.disableDnd;
     }
 }
 
@@ -5391,6 +5397,11 @@ class Tabs extends CompositeDisposable {
                 .filter((tab) => !isChildEntirelyVisibleWithinParent(tab.value.element, this._tabsList))
                 .map((x) => x.value.panel.id);
         this._onOverflowTabsChange.fire({ tabs, reset: options.reset });
+    }
+    updateDragAndDropState() {
+        for (const tab of this._tabs) {
+            tab.value.updateDragAndDropState();
+        }
     }
 }
 
@@ -5663,6 +5674,10 @@ class TabsContainer extends CompositeDisposable {
                     : undefined,
             });
         }));
+    }
+    updateDragAndDropState() {
+        this.tabs.updateDragAndDropState();
+        this.voidContainer.updateDragAndDropState();
     }
 }
 
@@ -6369,6 +6384,9 @@ class DockviewGroupPanelModel extends CompositeDisposable {
             }));
         }
     }
+    updateDragAndDropState() {
+        this.tabsContainer.updateDragAndDropState();
+    }
     dispose() {
         var _a, _b, _c;
         super.dispose();
@@ -6614,23 +6632,24 @@ class DockviewGroupPanelApiImpl extends GridviewPanelApiImpl {
             : window;
     }
     moveTo(options) {
-        var _a, _b, _c;
+        var _a, _b, _c, _d;
         if (!this._group) {
             throw new Error(NOT_INITIALIZED_MESSAGE);
         }
         const group = (_a = options.group) !== null && _a !== void 0 ? _a : this.accessor.addGroup({
             direction: positionToDirection((_b = options.position) !== null && _b !== void 0 ? _b : 'right'),
-            skipSetActive: true,
+            skipSetActive: (_c = options.skipSetActive) !== null && _c !== void 0 ? _c : false,
         });
         this.accessor.moveGroupOrPanel({
             from: { groupId: this._group.id },
             to: {
                 group,
                 position: options.group
-                    ? (_c = options.position) !== null && _c !== void 0 ? _c : 'center'
+                    ? (_d = options.position) !== null && _d !== void 0 ? _d : 'center'
                     : 'center',
                 index: options.index,
             },
+            skipSetActive: options.skipSetActive,
         });
     }
     maximize() {
@@ -6862,6 +6881,7 @@ class DockviewPanelApiImpl extends GridviewPanelApiImpl {
                     : 'center',
                 index: options.index,
             },
+            skipSetActive: options.skipSetActive,
         });
     }
     setTitle(title) {
@@ -8979,7 +8999,12 @@ class DockviewComponent extends BaseGrid {
             }
         }
         this.updateDropTargetModel(options);
+        const oldDisableDnd = this.options.disableDnd;
         this._options = Object.assign(Object.assign({}, this.options), options);
+        const newDisableDnd = this.options.disableDnd;
+        if (oldDisableDnd !== newDisableDnd) {
+            this.updateDragAndDropState();
+        }
         if ('theme' in options) {
             this.updateTheme();
         }
@@ -8992,6 +9017,12 @@ class DockviewComponent extends BaseGrid {
                 // ensure floting groups stay within visible boundaries
                 floating.overlay.setBounds();
             }
+        }
+    }
+    updateDragAndDropState() {
+        // Update draggable state for all tabs and void containers
+        for (const group of this.groups) {
+            group.model.updateDragAndDropState();
         }
     }
     focus() {
@@ -9581,6 +9612,7 @@ class DockviewComponent extends BaseGrid {
                     group: destinationGroup,
                     position: destinationTarget,
                 },
+                skipSetActive: options.skipSetActive,
             });
             return;
         }
@@ -9599,11 +9631,17 @@ class DockviewComponent extends BaseGrid {
                 // remove the group and do not set a new group as active
                 this.doRemoveGroup(sourceGroup, { skipActive: true });
             }
-            this.movingLock(() => destinationGroup.model.openPanel(removedPanel, {
-                index: destinationIndex,
-                skipSetGroupActive: true,
-            }));
-            this.doSetGroupAndPanelActive(destinationGroup);
+            this.movingLock(() => {
+                var _a;
+                return destinationGroup.model.openPanel(removedPanel, {
+                    index: destinationIndex,
+                    skipSetActive: (_a = options.skipSetActive) !== null && _a !== void 0 ? _a : false,
+                    skipSetGroupActive: true,
+                });
+            });
+            if (!options.skipSetActive) {
+                this.doSetGroupAndPanelActive(destinationGroup);
+            }
             this._onDidMovePanel.fire({
                 panel: removedPanel,
                 from: sourceGroup,
@@ -9736,6 +9774,7 @@ class DockviewComponent extends BaseGrid {
         const target = options.to.position;
         if (target === 'center') {
             const activePanel = from.activePanel;
+            const targetActivePanel = to.activePanel;
             const panels = this.movingLock(() => [...from.panels].map((p) => from.model.removePanel(p.id, {
                 skipSetActive: true,
             })));
@@ -9745,12 +9784,23 @@ class DockviewComponent extends BaseGrid {
             this.movingLock(() => {
                 for (const panel of panels) {
                     to.model.openPanel(panel, {
-                        skipSetActive: panel !== activePanel,
+                        skipSetActive: true, // Always skip setting panels active during move
                         skipSetGroupActive: true,
                     });
                 }
             });
-            this.doSetGroupAndPanelActive(to);
+            if (!options.skipSetActive) {
+                // Make the moved panel (from the source group) active
+                if (activePanel) {
+                    this.doSetGroupAndPanelActive(to);
+                }
+            }
+            else if (targetActivePanel) {
+                // Ensure the target group's original active panel remains active
+                to.model.openPanel(targetActivePanel, {
+                    skipSetGroupActive: true
+                });
+            }
         }
         else {
             switch (from.api.location.type) {
@@ -9770,12 +9820,39 @@ class DockviewComponent extends BaseGrid {
                     if (!selectedPopoutGroup) {
                         throw new Error('failed to find popout group');
                     }
-                    selectedPopoutGroup.disposable.dispose();
+                    // Remove from popout groups list to prevent automatic restoration
+                    const index = this._popoutGroups.indexOf(selectedPopoutGroup);
+                    if (index >= 0) {
+                        this._popoutGroups.splice(index, 1);
+                    }
+                    // Clean up the reference group (ghost) if it exists and is hidden
+                    if (selectedPopoutGroup.referenceGroup) {
+                        const referenceGroup = this.getPanel(selectedPopoutGroup.referenceGroup);
+                        if (referenceGroup && !referenceGroup.api.isVisible) {
+                            this.doRemoveGroup(referenceGroup, { skipActive: true });
+                        }
+                    }
+                    // Manually dispose the window without triggering restoration
+                    selectedPopoutGroup.window.dispose();
+                    // Update group's location and containers for target
+                    if (to.api.location.type === 'grid') {
+                        from.model.renderContainer = this.overlayRenderContainer;
+                        from.model.dropTargetContainer = this.rootDropTargetContainer;
+                        from.model.location = { type: 'grid' };
+                    }
+                    else if (to.api.location.type === 'floating') {
+                        from.model.renderContainer = this.overlayRenderContainer;
+                        from.model.dropTargetContainer = this.rootDropTargetContainer;
+                        from.model.location = { type: 'floating' };
+                    }
+                    break;
                 }
             }
-            if (from.api.location.type !== 'popout') {
+            // For moves to grid locations
+            if (to.api.location.type === 'grid') {
                 const referenceLocation = getGridLocation(to.element);
                 const dropLocation = getRelativeLocation(this.gridview.orientation, referenceLocation, target);
+                // Add to grid for all moves targeting grid location
                 // let size = this.getGroupShape(to, target)
                 // size = size ? size / 2 : size
                 // this.gridview.addView(from, size, dropLocation);
@@ -9796,10 +9873,49 @@ class DockviewComponent extends BaseGrid {
                 }
                 this.gridview.addView(from, size, dropLocation);
             }
+            else if (to.api.location.type === 'floating') {
+                // For moves to floating locations, add as floating group
+                // Get the position/size from the target floating group
+                const targetFloatingGroup = this._floatingGroups.find((x) => x.group === to);
+                if (targetFloatingGroup) {
+                    const box = targetFloatingGroup.overlay.toJSON();
+                    // Calculate position based on available properties
+                    let left, top;
+                    if ('left' in box) {
+                        left = box.left + 50;
+                    }
+                    else if ('right' in box) {
+                        left = Math.max(0, box.right - box.width - 50);
+                    }
+                    else {
+                        left = 50; // Default fallback
+                    }
+                    if ('top' in box) {
+                        top = box.top + 50;
+                    }
+                    else if ('bottom' in box) {
+                        top = Math.max(0, box.bottom - box.height - 50);
+                    }
+                    else {
+                        top = 50; // Default fallback
+                    }
+                    this.addFloatingGroup(from, {
+                        height: box.height,
+                        width: box.width,
+                        position: {
+                            left,
+                            top,
+                        },
+                    });
+                }
+            }
         }
         from.panels.forEach((panel) => {
             this._onDidMovePanel.fire({ panel, from });
         });
+        if (!options.skipSetActive) {
+            this.doSetGroupAndPanelActive(from);
+        }
     }
     doSetGroupActive(group) {
         super.doSetGroupActive(group);
