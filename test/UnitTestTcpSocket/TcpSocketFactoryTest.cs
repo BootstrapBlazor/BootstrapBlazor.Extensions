@@ -25,17 +25,17 @@ public class TcpSocketFactoryTest
         sc.AddBootstrapBlazorTcpSocketFactory();
         var provider = sc.BuildServiceProvider();
         var factory = provider.GetRequiredService<ITcpSocketFactory>();
-        var client1 = factory.GetOrCreate("demo", op => op.LocalEndPoint = Utility.ConvertToIpEndPoint("localhost", 0));
+        var client1 = factory.GetOrCreate("demo", op => op.LocalEndPoint = TcpSocketUtility.ConvertToIpEndPoint("localhost", 0));
         await client1.CloseAsync();
 
-        var client2 = factory.GetOrCreate("demo", op => op.LocalEndPoint = Utility.ConvertToIpEndPoint("localhost", 0));
+        var client2 = factory.GetOrCreate("demo", op => op.LocalEndPoint = TcpSocketUtility.ConvertToIpEndPoint("localhost", 0));
         Assert.Equal(client1, client2);
 
         var ip = Dns.GetHostAddresses(Dns.GetHostName(), AddressFamily.InterNetwork).FirstOrDefault() ?? IPAddress.Loopback;
-        var client3 = factory.GetOrCreate("demo1", op => op.LocalEndPoint = Utility.ConvertToIpEndPoint(ip.ToString(), 0));
+        var client3 = factory.GetOrCreate("demo1", op => op.LocalEndPoint = TcpSocketUtility.ConvertToIpEndPoint(ip.ToString(), 0));
 
         // 测试不合格 IP 地址
-        var client4 = factory.GetOrCreate("demo2", op => op.LocalEndPoint = Utility.ConvertToIpEndPoint("256.0.0.1", 0));
+        var client4 = factory.GetOrCreate("demo2", op => op.LocalEndPoint = TcpSocketUtility.ConvertToIpEndPoint("256.0.0.1", 0));
 
         var client5 = factory.Remove("demo2");
         Assert.Equal(client4, client5);
@@ -959,7 +959,7 @@ public class TcpSocketFactoryTest
         var factory = provider.GetRequiredService<ITcpSocketFactory>();
         var client = factory.GetOrCreate("test", op =>
         {
-            op.LocalEndPoint = Utility.ConvertToIpEndPoint("localhost", 0);
+            op.LocalEndPoint = TcpSocketUtility.ConvertToIpEndPoint("localhost", 0);
             op.EnableLog = true;
             optionConfigure?.Invoke(op);
         });

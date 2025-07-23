@@ -14,7 +14,7 @@ public class SocketDataConverterCollectionsTest
     public void TryGetConverter_Ok()
     {
         var sc = new ServiceCollection();
-        sc.ConfigureSocketDataConverters(options =>
+        sc.ConfigureDataConverters(options =>
         {
             options.AddTypeConverter<MockEntity>();
             options.AddPropertyConverter<MockEntity>(entity => entity.Header, new DataPropertyConverterAttribute()

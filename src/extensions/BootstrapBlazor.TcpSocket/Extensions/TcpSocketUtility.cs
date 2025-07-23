@@ -9,9 +9,9 @@ using System.Runtime.Versioning;
 namespace BootstrapBlazor.TcpSocket;
 
 /// <summary>
-/// Utility 帮助类
+/// SocketUtility 帮助类
 /// </summary>
-public static class Utility
+public static class TcpSocketUtility
 {
     /// <summary>
     /// Converts a string representation of an IP address or hostname into an <see cref="IPAddress"/> object.

@@ -6,27 +6,27 @@ using System.Net;
 
 namespace UnitTestTcpSocket;
 
-public class UtiityTest
+public class TcpSocketUtiityTest
 {
 
     [Fact]
     public void ConvertToIPAddress_Ok()
     {
-        var ex = Assert.Throws<ArgumentNullException>(() => Utility.ConvertToIPAddress(""));
+        var ex = Assert.Throws<ArgumentNullException>(() => TcpSocketUtility.ConvertToIPAddress(""));
         Assert.NotNull(ex);
 
-        var address = Utility.ConvertToIPAddress("any");
+        var address = TcpSocketUtility.ConvertToIPAddress("any");
         Assert.Equal(IPAddress.Any, address);
     }
 
     [Fact]
     public void ConvertToIpEndPoint_Ok()
     {
-        var ex = Assert.Throws<ArgumentOutOfRangeException>(() => Utility.ConvertToIpEndPoint("localhost", 88990));
+        var ex = Assert.Throws<ArgumentOutOfRangeException>(() => TcpSocketUtility.ConvertToIpEndPoint("localhost", 88990));
         Assert.NotNull(ex);
 
         ex = null;
-        ex = Assert.Throws<ArgumentOutOfRangeException>(() => Utility.ConvertToIpEndPoint("localhost", -1000));
+        ex = Assert.Throws<ArgumentOutOfRangeException>(() => TcpSocketUtility.ConvertToIpEndPoint("localhost", -1000));
         Assert.NotNull(ex);
     }
 }

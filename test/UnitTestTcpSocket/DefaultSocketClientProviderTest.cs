@@ -39,7 +39,7 @@ public class DefaultSocketClientProviderTest
         var factory = provider.GetRequiredService<ITcpSocketFactory>();
         var client = factory.GetOrCreate("provider", op =>
         {
-            op.LocalEndPoint = Utility.ConvertToIpEndPoint("localhost", 0);
+            op.LocalEndPoint = TcpSocketUtility.ConvertToIpEndPoint("localhost", 0);
             op.IsAutoReceive = false;
             op.EnableLog = false;
         });

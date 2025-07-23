@@ -36,7 +36,7 @@ public static class TcpSocketExtensions
     /// <param name="services"></param>
     /// <param name="configureOptions"></param>
     /// <returns></returns>
-    public static IServiceCollection ConfigureSocketDataConverters(this IServiceCollection services, Action<DataConverterCollections> configureOptions)
+    public static IServiceCollection ConfigureDataConverters(this IServiceCollection services, Action<DataConverterCollections> configureOptions)
     {
         services.Configure(configureOptions);
         return services;

@@ -48,7 +48,7 @@ public static class ITcpSocketClientExtensions
     /// is successfully established; otherwise, <see langword="false"/>.</returns>
     public static ValueTask<bool> ConnectAsync(this ITcpSocketClient client, string ipString, int port, CancellationToken token = default)
     {
-        var endPoint = Utility.ConvertToIpEndPoint(ipString, port);
+        var endPoint = TcpSocketUtility.ConvertToIpEndPoint(ipString, port);
         return client.ConnectAsync(endPoint, token);
     }
 
