@@ -1,0 +1,12 @@
+﻿<Project Sdk="Microsoft.NET.Sdk">
+
+  <PropertyGroup>
+    <Version>9.0.0</Version>
+  </PropertyGroup>
+
+  <PropertyGroup>
+    <PackageTags>BootstrapBlazor Socket</PackageTags>
+    <Description>BootstrapBlazor extensions of Socket</Description>
+  </PropertyGroup>
+
+</Project>
