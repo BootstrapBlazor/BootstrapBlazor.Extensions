@@ -765,7 +765,23 @@ public class TcpSocketFactoryTest
         var port = 8895;
         var server = StartTcpServer(port, MockSplitPackageAsync);
 
-        var client = CreateClient();
+        var client = CreateClient(builder =>
+        {
+            builder.Configure<SocketDataConverterCollections>(options =>
+            {
+                options.AddTypeConverter<OptionConvertEntity>();
+                options.AddPropertyConverter<OptionConvertEntity>(entity => entity.Header, new SocketDataPropertyConverterAttribute()
+                {
+                    Offset = 0,
+                    Length = 5
+                });
+                options.AddPropertyConverter<OptionConvertEntity>(entity => entity.Body, new SocketDataPropertyConverterAttribute()
+                {
+                    Offset = 5,
+                    Length = 2
+                });
+            });
+        });
         var tcs = new TaskCompletionSource();
         var receivedBuffer = new byte[128];
 

@@ -28,22 +28,6 @@ public static class TcpSocketExtensions
         // 增加 ISocketClientProvider 服务
         services.TryAddTransient<ITcpSocketClientProvider, DefaultTcpSocketClientProvider>();
 
-        // 增加转换器集合配置服务
-        services.AddSocketDataConverters();
-        return services;
-    }
-
-    /// <summary>
-    /// 增加 Socket 数据转换器集合配置项服务
-    /// </summary>
-    /// <param name="services"></param>
-    /// <returns></returns>
-    static IServiceCollection AddSocketDataConverters(this IServiceCollection services)
-    {
-        services.AddOptions();
-        services.TryAddSingleton<IOptionsChangeTokenSource<SocketDataConverterCollections>, ConfigurationChangeTokenSource<SocketDataConverterCollections>>();
-        services.TryAddSingleton<IConfigureOptions<SocketDataConverterCollections>, ConfigureOptions<SocketDataConverterCollections>>();
-
         return services;
     }
 
