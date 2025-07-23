@@ -1,0 +1,47 @@
+﻿<Project Sdk="Microsoft.NET.Sdk">
+
+  <PropertyGroup>
+    <Version>9.0.0-beta01</Version>
+  </PropertyGroup>
+
+  <PropertyGroup>
+    <PackageTags>BootstrapBlazor Socket</PackageTags>
+    <Description>BootstrapBlazor extensions of TcpSocket</Description>
+  </PropertyGroup>
+
+  <PropertyGroup>
+    <NET8Version>8.0.*</NET8Version>
+    <NET9Version>9.0.*</NET9Version>
+  </PropertyGroup>
+
+  <ItemGroup Condition="'$(TargetFramework)' == 'net6.0'">
+    <PackageReference Include="Microsoft.Extensions.Logging" Version="$(NET8Version)" />
+    <PackageReference Include="Microsoft.Extensions.Options.ConfigurationExtensions" Version="$(NET8Version)" />
+  </ItemGroup>
+
+  <ItemGroup Condition="'$(TargetFramework)' == 'net7.0'">
+    <PackageReference Include="Microsoft.Extensions.Logging" Version="$(NET8Version)" />
+    <PackageReference Include="Microsoft.Extensions.Options.ConfigurationExtensions" Version="$(NET8Version)" />
+  </ItemGroup>
+
+  <ItemGroup Condition="'$(TargetFramework)' == 'net8.0'">
+    <PackageReference Include="Microsoft.Extensions.Logging" Version="$(NET9Version)" />
+    <PackageReference Include="Microsoft.Extensions.Options.ConfigurationExtensions" Version="$(NET9Version)" />
+  </ItemGroup>
+
+  <ItemGroup Condition="'$(TargetFramework)' == 'net9.0'">
+    <PackageReference Include="Microsoft.Extensions.Logging" Version="$(NET9Version)" />
+    <PackageReference Include="Microsoft.Extensions.Options.ConfigurationExtensions" Version="$(NET9Version)" />
+  </ItemGroup>
+  
+  <ItemGroup>
+    <ProjectReference Include="..\BootstrapBlazor.Socket\BootstrapBlazor.Socket.csproj" />
+  </ItemGroup>
+
+  <ItemGroup>
+    <Using Include="BootstrapBlazor.DataAdapters" />
+    <Using Include="BootstrapBlazor.DataHandlers" />
+    <Using Include="BootstrapBlazor.DataConverters" />
+  </ItemGroup>
+
+</Project>
