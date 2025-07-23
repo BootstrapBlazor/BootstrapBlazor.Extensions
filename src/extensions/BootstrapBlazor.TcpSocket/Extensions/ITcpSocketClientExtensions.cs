@@ -9,7 +9,7 @@ using System.Reflection;
 using System.Runtime.Versioning;
 using System.Text;
 
-namespace BootstrapBlazor.Components;
+namespace BootstrapBlazor.TcpSocket;
 
 /// <summary>
 /// <see cref="ITcpSocketClient"/> 扩展方法类
@@ -90,7 +90,7 @@ public static class ITcpSocketClientExtensions
     /// <param name="adapter">The data package adapter responsible for handling incoming data.</param>
     /// <param name="socketDataConverter">The converter used to transform the received data into the specified entity type.</param>
     /// <param name="callback">The callback function to be invoked with the converted entity.</param>
-    public static void SetDataPackageAdapter<TEntity>(this ITcpSocketClient client, IDataPackageAdapter adapter, ISocketDataConverter<TEntity> socketDataConverter, Func<TEntity?, Task> callback)
+    public static void SetDataPackageAdapter<TEntity>(this ITcpSocketClient client, IDataPackageAdapter adapter, IDataConverter<TEntity> socketDataConverter, Func<TEntity?, Task> callback)
     {
         // 设置 ITcpSocketClient 的回调函数
         client.ReceivedCallBack = async buffer =>
@@ -117,7 +117,7 @@ public static class ITcpSocketClientExtensions
     /// </summary>
     /// <remarks>This method sets up the <paramref name="client"/> to use the specified <paramref
     /// name="adapter"/> for handling incoming data. If the <typeparamref name="TEntity"/> type is decorated with a <see
-    /// cref="SocketDataTypeConverterAttribute"/>, the associated converter is used to transform the data before invoking
+    /// cref="DataTypeConverterAttribute"/>, the associated converter is used to transform the data before invoking
     /// the <paramref name="callback"/>. The callback is called with the converted entity or <see langword="null"/> if
     /// conversion fails.</remarks>
     /// <typeparam name="TEntity">The type of entity that the data package adapter will handle.</typeparam>
@@ -133,14 +133,14 @@ public static class ITcpSocketClientExtensions
             await adapter.HandlerAsync(buffer);
         };
 
-        ISocketDataConverter<TEntity>? converter = null;
+        IDataConverter<TEntity>? converter = null;
 
         var type = typeof(TEntity);
-        var converterType = type.GetCustomAttribute<SocketDataTypeConverterAttribute>();
+        var converterType = type.GetCustomAttribute<DataTypeConverterAttribute>();
         if (converterType is { Type: not null })
         {
             // 如果类型上有 SocketDataTypeConverterAttribute 特性则使用特性中指定的转换器
-            if (Activator.CreateInstance(converterType.Type) is ISocketDataConverter<TEntity> socketDataConverter)
+            if (Activator.CreateInstance(converterType.Type) is IDataConverter<TEntity> socketDataConverter)
             {
                 converter = socketDataConverter;
             }
@@ -163,7 +163,7 @@ public static class ITcpSocketClientExtensions
         }
     }
 
-    private static void SetDataAdapterCallback<TEntity>(this IDataPackageAdapter adapter, ISocketDataConverter<TEntity> converter, Func<TEntity?, Task> callback)
+    private static void SetDataAdapterCallback<TEntity>(this IDataPackageAdapter adapter, IDataConverter<TEntity> converter, Func<TEntity?, Task> callback)
     {
         adapter.ReceivedCallBack = async buffer =>
         {
@@ -176,12 +176,12 @@ public static class ITcpSocketClientExtensions
         };
     }
 
-    private static ISocketDataConverter<TEntity>? GetSocketDataConverter<TEntity>(this ITcpSocketClient client)
+    private static IDataConverter<TEntity>? GetSocketDataConverter<TEntity>(this ITcpSocketClient client)
     {
-        ISocketDataConverter<TEntity>? converter = null;
+        IDataConverter<TEntity>? converter = null;
         if (client is IServiceProvider provider)
         {
-            var converters = provider.GetRequiredService<IOptions<SocketDataConverterCollections>>().Value;
+            var converters = provider.GetRequiredService<IOptions<DataConverterCollections>>().Value;
             if (converters.TryGetTypeConverter<TEntity>(out var v))
             {
                 converter = v;

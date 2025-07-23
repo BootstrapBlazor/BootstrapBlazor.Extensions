@@ -4,7 +4,7 @@
 
 using System.Net;
 
-namespace BootstrapBlazor.Components;
+namespace BootstrapBlazor.TcpSocket;
 
 /// <summary>
 /// Represents a TCP socket for network communication.

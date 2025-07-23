@@ -6,7 +6,7 @@ using System.Net;
 using System.Net.Sockets;
 using System.Runtime.Versioning;
 
-namespace BootstrapBlazor.Components;
+namespace BootstrapBlazor.TcpSocket;
 
 /// <summary>
 /// TcpSocket 客户端默认实现

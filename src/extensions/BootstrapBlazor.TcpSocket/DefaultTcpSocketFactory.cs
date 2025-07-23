@@ -5,7 +5,7 @@
 using System.Collections.Concurrent;
 using System.Runtime.Versioning;
 
-namespace BootstrapBlazor.Components;
+namespace BootstrapBlazor.TcpSocket;
 
 [UnsupportedOSPlatform("browser")]
 sealed class DefaultTcpSocketFactory(IServiceProvider provider) : ITcpSocketFactory

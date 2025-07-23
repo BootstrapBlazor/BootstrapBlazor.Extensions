@@ -38,4 +38,10 @@
     <ProjectReference Include="..\BootstrapBlazor.Socket\BootstrapBlazor.Socket.csproj" />
   </ItemGroup>
 
+  <ItemGroup>
+    <Using Include="BootstrapBlazor.DataAdapters" />
+    <Using Include="BootstrapBlazor.DataHandlers" />
+    <Using Include="BootstrapBlazor.DataConverters" />
+  </ItemGroup>
+
 </Project>

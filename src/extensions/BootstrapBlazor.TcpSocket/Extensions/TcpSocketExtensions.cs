@@ -4,10 +4,9 @@
 
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.DependencyInjection.Extensions;
-using Microsoft.Extensions.Options;
 using System.Runtime.Versioning;
 
-namespace BootstrapBlazor.Components;
+namespace BootstrapBlazor.TcpSocket;
 
 /// <summary>
 /// TcpSocket 扩展方法
@@ -32,12 +31,12 @@ public static class TcpSocketExtensions
     }
 
     /// <summary>
-    /// 配置第三方数据模型与 <see cref="SocketDataConverterCollections"/> 数据转换器集合配置扩展方法
+    /// 配置第三方数据模型与 <see cref="DataConverterCollections"/> 数据转换器集合配置扩展方法
     /// </summary>
     /// <param name="services"></param>
     /// <param name="configureOptions"></param>
     /// <returns></returns>
-    public static IServiceCollection ConfigureSocketDataConverters(this IServiceCollection services, Action<SocketDataConverterCollections> configureOptions)
+    public static IServiceCollection ConfigureSocketDataConverters(this IServiceCollection services, Action<DataConverterCollections> configureOptions)
     {
         services.Configure(configureOptions);
         return services;

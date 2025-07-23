@@ -4,7 +4,7 @@
 
 using System.Net;
 
-namespace BootstrapBlazor.Components;
+namespace BootstrapBlazor.TcpSocket;
 
 /// <summary>
 /// Defines the contract for a socket client that provides asynchronous methods for connecting, sending, receiving, and

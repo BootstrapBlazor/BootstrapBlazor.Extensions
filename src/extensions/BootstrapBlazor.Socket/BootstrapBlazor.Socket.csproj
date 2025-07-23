@@ -9,4 +9,10 @@
     <Description>BootstrapBlazor extensions of Socket</Description>
   </PropertyGroup>
 
+  <ItemGroup>
+    <Using Include="BootstrapBlazor.DataAdapters" />
+    <Using Include="BootstrapBlazor.DataHandlers" />
+    <Using Include="BootstrapBlazor.DataConverters" />
+  </ItemGroup>
+
 </Project>

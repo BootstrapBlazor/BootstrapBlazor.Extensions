@@ -17,12 +17,12 @@ public class SocketDataConverterCollectionsTest
         sc.ConfigureSocketDataConverters(options =>
         {
             options.AddTypeConverter<MockEntity>();
-            options.AddPropertyConverter<MockEntity>(entity => entity.Header, new SocketDataPropertyConverterAttribute()
+            options.AddPropertyConverter<MockEntity>(entity => entity.Header, new DataPropertyConverterAttribute()
             {
                 Offset = 0,
                 Length = 5
             });
-            options.AddPropertyConverter<MockEntity>(entity => entity.Body, new SocketDataPropertyConverterAttribute()
+            options.AddPropertyConverter<MockEntity>(entity => entity.Body, new DataPropertyConverterAttribute()
             {
                 Offset = 5,
                 Length = 2
@@ -30,7 +30,7 @@ public class SocketDataConverterCollectionsTest
 
             // 为提高代码覆盖率 重复添加转换器以后面的为准
             options.AddTypeConverter<MockEntity>();
-            options.AddPropertyConverter<MockEntity>(entity => entity.Header, new SocketDataPropertyConverterAttribute()
+            options.AddPropertyConverter<MockEntity>(entity => entity.Header, new DataPropertyConverterAttribute()
             {
                 Offset = 0,
                 Length = 5
@@ -38,7 +38,7 @@ public class SocketDataConverterCollectionsTest
         });
 
         var provider = sc.BuildServiceProvider();
-        var service = provider.GetRequiredService<IOptions<SocketDataConverterCollections>>();
+        var service = provider.GetRequiredService<IOptions<DataConverterCollections>>();
         Assert.NotNull(service.Value);
 
         var ret = service.Value.TryGetTypeConverter<MockEntity>(out var converter);

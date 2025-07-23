@@ -8,7 +8,7 @@ using System.Buffers;
 using System.Net;
 using System.Runtime.Versioning;
 
-namespace BootstrapBlazor.Components;
+namespace BootstrapBlazor.TcpSocket;
 
 [UnsupportedOSPlatform("browser")]
 class DefaultTcpSocketClient(TcpSocketClientOptions options) : IServiceProvider, ITcpSocketClient

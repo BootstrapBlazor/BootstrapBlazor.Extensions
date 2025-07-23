@@ -654,7 +654,7 @@ public class TcpSocketFactoryTest
         {
             DataPackageHandler = new FixLengthDataPackageHandler(29),
         };
-        client.SetDataPackageAdapter(adapter, new SocketDataConverter<MockEntity>(), t =>
+        client.SetDataPackageAdapter(adapter, new DataConverter<MockEntity>(), t =>
         {
             entity = t;
             tcs.SetResult();
@@ -733,7 +733,7 @@ public class TcpSocketFactoryTest
 
         // 测试数据适配器直接调用 TryConvertTo 方法转换数据
         var adapter2 = new DataPackageAdapter();
-        var result = adapter2.TryConvertTo(data, new SocketDataConverter<MockEntity>(), out var t);
+        var result = adapter2.TryConvertTo(data, new DataConverter<MockEntity>(), out var t);
         Assert.True(result);
         Assert.NotNull(t);
         Assert.Equal([1, 2, 3, 4, 5], entity.Header);
@@ -767,15 +767,15 @@ public class TcpSocketFactoryTest
 
         var client = CreateClient(builder =>
         {
-            builder.Configure<SocketDataConverterCollections>(options =>
+            builder.Configure<DataConverterCollections>(options =>
             {
                 options.AddTypeConverter<OptionConvertEntity>();
-                options.AddPropertyConverter<OptionConvertEntity>(entity => entity.Header, new SocketDataPropertyConverterAttribute()
+                options.AddPropertyConverter<OptionConvertEntity>(entity => entity.Header, new DataPropertyConverterAttribute()
                 {
                     Offset = 0,
                     Length = 5
                 });
-                options.AddPropertyConverter<OptionConvertEntity>(entity => entity.Body, new SocketDataPropertyConverterAttribute()
+                options.AddPropertyConverter<OptionConvertEntity>(entity => entity.Body, new DataPropertyConverterAttribute()
                 {
                     Offset = 5,
                     Length = 2
@@ -1200,58 +1200,58 @@ public class TcpSocketFactoryTest
         }
     }
 
-    [SocketDataTypeConverter(Type = typeof(SocketDataConverter<MockEntity>))]
+    [DataTypeConverter(Type = typeof(DataConverter<MockEntity>))]
     class MockEntity
     {
-        [SocketDataPropertyConverter(Type = typeof(byte[]), Offset = 0, Length = 5)]
+        [DataPropertyConverter(Type = typeof(byte[]), Offset = 0, Length = 5)]
         public byte[]? Header { get; set; }
 
-        [SocketDataPropertyConverter(Type = typeof(byte[]), Offset = 5, Length = 2)]
+        [DataPropertyConverter(Type = typeof(byte[]), Offset = 5, Length = 2)]
         public byte[]? Body { get; set; }
 
-        [SocketDataPropertyConverter(Type = typeof(string), Offset = 7, Length = 1, EncodingName = "utf-8")]
+        [DataPropertyConverter(Type = typeof(string), Offset = 7, Length = 1, EncodingName = "utf-8")]
         public string? Value1 { get; set; }
 
-        [SocketDataPropertyConverter(Type = typeof(int), Offset = 8, Length = 1)]
+        [DataPropertyConverter(Type = typeof(int), Offset = 8, Length = 1)]
         public int Value2 { get; set; }
 
-        [SocketDataPropertyConverter(Type = typeof(long), Offset = 9, Length = 1)]
+        [DataPropertyConverter(Type = typeof(long), Offset = 9, Length = 1)]
         public long Value3 { get; set; }
 
-        [SocketDataPropertyConverter(Type = typeof(double), Offset = 10, Length = 8)]
+        [DataPropertyConverter(Type = typeof(double), Offset = 10, Length = 8)]
         public double Value4 { get; set; }
 
-        [SocketDataPropertyConverter(Type = typeof(float), Offset = 18, Length = 4)]
+        [DataPropertyConverter(Type = typeof(float), Offset = 18, Length = 4)]
         public float Value5 { get; set; }
 
-        [SocketDataPropertyConverter(Type = typeof(short), Offset = 22, Length = 1)]
+        [DataPropertyConverter(Type = typeof(short), Offset = 22, Length = 1)]
         public short Value6 { get; set; }
 
-        [SocketDataPropertyConverter(Type = typeof(ushort), Offset = 23, Length = 1)]
+        [DataPropertyConverter(Type = typeof(ushort), Offset = 23, Length = 1)]
         public ushort Value7 { get; set; }
 
-        [SocketDataPropertyConverter(Type = typeof(uint), Offset = 24, Length = 1)]
+        [DataPropertyConverter(Type = typeof(uint), Offset = 24, Length = 1)]
         public uint Value8 { get; set; }
 
-        [SocketDataPropertyConverter(Type = typeof(ulong), Offset = 25, Length = 1)]
+        [DataPropertyConverter(Type = typeof(ulong), Offset = 25, Length = 1)]
         public ulong Value9 { get; set; }
 
-        [SocketDataPropertyConverter(Type = typeof(bool), Offset = 26, Length = 1)]
+        [DataPropertyConverter(Type = typeof(bool), Offset = 26, Length = 1)]
         public bool Value10 { get; set; }
 
-        [SocketDataPropertyConverter(Type = typeof(EnumEducation), Offset = 27, Length = 1)]
+        [DataPropertyConverter(Type = typeof(EnumEducation), Offset = 27, Length = 1)]
         public EnumEducation Value11 { get; set; }
 
-        [SocketDataPropertyConverter(Type = typeof(Foo), Offset = 28, Length = 1, ConverterType = typeof(FooConverter), ConverterParameters = ["test"])]
+        [DataPropertyConverter(Type = typeof(Foo), Offset = 28, Length = 1, ConverterType = typeof(FooConverter), ConverterParameters = ["test"])]
         public Foo? Value12 { get; set; }
 
-        [SocketDataPropertyConverter(Type = typeof(string), Offset = 7, Length = 1)]
+        [DataPropertyConverter(Type = typeof(string), Offset = 7, Length = 1)]
         public string? Value14 { get; set; }
 
         public string? Value13 { get; set; }
     }
 
-    class MockSocketDataConverter : SocketDataConverter<MockEntity>
+    class MockSocketDataConverter : DataConverter<MockEntity>
     {
         protected override bool Parse(ReadOnlyMemory<byte> data, MockEntity entity)
         {
@@ -1259,7 +1259,7 @@ public class TcpSocketFactoryTest
         }
     }
 
-    class FooConverter(string name) : ISocketDataPropertyConverter
+    class FooConverter(string name) : IDataPropertyConverter
     {
         public object? Convert(ReadOnlyMemory<byte> data)
         {

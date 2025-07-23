@@ -4,7 +4,7 @@
 
 using System.Net;
 
-namespace BootstrapBlazor.Components;
+namespace BootstrapBlazor.TcpSocket;
 
 /// <summary>
 /// Represents configuration options for a socket client, including buffer sizes, timeouts, and endpoints.
