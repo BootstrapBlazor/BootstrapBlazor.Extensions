@@ -39,7 +39,7 @@ public class UnitTest1
         var endpoint = new ConfiguredEndpoint(null, endpointDescription, endpointConfiguration);
 
         // 创建会话
-        var identity = new UserIdentity(); // 匿名登录，或提供用户名密码
+        var identity = new UserIdentity("BB", "123456@163.com"); // 匿名登录，或提供用户名密码
         var session = await Session.Create(
             config,
             endpoint,
@@ -79,5 +79,35 @@ public class UnitTest1
             sessionTimeout: 60000,
             identity: null,
             preferredLocales: null);
+
+        // Browser
+        var browser = new Browser(session)
+        {
+            BrowseDirection = BrowseDirection.Forward,
+            NodeClassMask = (int)NodeClass.Variable | (int)NodeClass.Object | (int)NodeClass.Method,
+            ReferenceTypeId = ReferenceTypeIds.HierarchicalReferences,
+            IncludeSubtypes = true,
+            MaxReferencesReturned = 1000
+        };
+
+        // 浏览节点
+        var references = browser.Browse(ObjectIds.ObjectsFolder);
+
+        var readValueId = new ReadValueId
+        {
+            NodeId = new NodeId("ns=2;s=Simulation Examples.Functions.Ramp1"),
+            AttributeId = Attributes.Value
+        };
+
+        var readValues = new ReadValueIdCollection { readValueId };
+
+        // 读取节点值
+        var resp = await session.ReadAsync(
+            null,
+            0,
+            TimestampsToReturn.Both,
+            readValues, CancellationToken.None);
+
+        await session.CloseAsync();
     }
 }
