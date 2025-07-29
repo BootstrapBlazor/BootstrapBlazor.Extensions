@@ -18,6 +18,12 @@ public partial class PdfViewer
     public string? Url { get; set; }
 
     /// <summary>
+    /// Gets or sets the page index of the PDF file.
+    /// </summary>
+    [Parameter]
+    public int PageIndex { get; set; }
+
+    /// <summary>
     /// Gets or sets the viewer height. Default is null.
     /// </summary>
     [Parameter]
@@ -108,7 +114,7 @@ public partial class PdfViewer
         url ??= string.Empty;
         if (string.IsNullOrEmpty(url) || !UseGoogleDocs)
         {
-            return url;
+            return $"{url}#page={PageIndex}";
         }
         var uri = NavigationManager.ToAbsoluteUri(url);
         return uri.AbsoluteUri;
