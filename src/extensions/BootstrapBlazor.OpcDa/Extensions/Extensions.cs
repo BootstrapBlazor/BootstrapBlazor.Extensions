@@ -5,16 +5,14 @@
 namespace BootstrapBlazor.OpcDa;
 
 /// <summary>
-/// <see cref="Opc.Da.ISubscription"/> 扩展方法类
+/// 扩展方法类
 /// </summary>
-public static class ISubscriptionExtensions
+internal static class Extensions
 {
-    /// <summary>
-    /// 
-    /// </summary>
-    /// <param name="subscription"></param>
-    public static List<OpcItem> Read(this Opc.Da.ISubscription subscription)
+    public static Quality ToQuality(this Opc.Da.Quality quality)
     {
-        return [];
+        return quality.QualityBits == Opc.Da.qualityBits.good
+            ? Quality.Good
+            : Quality.Bad;
     }
 }
