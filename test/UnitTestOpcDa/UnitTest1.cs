@@ -25,7 +25,7 @@ public class UnitTest1
 
         var values = server.Read("Simulation Examples.Functions.Ramp1", "Simulation Examples.Functions.Ramp2");
         Assert.Equal(2, values.Count);
-        Assert.All(values, v => Assert.Equal(qualityBits.good, v.Quality.QualityBits));
+        Assert.All(values, v => Assert.Equal(BootstrapBlazor.OpcDa.Quality.Good, v.Quality));
 
         server.Disconnect();
         Assert.False(server.IsConnected);
