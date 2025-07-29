@@ -58,9 +58,6 @@ public partial class PdfViewer
         .AddClass($"--bb-pdf-viewer-height: {Height};", !string.IsNullOrEmpty(Height))
         .Build();
 
-    private string? _url;
-    private bool _useGoogleDocs;
-
     private string? UseGoogleDocsString => UseGoogleDocs ? "true" : null;
 
     /// <summary>
@@ -72,29 +69,9 @@ public partial class PdfViewer
     {
         await base.OnAfterRenderAsync(firstRender);
 
-        if (firstRender)
+        if (!firstRender)
         {
-            _url = Url;
-            _useGoogleDocs = UseGoogleDocs;
-            return;
-        }
-
-        var rerender = false;
-        if (_url != Url)
-        {
-            _url = Url;
-            rerender = true;
-        }
-
-        if (_useGoogleDocs != UseGoogleDocs)
-        {
-            _useGoogleDocs = UseGoogleDocs;
-            rerender = true;
-        }
-
-        if (rerender)
-        {
-            await InvokeVoidAsync("loadPdf", Id, GetAbsoluteUri(_url));
+            await InvokeVoidAsync("loadPdf", Id, GetAbsoluteUri(Url));
         }
     }
 
