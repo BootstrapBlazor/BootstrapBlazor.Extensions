@@ -16,8 +16,7 @@
   </ItemGroup>
 
   <ItemGroup>
-    <!--<PackageReference Include="OpcNetApi.Com" Version="2.1.108" />-->
-    <PackageReference Include="ThingsGateway.Foundation.OpcDa" Version="10.9.69" />
+    <PackageReference Include="OpcNetApi.Com" Version="2.1.108" />
   </ItemGroup>
 
 </Project>
