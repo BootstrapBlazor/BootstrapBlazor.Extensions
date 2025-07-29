@@ -1,0 +1,23 @@
+﻿<Project Sdk="Microsoft.NET.Sdk">
+
+  <PropertyGroup>
+    <Version>9.0.0</Version>
+  </PropertyGroup>
+
+  <PropertyGroup>
+    <PackageTags>Bootstrap Blazor WebAssembly wasm UI Components SqlSugar</PackageTags>
+    <Description>Bootstrap UI components extensions of SqlSugar</Description>
+  </PropertyGroup>
+
+  <ItemGroup>
+    <Using Remove="BootstrapBlazor.Components" />
+    <Using Remove="Microsoft.AspNetCore.Components" />
+    <Using Remove="Microsoft.Extensions.DependencyInjection" />
+  </ItemGroup>
+
+  <ItemGroup>
+    <!--<PackageReference Include="OpcNetApi.Com" Version="2.1.108" />-->
+    <PackageReference Include="ThingsGateway.Foundation.OpcDa" Version="10.9.69" />
+  </ItemGroup>
+
+</Project>
