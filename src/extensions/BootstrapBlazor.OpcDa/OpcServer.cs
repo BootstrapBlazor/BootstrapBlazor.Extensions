@@ -5,17 +5,18 @@
 using Opc;
 using Opc.Da;
 using System.Collections.Concurrent;
+using System.Runtime.Versioning;
 
 namespace BootstrapBlazor.OpcDa;
 
 /// <summary>
 /// OPC Server 操作类
 /// </summary>
+[SupportedOSPlatform("windows")]
 public partial class OpcServer : IDisposable
 {
     private Opc.Da.Server? _server = null;
     private readonly ConcurrentDictionary<string, HashSet<OpcItem>> _valuesCache = [];
-    private readonly TaskCompletionSource _readTask = new();
 
     /// <summary>
     /// 获得 OPC Server 名称
@@ -31,28 +32,17 @@ public partial class OpcServer : IDisposable
     /// 连接到 OPCServer 方法
     /// </summary>
     /// <param name="serverName">服务器名称</param>
-    /// <param name="token"></param>
     /// <remarks>opcda://localhost/Kepware.KEPServerEX.V6</remarks>
     /// <returns>成功时返回真</returns>
-    public async Task<bool> Connect(string serverName, CancellationToken? token = null)
+    public bool Connect(string serverName)
     {
         ServerName = serverName;
 
-        try
-        {
-            // 如果已经连接则先断开
-            Disconnect();
+        // 如果已经连接则先断开
+        Disconnect();
 
-            await Task.Run(() =>
-            {
-                _server = new Opc.Da.Server(new OpcCom.Factory(), new URL(serverName));
-                _server.Connect();
-            }, token ?? CancellationToken.None);
-        }
-        catch (OperationCanceledException)
-        {
-
-        }
+        _server = new Opc.Da.Server(new OpcCom.Factory(), new URL(serverName));
+        _server.Connect();
         return IsConnected;
     }
 
@@ -103,8 +93,6 @@ public partial class OpcServer : IDisposable
                 {
                     _valuesCache.AddOrUpdate(name, key => AddFactory(value), (key, v) => UpdateFactory(v, value));
                 }
-
-                _readTask.TrySetResult();
             };
         }
         return subscription;
@@ -112,15 +100,15 @@ public partial class OpcServer : IDisposable
 
     private static HashSet<OpcItem> AddFactory(ItemValueResult value)
     {
-        return new HashSet<OpcItem>(OpcItemEqualityComparer.Instance)
+        return new HashSet<OpcItem>(OpcItemEqualityComparer.Default)
         {
-            new(value.ItemName, value.Quality, value.Timestamp, value.Value)
+            new(value.ItemName, value.Quality.ToQuality() , value.Timestamp, value.Value)
         };
     }
 
     private static HashSet<OpcItem> UpdateFactory(HashSet<OpcItem> items, ItemValueResult value)
     {
-        var item = new OpcItem(value.ItemName, value.Quality, value.Timestamp, value.Value);
+        var item = new OpcItem(value.ItemName, value.Quality.ToQuality(), value.Timestamp, value.Value);
         if (items.TryGetValue(item, out var v))
         {
             item.LastValue = v.Value;
@@ -151,7 +139,7 @@ public partial class OpcServer : IDisposable
     {
         var server = GetOpcServer();
         var results = server.Read([.. items.Select(i => new Item() { ItemName = i })]);
-        return results.Select(i => new OpcItem(i.ItemName, i.Quality, i.Timestamp, i.Value)).ToHashSet(OpcItemEqualityComparer.Instance);
+        return results.Select(i => new OpcItem(i.ItemName, i.Quality.ToQuality(), i.Timestamp, i.Value)).ToHashSet(OpcItemEqualityComparer.Default);
     }
 
     private Opc.Da.Server GetOpcServer()
@@ -182,14 +170,5 @@ public partial class OpcServer : IDisposable
     {
         Dispose(true);
         GC.SuppressFinalize(this);
-    }
-
-    class OpcItemEqualityComparer : IEqualityComparer<OpcItem>
-    {
-        public static OpcItemEqualityComparer Instance = new();
-
-        public bool Equals(OpcItem x, OpcItem y) => x.Name == y.Name;
-
-        public int GetHashCode([DisallowNull] OpcItem item) => item.Name.GetHashCode();
     }
 }
