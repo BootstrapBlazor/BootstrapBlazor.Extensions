@@ -16,7 +16,7 @@ namespace BootstrapBlazor.OpcDa;
 class OpcServer : IOpcServer
 {
     private Opc.Da.Server? _server = null;
-    private readonly ConcurrentDictionary<string, HashSet<OpcItem>> _valuesCache = [];
+    private readonly ConcurrentDictionary<string, HashSet<OpcReadItem>> _valuesCache = [];
 
     /// <summary>
     /// 获得 OPC Server 名称
@@ -101,12 +101,28 @@ class OpcServer : IOpcServer
     /// </summary>
     /// <param name="items"></param>
     /// <returns></returns>
-    /// <exception cref="InvalidOperationException"></exception>
-    public HashSet<OpcItem> Read(params List<string> items)
+    public HashSet<OpcReadItem> Read(params HashSet<string> items)
     {
         var server = GetOpcServer();
         var results = server.Read([.. items.Select(i => new Item() { ItemName = i })]);
-        return results.Select(i => new OpcItem(i.ItemName, i.Quality.ToQuality(), i.Timestamp, i.Value)).ToHashSet(OpcItemEqualityComparer.Default);
+        return results.Select(i => new OpcReadItem(i.ItemName, i.Quality.ToQuality(), i.Timestamp, i.Value)).ToHashSet(OpcItemEqualityComparer<OpcReadItem>.Default);
+    }
+
+    /// <summary>
+    /// 读取指定 Item 值方法
+    /// </summary>
+    /// <param name="items"></param>
+    /// <returns></returns>
+    public HashSet<OpcWriteItem> Write(params HashSet<OpcWriteItem> items)
+    {
+        var server = GetOpcServer();
+        var results = server.Write([.. items.Select(i => new ItemValue() { ItemName = i.Name, Value = i.Value })]);
+
+        return items.Select(i =>
+        {
+            var item = results.FirstOrDefault(v => v.ItemName == i.Name);
+            return new OpcWriteItem(i.Name, i.Value) { Result = item != null && item.ResultID == ResultID.S_OK };
+        }).ToHashSet(OpcItemEqualityComparer<OpcWriteItem>.Default);
     }
 
     private Opc.Da.Server GetOpcServer()

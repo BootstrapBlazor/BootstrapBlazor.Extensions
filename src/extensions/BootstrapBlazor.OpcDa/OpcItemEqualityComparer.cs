@@ -5,14 +5,14 @@
 namespace BootstrapBlazor.OpcDa;
 
 /// <summary>
-/// <see cref="OpcItem"/> 比较器
+/// <see cref="IOpcItem"/> 比较器
 /// </summary>
-public class OpcItemEqualityComparer : IEqualityComparer<OpcItem>
+public class OpcItemEqualityComparer<TItem> : IEqualityComparer<TItem> where TItem : IOpcItem
 {
     /// <summary>
-    /// 获得 <see cref="OpcItemEqualityComparer"/> 实例
+    /// 获得 <see cref="OpcItemEqualityComparer{TItem}"/> 实例
     /// </summary>
-    public static OpcItemEqualityComparer Default { get; } = new();
+    public static OpcItemEqualityComparer<TItem> Default { get; } = new();
 
     /// <summary>
     /// <inheritdoc/>
@@ -20,12 +20,12 @@ public class OpcItemEqualityComparer : IEqualityComparer<OpcItem>
     /// <param name="x"></param>
     /// <param name="y"></param>
     /// <returns></returns>
-    public bool Equals(OpcItem x, OpcItem y) => x.Name == y.Name;
+    public bool Equals(TItem? x, TItem? y) => x?.Name == y?.Name;
 
     /// <summary>
     /// <inheritdoc/>
     /// </summary>
     /// <param name="item"></param>
     /// <returns></returns>
-    public int GetHashCode([DisallowNull] OpcItem item) => item.Name.GetHashCode();
+    public int GetHashCode([DisallowNull] TItem item) => item.Name.GetHashCode();
 }

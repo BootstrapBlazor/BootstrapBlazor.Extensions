@@ -5,12 +5,12 @@
 namespace BootstrapBlazor.OpcDa;
 
 /// <summary>
-/// OPC Item 配置实体类
+/// 
 /// </summary>
-public record struct OpcItem(string Name, Quality Quality, DateTime Timestamp, object? Value)
+public interface IOpcItem
 {
     /// <summary>
-    /// 获得 Opc Item 上次值
+    /// 
     /// </summary>
-    public object? LastValue { get; set; }
+    string Name { get; }
 }

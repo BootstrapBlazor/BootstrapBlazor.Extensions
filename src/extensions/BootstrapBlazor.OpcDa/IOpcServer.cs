@@ -51,5 +51,12 @@ public interface IOpcServer : IDisposable
     /// </summary>
     /// <param name="items"></param>
     /// <returns></returns>
-    HashSet<OpcItem> Read(params List<string> items);
+    HashSet<OpcReadItem> Read(params HashSet<string> items);
+
+    /// <summary>
+    /// 读取 Item 值方法
+    /// </summary>
+    /// <param name="items"></param>
+    /// <returns></returns>
+    HashSet<OpcWriteItem> Write(params HashSet<OpcWriteItem> items);
 }

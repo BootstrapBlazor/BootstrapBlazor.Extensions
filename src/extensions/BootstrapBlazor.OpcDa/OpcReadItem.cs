@@ -4,9 +4,13 @@
 
 namespace BootstrapBlazor.OpcDa;
 
-class OpcSubscription(Opc.Da.ISubscription subscription) : ISubscription
+/// <summary>
+/// OPC Item 读取实体类
+/// </summary>
+public record struct OpcReadItem(string Name, Quality Quality, DateTime Timestamp, object? Value) : IOpcItem
 {
-    public Func<List<OpcReadItem>>? DataChanged { get; set; }
-
-    public Opc.Da.ISubscription GetSubscription() => subscription;
+    /// <summary>
+    /// 获得 Opc Item 上次值
+    /// </summary>
+    public object? LastValue { get; set; }
 }
