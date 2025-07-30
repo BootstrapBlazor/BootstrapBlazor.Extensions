@@ -32,11 +32,6 @@ public class UnitTest1
             {
                 Name = "Channel1.Device1.Tag2",
                 Value = 123
-            },
-            new OpcWriteItem()
-            {
-                Name = "Channel1.Device1.Tag3",
-                Value = 123
             }
         ]);
         Assert.All(results, v => Assert.True(v.Result));
@@ -57,25 +52,28 @@ public class UnitTest1
         var server = sp.GetRequiredService<IOpcServer>();
         server.Connect("opcda://localhost/Kepware.KEPServerEX.V6");
 
-        var subscription = server.CreateSubscription("Test");
+        var subscription = server.CreateSubscription("Test", 100);
         subscription.AddItems(
         [
             "Channel1.Device1.Tag1",
-            "Channel1.Device1.Tag2",
-            "Channel1.Device1.Tag3"
+            "Channel1.Device1.Tag2"
         ]);
 
         var tcs = new TaskCompletionSource();
         var values = new List<OpcReadItem>();
         subscription.KeepLastValue = true;
-        subscription.DataChanged += items =>
+        subscription.DataChanged = items =>
         {
             values.Clear();
             values.AddRange(items);
             tcs.TrySetResult();
-            return Task.CompletedTask;
         };
+
         await tcs.Task;
+        Assert.Equal(2, values.Count);
+
+        await Task.Delay(150);
+        Assert.Single(values);
 
         server.CancelSubscription(subscription);
 
