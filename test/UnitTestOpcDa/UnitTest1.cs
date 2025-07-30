@@ -6,14 +6,13 @@ namespace UnitTestOpcDa;
 
 using BootstrapBlazor.OpcDa;
 using Microsoft.Extensions.DependencyInjection;
-using Opc.Da;
 using System.Runtime.Versioning;
 
 [SupportedOSPlatform("windows")]
 public class UnitTest1
 {
     [Fact]
-    public void Read_Ok()
+    public void Write_Ok()
     {
         var sc = new ServiceCollection();
         sc.AddOpcServer();
@@ -26,7 +25,14 @@ public class UnitTest1
 
         var values = server.Read("Simulation Examples.Functions.Ramp1", "Simulation Examples.Functions.Ramp2");
         Assert.Equal(2, values.Count);
-        Assert.All(values, v => Assert.Equal(BootstrapBlazor.OpcDa.Quality.Good, v.Quality));
+        Assert.All(values, v => Assert.Equal(Quality.Good, v.Quality));
+
+        var results = server.Write(new OpcWriteItem()
+        {
+            Name = "Channel1.Device1.Tag3",
+            Value = 123
+        });
+        Assert.All(results, v => Assert.True(v.Result));
 
         server.Disconnect();
         Assert.False(server.IsConnected);
