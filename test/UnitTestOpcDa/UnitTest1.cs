@@ -27,16 +27,59 @@ public class UnitTest1
         Assert.Equal(2, values.Count);
         Assert.All(values, v => Assert.Equal(Quality.Good, v.Quality));
 
-        var results = server.Write(new OpcWriteItem()
-        {
-            Name = "Channel1.Device1.Tag3",
-            Value = 123
-        });
+        var results = server.Write([
+            new OpcWriteItem()
+            {
+                Name = "Channel1.Device1.Tag2",
+                Value = 123
+            },
+            new OpcWriteItem()
+            {
+                Name = "Channel1.Device1.Tag3",
+                Value = 123
+            }
+        ]);
         Assert.All(results, v => Assert.True(v.Result));
 
         server.Disconnect();
         Assert.False(server.IsConnected);
 
+        server.Dispose();
+    }
+
+    [Fact]
+    public async Task Subscription_Ok()
+    {
+        var sc = new ServiceCollection();
+        sc.AddOpcServer();
+
+        var sp = sc.BuildServiceProvider();
+        var server = sp.GetRequiredService<IOpcServer>();
+        server.Connect("opcda://localhost/Kepware.KEPServerEX.V6");
+
+        var subscription = server.CreateSubscription("Test");
+        subscription.AddItems(
+        [
+            "Channel1.Device1.Tag1",
+            "Channel1.Device1.Tag2",
+            "Channel1.Device1.Tag3"
+        ]);
+
+        var tcs = new TaskCompletionSource();
+        var values = new List<OpcReadItem>();
+        subscription.KeepLastValue = true;
+        subscription.DataChanged += items =>
+        {
+            values.Clear();
+            values.AddRange(items);
+            tcs.TrySetResult();
+            return Task.CompletedTask;
+        };
+        await tcs.Task;
+
+        server.CancelSubscription(subscription);
+
+        server.Disconnect();
         server.Dispose();
     }
 }
