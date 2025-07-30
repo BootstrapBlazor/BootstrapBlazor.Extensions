@@ -15,4 +15,9 @@ internal static class Extensions
             ? Quality.Good
             : Quality.Bad;
     }
+
+    public static ISubscription ToOpcSubscription(this Opc.Da.ISubscription subscription)
+    {
+        return new OpcSubscription(subscription);
+    }
 }

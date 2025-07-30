@@ -13,7 +13,7 @@ namespace BootstrapBlazor.OpcDa;
 /// OPC Server 操作类
 /// </summary>
 [SupportedOSPlatform("windows")]
-public partial class OpcServer : IDisposable
+class OpcServer : IOpcServer
 {
     private Opc.Da.Server? _server = null;
     private readonly ConcurrentDictionary<string, HashSet<OpcItem>> _valuesCache = [];
@@ -69,53 +69,20 @@ public partial class OpcServer : IDisposable
     /// 创建订阅方法
     /// </summary>
     /// <param name="name">订阅名称</param>
-    /// <param name="updateRate"></param>
-    /// <param name="active"></param>
-    /// <param name="items"></param>
+    /// <param name="updateRate">更新频率 默认 1000 毫秒</param>
+    /// <param name="active">是否激活 默认 true</param>
     /// <returns></returns>
-    public ISubscription CreateSubscription(string name, int updateRate, bool active = true, Item[]? items = null)
+    public ISubscription CreateSubscription(string name, int updateRate = 1000, bool active = true)
     {
         var server = GetOpcServer();
         var subscription = server.CreateSubscription(new SubscriptionState
         {
             Name = name,
-            Active = active,
+            Deadband = 0,
             UpdateRate = updateRate,
-            Deadband = 0
+            Active = active
         });
-
-        if (items is { Length: > 0 })
-        {
-            subscription.AddItems(items);
-            subscription.DataChanged += (subscriptionHandle, requestHandle, values) =>
-            {
-                foreach (var value in values)
-                {
-                    _valuesCache.AddOrUpdate(name, key => AddFactory(value), (key, v) => UpdateFactory(v, value));
-                }
-            };
-        }
-        return subscription;
-    }
-
-    private static HashSet<OpcItem> AddFactory(ItemValueResult value)
-    {
-        return new HashSet<OpcItem>(OpcItemEqualityComparer.Default)
-        {
-            new(value.ItemName, value.Quality.ToQuality() , value.Timestamp, value.Value)
-        };
-    }
-
-    private static HashSet<OpcItem> UpdateFactory(HashSet<OpcItem> items, ItemValueResult value)
-    {
-        var item = new OpcItem(value.ItemName, value.Quality.ToQuality(), value.Timestamp, value.Value);
-        if (items.TryGetValue(item, out var v))
-        {
-            item.LastValue = v.Value;
-        }
-        items.Remove(item);
-        items.Add(item);
-        return items;
+        return subscription.ToOpcSubscription();
     }
 
     /// <summary>
@@ -126,7 +93,7 @@ public partial class OpcServer : IDisposable
     public void CancelSubscription(ISubscription subscription)
     {
         var server = GetOpcServer();
-        server.CancelSubscription(subscription);
+        server.CancelSubscription(subscription.GetSubscription());
     }
 
     /// <summary>
