@@ -10,13 +10,24 @@ namespace BootstrapBlazor.OpcDa;
 public interface ISubscription
 {
     /// <summary>
-    /// 数据变更回调
+    /// 获得/设置 是否保留最后一个值
     /// </summary>
-    Func<List<OpcReadItem>>? DataChanged { get; set; }
+    public bool KeepLastValue { get; set; }
+
+    /// <summary>
+    /// 获得/设置 数据变更回调
+    /// </summary>
+    Func<List<OpcReadItem>, Task>? DataChanged { get; set; }
 
     /// <summary>
     /// 获得 <see cref="Opc.Da.ISubscription"/> 实例
     /// </summary>
     /// <returns></returns>
     Opc.Da.ISubscription GetSubscription();
+
+    /// <summary>
+    /// 增加数据项
+    /// </summary>
+    /// <param name="items"></param>
+    void AddItems(IEnumerable<string> items);
 }
