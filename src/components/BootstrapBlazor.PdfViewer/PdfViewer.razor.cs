@@ -18,6 +18,12 @@ public partial class PdfViewer
     public string? Url { get; set; }
 
     /// <summary>
+    /// Gets or sets the page index of the PDF file.
+    /// </summary>
+    [Parameter]
+    public int PageIndex { get; set; }
+
+    /// <summary>
     /// Gets or sets the viewer height. Default is null.
     /// </summary>
     [Parameter]
@@ -52,9 +58,6 @@ public partial class PdfViewer
         .AddClass($"--bb-pdf-viewer-height: {Height};", !string.IsNullOrEmpty(Height))
         .Build();
 
-    private string? _url;
-    private bool _useGoogleDocs;
-
     private string? UseGoogleDocsString => UseGoogleDocs ? "true" : null;
 
     /// <summary>
@@ -66,29 +69,9 @@ public partial class PdfViewer
     {
         await base.OnAfterRenderAsync(firstRender);
 
-        if (firstRender)
+        if (!firstRender)
         {
-            _url = Url;
-            _useGoogleDocs = UseGoogleDocs;
-            return;
-        }
-
-        var rerender = false;
-        if (_url != Url)
-        {
-            _url = Url;
-            rerender = true;
-        }
-
-        if (_useGoogleDocs != UseGoogleDocs)
-        {
-            _useGoogleDocs = UseGoogleDocs;
-            rerender = true;
-        }
-
-        if (rerender)
-        {
-            await InvokeVoidAsync("loadPdf", Id, GetAbsoluteUri(_url));
+            await InvokeVoidAsync("loadPdf", Id, GetAbsoluteUri(Url));
         }
     }
 
@@ -108,7 +91,7 @@ public partial class PdfViewer
         url ??= string.Empty;
         if (string.IsNullOrEmpty(url) || !UseGoogleDocs)
         {
-            return url;
+            return $"{url}#page={PageIndex}";
         }
         var uri = NavigationManager.ToAbsoluteUri(url);
         return uri.AbsoluteUri;
