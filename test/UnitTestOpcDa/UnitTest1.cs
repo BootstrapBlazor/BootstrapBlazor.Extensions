@@ -5,23 +5,24 @@
 namespace UnitTestOpcDa;
 
 using BootstrapBlazor.OpcDa;
+using Microsoft.Extensions.DependencyInjection;
 using Opc.Da;
+using System.Runtime.Versioning;
 
+[SupportedOSPlatform("windows")]
 public class UnitTest1
 {
     [Fact]
-    public async Task Test_Ok()
+    public void Read_Ok()
     {
-        var server = new OpcServer();
-        var ret = await server.Connect("opcda://localhost/Kepware.KEPServerEX.V6", CancellationToken.None);
+        var sc = new ServiceCollection();
+        sc.AddOpcServer();
+
+        var sp = sc.BuildServiceProvider();
+        var server = sp.GetRequiredService<IOpcServer>();
+        var ret = server.Connect("opcda://localhost/Kepware.KEPServerEX.V6");
         Assert.True(ret);
         Assert.True(server.IsConnected);
-
-        var items = new Item[]
-        {
-            new() { ItemName = "Simulation Examples.Functions.Ramp1", SamplingRate = 1000, ClientHandle = 1 },
-            new() { ItemName = "Simulation Examples.Functions.Ramp2", SamplingRate = 1000, ClientHandle = 2 }
-        };
 
         var values = server.Read("Simulation Examples.Functions.Ramp1", "Simulation Examples.Functions.Ramp2");
         Assert.Equal(2, values.Count);
