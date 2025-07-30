@@ -17,7 +17,7 @@ public interface ISubscription
     /// <summary>
     /// 获得/设置 数据变更回调
     /// </summary>
-    Func<List<OpcReadItem>, Task>? DataChanged { get; set; }
+    Action<List<OpcReadItem>>? DataChanged { get; set; }
 
     /// <summary>
     /// 获得 <see cref="Opc.Da.ISubscription"/> 实例

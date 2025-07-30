@@ -6,7 +6,7 @@ namespace BootstrapBlazor.OpcDa;
 
 class OpcSubscription(Opc.Da.ISubscription subscription) : ISubscription
 {
-    public Func<List<OpcReadItem>, Task>? DataChanged { get; set; }
+    public Action<List<OpcReadItem>>? DataChanged { get; set; }
 
     public bool KeepLastValue { get; set; }
 
