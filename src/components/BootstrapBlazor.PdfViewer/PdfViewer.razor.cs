@@ -88,13 +88,13 @@ public partial class PdfViewer
 
     private string GetAbsoluteUri(string? url)
     {
-        url ??= string.Empty;
-        if (string.IsNullOrEmpty(url) || !UseGoogleDocs)
+        if (string.IsNullOrEmpty(url))
         {
-            return $"{url}#page={PageIndex}";
+            return string.Empty;
         }
+
         var uri = NavigationManager.ToAbsoluteUri(url);
-        return uri.AbsoluteUri;
+        return $"{uri.AbsoluteUri}#page={PageIndex}";
     }
 
     /// <summary>
