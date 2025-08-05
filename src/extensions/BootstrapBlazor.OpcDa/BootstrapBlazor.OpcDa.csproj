@@ -1,7 +1,7 @@
 ﻿<Project Sdk="Microsoft.NET.Sdk">
 
   <PropertyGroup>
-    <Version>9.0.0</Version>
+    <Version>9.0.0-beta01</Version>
     <RootNamespace>BootstrapBlazor.OpcDa</RootNamespace>
   </PropertyGroup>
 
@@ -27,9 +27,9 @@
   </ItemGroup>
 
   <ItemGroup>
-    <None Include="lib\OpcComRcw.dll" Pack="true" PackagePath="lib" />
-    <None Include="lib\OpcNetApi.dll" Pack="true" PackagePath="lib" />
-    <None Include="lib\OpcNetApi.Com.dll" Pack="true" PackagePath="lib" />
+    <None Include="lib\OpcComRcw.dll" Pack="true" PackagePath="lib\net6.0" />
+    <None Include="lib\OpcNetApi.dll" Pack="true" PackagePath="lib\net6.0" />
+    <None Include="lib\OpcNetApi.Com.dll" Pack="true" PackagePath="lib\net6.0" />
   </ItemGroup>
 
   <ItemGroup>

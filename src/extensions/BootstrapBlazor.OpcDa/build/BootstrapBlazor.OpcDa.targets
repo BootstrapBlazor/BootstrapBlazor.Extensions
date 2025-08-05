@@ -1,7 +1,7 @@
 <Project>
 
   <ItemGroup>
-    <Files Include="$(MSBuildThisFileDirectory)/../lib/Opc*.*"/>
+    <Files Include="$(MSBuildThisFileDirectory)/../lib/net6.0/Opc*.*"/>
   </ItemGroup>
 
   <Target Name="CopyFiles" AfterTargets="Build">
