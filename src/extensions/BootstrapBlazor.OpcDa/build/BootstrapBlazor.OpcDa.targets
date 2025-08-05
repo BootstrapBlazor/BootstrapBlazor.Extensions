@@ -1,0 +1,11 @@
+<Project>
+
+  <ItemGroup>
+    <Files Include="$(MSBuildThisFileDirectory)/../lib/Opc*.*"/>
+  </ItemGroup>
+
+  <Target Name="CopyFiles" AfterTargets="Build">
+    <Copy SourceFiles="@(Files)" DestinationFolder="$(TargetDir)"/>
+  </Target>
+
+</Project>
