@@ -27,7 +27,19 @@
   </ItemGroup>
 
   <ItemGroup>
-    <PackageReference Include="OpcNetApi.Com" Version="2.1.108" />
+    <None Include="lib\OpcComRcw.dll" Pack="true" PackagePath="lib" />
+    <None Include="lib\OpcNetApi.dll" Pack="true" PackagePath="lib" />
+    <None Include="lib\OpcNetApi.Com.dll" Pack="true" PackagePath="lib" />
+  </ItemGroup>
+
+  <ItemGroup>
+    <Reference Include="OpcComRcw" HintPath="lib\OpcComRcw.dll" Private="true" PackageCopyToOutput="true" />
+    <Reference Include="OpcNetApi" HintPath="lib\OpcComRcw.dll" Private="true" PackageCopyToOutput="true" />
+    <Reference Include="OpcNetApi.Com" HintPath="lib\OpcComRcw.dll" Private="true" PackageCopyToOutput="true" />
+  </ItemGroup>
+
+  <ItemGroup>
+    <Content Include="build\*.targets" PackagePath="build" />
   </ItemGroup>
 
   <ItemGroup>
