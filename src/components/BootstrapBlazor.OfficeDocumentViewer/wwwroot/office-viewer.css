@@ -1,9 +1,0 @@
-﻿.bb-office-viewer-container {
-    width: 100%;
-    height: var(--bb-office-viewer-height, 500px);
-}
-
-.bb-office-viewer {
-    width: 100%;
-    height: 100%;
-}
