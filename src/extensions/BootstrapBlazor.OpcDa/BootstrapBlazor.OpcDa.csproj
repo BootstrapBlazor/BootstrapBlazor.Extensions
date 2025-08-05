@@ -1,0 +1,51 @@
+﻿<Project Sdk="Microsoft.NET.Sdk">
+
+  <PropertyGroup>
+    <Version>9.0.0-beta01</Version>
+    <RootNamespace>BootstrapBlazor.OpcDa</RootNamespace>
+  </PropertyGroup>
+
+  <PropertyGroup>
+    <PackageTags>Bootstrap Blazor WebAssembly wasm UI Components SqlSugar</PackageTags>
+    <Description>Bootstrap UI components extensions of SqlSugar</Description>
+  </PropertyGroup>
+
+  <ItemGroup Condition="'$(TargetFramework)' == 'net6.0'">
+    <PackageReference Include="Microsoft.Extensions.DependencyInjection" Version="8.*" />
+  </ItemGroup>
+
+  <ItemGroup Condition="'$(TargetFramework)' == 'net7.0'">
+    <PackageReference Include="Microsoft.Extensions.DependencyInjection" Version="8.*" />
+  </ItemGroup>
+
+  <ItemGroup Condition="'$(TargetFramework)' == 'net8.0'">
+    <PackageReference Include="Microsoft.Extensions.DependencyInjection" Version="9.*" />
+  </ItemGroup>
+
+  <ItemGroup Condition="'$(TargetFramework)' == 'net9.0'">
+    <PackageReference Include="Microsoft.Extensions.DependencyInjection" Version="9.*" />
+  </ItemGroup>
+
+  <ItemGroup>
+    <None Include="lib\OpcComRcw.dll" Pack="true" PackagePath="lib\net6.0" />
+    <None Include="lib\OpcNetApi.dll" Pack="true" PackagePath="lib\net6.0" />
+    <None Include="lib\OpcNetApi.Com.dll" Pack="true" PackagePath="lib\net6.0" />
+  </ItemGroup>
+
+  <ItemGroup>
+    <Reference Include="OpcComRcw" HintPath="lib\OpcComRcw.dll" Private="true" PackageCopyToOutput="true" />
+    <Reference Include="OpcNetApi" HintPath="lib\OpcComRcw.dll" Private="true" PackageCopyToOutput="true" />
+    <Reference Include="OpcNetApi.Com" HintPath="lib\OpcComRcw.dll" Private="true" PackageCopyToOutput="true" />
+  </ItemGroup>
+
+  <ItemGroup>
+    <Content Include="build\*.targets" PackagePath="build" />
+  </ItemGroup>
+
+  <ItemGroup>
+    <Using Remove="BootstrapBlazor.Components" />
+    <Using Remove="Microsoft.AspNetCore.Components" />
+    <Using Remove="Microsoft.Extensions.DependencyInjection" />
+  </ItemGroup>
+
+</Project>

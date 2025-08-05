@@ -1,0 +1,47 @@
+﻿// Copyright (c) Argo Zhang (argo@163.com). All rights reserved.
+// Licensed under the Apache License, Version 2.0. See License.txt in the project root for license information.
+// Website: https://www.blazor.zone or https://argozhang.github.io/
+
+namespace BootstrapBlazor.OpcDa;
+
+class OpcSubscription(Opc.Da.ISubscription subscription) : ISubscription
+{
+    public Action<List<OpcReadItem>>? DataChanged { get; set; }
+
+    public bool KeepLastValue { get; set; }
+
+    public Opc.Da.ISubscription GetSubscription() => subscription;
+
+    private readonly List<OpcReadItem> _cache = [];
+
+    public void AddItems(IEnumerable<string> items)
+    {
+        var subscription = GetSubscription();
+        subscription.AddItems([.. items.Select(i => new Opc.Da.Item { ItemName = i })]);
+
+        subscription.DataChanged += (_, _, values) =>
+        {
+            var items = values.Select(i =>
+            {
+                var item = new OpcReadItem()
+                {
+                    Name = i.ItemName,
+                    Value = i.Value,
+                    Quality = i.Quality == Opc.Da.Quality.Good ? Quality.Good : Quality.Bad,
+                    Timestamp = i.Timestamp
+                };
+                if (KeepLastValue)
+                {
+                    var v = _cache.Find(i => i.Name == item.Name);
+                    item.LastValue = v.Value;
+                }
+                return item;
+            }).ToList();
+
+            _cache.Clear();
+            _cache.AddRange(items);
+
+            DataChanged?.Invoke(items);
+        };
+    }
+}
