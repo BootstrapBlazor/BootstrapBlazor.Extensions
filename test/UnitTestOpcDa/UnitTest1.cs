@@ -91,6 +91,6 @@ public class UnitTest1
         var server = sp.GetRequiredService<IOpcDaServer>();
         server.Connect("opcda://localhost/Kepware.KEPServerEX.V6");
 
-        server.Browser("Simulation Examples", new BrowseFilters(), out var position);
+        server.Browser();
     }
 }
