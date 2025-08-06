@@ -21,7 +21,7 @@ class OpcSubscription(Opc.Da.ISubscription subscription) : ISubscription
 
         subscription.DataChanged += (_, _, values) =>
         {
-            var items = values.Select(i =>
+            var valueList = values.Select(i =>
             {
                 var item = new OpcReadItem()
                 {
@@ -32,16 +32,16 @@ class OpcSubscription(Opc.Da.ISubscription subscription) : ISubscription
                 };
                 if (KeepLastValue)
                 {
-                    var v = _cache.Find(i => i.Name == item.Name);
+                    var v = _cache.Find(opcItem => opcItem.Name == item.Name);
                     item.LastValue = v.Value;
                 }
                 return item;
             }).ToList();
 
             _cache.Clear();
-            _cache.AddRange(items);
+            _cache.AddRange(valueList);
 
-            DataChanged?.Invoke(items);
+            DataChanged?.Invoke(valueList);
         };
     }
 }
