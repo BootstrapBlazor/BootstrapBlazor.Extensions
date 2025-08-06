@@ -5,14 +5,22 @@
 namespace BootstrapBlazor.OpcDa;
 
 /// <summary>
-/// 对 OpcDataServer BrowsePosition 的封装类
+/// OpcDa 浏览过滤器类型枚举
 /// </summary>
-public class OpcBrowsePosition
+public enum OpcBrowseFilterType
 {
-    internal OpcBrowsePosition(Opc.Da.BrowsePosition? position)
-    {
-        Position = position;
-    }
+    /// <summary>
+    /// 全部
+    /// </summary>
+    All,
 
-    internal Opc.Da.BrowsePosition? Position { get; set; }
+    /// <summary>
+    /// 分支
+    /// </summary>
+    Branch,
+
+    /// <summary>
+    /// 数据项
+    /// </summary>
+    Item
 }

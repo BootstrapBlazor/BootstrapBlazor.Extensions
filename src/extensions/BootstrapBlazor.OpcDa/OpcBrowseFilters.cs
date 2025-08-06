@@ -28,4 +28,9 @@ public class OpcBrowseFilters
     /// 获得/设置 是否返回属性值
     /// </summary>
     public bool ReturnPropertyValues { get; set; }
+
+    /// <summary>
+    /// 获得/设置 浏览过滤器类型
+    /// </summary>
+    public OpcBrowseFilterType BrowseFilter { get; set; }
 }

@@ -151,9 +151,9 @@ sealed class OpcDaServer : IOpcDaServer
     public OpcBrowseElement[] Browse(string name, OpcBrowseFilters filters, out OpcBrowsePosition? position)
     {
         var server = GetOpcServer();
-        var results = server.Browse(new ItemIdentifier(name), filters.ToFilters(), out var pos);
-        position = new OpcBrowsePosition(pos);
-        return results.Select(element => new OpcBrowseElement(element)).ToArray();
+        var results = server.Browse(new ItemIdentifier(name), filters.ToFilters(), out var pos) ?? [];
+        position = pos == null ? null : new OpcBrowsePosition(pos);
+        return [.. results.Select(element => new OpcBrowseElement(element))];
     }
 
     /// <summary>
@@ -165,7 +165,8 @@ sealed class OpcDaServer : IOpcDaServer
     {
         var server = GetOpcServer();
         var pos = position.Position;
-        return server.BrowseNext(ref pos).Select(element => new OpcBrowseElement(element)).ToArray();
+        var results = server.BrowseNext(ref pos) ?? [];
+        return [.. results.Select(element => new OpcBrowseElement(element))];
     }
 
     /// <summary>

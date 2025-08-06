@@ -17,6 +17,11 @@ public class OpcBrowseElement
     public string Name { get; set; }
 
     /// <summary>
+    /// 获得/设置 Item 名称
+    /// </summary>
+    public string ItemName { get; set; }
+
+    /// <summary>
     /// 获得/设置 是否是数据项
     /// </summary>
     public bool IsItem { get; set; }
@@ -32,11 +37,13 @@ public class OpcBrowseElement
     public OpcBrowseElement()
     {
         Name = "";
+        ItemName = "";
     }
 
     internal OpcBrowseElement(BrowseElement element)
     {
         Name = element.Name;
+        ItemName = element.ItemName;
         IsItem = element.IsItem;
         HasChildren = element.HasChildren;
     }
