@@ -7,7 +7,7 @@ export async function init(id, interop, options) {
     Data.set(id, editor);
 
     await addLink('_content/BootstrapBlazor.CodeEditor/code-editor.bundle.css');
-    await addScript('_content/BootstrapBlazor.CodeEditor/monaco-editor/min/vs/loader.min.js');
+    await addScript('_content/BootstrapBlazor.CodeEditor/monaco-editor/min/vs/loader.js');
 
     const init = container => {
 
