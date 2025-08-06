@@ -49,6 +49,39 @@ sealed class OpcDaServer : IOpcDaServer
     }
 
     /// <summary>
+    /// <inheritdoc/>
+    /// </summary>
+    /// <param name="name"></param>
+    /// <param name="filters"></param>
+    /// <param name="position"></param>
+    /// <returns></returns>
+    public BrowseElement[] Browser(string name, BrowseFilters filters, out BrowsePosition position)
+    {
+        if (_server is not { IsConnected: true })
+        {
+            throw new InvalidOperationException("OPC Server is not connected.");
+        }
+
+        return _server.Browse(new ItemIdentifier(name), filters, out position);
+    }
+
+    /// <summary>
+    /// <inheritdoc/>
+    /// </summary>
+    /// <param name="position"></param>
+    /// <returns></returns>
+    public BrowseElement[] BrowserNext(ref BrowsePosition position)
+    {
+        if (_server is not { IsConnected: true })
+        {
+            throw new InvalidOperationException("OPC Server is not connected.");
+        }
+
+
+        return _server.BrowseNext(ref position);
+    }
+
+    /// <summary>
     /// 断开连接方法
     /// </summary>
     /// <returns></returns>
