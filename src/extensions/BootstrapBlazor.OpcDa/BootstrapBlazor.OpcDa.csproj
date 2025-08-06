@@ -1,13 +1,13 @@
 ﻿<Project Sdk="Microsoft.NET.Sdk">
 
   <PropertyGroup>
-    <Version>9.0.0-beta01</Version>
+    <Version>9.0.0</Version>
     <RootNamespace>BootstrapBlazor.OpcDa</RootNamespace>
   </PropertyGroup>
 
   <PropertyGroup>
-    <PackageTags>Bootstrap Blazor WebAssembly wasm UI Components SqlSugar</PackageTags>
-    <Description>Bootstrap UI components extensions of SqlSugar</Description>
+    <PackageTags>Bootstrap Blazor WebAssembly wasm UI Components OpcDa PLC </PackageTags>
+    <Description>Bootstrap UI components extensions of OpcDaServer</Description>
   </PropertyGroup>
 
   <ItemGroup Condition="'$(TargetFramework)' == 'net6.0'">

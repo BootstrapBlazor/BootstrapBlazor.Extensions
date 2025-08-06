@@ -8,19 +8,30 @@ using System.Runtime.Versioning;
 namespace Microsoft.Extensions.DependencyInjection;
 
 /// <summary>
-/// Opc Da 服务扩展类
+/// OpcDaServer 服务扩展类
 /// </summary>
 public static class ServiceCollectionExtensions
 {
     /// <summary>
-    /// 增加 Opc 操作服务
+    /// 增加 OpcDaServer 操作服务
     /// </summary>
     /// <param name="services"></param>
     /// <returns></returns>
     [SupportedOSPlatform("windows")]
-    public static IServiceCollection AddOpcServer(this IServiceCollection services)
+    public static IServiceCollection AddOpcDaServer(this IServiceCollection services)
     {
-        services.AddSingleton<IOpcServer, OpcServer>();
+        services.AddSingleton<IOpcDaServer, OpcDaServer>();
+        return services;
+    }
+
+    /// <summary>
+    /// 增加模拟 OpcDaServer 操作服务
+    /// </summary>
+    /// <param name="services"></param>
+    /// <returns></returns>
+    public static IServiceCollection AddMockOpcDaServer(this IServiceCollection services)
+    {
+        services.AddSingleton<IOpcDaServer, MockOpcDaServer>();
         return services;
     }
 }

@@ -4,11 +4,13 @@
 
 namespace BootstrapBlazor.OpcDa;
 
-class OpcSubscription(Opc.Da.ISubscription subscription) : ISubscription
+sealed class OpcSubscription(Opc.Da.ISubscription subscription) : IOpcSubscription
 {
     public Action<List<OpcReadItem>>? DataChanged { get; set; }
 
     public bool KeepLastValue { get; set; }
+
+    public string Name => subscription.GetState().Name;
 
     public Opc.Da.ISubscription GetSubscription() => subscription;
 
@@ -16,12 +18,11 @@ class OpcSubscription(Opc.Da.ISubscription subscription) : ISubscription
 
     public void AddItems(IEnumerable<string> items)
     {
-        var subscription = GetSubscription();
         subscription.AddItems([.. items.Select(i => new Opc.Da.Item { ItemName = i })]);
 
         subscription.DataChanged += (_, _, values) =>
         {
-            var items = values.Select(i =>
+            var valueList = values.Select(i =>
             {
                 var item = new OpcReadItem()
                 {
@@ -32,16 +33,16 @@ class OpcSubscription(Opc.Da.ISubscription subscription) : ISubscription
                 };
                 if (KeepLastValue)
                 {
-                    var v = _cache.Find(i => i.Name == item.Name);
+                    var v = _cache.Find(opcItem => opcItem.Name == item.Name);
                     item.LastValue = v.Value;
                 }
                 return item;
             }).ToList();
 
             _cache.Clear();
-            _cache.AddRange(items);
+            _cache.AddRange(valueList);
 
-            DataChanged?.Invoke(items);
+            DataChanged?.Invoke(valueList);
         };
     }
 }
