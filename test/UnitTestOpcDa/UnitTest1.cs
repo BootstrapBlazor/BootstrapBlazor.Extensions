@@ -80,4 +80,17 @@ public class UnitTest1
         server.Disconnect();
         server.Dispose();
     }
+
+    [Fact]
+    public void Browser_Ok()
+    {
+        var sc = new ServiceCollection();
+        sc.AddOpcDaServer();
+
+        var sp = sc.BuildServiceProvider();
+        var server = sp.GetRequiredService<IOpcDaServer>();
+        server.Connect("opcda://localhost/Kepware.KEPServerEX.V6");
+
+        server.Browser("Simulation Examples", new BrowseFilters(), out var position);
+    }
 }
