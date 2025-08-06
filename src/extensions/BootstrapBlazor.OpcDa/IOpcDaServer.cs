@@ -5,7 +5,7 @@
 namespace BootstrapBlazor.OpcDa;
 
 /// <summary>
-/// Opc Server 接口定义
+/// OpcDaServer 接口定义
 /// </summary>
 public interface IOpcDaServer : IDisposable
 {

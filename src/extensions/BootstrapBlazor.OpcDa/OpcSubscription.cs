@@ -4,7 +4,7 @@
 
 namespace BootstrapBlazor.OpcDa;
 
-class OpcSubscription(Opc.Da.ISubscription subscription) : IOpcSubscription
+sealed class OpcSubscription(Opc.Da.ISubscription subscription) : IOpcSubscription
 {
     public Action<List<OpcReadItem>>? DataChanged { get; set; }
 

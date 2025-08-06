@@ -8,7 +8,7 @@ using System.Runtime.Versioning;
 namespace Microsoft.Extensions.DependencyInjection;
 
 /// <summary>
-/// Opc Da 服务扩展类
+/// OpcDaServer 服务扩展类
 /// </summary>
 public static class ServiceCollectionExtensions
 {
