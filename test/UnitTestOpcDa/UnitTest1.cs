@@ -91,6 +91,8 @@ public class UnitTest1
         var server = sp.GetRequiredService<IOpcDaServer>();
         server.Connect("opcda://localhost/Kepware.KEPServerEX.V6");
 
-        server.Browser();
+        var elements = server.Browse("Channel1", new OpcBrowseFilters(), out var position);
+        Assert.Equal(3, elements.Length);
+        Assert.Null(position);
     }
 }
