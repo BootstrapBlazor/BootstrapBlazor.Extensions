@@ -47,41 +47,6 @@ sealed class OpcDaServer : IOpcDaServer
     }
 
     /// <summary>
-    /// <inheritdoc/>
-    /// </summary>
-    /// <param name="name"></param>
-    /// <param name="filters"></param>
-    /// <param name="position"></param>
-    /// <returns></returns>
-    public OpcBrowseElement[] Browse(string name, OpcBrowseFilters filters, out OpcBrowsePosition position)
-    {
-        if (_server is not { IsConnected: true })
-        {
-            throw new InvalidOperationException("OPC Server is not connected.");
-        }
-
-        var results = _server.Browse(new ItemIdentifier(name), filters.ToFilters(), out var pos);
-        position = new OpcBrowsePosition(pos);
-        return results.Select(element => new OpcBrowseElement(element)).ToArray();
-    }
-
-    /// <summary>
-    /// <inheritdoc/>
-    /// </summary>
-    /// <param name="position"></param>
-    /// <returns></returns>
-    public OpcBrowseElement[] BrowseNext(OpcBrowsePosition position)
-    {
-        if (_server is not { IsConnected: true })
-        {
-            throw new InvalidOperationException("OPC Server is not connected.");
-        }
-
-        var pos = position.Position;
-        return _server.BrowseNext(ref pos).Select(element => new OpcBrowseElement(element)).ToArray();
-    }
-
-    /// <summary>
     /// 断开连接方法
     /// </summary>
     /// <returns></returns>
@@ -174,6 +139,33 @@ sealed class OpcDaServer : IOpcDaServer
         }
 
         return _server;
+    }
+
+    /// <summary>
+    /// <inheritdoc/>
+    /// </summary>
+    /// <param name="name"></param>
+    /// <param name="filters"></param>
+    /// <param name="position"></param>
+    /// <returns></returns>
+    public OpcBrowseElement[] Browse(string name, OpcBrowseFilters filters, out OpcBrowsePosition? position)
+    {
+        var server = GetOpcServer();
+        var results = server.Browse(new ItemIdentifier(name), filters.ToFilters(), out var pos);
+        position = new OpcBrowsePosition(pos);
+        return results.Select(element => new OpcBrowseElement(element)).ToArray();
+    }
+
+    /// <summary>
+    /// <inheritdoc/>
+    /// </summary>
+    /// <param name="position"></param>
+    /// <returns></returns>
+    public OpcBrowseElement[] BrowseNext(OpcBrowsePosition position)
+    {
+        var server = GetOpcServer();
+        var pos = position.Position;
+        return server.BrowseNext(ref pos).Select(element => new OpcBrowseElement(element)).ToArray();
     }
 
     /// <summary>

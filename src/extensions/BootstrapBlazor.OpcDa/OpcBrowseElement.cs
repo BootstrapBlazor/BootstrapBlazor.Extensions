@@ -14,22 +14,30 @@ public class OpcBrowseElement
     /// <summary>
     /// 获得/设置 节点名称
     /// </summary>
-    public string Name => _element.Name;
+    public string Name { get; set; }
 
     /// <summary>
     /// 获得/设置 是否是数据项
     /// </summary>
-    public bool IsItem => _element.IsItem;
+    public bool IsItem { get; set; }
 
     /// <summary>
     /// 获得/设置 是否有子节点
     /// </summary>
-    public bool HasChildren => _element.HasChildren;
+    public bool HasChildren { get; set; }
+
+    /// <summary>
+    /// 构造函数
+    /// </summary>
+    public OpcBrowseElement()
+    {
+        Name = "";
+    }
 
     internal OpcBrowseElement(BrowseElement element)
     {
-        _element = element;
+        Name = element.Name;
+        IsItem = element.IsItem;
+        HasChildren = element.HasChildren;
     }
-
-    private readonly BrowseElement _element;
 }

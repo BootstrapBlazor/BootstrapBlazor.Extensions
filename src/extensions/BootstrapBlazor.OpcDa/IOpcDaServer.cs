@@ -69,7 +69,7 @@ public interface IOpcDaServer : IDisposable
     /// <param name="filters"></param>
     /// <param name="position"></param>
     /// <returns></returns>
-    OpcBrowseElement[] Browse(string name, OpcBrowseFilters filters, out OpcBrowsePosition position);
+    OpcBrowseElement[] Browse(string name, OpcBrowseFilters filters, out OpcBrowsePosition? position);
 
     /// <summary>
     /// 浏览 OPC Server 中的位号 (即数据项或者标签)

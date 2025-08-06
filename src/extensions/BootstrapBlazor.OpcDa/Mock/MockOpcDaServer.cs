@@ -73,7 +73,20 @@ sealed class MockOpcDaServer : IOpcDaServer
     public OpcBrowseElement[] Browse(string name, OpcBrowseFilters filters, out OpcBrowsePosition? position)
     {
         position = null;
-        return [];
+        return [
+            new OpcBrowseElement()
+            {
+                Name ="Channel1",
+                IsItem = false,
+                HasChildren = true
+            },
+            new OpcBrowseElement()
+            {
+                Name ="Channel2",
+                IsItem = false,
+                HasChildren = true
+            }
+        ];
     }
 
     /// <summary>
