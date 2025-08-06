@@ -55,14 +55,16 @@ sealed class OpcDaServer : IOpcDaServer
     /// <param name="filters"></param>
     /// <param name="position"></param>
     /// <returns></returns>
-    public BrowseElement[] Browser(string name, BrowseFilters filters, out BrowsePosition position)
+    public OpcBrowseElement[] Browse(string name, OpcBrowseFilters filters, out OpcBrowsePosition position)
     {
         if (_server is not { IsConnected: true })
         {
             throw new InvalidOperationException("OPC Server is not connected.");
         }
 
-        return _server.Browse(new ItemIdentifier(name), filters, out position);
+        var results = _server.Browse(new ItemIdentifier(name), filters.ToFilters(), out var pos);
+        position = new OpcBrowsePosition(pos);
+        return results.Select(element => new OpcBrowseElement(element)).ToArray();
     }
 
     /// <summary>
@@ -70,15 +72,15 @@ sealed class OpcDaServer : IOpcDaServer
     /// </summary>
     /// <param name="position"></param>
     /// <returns></returns>
-    public BrowseElement[] BrowserNext(ref BrowsePosition position)
+    public OpcBrowseElement[] BrowseNext(OpcBrowsePosition position)
     {
         if (_server is not { IsConnected: true })
         {
             throw new InvalidOperationException("OPC Server is not connected.");
         }
 
-
-        return _server.BrowseNext(ref position);
+        var pos = position.Position;
+        return _server.BrowseNext(ref pos).Select(element => new OpcBrowseElement(element)).ToArray();
     }
 
     /// <summary>
