@@ -4,7 +4,6 @@
 
 using Opc;
 using Opc.Da;
-using System.Collections.Concurrent;
 using System.Runtime.Versioning;
 
 namespace BootstrapBlazor.OpcDa;
@@ -16,7 +15,6 @@ namespace BootstrapBlazor.OpcDa;
 sealed class OpcDaServer : IOpcDaServer
 {
     private Opc.Da.Server? _server = null;
-    private readonly ConcurrentDictionary<string, HashSet<OpcReadItem>> _valuesCache = [];
 
     /// <summary>
     /// 获得 OPC Server 名称
