@@ -13,7 +13,7 @@ namespace BootstrapBlazor.OpcDa;
 /// OPC Server 操作类
 /// </summary>
 [SupportedOSPlatform("windows")]
-class OpcServer : IOpcServer
+sealed class OpcServer : IOpcServer
 {
     private Opc.Da.Server? _server = null;
     private readonly ConcurrentDictionary<string, HashSet<OpcReadItem>> _valuesCache = [];
@@ -54,7 +54,7 @@ class OpcServer : IOpcServer
     {
         ServerName = string.Empty;
 
-        if (_server != null && _server.IsConnected)
+        if (_server is { IsConnected: true })
         {
             foreach (Subscription sub in _server.Subscriptions)
             {
@@ -127,7 +127,7 @@ class OpcServer : IOpcServer
 
     private Opc.Da.Server GetOpcServer()
     {
-        if (_server == null)
+        if (_server is not {  IsConnected: true })
         {
             throw new InvalidOperationException("OPC Server is not connected.");
         }
@@ -138,7 +138,7 @@ class OpcServer : IOpcServer
     /// Dispose 方法
     /// </summary>
     /// <param name="disposing"></param>
-    protected virtual void Dispose(bool disposing)
+    private void Dispose(bool disposing)
     {
         if (disposing)
         {
