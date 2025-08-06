@@ -2,6 +2,8 @@
 // Licensed under the Apache License, Version 2.0. See License.txt in the project root for license information.
 // Website: https://www.blazor.zone or https://argozhang.github.io/
 
+using Opc.Da;
+
 namespace BootstrapBlazor.OpcDa;
 
 /// <summary>
@@ -11,13 +13,15 @@ internal static class Extensions
 {
     public static Quality ToQuality(this Opc.Da.Quality quality)
     {
-        return quality.QualityBits == Opc.Da.qualityBits.good
+        return quality.QualityBits == qualityBits.good
             ? Quality.Good
             : Quality.Bad;
     }
 
-    public static ISubscription ToOpcSubscription(this Opc.Da.ISubscription subscription)
+    public static IOpcSubscription ToOpcSubscription(this ISubscription subscription)
     {
         return new OpcSubscription(subscription);
     }
+
+    public static ISubscription CreateSubscription(this Server server, string name, int updateRate = 1000, bool active = true) => server.CreateSubscription(new SubscriptionState { Name = name, Deadband = 0, UpdateRate = updateRate, Active = active });
 }

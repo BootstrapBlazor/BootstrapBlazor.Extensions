@@ -28,6 +28,8 @@ sealed class OpcServer : IOpcServer
     /// </summary>
     public bool IsConnected => _server?.IsConnected ?? false;
 
+    private readonly Dictionary<string, ISubscription> _subscriptions = [];
+
     /// <summary>
     /// 连接到 OPCServer 方法
     /// </summary>
@@ -60,6 +62,7 @@ sealed class OpcServer : IOpcServer
             {
                 _server.CancelSubscription(sub);
             }
+
             _server.Disconnect();
             _server = null;
         }
@@ -72,28 +75,33 @@ sealed class OpcServer : IOpcServer
     /// <param name="updateRate">更新频率 默认 1000 毫秒</param>
     /// <param name="active">是否激活 默认 true</param>
     /// <returns></returns>
-    public ISubscription CreateSubscription(string name, int updateRate = 1000, bool active = true)
+    public IOpcSubscription CreateSubscription(string name, int updateRate = 1000, bool active = true)
     {
         var server = GetOpcServer();
-        var subscription = server.CreateSubscription(new SubscriptionState
+        if (_subscriptions.TryGetValue(name, out var subscription))
         {
-            Name = name,
-            Deadband = 0,
-            UpdateRate = updateRate,
-            Active = active
-        });
+            // 已经存在该订阅
+            server.CancelSubscription(subscription);
+        }
+
+        subscription = server.CreateSubscription(name, updateRate, active);
+        _subscriptions.Add(name, subscription);
         return subscription.ToOpcSubscription();
     }
 
     /// <summary>
     /// 取消订阅方法
     /// </summary>
-    /// <param name="subscription">订阅接口 <see cref="ISubscription"/> 实例</param>
+    /// <param name="subscription">订阅接口 <see cref="IOpcSubscription"/> 实例</param>
     /// <returns></returns>
-    public void CancelSubscription(ISubscription subscription)
+    public void CancelSubscription(IOpcSubscription subscription)
     {
         var server = GetOpcServer();
-        server.CancelSubscription(subscription.GetSubscription());
+        var name = subscription.Name;
+        if (_subscriptions.Remove(name, out var sub))
+        {
+            server.CancelSubscription(sub);
+        }
     }
 
     /// <summary>
@@ -121,16 +129,17 @@ sealed class OpcServer : IOpcServer
         return items.Select(i =>
         {
             var item = results.FirstOrDefault(v => v.ItemName == i.Name);
-            return new OpcWriteItem(i.Name, i.Value) { Result = item != null && item.ResultID == ResultID.S_OK };
+            return i with { Result = item != null && item.ResultID == ResultID.S_OK };
         }).ToHashSet(OpcItemEqualityComparer<OpcWriteItem>.Default);
     }
 
     private Opc.Da.Server GetOpcServer()
     {
-        if (_server is not {  IsConnected: true })
+        if (_server is not { IsConnected: true })
         {
             throw new InvalidOperationException("OPC Server is not connected.");
         }
+
         return _server;
     }
 

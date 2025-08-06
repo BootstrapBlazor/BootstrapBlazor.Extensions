@@ -7,8 +7,13 @@ namespace BootstrapBlazor.OpcDa;
 /// <summary>
 /// 订阅接口定义
 /// </summary>
-public interface ISubscription
+public interface IOpcSubscription
 {
+    /// <summary>
+    /// 获得 订阅名称
+    /// </summary>
+    public string Name { get; }
+
     /// <summary>
     /// 获得/设置 是否保留最后一个值
     /// </summary>
@@ -18,12 +23,6 @@ public interface ISubscription
     /// 获得/设置 数据变更回调
     /// </summary>
     Action<List<OpcReadItem>>? DataChanged { get; set; }
-
-    /// <summary>
-    /// 获得 <see cref="Opc.Da.ISubscription"/> 实例
-    /// </summary>
-    /// <returns></returns>
-    Opc.Da.ISubscription GetSubscription();
 
     /// <summary>
     /// 增加数据项

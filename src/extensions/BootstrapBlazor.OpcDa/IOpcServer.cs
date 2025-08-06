@@ -35,7 +35,7 @@ public interface IOpcServer : IDisposable
     /// 取消订阅方法
     /// </summary>
     /// <param name="subscription"></param>
-    void CancelSubscription(ISubscription subscription);
+    void CancelSubscription(IOpcSubscription subscription);
 
     /// <summary>
     /// 创建订阅方法
@@ -44,7 +44,7 @@ public interface IOpcServer : IDisposable
     /// <param name="updateRate">更新频率 默认 1000 毫秒</param>
     /// <param name="active">是否激活 默认 true</param>
     /// <returns></returns>
-    ISubscription CreateSubscription(string name, int updateRate = 1000, bool active = true);
+    IOpcSubscription CreateSubscription(string name, int updateRate = 1000, bool active = true);
 
     /// <summary>
     /// 读取 Item 值方法
