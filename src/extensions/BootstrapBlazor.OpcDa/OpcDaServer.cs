@@ -13,7 +13,7 @@ namespace BootstrapBlazor.OpcDa;
 /// OPC Server 操作类
 /// </summary>
 [SupportedOSPlatform("windows")]
-sealed class OpcServer : IOpcServer
+sealed class OpcDaServer : IOpcDaServer
 {
     private Opc.Da.Server? _server = null;
     private readonly ConcurrentDictionary<string, HashSet<OpcReadItem>> _valuesCache = [];
