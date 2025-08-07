@@ -4,7 +4,6 @@
 
 using Opc;
 using Opc.Da;
-using System.Collections.Concurrent;
 using System.Runtime.Versioning;
 
 namespace BootstrapBlazor.OpcDa;
@@ -16,7 +15,6 @@ namespace BootstrapBlazor.OpcDa;
 sealed class OpcDaServer : IOpcDaServer
 {
     private Opc.Da.Server? _server = null;
-    private readonly ConcurrentDictionary<string, HashSet<OpcReadItem>> _valuesCache = [];
 
     /// <summary>
     /// 获得 OPC Server 名称
@@ -141,6 +139,34 @@ sealed class OpcDaServer : IOpcDaServer
         }
 
         return _server;
+    }
+
+    /// <summary>
+    /// <inheritdoc/>
+    /// </summary>
+    /// <param name="name"></param>
+    /// <param name="filters"></param>
+    /// <param name="position"></param>
+    /// <returns></returns>
+    public OpcBrowseElement[] Browse(string name, OpcBrowseFilters filters, out OpcBrowsePosition? position)
+    {
+        var server = GetOpcServer();
+        var results = server.Browse(new ItemIdentifier(name), filters.ToFilters(), out var pos) ?? [];
+        position = pos == null ? null : new OpcBrowsePosition(pos);
+        return [.. results.Select(element => new OpcBrowseElement(element))];
+    }
+
+    /// <summary>
+    /// <inheritdoc/>
+    /// </summary>
+    /// <param name="position"></param>
+    /// <returns></returns>
+    public OpcBrowseElement[] BrowseNext(OpcBrowsePosition position)
+    {
+        var server = GetOpcServer();
+        var pos = position.Position;
+        var results = server.BrowseNext(ref pos) ?? [];
+        return [.. results.Select(element => new OpcBrowseElement(element))];
     }
 
     /// <summary>

@@ -2,6 +2,9 @@
 // Licensed under the Apache License, Version 2.0. See License.txt in the project root for license information.
 // Website: https://www.blazor.zone or https://argozhang.github.io/
 
+using Opc.Da;
+using System.Net.Http.Headers;
+
 namespace BootstrapBlazor.OpcDa;
 
 /// <summary>
@@ -59,6 +62,82 @@ sealed class MockOpcDaServer : IOpcDaServer
     {
         return items.Select(i => new OpcWriteItem(i.Name, i.Value) { Result = true })
                     .ToHashSet(OpcItemEqualityComparer<OpcWriteItem>.Default);
+    }
+
+    /// <summary>
+    /// 浏览 OPC Server 中的位号 (即数据项或者标签)
+    /// </summary>
+    /// <param name="name"></param>
+    /// <param name="filters"></param>
+    /// <param name="position"></param>
+    /// <returns></returns>
+    public OpcBrowseElement[] Browse(string name, OpcBrowseFilters filters, out OpcBrowsePosition? position)
+    {
+        position = null;
+        if (string.IsNullOrEmpty(name))
+        {
+            return [
+                new OpcBrowseElement()
+                {
+                    Name ="Channel1",
+                    ItemName = "Channel1",
+                    IsItem = false,
+                    HasChildren = true
+                },
+                new OpcBrowseElement()
+                {
+                    Name ="Channel2",
+                    ItemName = "Channel2",
+                    IsItem = false,
+                    HasChildren = true
+                }
+            ];
+        }
+
+        if (name == "Channel1")
+        {
+            return [
+                new OpcBrowseElement()
+                {
+                    Name ="Device1",
+                    ItemName = "Channel1.Device1",
+                    IsItem = false,
+                    HasChildren = true
+                }
+            ];
+        }
+
+        if (name == "Channel1.Device1")
+        {
+            return [
+                new OpcBrowseElement()
+                {
+                    Name ="Tag1",
+                    ItemName = "Channel1.Device1.Tag1",
+                    IsItem = true,
+                    HasChildren = false
+                },
+                new OpcBrowseElement()
+                {
+                    Name ="Tag2",
+                    ItemName = "Channel1.Device1.Tag2",
+                    IsItem = true,
+                    HasChildren = false
+                }
+            ];
+        }
+
+        return [];
+    }
+
+    /// <summary>
+    /// 浏览 OPC Server 中的位号 (即数据项或者标签)
+    /// </summary>
+    /// <param name="position"></param>
+    /// <returns></returns>
+    public OpcBrowseElement[] BrowseNext(OpcBrowsePosition position)
+    {
+        return [];
     }
 
     public void Dispose()

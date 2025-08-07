@@ -24,4 +24,26 @@ internal static class Extensions
     }
 
     public static ISubscription CreateSubscription(this Server server, string name, int updateRate = 1000, bool active = true) => server.CreateSubscription(new SubscriptionState { Name = name, Deadband = 0, UpdateRate = updateRate, Active = active });
+
+    public static BrowseFilters ToFilters(this OpcBrowseFilters filters)
+    {
+        return new BrowseFilters
+        {
+            ReturnAllProperties = filters.ReturnAllProperties,
+            ReturnPropertyValues = filters.ReturnPropertyValues,
+            MaxElementsReturned = filters.MaxElementsReturned,
+            ElementNameFilter = filters.ElementNameFilter,
+            BrowseFilter = filters.BrowseFilter.ToBrowseFilter()
+        };
+    }
+
+    public static browseFilter ToBrowseFilter(this OpcBrowseFilterType filterType)
+    {
+        return filterType switch
+        {
+            OpcBrowseFilterType.All => browseFilter.all,
+            OpcBrowseFilterType.Branch => browseFilter.branch,
+            _ => browseFilter.item
+        };
+    }
 }
