@@ -11,7 +11,7 @@ namespace BootstrapBlazor.Components;
 /// </summary>
 public partial class CodeEditor
 {
-    private const string MONACO_VS_PATH = "./_content/BootstrapBlazor.CodeEditor/monaco-editor/min/vs";
+    private const string MONACO_VS_PATH = "/_content/BootstrapBlazor.CodeEditor/monaco-editor/min/vs";
 
     /// <summary>
     /// Language used by the editor: csharp, javascript, ...
