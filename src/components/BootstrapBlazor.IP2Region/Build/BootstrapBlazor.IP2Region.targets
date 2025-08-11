@@ -1,11 +1,16 @@
 <Project>
 
   <ItemGroup>
-    <Files Include="$(MSBuildThisFileDirectory)/../contentFiles/*.*"/>
+    <IP2RegionFiles Include="$(MSBuildThisFileDirectory)/../contentFiles/ip2region.xdb"/>
   </ItemGroup>
 
-  <Target Name="CopyFiles" AfterTargets="Build">
-    <Copy SourceFiles="@(Files)" DestinationFolder="$(TargetDir)/ip2region/%(RecursiveDir)"/>
+  <Target Name="IP2RegionCopyFilesAfterBuild" AfterTargets="Build">
+    <Message Text="[IP2Region] Copy xdb file -> $(TargetDir)" Importance="high" />
+    <Copy SourceFiles="@(IP2RegionFiles)" DestinationFolder="$(TargetDir)/ip2region"/>
+  </Target>
+
+  <Target Name="IP2RegionCopyFilesAfterPublish" AfterTargets="Publish">
+    <Copy SourceFiles="@(IP2RegionFiles)" DestinationFolder="$(PublishDir)/ip2region"/>
   </Target>
 
 </Project>
