@@ -1,7 +1,7 @@
 ﻿<Project Sdk="Microsoft.NET.Sdk.Razor">
 
   <PropertyGroup>
-    <Version>9.0.1</Version>
+    <Version>9.0.2</Version>
   </PropertyGroup>
 
   <PropertyGroup>
@@ -11,7 +11,7 @@
 
   <ItemGroup>
     <Content Include="Build\*.targets" PackagePath="build\" />
-    <Content Include="Data\ip2region.xdb" PackagePath="contentFiles/ip2region.xdb" />
+    <Content Include="Data\ip2region.xdb" PackagePath="contentFiles\ip2region.xdb" />
   </ItemGroup>
 
   <ItemGroup>
