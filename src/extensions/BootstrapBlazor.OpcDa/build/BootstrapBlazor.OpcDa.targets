@@ -1,11 +1,16 @@
 <Project>
 
   <ItemGroup>
-    <Files Include="$(MSBuildThisFileDirectory)/../lib/net6.0/Opc*.*"/>
+    <OpcDaFiles Include="$(MSBuildThisFileDirectory)/../lib/net6.0/Opc*.*"/>
   </ItemGroup>
 
-  <Target Name="CopyFiles" AfterTargets="Build">
-    <Copy SourceFiles="@(Files)" DestinationFolder="$(TargetDir)"/>
+  <Target Name="OpcDaCopyFilesAfterBuild" AfterTargets="Build">
+    <Message Text="[OpcDa] Copy OpcDa files -> $(TargetDir)" Importance="high" />
+    <Copy SourceFiles="@(OpcDaFiles)" DestinationFolder="$(TargetDir)"/>
+  </Target>
+
+  <Target Name="OpcDaCopyFilesAfterPublish" AfterTargets="Publish">
+    <Copy SourceFiles="@(OpcDaFiles)" DestinationFolder="$(PublishDir)"/>
   </Target>
 
 </Project>
