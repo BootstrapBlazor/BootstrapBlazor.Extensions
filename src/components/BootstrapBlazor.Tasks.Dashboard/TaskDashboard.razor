@@ -1,16 +1,60 @@
-﻿@namespace BootstrapBlazor.Components
+﻿@namespace BootstrapBlazor.Components.Tasks
 @inherits BootstrapComponentBase
 
 <div @attributes="AdditionalAttributes" class="@ClassString">
-    <Table TItem="IScheduler" Items="@_schedulers">
+    <Table TItem="IScheduler" Items="@_schedulers" IsBordered="true" IsStriped="true">
         <TableColumns>
-            <TableTemplateColumn Text="@Localizer["Name"]"></TableTemplateColumn>
-            <TableTemplateColumn Text="@Localizer["Status"]"></TableTemplateColumn>
-            <TableTemplateColumn Text="@Localizer["NextRuntime"]"></TableTemplateColumn>
-            <TableTemplateColumn Text="@Localizer["LastRuntime"]"></TableTemplateColumn>
-            <TableTemplateColumn Text="@Localizer["LastRunResult"]"></TableTemplateColumn>
-            <TableTemplateColumn Text="@Localizer["TaskStatus"]"></TableTemplateColumn>
-            <TableTemplateColumn Text="@Localizer["Exception"]"></TableTemplateColumn>
+            <TableTemplateColumn Text="@Localizer["Name"]">
+                <Template Context="v">
+                    @v.Row.Name
+                </Template>
+            </TableTemplateColumn>
+            <TableTemplateColumn Text="@Localizer["Status"]">
+                <Template Context="v">
+                    <Tag Color="GetStatusColor(v.Row.Status)" Icon="@GetStatusIcon(v.Row.Status)">@FormatStatus(v.Row.Status)</Tag>
+                </Template>
+            </TableTemplateColumn>
+            <TableTemplateColumn Text="@Localizer["NextRuntime"]">
+                <Template Context="v">
+                    @FormatDateTime(v.Row.NextRuntime)
+                </Template>
+            </TableTemplateColumn>
+            <TableTemplateColumn Text="@Localizer["LastRuntime"]">
+                <Template Context="v">
+                    @FormatDateTime(v.Row.LastRuntime)
+                </Template>
+            </TableTemplateColumn>
+            <TableTemplateColumn Text="@Localizer["LastRunResult"]">
+                <Template Context="v">
+                    <Tag Color="GetResultColor(v.Row.LastRunResult)">@FormatResult(v.Row.LastRunResult)</Tag>
+                </Template>
+            </TableTemplateColumn>
+            <TableTemplateColumn Text="@Localizer["TaskStatus"]">
+                <Template Context="v">
+                    @v.Row.TaskStatus
+                </Template>
+            </TableTemplateColumn>
+            <TableTemplateColumn Text="@Localizer["Exception"]">
+                <Template Context="v">
+                    @if (v.Row.Exception != null)
+                    {
+                        <Button Color="Color.Danger" Size="Size.ExtraSmall" Icon="fa-solid fa-exclamation-circle"
+                                OnClickWithoutRender="() => OnShowException(v.Row.Exception)"></Button>
+                    }
+                </Template>
+            </TableTemplateColumn>
+            <TableTemplateColumn Text="@Localizer["Operation"]">
+                <Template Context="v">
+                    <div class="btn-group">
+                        <Button Size="Size.ExtraSmall" Color="Color.Warning" Icon="fa-solid fa-pause-circle"
+                                Text="@Localizer["ButtonPause"]" OnClick="() => OnPause(v.Row)" IsDisabled="OnCheckTaskStatus(v.Row)" />
+                        <Button Size="Size.ExtraSmall" Color="Color.Success" Icon="fa-solid fa-play-circle"
+                                Text="@Localizer["ButtonRun"]" OnClick="() => OnRun(v.Row)" IsDisabled="OnCheckTaskStatus(v.Row)" />
+                        <Button Size="Size.ExtraSmall" Color="Color.Info" Icon="fa-solid fa-info-circle"
+                                Text="@Localizer["ButtonLog"]" OnClick="() => OnLog(v.Row)" IsDisabled="OnCheckTaskStatus(v.Row)" />
+                    </div>
+                </Template>
+            </TableTemplateColumn>
         </TableColumns>
     </Table>
 </div>
