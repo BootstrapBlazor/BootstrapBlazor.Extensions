@@ -31,7 +31,7 @@
             </TableTemplateColumn>
             <TableTemplateColumn Text="@Localizer["Exception"]">
                 <Template Context="v">
-                    @if (v.Row.Exception == null)
+                    @if (v.Row.Exception != null)
                     {
                         <Button Color="Color.Danger" Size="Size.ExtraSmall" Icon="fa-solid fa-exclamation-circle"
                                 OnClickWithoutRender="() => OnShowException(v.Row, v.Row.Exception)"></Button>

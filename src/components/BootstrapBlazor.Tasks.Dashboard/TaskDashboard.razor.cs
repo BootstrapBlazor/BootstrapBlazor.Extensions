@@ -108,7 +108,6 @@ public partial class TaskDashboard
 
     private async Task OnShowException(IScheduler scheduler, Exception ex)
     {
-        ex = new Exception("test");
         var option = new DialogOption()
         {
             Class = "modal-dialog-task-ex",
