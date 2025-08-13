@@ -1,0 +1,33 @@
+﻿<Project Sdk="Microsoft.NET.Sdk.Razor">
+
+  <PropertyGroup>
+    <Version>9.0.0-beta01</Version>
+  </PropertyGroup>
+
+  <PropertyGroup>
+    <PackageTags>Bootstrap Blazor WebAssembly wasm UI Components Task Dashboard</PackageTags>
+    <Description>Bootstrap UI components extensions of Task</Description>
+  </PropertyGroup>
+
+  <ItemGroup>
+    <Content Remove="Locales\en-US.json" />
+    <Content Remove="Locales\zh-CN.json" />
+    <EmbeddedResource Include="Locales\en-US.json" />
+    <EmbeddedResource Include="Locales\zh-CN.json" />
+  </ItemGroup>
+
+  <ItemGroup>
+    <PackageReference Include="BootstrapBlazor" Version="9.0.1" />
+    <PackageReference Include="Longbow.Tasks" Version="9.0.1" />
+  </ItemGroup>
+
+  <ItemGroup>
+    <ProjectReference Include="..\..\..\..\BootstrapBlazor\src\BootstrapBlazor\BootstrapBlazor.csproj" />
+  </ItemGroup>
+
+  <ItemGroup>
+    <Using Include="BootstrapBlazor.Components" />
+    <Using Include="Longbow.Tasks" />
+  </ItemGroup>
+
+</Project>

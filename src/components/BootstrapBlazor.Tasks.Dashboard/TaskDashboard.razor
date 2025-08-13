@@ -1,0 +1,16 @@
+﻿@namespace BootstrapBlazor.Components
+@inherits BootstrapComponentBase
+
+<div @attributes="AdditionalAttributes" class="@ClassString">
+    <Table TItem="IScheduler" Items="@_schedulers">
+        <TableColumns>
+            <TableTemplateColumn Text="@Localizer["Name"]"></TableTemplateColumn>
+            <TableTemplateColumn Text="@Localizer["Status"]"></TableTemplateColumn>
+            <TableTemplateColumn Text="@Localizer["NextRuntime"]"></TableTemplateColumn>
+            <TableTemplateColumn Text="@Localizer["LastRuntime"]"></TableTemplateColumn>
+            <TableTemplateColumn Text="@Localizer["LastRunResult"]"></TableTemplateColumn>
+            <TableTemplateColumn Text="@Localizer["TaskStatus"]"></TableTemplateColumn>
+            <TableTemplateColumn Text="@Localizer["Exception"]"></TableTemplateColumn>
+        </TableColumns>
+    </Table>
+</div>
