@@ -1,3 +1,24 @@
-{
-
+﻿{
+  "BootstrapBlazor.Components.Tasks.TaskDashboard": {
+    "Name": "Name",
+    "Status": "Status",
+    "NextRuntime": "NextRuntime",
+    "LastRuntime": "LastRuntime",
+    "LastRunResult": "LastRunResult",
+    "Exception": "Exception",
+    "Operation": "Operation",
+    "SchedulerStatus.Running": "Running",
+    "SchedulerStatus.Ready": "Ready",
+    "SchedulerStatus.Disabled": "Disabled",
+    "TriggerResult.Running": "Running",
+    "TriggerResult.Success": "Success",
+    "TriggerResult.Cancelled": "Cancelled",
+    "TriggerResult.Timeout": "Timeout",
+    "TriggerResult.Error": "Error",
+    "ButtonPause": "Pause",
+    "ButtonRun": "Run",
+    "ButtonLog": "Log",
+    "LogDilaogTitle": "{0} - Log(Latest 20 Items)",
+    "LogDilaogConsoleHeaderText": "Action Log"
+  }
 }

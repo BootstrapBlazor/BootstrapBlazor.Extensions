@@ -29,11 +29,6 @@
                     <Tag Color="GetResultColor(v.Row.LastRunResult)">@FormatResult(v.Row.LastRunResult)</Tag>
                 </Template>
             </TableTemplateColumn>
-            <TableTemplateColumn Text="@Localizer["TaskStatus"]">
-                <Template Context="v">
-                    @v.Row.TaskStatus
-                </Template>
-            </TableTemplateColumn>
             <TableTemplateColumn Text="@Localizer["Exception"]">
                 <Template Context="v">
                     @if (v.Row.Exception != null)
@@ -47,11 +42,11 @@
                 <Template Context="v">
                     <div class="btn-group">
                         <Button Size="Size.ExtraSmall" Color="Color.Warning" Icon="fa-solid fa-pause-circle"
-                                Text="@Localizer["ButtonPause"]" OnClick="() => OnPause(v.Row)" IsDisabled="OnCheckTaskStatus(v.Row)" />
+                                Text="@Localizer["ButtonPause"]" OnClick="() => OnPause(v.Row)" IsDisabled="OnCheckPauseTaskStatus(v.Row)" />
                         <Button Size="Size.ExtraSmall" Color="Color.Success" Icon="fa-solid fa-play-circle"
-                                Text="@Localizer["ButtonRun"]" OnClick="() => OnRun(v.Row)" IsDisabled="OnCheckTaskStatus(v.Row)" />
+                                Text="@Localizer["ButtonRun"]" OnClick="() => OnRun(v.Row)" IsDisabled="OnCheckRunTaskStatus(v.Row)" />
                         <Button Size="Size.ExtraSmall" Color="Color.Info" Icon="fa-solid fa-info-circle"
-                                Text="@Localizer["ButtonLog"]" OnClick="() => OnLog(v.Row)" IsDisabled="OnCheckTaskStatus(v.Row)" />
+                                Text="@Localizer["ButtonLog"]" OnClick="() => OnLog(v.Row)" />
                     </div>
                 </Template>
             </TableTemplateColumn>

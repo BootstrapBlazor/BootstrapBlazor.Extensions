@@ -100,7 +100,9 @@ public partial class TaskDashboard
         await DialogService.Show(option);
     }
 
-    private static bool OnCheckTaskStatus(IScheduler model) => model.Status != SchedulerStatus.Running;
+    private static bool OnCheckPauseTaskStatus(IScheduler model) => model.Status != SchedulerStatus.Running;
+
+    private static bool OnCheckRunTaskStatus(IScheduler model) => model.Status == SchedulerStatus.Running;
 
     private static string? FormatDateTime(DateTimeOffset? dateTime) => dateTime?.ToString("yyyy-MM-dd HH:mm:ss");
 

@@ -1,3 +1,24 @@
-{
-
+﻿{
+  "BootstrapBlazor.Components.Tasks.TaskDashboard": {
+    "Name": "名称",
+    "Status": "调度状态",
+    "NextRuntime": "下次运行时间",
+    "LastRuntime": "上次运行时间",
+    "LastRunResult": "上次结果",
+    "Exception": "异常",
+    "Operation": "操作",
+    "SchedulerStatus.Running": "运行中",
+    "SchedulerStatus.Ready": "已停止",
+    "SchedulerStatus.Disabled": "禁用",
+    "TriggerResult.Running": "运行",
+    "TriggerResult.Success": "成功",
+    "TriggerResult.Cancelled": "取消",
+    "TriggerResult.Timeout": "超时",
+    "TriggerResult.Error": "故障",
+    "ButtonPause": "暂停",
+    "ButtonRun": "运行",
+    "ButtonLog": "日志",
+    "LogDilaogTitle": "{0} - 日志窗口(最新 20 条)",
+    "LogDilaogConsoleHeaderText": "执行日志"
+  }
 }
