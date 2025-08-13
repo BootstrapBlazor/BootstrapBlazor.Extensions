@@ -14,14 +14,14 @@
                     <Tag Color="GetStatusColor(v.Row.Status)" Icon="@GetStatusIcon(v.Row.Status)">@FormatStatus(v.Row.Status)</Tag>
                 </Template>
             </TableTemplateColumn>
-            <TableTemplateColumn Text="@Localizer["NextRuntime"]">
-                <Template Context="v">
-                    @FormatDateTime(v.Row.NextRuntime)
-                </Template>
-            </TableTemplateColumn>
             <TableTemplateColumn Text="@Localizer["LastRuntime"]">
                 <Template Context="v">
                     @FormatDateTime(v.Row.LastRuntime)
+                </Template>
+            </TableTemplateColumn>
+            <TableTemplateColumn Text="@Localizer["NextRuntime"]">
+                <Template Context="v">
+                    @FormatDateTime(v.Row.NextRuntime)
                 </Template>
             </TableTemplateColumn>
             <TableTemplateColumn Text="@Localizer["LastRunResult"]">
