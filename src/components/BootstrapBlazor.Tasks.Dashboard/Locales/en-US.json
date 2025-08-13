@@ -19,6 +19,7 @@
     "ButtonRun": "Run",
     "ButtonLog": "Log",
     "LogDilaogTitle": "{0} - Log(Latest 20 Items)",
-    "LogDilaogConsoleHeaderText": "Action Log"
+    "LogDilaogConsoleHeaderText": "Action Log",
+    "ExceptionDilaogTitle": "{0} - Exception Detail"
   }
 }

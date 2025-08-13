@@ -89,7 +89,7 @@ public partial class TaskDashboard
     {
         var option = new DialogOption()
         {
-            Class = "modal-dialog-task",
+            Class = "modal-dialog-task-log",
             Title = Localizer["LogDilaogTitle", scheduler.Name],
             Component = BootstrapDynamicComponent.CreateComponent<TaskInfo>(new Dictionary<string, object?>
             {
@@ -106,8 +106,18 @@ public partial class TaskDashboard
 
     private static string? FormatDateTime(DateTimeOffset? dateTime) => dateTime?.ToString("yyyy-MM-dd HH:mm:ss");
 
-    private Task OnShowException(Exception ex)
+    private async Task OnShowException(IScheduler scheduler, Exception ex)
     {
-        return Task.CompletedTask;
+        ex = new Exception("test");
+        var option = new DialogOption()
+        {
+            Class = "modal-dialog-task-ex",
+            IsScrolling = true,
+            Title = Localizer["ExceptionDilaogTitle", scheduler.Name],
+            BodyTemplate = RenderException(ex)
+        };
+        await DialogService.Show(option);
     }
+
+    private static RenderFragment RenderException(Exception ex) => builder => builder.AddContent(0, ex.FormatMarkupString());
 }

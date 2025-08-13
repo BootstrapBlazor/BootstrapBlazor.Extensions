@@ -19,6 +19,7 @@
     "ButtonRun": "运行",
     "ButtonLog": "日志",
     "LogDilaogTitle": "{0} - 日志窗口(最新 20 条)",
-    "LogDilaogConsoleHeaderText": "执行日志"
+    "LogDilaogConsoleHeaderText": "执行日志",
+    "ExceptionDilaogTitle": "{0} - 异常明细"
   }
 }
