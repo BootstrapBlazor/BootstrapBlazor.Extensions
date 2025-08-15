@@ -74,7 +74,7 @@ public partial class TaskInfo : IDisposable
     }
 
     /// <summary>
-    /// 
+    /// <inheritdoc/>
     /// </summary>
     public void Dispose()
     {
