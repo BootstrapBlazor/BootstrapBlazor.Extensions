@@ -38,13 +38,18 @@ public partial class TaskInfo : IDisposable
 
         if (firstRender)
         {
-            var sche = TaskServicesManager.Get(Scheduler.Name);
-            if (sche != null)
+            var scheduler = TaskServicesManager.Get(Scheduler.Name);
+            if (scheduler != null)
             {
-                sche.Triggers.First().PulseCallback = async t => await DispatchMessage(t);
-                await DispatchMessage(sche.Triggers.First());
+                scheduler.Triggers.First().PulseCallback += DispatchMessageCallback;
+                await DispatchMessage(scheduler.Triggers.First());
             }
         }
+    }
+
+    private void DispatchMessageCallback(ITrigger trigger)
+    {
+        _ = DispatchMessage(trigger);
     }
 
     private async Task DispatchMessage(ITrigger trigger)
@@ -65,10 +70,10 @@ public partial class TaskInfo : IDisposable
     {
         if (disposing)
         {
-            var sche = TaskServicesManager.Get(Scheduler.Name);
-            if (sche != null)
+            var scheduler = TaskServicesManager.Get(Scheduler.Name);
+            if (scheduler != null)
             {
-                sche.Triggers.First().PulseCallback = null;
+                scheduler.Triggers.First().PulseCallback -= DispatchMessageCallback;
             }
         }
     }
