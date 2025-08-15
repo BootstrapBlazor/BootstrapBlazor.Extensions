@@ -18,8 +18,9 @@
     "ButtonPause": "Pause",
     "ButtonRun": "Run",
     "ButtonLog": "Log",
-    "LogDilaogTitle": "{0} - Log(Latest 20 Items)",
-    "LogDilaogConsoleHeaderText": "Action Log",
-    "ExceptionDilaogTitle": "{0} - Exception Detail"
+    "LogDialogTitle": "{0} - Log(Latest 20 Items)",
+    "LogDialogConsoleHeaderText": "Action Log",
+    "ExceptionDialogTitle": "{0} - Exception Detail",
+    "None": "None"
   }
 }

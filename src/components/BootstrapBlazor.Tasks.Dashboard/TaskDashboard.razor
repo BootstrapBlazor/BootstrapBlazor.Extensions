@@ -36,17 +36,21 @@
                         <Button Color="Color.Danger" Size="Size.ExtraSmall" Icon="fa-solid fa-exclamation-circle"
                                 OnClickWithoutRender="() => OnShowException(v.Row, v.Row.Exception)"></Button>
                     }
+                    else
+                    {
+                        <Tag Color="Color.Success">@Localizer["None"]</Tag>
+                    }
                 </Template>
             </TableTemplateColumn>
-            <TableTemplateColumn Text="@Localizer["Operation"]">
+            <TableTemplateColumn Text="@Localizer["Operation"]" Width="170">
                 <Template Context="v">
                     <div class="btn-group">
                         <Button Size="Size.ExtraSmall" Color="Color.Warning" Icon="fa-solid fa-pause-circle"
-                                Text="@Localizer["ButtonPause"]" OnClick="() => OnPause(v.Row)" IsDisabled="OnCheckPauseTaskStatus(v.Row)" />
+                                Text="@Localizer["ButtonPause"]" OnClick="() => OnPause(v.Row)" IsDisabled="OnCheckPauseTaskStatus(v.Row)"></Button>
                         <Button Size="Size.ExtraSmall" Color="Color.Success" Icon="fa-solid fa-play-circle"
-                                Text="@Localizer["ButtonRun"]" OnClick="() => OnRun(v.Row)" IsDisabled="OnCheckRunTaskStatus(v.Row)" />
+                                Text="@Localizer["ButtonRun"]" OnClick="() => OnRun(v.Row)" IsDisabled="OnCheckRunTaskStatus(v.Row)"></Button>
                         <Button Size="Size.ExtraSmall" Color="Color.Info" Icon="fa-solid fa-info-circle"
-                                Text="@Localizer["ButtonLog"]" OnClick="() => OnLog(v.Row)" />
+                                Text="@Localizer["ButtonLog"]" OnClick="() => OnLog(v.Row)"></Button>
                     </div>
                 </Template>
             </TableTemplateColumn>

@@ -18,8 +18,9 @@
     "ButtonPause": "暂停",
     "ButtonRun": "运行",
     "ButtonLog": "日志",
-    "LogDilaogTitle": "{0} - 日志窗口(最新 20 条)",
-    "LogDilaogConsoleHeaderText": "执行日志",
-    "ExceptionDilaogTitle": "{0} - 异常明细"
+    "LogDialogTitle": "{0} - 日志窗口(最新 20 条)",
+    "LogDialogConsoleHeaderText": "执行日志",
+    "ExceptionDialogTitle": "{0} - 异常明细",
+    "None": "无"
   }
 }

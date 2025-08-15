@@ -90,11 +90,11 @@ public partial class TaskDashboard
         var option = new DialogOption()
         {
             Class = "modal-dialog-task-log",
-            Title = Localizer["LogDilaogTitle", scheduler.Name],
+            Title = Localizer["LogDialogTitle", scheduler.Name],
             Component = BootstrapDynamicComponent.CreateComponent<TaskInfo>(new Dictionary<string, object?>
             {
                 [nameof(TaskInfo.Scheduler)] = scheduler,
-                [nameof(TaskInfo.HeaderText)] = Localizer["LogDilaogConsoleHeaderText"].Value
+                [nameof(TaskInfo.HeaderText)] = Localizer["LogDialogConsoleHeaderText"].Value
             })
         };
         await DialogService.Show(option);
@@ -112,7 +112,7 @@ public partial class TaskDashboard
         {
             Class = "modal-dialog-task-ex",
             IsScrolling = true,
-            Title = Localizer["ExceptionDilaogTitle", scheduler.Name],
+            Title = Localizer["ExceptionDialogTitle", scheduler.Name],
             BodyTemplate = RenderException(ex)
         };
         await DialogService.Show(option);
