@@ -23,7 +23,7 @@ public partial class TaskInfo : IDisposable
     /// 获得/设置 日志窗口标题文本
     /// </summary>
     [Parameter]
-    public string? HeaderText { get; set; } 
+    public string? HeaderText { get; set; }
 
     private List<ConsoleMessageItem> Messages { get; } = new(24);
 
