@@ -54,6 +54,11 @@ public partial class TaskInfo : IDisposable
 
     private async Task DispatchMessage(ITrigger trigger)
     {
+        if (trigger.LastRuntime == null)
+        {
+            return;
+        }
+
         var message = $"Trigger({trigger.GetType().Name}) LastRuntime: {trigger.LastRuntime} Run({trigger.LastResult}) NextRuntime: {trigger.NextRuntime} Elapsed: {trigger.LastRunElapsedTime.TotalSeconds}";
         Messages.Add(new ConsoleMessageItem()
         {
