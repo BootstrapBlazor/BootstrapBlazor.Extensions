@@ -7,7 +7,7 @@ if (window.BootstrapBlazor === void 0) {
     window.BootstrapBlazor = {};
 }
 
-export async function init(id, invoker, methodGetPluginAttrs, methodClickPluginItem, height, value, lang, langUrl) {
+export async function init(id, invoker, methodGetPluginAttrs, methodClickPluginItem, height, value, lang, langUrl, hasUpload) {
     const el = document.getElementById(id)
     if (el === null) {
         return
@@ -46,6 +46,26 @@ export async function init(id, invoker, methodGetPluginAttrs, methodClickPluginI
             const showSubmit = el.getAttribute("data-bb-submit") === "true"
             option.toolbar = toolbar;
             reloadCallbacks(id, option);
+            if (hasUpload) {
+                option.callbacks.onImageUpload = function (files) {
+                    editor.files = files
+                    for (let i = 0; i < files.length; i++) {
+                        const file = files[i];
+                        editor.invoker.invokeMethodAsync('ImageUpload', {
+                            fileName: file.name,
+                            fileSize: file.size,
+                            contentType: file.type,
+                            lastModified: new Date(file.lastModified).toISOString(),
+                            index: i
+                        }).then(data => {
+                            if (data !== "") {
+                                editor.$editor.summernote('insertImage', data, file.name)
+                            }
+                        })
+                    }
+                }
+            }
+
             if (!showSubmit) {
                 const externalOnChange = option.callbacks.onChange;
                 option.callbacks.onChange = function (contents) {
@@ -144,6 +164,11 @@ export function update(id, val) {
     else {
         editor.editorElement.innerHTML = val
     }
+}
+
+export function fetch(id, index) {
+    const md = Data.get(id)
+    return md.files[index]
 }
 
 export function invoke(id, method, parameter) {

@@ -60,6 +60,12 @@ public partial class Editor
     [Parameter]
     public bool ShowSubmit { get; set; } = true;
 
+    /// <summary>
+    /// 获得/设置 Editor组件内上传文件时回调此方法
+    /// </summary>
+    [Parameter]
+    public Func<EditorUploadFile, Task<string>>? OnFileUpload { get; set; }
+
     private bool _lastShowSubmit = true;
 
     private string? ShowSubmitString => ShowSubmit ? "true" : null;
@@ -83,7 +89,7 @@ public partial class Editor
     public string? Language { get; set; }
 
     /// <summary>
-    /// 获得/设置 语言扩展脚本路径 默认 null 如加载德语可设置为 
+    /// 获得/设置 语言扩展脚本路径 默认 null 如加载德语可设置为
     /// </summary>
     [Parameter]
     public string? LanguageUrl { get; set; }
@@ -186,7 +192,7 @@ public partial class Editor
             methodClickPluginItem = nameof(ClickPluginItem);
         }
 
-        await InvokeVoidAsync("init", Id, Interop, methodGetPluginAttributes, methodClickPluginItem, Height, Value ?? "", Language, LanguageUrl);
+        await InvokeVoidAsync("init", Id, Interop, methodGetPluginAttributes, methodClickPluginItem, Height, Value ?? "", Language, LanguageUrl, OnFileUpload is not null);
     }
 
     /// <summary>
@@ -254,6 +260,35 @@ public partial class Editor
             ret = await OnClickButton(pluginItemName);
         }
         return ret;
+    }
+
+    /// <summary>
+    /// 文件上传回调
+    /// </summary>
+    /// <param name="uploadFile"></param>
+    [JSInvokable]
+    public async Task<string> ImageUpload(EditorUploadFile uploadFile)
+    {
+#if NET6_0_OR_GREATER
+        var ret = "";
+        if (Module != null)
+        {
+            var stream = await InvokeAsync<IJSStreamReference>("fetch", Id, uploadFile.Index);
+            if (stream != null)
+            {
+                using var data = await stream.OpenReadStreamAsync();
+                uploadFile.UploadStream = data;
+                if (OnFileUpload != null)
+                {
+                    ret = await OnFileUpload(uploadFile);
+                }
+            }
+        }
+        return ret;
+#else
+        await Task.Yield();
+        throw new NotSupportedException();
+#endif
     }
 
     /// <summary>
