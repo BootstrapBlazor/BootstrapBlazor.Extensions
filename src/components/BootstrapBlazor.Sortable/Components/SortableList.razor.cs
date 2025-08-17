@@ -10,7 +10,7 @@ namespace BootstrapBlazor.Components;
 /// <summary>
 /// SortableList 组件
 /// </summary>
-public partial class SortableList
+public partial class SortableList : ISortableList
 {
     /// <summary>
     /// 获得/设置 配置项实例 <see cref="SortableOption"/>

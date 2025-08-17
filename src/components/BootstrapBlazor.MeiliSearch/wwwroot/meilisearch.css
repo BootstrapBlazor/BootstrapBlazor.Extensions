@@ -22,6 +22,10 @@
         font-style: normal;
     }
 
+    .search-dialog-mask kbd {
+        color: var(--bb-global-search-footer-kbd-color);
+    }
+
 .search-dialog-mask {
     position: fixed;
     top: 0;
@@ -31,6 +35,10 @@
     z-index: var(--bb-global-search-dialog-mask-z-index);
     background-color: rgba(var(--bs-emphasis-color-rgb), 0.3);
     justify-content: center;
+}
+
+[data-bs-theme='dark'] .search-dialog-mask {
+    --bb-global-search-footer-kbd-color: var(--bs-body-color);
 }
 
 .bb-g-search-open {

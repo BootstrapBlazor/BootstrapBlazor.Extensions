@@ -3,6 +3,7 @@
 // Website: https://www.blazor.zone or https://argozhang.github.io/
 
 using Microsoft.AspNetCore.Components;
+using System.Globalization;
 
 namespace BootstrapBlazor.Components;
 
@@ -11,8 +12,6 @@ namespace BootstrapBlazor.Components;
 /// </summary>
 public partial class CherryMarkdown
 {
-    private CherryMarkdownOption Option { get; } = new();
-
     /// <summary>
     /// 获得/设置 编辑器设置
     /// </summary>
@@ -24,6 +23,12 @@ public partial class CherryMarkdown
     /// </summary>
     [Parameter]
     public ToolbarSettings? ToolbarSettings { get; set; }
+
+    /// <summary>
+    /// 获得/ 设置 是否使用 Katex 渲染数学公式 默认 true
+    /// </summary>
+    [Parameter]
+    public bool IsSupportMath { get; set; } = true;
 
     private string? _lastValue;
     /// <summary>
@@ -60,26 +65,25 @@ public partial class CherryMarkdown
     /// 获取/设置 组件是否为浏览器模式
     /// </summary>
     [Parameter]
-    public bool? IsViewer { get; set; }
+    public bool IsViewer { get; set; }
 
     /// <summary>
-    /// OnInitialized 方法
+    /// 获取/设置 组件语言
     /// </summary>
-    protected override void OnInitialized()
+    [Parameter]
+    public string? Language { get; set; }
+
+    /// <summary>
+    /// <inheritdoc/>
+    /// </summary>
+    protected override void OnParametersSet()
     {
-        base.OnInitialized();
+        base.OnParametersSet();
 
-        _lastValue = Value;
-        Option.Value = Value;
-        Option.Editor = EditorSettings ?? new EditorSettings();
-        Option.Toolbars = ToolbarSettings ?? new ToolbarSettings();
-        if (IsViewer == true)
+        if (string.IsNullOrEmpty(Language))
         {
-            Option.Editor.DefaultModel = "previewOnly";
-            Option.Toolbars.Toolbar = false;
+            Language = CultureInfo.CurrentUICulture.Name;
         }
-
-        _lastValue = Value;
     }
 
     /// <summary>
@@ -90,6 +94,12 @@ public partial class CherryMarkdown
     protected override async Task OnAfterRenderAsync(bool firstRender)
     {
         await base.OnAfterRenderAsync(firstRender);
+
+        if (firstRender)
+        {
+            _lastValue = Value;
+            return;
+        }
 
         if (Value != _lastValue)
         {
@@ -102,7 +112,9 @@ public partial class CherryMarkdown
     /// <inheritdoc/>
     /// </summary>
     /// <returns></returns>
-    protected override Task InvokeInitAsync() => InvokeVoidAsync("init", Id, Interop, Option, nameof(Upload));
+    protected override Task InvokeInitAsync() => InvokeVoidAsync("init", Id, Interop,
+        new { Value, IsSupportMath, IsViewer, Locale = Language, Editor = EditorSettings ?? new(), Toolbars = ToolbarSettings ?? new() },
+        nameof(Upload));
 
     /// <summary>
     /// 文件上传回调
@@ -111,7 +123,6 @@ public partial class CherryMarkdown
     [JSInvokable]
     public async Task<string> Upload(CherryMarkdownUploadFile uploadFile)
     {
-#if NET6_0_OR_GREATER
         var ret = "";
         if (Module != null)
         {
@@ -127,10 +138,6 @@ public partial class CherryMarkdown
             }
         }
         return ret;
-#else
-        await Task.Yield();
-        throw new NotSupportedException();
-#endif
     }
 
     /// <summary>

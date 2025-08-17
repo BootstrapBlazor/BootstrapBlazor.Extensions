@@ -97,7 +97,7 @@ const addPanelWidthGroupId = (dockview, panel, index) => {
         renderer: panel.renderer,
         component: panel.component,
         position: { referenceGroup: group, index: index || 0 },
-        params: { ...panel.params, rect, packup }
+        params: { ...panel.params, rect, packup, visible: true }
     })
     dockview._panelVisibleChanged?.fire({ title: panel.title, status: true });
 }
@@ -167,13 +167,54 @@ const createGroupActions = (group, groupType) => {
         if (item.name !== 'bar') {
             const icon = getIcon(item.name);
             actionContainer.append(icon);
+            if(icon.classList.contains('bb-dockview-control-icon-dropdown')){
+                setTimeout(() => {
+                    if (group.model.location.type == 'floating' && group.panels.some(panel => panel.renderer == 'always')) {
+                        observeDisplayChange(icon, group)
+                    }
+                }, 0)
+            }
         }
     });
     setTimeout(() => {
         groupType = groupType || group.getParams()?.floatType
         resetActionStates(group, actionContainer, groupType);
+        if (showUp(group) && getUpState(group)) {
+            group.panels.forEach(panel => panel.view.content.element.classList.add('bb-overflowHidden'))
+        }
     }, 0)
     addActionEvent(group, actionContainer);
+}
+const observeDisplayChange = (icon, group) => {
+    const dockview = group.api.accessor
+    const element = icon.querySelector('.dropdown-menu')
+    const mutationObserver = new MutationObserver((mutations) => {
+        mutations.forEach(mutation => {
+            if (mutation.attributeName == 'class') {
+                if(mutation.target.classList.contains('show')) {
+                    const currentPanelEle = group.activePanel.view.content.element.parentElement
+                    const childEle = currentPanelEle.children[0]
+                    group.element.querySelector('&>.dv-content-container').append(childEle)
+                    currentPanelEle.style.zIndex = -1
+                    childEle.wrapperEle = currentPanelEle
+                }
+                else {
+                    const panelEleList = [...group.element.querySelector('&>.dv-content-container').children].map(item => {
+                        const wrapperEle = item.wrapperEle
+                        delete item.wrapperEle
+                        wrapperEle.append(item)
+                        return wrapperEle
+                    })
+                    group.element.parentElement.parentElement.append(...panelEleList)
+                }
+            }
+        })
+    });
+    group.mutationObserver = mutationObserver
+    mutationObserver.observe(element, {
+        attributes: true,
+        attributeFilter: ["class"],
+    });
 }
 
 const disposeGroup = group => {
@@ -181,6 +222,9 @@ const disposeGroup = group => {
     if (observer) {
         observer.unobserve(group.header.element);
         observer.unobserve(group.header.tabs._tabsList);
+    }
+    if (group.mutationObserver) {
+        group.mutationObserver.disconnect();
     }
     removeActionEvent(group);
 }
@@ -618,6 +662,7 @@ const down = (group, actionContainer) => {
             parentEle.style.bottom = parseFloat(bottom) - (packup.height - tabHeight) + 'px'
         }
         actionContainer.classList.add('bb-up');
+        group.panels.forEach(panel => panel.view.content.element.classList.remove('bb-overflowHidden'))
     }
     else {
         group.setParams({ packup: { isPackup: true, height: parseFloat(height) } });
@@ -626,6 +671,7 @@ const down = (group, actionContainer) => {
             parentEle.style.bottom = parseFloat(bottom) + (parseFloat(height) - tabHeight) + 'px'
         }
         actionContainer.classList.remove('bb-up')
+        group.panels.forEach(panel => panel.view.content.element.classList.add('bb-overflowHidden'))
     }
     saveConfig(group.api.accessor)
 }

@@ -1,0 +1,69 @@
+﻿<Project Sdk="Microsoft.NET.Sdk">
+
+  <PropertyGroup>
+    <Version>9.0.3</Version>
+    <RootNamespace>BootstrapBlazor.OpcDa</RootNamespace>
+  </PropertyGroup>
+
+  <PropertyGroup>
+    <PackageTags>Bootstrap Blazor WebAssembly wasm UI Components OpcDa PLC </PackageTags>
+    <Description>Bootstrap UI components extensions of OpcDaServer</Description>
+  </PropertyGroup>
+
+  <ItemGroup Condition="'$(TargetFramework)' == 'net6.0'">
+    <PackageReference Include="Microsoft.Extensions.DependencyInjection" Version="8.*" />
+  </ItemGroup>
+
+  <ItemGroup Condition="'$(TargetFramework)' == 'net7.0'">
+    <PackageReference Include="Microsoft.Extensions.DependencyInjection" Version="8.*" />
+  </ItemGroup>
+
+  <ItemGroup Condition="'$(TargetFramework)' == 'net8.0'">
+    <PackageReference Include="Microsoft.Extensions.DependencyInjection" Version="9.*" />
+  </ItemGroup>
+
+  <ItemGroup Condition="'$(TargetFramework)' == 'net9.0'">
+    <PackageReference Include="Microsoft.Extensions.DependencyInjection" Version="9.*" />
+  </ItemGroup>
+
+  <ItemGroup Condition="'$(TargetFramework)' == 'net10.0'">
+    <PackageReference Include="Microsoft.Extensions.DependencyInjection" Version="10.*" />
+  </ItemGroup>
+
+  <ItemGroup>
+    <Reference Include="OpcComRcw" HintPath="Lib\OpcComRcw.dll" />
+    <Reference Include="OpcNetApi" HintPath="Lib\OpcNetApi.dll" />
+    <Reference Include="OpcNetApi.Com" HintPath="Lib\OpcNetApi.Com.dll" />
+  </ItemGroup>
+
+  <ItemGroup>
+    <Content Include="lib\OpcComRcw.dll" Pack="true" PackagePath="lib\net6.0" />
+    <Content Include="lib\OpcNetApi.dll" Pack="true" PackagePath="lib\net6.0" />
+    <Content Include="lib\OpcNetApi.Com.dll" Pack="true" PackagePath="lib\net6.0" />
+  </ItemGroup>
+
+  <ItemGroup>
+    <Content Include="lib\OpcComRcw.dll" Pack="true" PackagePath="lib\net7.0" />
+    <Content Include="lib\OpcNetApi.dll" Pack="true" PackagePath="lib\net7.0" />
+    <Content Include="lib\OpcNetApi.Com.dll" Pack="true" PackagePath="lib\net7.0" />
+  </ItemGroup>
+
+  <ItemGroup>
+    <Content Include="lib\OpcComRcw.dll" Pack="true" PackagePath="lib\net8.0" />
+    <Content Include="lib\OpcNetApi.dll" Pack="true" PackagePath="lib\net8.0" />
+    <Content Include="lib\OpcNetApi.Com.dll" Pack="true" PackagePath="lib\net8.0" />
+  </ItemGroup>
+
+  <ItemGroup>
+    <Content Include="lib\OpcComRcw.dll" Pack="true" PackagePath="lib\net9.0" />
+    <Content Include="lib\OpcNetApi.dll" Pack="true" PackagePath="lib\net9.0" />
+    <Content Include="lib\OpcNetApi.Com.dll" Pack="true" PackagePath="lib\net9.0" />
+  </ItemGroup>
+
+  <ItemGroup>
+    <Using Remove="BootstrapBlazor.Components" />
+    <Using Remove="Microsoft.AspNetCore.Components" />
+    <Using Remove="Microsoft.Extensions.DependencyInjection" />
+  </ItemGroup>
+
+</Project>

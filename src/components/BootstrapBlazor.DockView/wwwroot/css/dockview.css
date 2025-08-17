@@ -292,6 +292,7 @@
   --dv-active-sash-color: transparent;
   --dv-active-sash-transition-duration: 0.1s;
   --dv-active-sash-transition-delay: 0.5s;
+  box-sizing: border-box;
   padding: 10px;
   background-color: #ebeced;
   --dv-group-view-background-color: #ebeced;
@@ -411,6 +412,7 @@
   --dv-tab-margin: 0.5rem 0.25rem;
   --dv-tabs-and-actions-container-height: 44px;
   --dv-border-radius: 20px;
+  box-sizing: border-box;
   --dv-color-abyss-dark: rgb(11, 6, 17);
   --dv-color-abyss: #16121f;
   --dv-color-abyss-light: #201d2b;
@@ -515,6 +517,7 @@
   --dv-tab-margin: 0.5rem 0.25rem;
   --dv-tabs-and-actions-container-height: 44px;
   --dv-border-radius: 20px;
+  box-sizing: border-box;
   --dv-drag-over-border: 2px solid rgb(91, 30, 207);
   --dv-drag-over-background-color: "";
   --dv-group-view-background-color: #f6f5f9;
@@ -1080,10 +1083,6 @@
   border-radius: 2px;
   background-color: var(--dv-icon-hover-background-color);
 }
-.dv-watermark {
-  display: flex;
-  height: 100%;
-}
 .dv-tabs-overflow-dropdown-default {
   height: 100%;
   color: var(--dv-activegroup-hiddenpanel-tab-color);
@@ -1189,4 +1188,8 @@
 }
 .dv-tabs-and-actions-container .dv-right-actions-container {
   display: flex;
+}
+.dv-watermark {
+  display: flex;
+  height: 100%;
 }
