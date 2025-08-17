@@ -7,7 +7,7 @@ export async function init(id, interop, options) {
     Data.set(id, editor);
 
     await addLink('_content/BootstrapBlazor.CodeEditor/code-editor.bundle.css');
-    await addScript('_content/BootstrapBlazor.CodeEditor/monaco-editor/min/vs/loader.min.js');
+    await addScript('_content/BootstrapBlazor.CodeEditor/monaco-editor/min/vs/loader.js');
 
     const init = container => {
 
@@ -45,9 +45,22 @@ export async function init(id, interop, options) {
         });
     }
 
+    const protocol = window.location.protocol;
+    const host = window.location.hostname;
+    const port = window.location.port;
+    let fullDomain = "";
+
+    if (port === "80" && protocol === "http:") {
+        fullDomain = `${protocol}//${host}`;
+    } else if (port === "443" && protocol === "https:") {
+        fullDomain = `${protocol}//${host}`;
+    } else {
+        fullDomain = `${protocol}//${host}:${port}`;
+    }
+
     // require is provided by loader.min.js.
     require.config({
-        paths: { 'vs': options.path }
+        paths: {'vs': `${fullDomain}${options.path}`}
     });
 
     require(["vs/editor/editor.main"], () => {
