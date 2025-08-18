@@ -47,21 +47,21 @@ export async function init(id, invoker, methodGetPluginAttrs, methodClickPluginI
             option.toolbar = toolbar;
             reloadCallbacks(id, option);
             if (hasUpload) {
-                option.callbacks.onImageUpload = function (files) {
+                option.callbacks.onImageUpload = async files => {
                     editor.files = files
                     for (let i = 0; i < files.length; i++) {
                         const file = files[i];
-                        editor.invoker.invokeMethodAsync('ImageUpload', {
-                            fileName: file.name,
-                            fileSize: file.size,
-                            contentType: file.type,
-                            lastModified: new Date(file.lastModified).toISOString(),
-                            index: i
-                        }).then(data => {
-                            if (data !== "") {
-                                editor.$editor.summernote('insertImage', data, file.name)
-                            }
-                        })
+                        const image = createImage(file);
+                        editor.$editor.summernote('insertNode', image);
+
+                        const buffer = await file.arrayBuffer();
+                        const stream = DotNet.createJSStreamReference(buffer);
+                        await editor.invoker.invokeMethodAsync('ImageUpload',
+                            file.name,
+                            file.type || 'application/octet-stream',
+                            file.size,
+                            stream
+                        )
                     }
                 }
             }
@@ -164,11 +164,6 @@ export function update(id, val) {
     else {
         editor.editorElement.innerHTML = val
     }
-}
-
-export function fetch(id, index) {
-    const md = Data.get(id)
-    return md.files[index]
 }
 
 export function invoke(id, method, parameter) {
