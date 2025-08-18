@@ -61,7 +61,7 @@ public partial class Editor
     public bool ShowSubmit { get; set; } = true;
 
     /// <summary>
-    /// 获得/设置 Editor组件内上传文件时回调此方法
+    /// 获得/设置 Editor 组件内上传文件时回调此方法
     /// </summary>
     [Parameter]
     public Func<EditorUploadFile, Task<string>>? OnFileUpload { get; set; }
