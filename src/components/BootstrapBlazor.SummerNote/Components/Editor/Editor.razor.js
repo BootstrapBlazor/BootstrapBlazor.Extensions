@@ -7,7 +7,7 @@ if (window.BootstrapBlazor === void 0) {
     window.BootstrapBlazor = {};
 }
 
-export async function init(id, invoker, methodGetPluginAttrs, methodClickPluginItem, height, value, lang, langUrl) {
+export async function init(id, invoker, methodGetPluginAttrs, methodClickPluginItem, height, value, lang, langUrl, hasUpload) {
     const el = document.getElementById(id)
     if (el === null) {
         return
@@ -46,6 +46,26 @@ export async function init(id, invoker, methodGetPluginAttrs, methodClickPluginI
             const showSubmit = el.getAttribute("data-bb-submit") === "true"
             option.toolbar = toolbar;
             reloadCallbacks(id, option);
+            if (hasUpload) {
+                option.callbacks.onImageUpload = async files => {
+                    editor.files = files
+                    for (let i = 0; i < files.length; i++) {
+                        const file = files[i];
+                        const image = createImage(file);
+                        editor.$editor.summernote('insertNode', image);
+
+                        const buffer = await file.arrayBuffer();
+                        const stream = DotNet.createJSStreamReference(buffer);
+                        await editor.invoker.invokeMethodAsync('ImageUpload',
+                            file.name,
+                            file.type || 'application/octet-stream',
+                            file.size,
+                            stream
+                        )
+                    }
+                }
+            }
+
             if (!showSubmit) {
                 const externalOnChange = option.callbacks.onChange;
                 option.callbacks.onChange = function (contents) {
@@ -125,7 +145,7 @@ export async function init(id, invoker, methodGetPluginAttrs, methodClickPluginI
 }
 
 const reloadCallbacks = (id, option) => {
-    const events = ['Blur', 'BlurCodeview', 'Change', 'ChangeCodeview', 'DialogShown', 'Enter', 'Focus', 'ImageLinkInsert', 'ImageUploadError', 'Init', 'Keydown', 'Keyup', 'Mousedown', 'Mouseup', 'Paste', 'Scroll'];
+    const events = ['Blur', 'BlurCodeview', 'Change', 'ChangeCodeview', 'DialogShown', 'Enter', 'Focus', 'ImageUpload', 'ImageLinkInsert', 'ImageUploadError', 'Init', 'Keydown', 'Keyup', 'Mousedown', 'Mouseup', 'Paste', 'Scroll'];
 
     events.forEach(event => {
         option.callbacks[`on${event}`] = function () {
@@ -198,6 +218,12 @@ export function dispose(id) {
             delete editor[propertyName]
         }
     }
+}
+
+const createImage = file => {
+    const element = document.createElement('img');
+    element.src = URL.createObjectURL(file);
+    return element;
 }
 
 const offEvent = eventEl => {
