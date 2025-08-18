@@ -145,7 +145,7 @@ export async function init(id, invoker, methodGetPluginAttrs, methodClickPluginI
 }
 
 const reloadCallbacks = (id, option) => {
-    const events = ['Blur', 'BlurCodeview', 'Change', 'ChangeCodeview', 'DialogShown', 'Enter', 'Focus', 'ImageLinkInsert', 'ImageUploadError', 'Init', 'Keydown', 'Keyup', 'Mousedown', 'Mouseup', 'Paste', 'Scroll'];
+    const events = ['Blur', 'BlurCodeview', 'Change', 'ChangeCodeview', 'DialogShown', 'Enter', 'Focus', 'ImageUpload', 'ImageLinkInsert', 'ImageUploadError', 'Init', 'Keydown', 'Keyup', 'Mousedown', 'Mouseup', 'Paste', 'Scroll'];
 
     events.forEach(event => {
         option.callbacks[`on${event}`] = function () {
