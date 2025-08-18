@@ -51,17 +51,16 @@ export async function init(id, invoker, methodGetPluginAttrs, methodClickPluginI
                     editor.files = files
                     for (let i = 0; i < files.length; i++) {
                         const file = files[i];
-                        const image = createImage(file);
-                        editor.$editor.summernote('insertNode', image);
-
                         const buffer = await file.arrayBuffer();
                         const stream = DotNet.createJSStreamReference(buffer);
-                        await editor.invoker.invokeMethodAsync('ImageUpload',
+                        const url = await editor.invoker.invokeMethodAsync('ImageUpload',
                             file.name,
                             file.type || 'application/octet-stream',
                             file.size,
                             stream
                         )
+                        const image = createImage(file, url);
+                        editor.$editor.summernote('insertNode', image);
                     }
                 }
             }
@@ -220,9 +219,9 @@ export function dispose(id) {
     }
 }
 
-const createImage = file => {
+const createImage = (file, url) => {
     const element = document.createElement('img');
-    element.src = URL.createObjectURL(file);
+    element.src = url || URL.createObjectURL(file);
     return element;
 }
 

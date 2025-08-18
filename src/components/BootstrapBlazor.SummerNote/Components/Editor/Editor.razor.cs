@@ -64,7 +64,7 @@ public partial class Editor
     /// 获得/设置 Editor 组件内上传文件时回调此方法
     /// </summary>
     [Parameter]
-    public Func<EditorUploadFile, Task>? OnFileUpload { get; set; }
+    public Func<EditorUploadFile, Task<string>>? OnFileUpload { get; set; }
 
     private bool _lastShowSubmit = true;
 
@@ -270,14 +270,16 @@ public partial class Editor
     /// <param name="size"></param>
     /// <param name="stream"></param>
     [JSInvokable]
-    public async Task ImageUpload(string name, string contentType, long size, IJSStreamReference stream)
+    public async Task<string> ImageUpload(string name, string contentType, long size, IJSStreamReference stream)
     {
-        var data = await stream.OpenReadStreamAsync(size);
+        string? ret = null;
+        await using var data = await stream.OpenReadStreamAsync(size);
         var file = new EditorUploadFile(name, contentType, size, data);
         if (OnFileUpload != null)
         {
-            await OnFileUpload(file);
+            ret = await OnFileUpload(file);
         }
+        return ret ?? "";
     }
 
     /// <summary>
