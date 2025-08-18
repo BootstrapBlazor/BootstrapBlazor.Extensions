@@ -225,6 +225,12 @@ export function dispose(id) {
     }
 }
 
+const createImage = file => {
+    const element = document.createElement('img');
+    element.src = URL.createObjectURL(file);
+    return element;
+}
+
 const offEvent = eventEl => {
     if (eventEl) {
         EventHandler.off(eventEl, 'click')
