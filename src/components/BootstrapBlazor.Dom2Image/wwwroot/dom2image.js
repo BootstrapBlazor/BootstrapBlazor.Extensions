@@ -24,7 +24,7 @@ export async function downloadAsync(selector, filename, format, backgroundColor,
     const el = document.querySelector(selector);
     if (el) {
         const result = await snapdom(el, options);
-        data = result.download({
+        await result.download({
             format,
             filename,
             backgroundColor
