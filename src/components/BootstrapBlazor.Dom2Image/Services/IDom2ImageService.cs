@@ -26,4 +26,15 @@ public interface IDom2ImageService
     /// <param name="token"></param>
     /// <returns></returns>
     Task<Stream?> GetStreamAsync(string selector, Dom2ImageOptions? options = null, CancellationToken token = default);
+
+    /// <summary>
+    /// 通过指定选择器下载 Html 元素图片
+    /// </summary>
+    /// <param name="selector"></param>
+    /// <param name="fileName"></param>
+    /// <param name="format"></param>
+    /// <param name="backgroundColor"></param>
+    /// <param name="options"></param>
+    /// <returns></returns>
+    Task DownloadAsync(string selector, string fileName = "capture", string? format = "png", string? backgroundColor = null, Dom2ImageOptions? options = null);
 }

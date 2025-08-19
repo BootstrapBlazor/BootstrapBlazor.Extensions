@@ -30,7 +30,7 @@ class DefaultDom2ImageService(IJSRuntime runtime, ILogger<DefaultDom2ImageServic
         catch (OperationCanceledException) { }
         catch (Exception ex)
         {
-            logger.LogError(ex, "{GetUrlAsync} throw exception", nameof(GetUrlAsync));
+            logger.LogError(ex, "{GetUrlAsync} throw exception: {ex}", nameof(GetUrlAsync), ex.Format());
         }
         return data;
     }
@@ -53,9 +53,32 @@ class DefaultDom2ImageService(IJSRuntime runtime, ILogger<DefaultDom2ImageServic
         catch (OperationCanceledException) { }
         catch (Exception ex)
         {
-            logger.LogError(ex, "{GetUrlAsync} throw exception", nameof(GetUrlAsync));
+            logger.LogError(ex, "{GetStreamAsync} throw exception: {ex}", nameof(GetStreamAsync), ex.Format());
         }
         return data;
+    }
+
+    /// <summary>
+    /// <inheritdoc/>
+    /// </summary>
+    /// <param name="selector"></param>
+    /// <param name="fileName"></param>
+    /// <param name="format"></param>
+    /// <param name="backgroundColor"></param>
+    /// <param name="options"></param>
+    /// <returns></returns>
+    public async Task DownloadAsync(string selector, string fileName = "capture", string? format = "png", string? backgroundColor = null, Dom2ImageOptions? options = null)
+    {
+        try
+        {
+            _jsModule ??= await LoadModule();
+            await _jsModule.InvokeAsync<IJSStreamReference?>("downloadAsync", selector, fileName, format, backgroundColor, options);
+        }
+        catch (OperationCanceledException) { }
+        catch (Exception ex)
+        {
+            logger.LogError(ex, "{DownloadAsync} throw exception: {ex}", nameof(DownloadAsync), ex.Format());
+        }
     }
 
     private Task<JSModule> LoadModule() => runtime.LoadModule("./_content/BootstrapBlazor.Dom2Image/dom2image.js");
