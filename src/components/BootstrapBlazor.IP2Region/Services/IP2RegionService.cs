@@ -9,7 +9,7 @@ using Microsoft.Extensions.Options;
 namespace BootstrapBlazor.Components;
 
 /// <summary>
-/// 默认 IP2Region 实现 
+/// 默认 IP2Region 实现
 /// </summary>
 class IP2RegionService : DefaultIpLocatorProvider
 {
