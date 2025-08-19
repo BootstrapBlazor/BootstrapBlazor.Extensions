@@ -25,7 +25,7 @@ class IP2RegionService : DefaultIpLocatorProvider
         _ipOptions = ipRegionOptions;
         _logger = logger;
 
-        InitSearch();
+        Task.Run(InitSearch, CancellationToken.None).ConfigureAwait(false);
     }
 
     private readonly IOptions<BootstrapBlazorOptions> _options;
@@ -41,6 +41,7 @@ class IP2RegionService : DefaultIpLocatorProvider
     protected override async Task<string?> LocateByIp(string ip)
     {
         await _tcs.Task;
+
         string? result = null;
         if (_search != null && _options.Value.WebClientOptions.EnableIpLocator)
         {
