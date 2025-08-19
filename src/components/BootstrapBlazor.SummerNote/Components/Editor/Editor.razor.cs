@@ -270,7 +270,7 @@ public partial class Editor
     /// <param name="size"></param>
     /// <param name="stream"></param>
     [JSInvokable]
-    public async Task<string> ImageUpload(string name, string contentType, long size, IJSStreamReference stream)
+    public async Task<string?> ImageUpload(string name, string contentType, long size, IJSStreamReference stream)
     {
         string? ret = null;
         await using var data = await stream.OpenReadStreamAsync(size);
@@ -279,7 +279,7 @@ public partial class Editor
         {
             ret = await OnFileUpload(file);
         }
-        return ret ?? "";
+        return ret;
     }
 
     /// <summary>
