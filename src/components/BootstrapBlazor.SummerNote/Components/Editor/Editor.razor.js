@@ -51,8 +51,7 @@ export async function init(id, invoker, methodGetPluginAttrs, methodClickPluginI
                     editor.files = files
                     for (let i = 0; i < files.length; i++) {
                         const file = files[i];
-                        const buffer = await file.arrayBuffer();
-                        const stream = DotNet.createJSStreamReference(buffer);
+                        const stream = DotNet.createJSStreamReference(file);
                         const url = await editor.invoker.invokeMethodAsync('ImageUpload',
                             file.name,
                             file.type || 'application/octet-stream',
