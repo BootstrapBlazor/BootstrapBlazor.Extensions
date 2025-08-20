@@ -1,7 +1,7 @@
 ﻿<Project Sdk="Microsoft.NET.Sdk.Razor">
 
   <PropertyGroup>
-    <Version>9.0.0-beta01</Version>
+    <Version>9.0.0</Version>
   </PropertyGroup>
 
   <PropertyGroup>
@@ -10,12 +10,12 @@
   </PropertyGroup>
 
   <ItemGroup>
-    <Content Remove="wwwroot\lib\snapdom.mjs" />
-    <None Include="wwwroot\lib\snapdom.mjs" />
+    <Content Remove="wwwroot\lib\snapdom.mjs"/>
+    <None Include="wwwroot\lib\snapdom.mjs"/>
   </ItemGroup>
 
   <ItemGroup>
-    <PackageReference Include="BootstrapBlazor" Version="9.0.0" />
+    <PackageReference Include="BootstrapBlazor" Version="9.0.0"/>
   </ItemGroup>
 
 </Project>
