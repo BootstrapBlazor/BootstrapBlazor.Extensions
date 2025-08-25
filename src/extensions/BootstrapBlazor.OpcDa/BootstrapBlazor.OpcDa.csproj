@@ -2,7 +2,6 @@
 
   <PropertyGroup>
     <Version>9.0.3</Version>
-    <RootNamespace>BootstrapBlazor.OpcDa</RootNamespace>
   </PropertyGroup>
 
   <PropertyGroup>
