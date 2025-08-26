@@ -496,10 +496,7 @@ public class TcpSocketFactoryTest
         var receivedBuffer = new byte[1024];
 
         // 设置数据适配器
-        var adapter = new DataPackageAdapter
-        {
-            DataPackageHandler = new FixLengthDataPackageHandler(7)
-        };
+        var adapter = new DataPackageAdapter(new FixLengthDataPackageHandler(7));
         client.SetDataPackageAdapter(adapter, buffer =>
         {
             // buffer 即是接收到的数据
@@ -540,11 +537,7 @@ public class TcpSocketFactoryTest
         var connect = await client.ConnectAsync("localhost", port);
 
         // 设置数据适配器
-        var adapter = new DataPackageAdapter
-        {
-            DataPackageHandler = new FixLengthDataPackageHandler(7)
-        };
-
+        var adapter = new DataPackageAdapter(new FixLengthDataPackageHandler(7));
         client.SetDataPackageAdapter(adapter, buffer =>
         {
             // buffer 即是接收到的数据
@@ -594,10 +587,7 @@ public class TcpSocketFactoryTest
         var receivedBuffer = new byte[128];
 
         // 设置数据适配器
-        var adapter = new DataPackageAdapter
-        {
-            DataPackageHandler = new DelimiterDataPackageHandler([13, 10]),
-        };
+        var adapter = new DataPackageAdapter(new DelimiterDataPackageHandler([13, 10]));
         client.SetDataPackageAdapter(adapter, buffer =>
         {
             // buffer 即是接收到的数据
@@ -650,10 +640,7 @@ public class TcpSocketFactoryTest
         MockEntity? entity = null;
 
         // 设置数据适配器
-        var adapter = new DataPackageAdapter
-        {
-            DataPackageHandler = new FixLengthDataPackageHandler(29),
-        };
+        var adapter = new DataPackageAdapter(new FixLengthDataPackageHandler(29));
         client.SetDataPackageAdapter(adapter, new DataConverter<MockEntity>(), t =>
         {
             entity = t;
@@ -789,10 +776,7 @@ public class TcpSocketFactoryTest
         var connect = await client.ConnectAsync("localhost", port);
 
         // 设置数据适配器
-        var adapter = new DataPackageAdapter
-        {
-            DataPackageHandler = new FixLengthDataPackageHandler(7)
-        };
+        var adapter = new DataPackageAdapter(new FixLengthDataPackageHandler(7));
 
         OptionConvertEntity? entity = null;
         client.SetDataPackageAdapter<OptionConvertEntity>(adapter, data =>
@@ -814,6 +798,122 @@ public class TcpSocketFactoryTest
         Assert.Equal([3, 4], entity.Body);
 
         server.Stop();
+    }
+
+    [Fact]
+    public async Task AddDataPackageAdapter_Ok()
+    {
+        var port = 8896;
+        var server = StartTcpServer(port, MockSplitPackageAsync);
+
+        var client = CreateClient();
+        var tcs = new TaskCompletionSource();
+        var receivedBuffer = new byte[128];
+        var receivedBuffer2 = new byte[128];
+
+        // 连接 TCP Server
+        var connect = await client.ConnectAsync("localhost", port);
+
+        client.AddDataPackageAdapter(new DataPackageAdapter(new FixLengthDataPackageHandler(7)), ReceivedCallBack);
+        client.AddDataPackageAdapter(new DataPackageAdapter(new FixLengthDataPackageHandler(7)), ReceivedCallBack2);
+
+        var data = new ReadOnlyMemory<byte>([1, 2, 3, 4, 5]);
+        await client.SendAsync(data);
+
+        // 等待接收数据处理完成
+        await tcs.Task;
+        client.RemoveDataPackageAdapter(ReceivedCallBack);
+        client.RemoveDataPackageAdapter(ReceivedCallBack2);
+
+        ValueTask ReceivedCallBack(ReadOnlyMemory<byte> buffer)
+        {
+            // buffer 即是接收到的数据
+            buffer.CopyTo(receivedBuffer);
+            receivedBuffer = receivedBuffer[..buffer.Length];
+            tcs.SetResult();
+            return ValueTask.CompletedTask;
+        }
+
+        ValueTask ReceivedCallBack2(ReadOnlyMemory<byte> buffer)
+        {
+            // buffer 即是接收到的数据
+            buffer.CopyTo(receivedBuffer2);
+            receivedBuffer2 = receivedBuffer2[..buffer.Length];
+            return ValueTask.CompletedTask;
+        }
+    }
+
+    [Fact]
+    public async Task SetDataPackageAdapter_Ok()
+    {
+        var port = 8897;
+        var server = StartTcpServer(port, MockSplitPackageAsync);
+
+        var client = CreateClient();
+        var tcs = new TaskCompletionSource();
+        var receivedBuffer = new byte[128];
+
+        // 连接 TCP Server
+        var connect = await client.ConnectAsync("localhost", port);
+
+        client.AddDataPackageAdapter(new DataPackageAdapter(new FixLengthDataPackageHandler(7)), ReceivedCallBack);
+        client.SetDataPackageAdapter(new FixLengthDataPackageHandler(7), ReceivedCallBack);
+
+        var data = new ReadOnlyMemory<byte>([1, 2, 3, 4, 5]);
+        await client.SendAsync(data);
+
+        // 等待接收数据处理完成
+        await tcs.Task;
+
+        ValueTask ReceivedCallBack(ReadOnlyMemory<byte> buffer)
+        {
+            // buffer 即是接收到的数据
+            buffer.CopyTo(receivedBuffer);
+            receivedBuffer = receivedBuffer[..buffer.Length];
+            tcs.SetResult();
+            return ValueTask.CompletedTask;
+        }
+    }
+
+    [Fact]
+    public async Task SetDataPackageAdapter_Generic()
+    {
+        var port = 8898;
+        var server = StartTcpServer(port, MockSplitPackageAsync);
+
+        var client = CreateClient();
+        var tcs = new TaskCompletionSource();
+        var receivedBuffer = new byte[128];
+
+        // 连接 TCP Server
+        var connect = await client.ConnectAsync("localhost", port);
+
+        client.AddDataPackageAdapter(new DataPackageAdapter(new FixLengthDataPackageHandler(7)), ReceivedCallBack);
+        client.SetDataPackageAdapter<MockEntity>(new FixLengthDataPackageHandler(7), ReceivedEntityCallBack);
+
+        client.AddDataPackageAdapter(new DataPackageAdapter(new FixLengthDataPackageHandler(7)), ReceivedCallBack);
+        client.SetDataPackageAdapter(new FixLengthDataPackageHandler(7), new MockSocketDataConverter(), ReceivedEntityCallBack);
+
+        var data = new ReadOnlyMemory<byte>([1, 2, 3, 4, 5]);
+        await client.SendAsync(data);
+
+        // 等待接收数据处理完成
+        await tcs.Task;
+
+        ValueTask ReceivedCallBack(ReadOnlyMemory<byte> buffer)
+        {
+            // buffer 即是接收到的数据
+            buffer.CopyTo(receivedBuffer);
+            receivedBuffer = receivedBuffer[..buffer.Length];
+            tcs.SetResult();
+            return ValueTask.CompletedTask;
+        }
+
+        Task ReceivedEntityCallBack(MockEntity? entity)
+        {
+            tcs.SetResult();
+            return Task.CompletedTask;
+        }
     }
 
     private static TcpListener StartTcpServer(int port, Func<TcpClient, Task> handler)
