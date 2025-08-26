@@ -800,6 +800,48 @@ public class TcpSocketFactoryTest
         server.Stop();
     }
 
+    [Fact]
+    public async Task AddDataPackageAdapter_Ok()
+    {
+        var port = 8896;
+        var server = StartTcpServer(port, MockSplitPackageAsync);
+
+        var client = CreateClient();
+        var tcs = new TaskCompletionSource();
+        var receivedBuffer = new byte[128];
+        var receivedBuffer2 = new byte[128];
+
+        // 连接 TCP Server
+        var connect = await client.ConnectAsync("localhost", port);
+
+        client.AddDataPackageAdapter(new DataPackageAdapter(new FixLengthDataPackageHandler(7)), ReceivedCallBack);
+        client.AddDataPackageAdapter(new DataPackageAdapter(new FixLengthDataPackageHandler(7)), ReceivedCallBack2);
+
+        var data = new ReadOnlyMemory<byte>([1, 2, 3, 4, 5]);
+        await client.SendAsync(data);
+
+        // 等待接收数据处理完成
+        await tcs.Task;
+        client.RemoveDataPackageAdapter(ReceivedCallBack);
+        client.RemoveDataPackageAdapter(ReceivedCallBack2);
+
+        ValueTask ReceivedCallBack(ReadOnlyMemory<byte> buffer)
+        {
+            // buffer 即是接收到的数据
+            buffer.CopyTo(receivedBuffer);
+            receivedBuffer = receivedBuffer[..buffer.Length];
+            tcs.SetResult();
+            return ValueTask.CompletedTask;
+        }
+
+        ValueTask ReceivedCallBack2(ReadOnlyMemory<byte> buffer)
+        {
+            // buffer 即是接收到的数据
+            buffer.CopyTo(receivedBuffer2);
+            receivedBuffer2 = receivedBuffer2[..buffer.Length];
+            return ValueTask.CompletedTask;
+        }
+    }
     private static TcpListener StartTcpServer(int port, Func<TcpClient, Task> handler)
     {
         var server = new TcpListener(IPAddress.Loopback, port);
