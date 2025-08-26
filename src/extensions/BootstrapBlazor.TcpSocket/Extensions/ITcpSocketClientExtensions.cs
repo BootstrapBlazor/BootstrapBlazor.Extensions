@@ -1,7 +1,6 @@
-﻿// Licensed to the .NET Foundation under one or more agreements.
-// The .NET Foundation licenses this file to you under the Apache 2.0 License
-// See the LICENSE file in the project root for more information.
-// Maintainer: Argo Zhang(argo@live.ca) Website: https://www.blazor.zone
+﻿// Copyright (c) BootstrapBlazor & Argo Zhang (argo@live.ca). All rights reserved.
+// Licensed under the Apache License, Version 2.0. See License.txt in the project root for license information.
+// Website: https://www.blazor.zone or https://argozhang.github.io/
 
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Options;
@@ -76,6 +75,21 @@ public static class ITcpSocketClientExtensions
 
         // 设置 DataPackageAdapter 的回调函数
         adapter.ReceivedCallBack = buffer => callback(buffer);
+    }
+
+    /// <summary>
+    /// 通过指定 <see cref="IDataPackageHandler"/> 数据处理实例，设置数据适配器并配置回调方法
+    /// </summary>
+    /// <param name="client"><see cref="ITcpSocketClient"/> 实例</param>
+    /// <param name="handler"><see cref="IDataPackageHandler"/> 数据处理实例</param>
+    /// <param name="callback">回调方法</param>
+    public static void SetDataPackageAdapter(this ITcpSocketClient client, IDataPackageHandler handler, Func<ReadOnlyMemory<byte>, ValueTask> callback)
+    {
+        var adapter = new DataPackageAdapter
+        {
+            DataPackageHandler = handler
+        };
+        client.SetDataPackageAdapter(adapter, callback);
     }
 
     /// <summary>
@@ -161,6 +175,21 @@ public static class ITcpSocketClientExtensions
             // 设置转化器
             adapter.SetDataAdapterCallback(converter, callback);
         }
+    }
+
+    /// <summary>
+    /// 通过指定 <see cref="IDataPackageHandler"/> 数据处理实例，设置数据适配器并配置回调方法
+    /// </summary>
+    /// <param name="client"><see cref="ITcpSocketClient"/> 实例</param>
+    /// <param name="handler"><see cref="IDataPackageHandler"/> 数据处理实例</param>
+    /// <param name="callback">回调方法</param>
+    public static void SetDataPackageAdapter<TEntity>(this ITcpSocketClient client, IDataPackageHandler handler, Func<TEntity?, Task> callback)
+    {
+        var adapter = new DataPackageAdapter
+        {
+            DataPackageHandler = handler
+        };
+        client.SetDataPackageAdapter(adapter, callback);
     }
 
     private static void SetDataAdapterCallback<TEntity>(this IDataPackageAdapter adapter, IDataConverter<TEntity> converter, Func<TEntity?, Task> callback)
