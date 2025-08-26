@@ -48,7 +48,6 @@ public static class TcpSocketUtility
     }
 
     [ExcludeFromCodeCoverage]
-
     [UnsupportedOSPlatform("browser")]
     private static IPAddress IPAddressByHostName => Dns.GetHostAddresses(Dns.GetHostName(), AddressFamily.InterNetwork).FirstOrDefault() ?? IPAddress.Any;
 
