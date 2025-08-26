@@ -5,7 +5,7 @@
   </PropertyGroup>
 
   <PropertyGroup>
-    <PackageTags>BootstrapBlazor Socket</PackageTags>
+    <PackageTags>BootstrapBlazor Socket TcpClient</PackageTags>
     <Description>BootstrapBlazor extensions of TcpSocket</Description>
   </PropertyGroup>
 
