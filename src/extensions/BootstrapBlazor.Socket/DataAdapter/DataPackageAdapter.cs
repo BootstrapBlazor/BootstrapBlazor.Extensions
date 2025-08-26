@@ -7,21 +7,22 @@ namespace BootstrapBlazor.DataAdapters;
 /// <summary>
 /// Provides a base implementation for adapting data packages between different systems or formats.
 /// </summary>
+/// <param name="DataPackageHandler"><see cref="IDataPackageHandler"/> 实例</param>
 /// <remarks>This abstract class serves as a foundation for implementing custom data package adapters. It defines
 /// common methods for sending, receiving, and handling data packages, as well as a property for accessing the
 /// associated data package handler. Derived classes should override the virtual methods to provide specific behavior
 /// for handling data packages.</remarks>
-public class DataPackageAdapter : IDataPackageAdapter
+public class DataPackageAdapter(IDataPackageHandler DataPackageHandler) : IDataPackageAdapter
 {
     /// <summary>
     /// <inheritdoc/>
     /// </summary>
     public Func<ReadOnlyMemory<byte>, ValueTask>? ReceivedCallBack { get; set; }
 
-    /// <summary>
-    /// <inheritdoc/>
-    /// </summary>
-    public IDataPackageHandler? DataPackageHandler { get; set; }
+    ///// <summary>
+    ///// <inheritdoc/>
+    ///// </summary>
+    //public IDataPackageHandler DataPackageHandler => handler;
 
     /// <summary>
     /// <inheritdoc/>
