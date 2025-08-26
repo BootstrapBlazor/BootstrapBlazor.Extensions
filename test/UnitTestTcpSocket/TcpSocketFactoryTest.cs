@@ -496,10 +496,7 @@ public class TcpSocketFactoryTest
         var receivedBuffer = new byte[1024];
 
         // 设置数据适配器
-        var adapter = new DataPackageAdapter
-        {
-            DataPackageHandler = new FixLengthDataPackageHandler(7)
-        };
+        var adapter = new DataPackageAdapter(new FixLengthDataPackageHandler(7));
         client.SetDataPackageAdapter(adapter, buffer =>
         {
             // buffer 即是接收到的数据
@@ -540,11 +537,7 @@ public class TcpSocketFactoryTest
         var connect = await client.ConnectAsync("localhost", port);
 
         // 设置数据适配器
-        var adapter = new DataPackageAdapter
-        {
-            DataPackageHandler = new FixLengthDataPackageHandler(7)
-        };
-
+        var adapter = new DataPackageAdapter(new FixLengthDataPackageHandler(7));
         client.SetDataPackageAdapter(adapter, buffer =>
         {
             // buffer 即是接收到的数据
@@ -594,10 +587,7 @@ public class TcpSocketFactoryTest
         var receivedBuffer = new byte[128];
 
         // 设置数据适配器
-        var adapter = new DataPackageAdapter
-        {
-            DataPackageHandler = new DelimiterDataPackageHandler([13, 10]),
-        };
+        var adapter = new DataPackageAdapter(new DelimiterDataPackageHandler([13, 10]));
         client.SetDataPackageAdapter(adapter, buffer =>
         {
             // buffer 即是接收到的数据
@@ -650,10 +640,7 @@ public class TcpSocketFactoryTest
         MockEntity? entity = null;
 
         // 设置数据适配器
-        var adapter = new DataPackageAdapter
-        {
-            DataPackageHandler = new FixLengthDataPackageHandler(29),
-        };
+        var adapter = new DataPackageAdapter(new FixLengthDataPackageHandler(29));
         client.SetDataPackageAdapter(adapter, new DataConverter<MockEntity>(), t =>
         {
             entity = t;
@@ -789,10 +776,7 @@ public class TcpSocketFactoryTest
         var connect = await client.ConnectAsync("localhost", port);
 
         // 设置数据适配器
-        var adapter = new DataPackageAdapter
-        {
-            DataPackageHandler = new FixLengthDataPackageHandler(7)
-        };
+        var adapter = new DataPackageAdapter(new FixLengthDataPackageHandler(7));
 
         OptionConvertEntity? entity = null;
         client.SetDataPackageAdapter<OptionConvertEntity>(adapter, data =>
