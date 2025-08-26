@@ -51,7 +51,7 @@ public static class ITcpSocketClientExtensions
         return client.ConnectAsync(endPoint, token);
     }
 
-    private readonly static Dictionary<ITcpSocketClient, List<(IDataPackageAdapter Adapter, Func<ReadOnlyMemory<byte>, ValueTask> Callback)>> _callbackCache = [];
+    private static readonly Dictionary<ITcpSocketClient, List<(IDataPackageAdapter Adapter, Func<ReadOnlyMemory<byte>, ValueTask> Callback)>> _cache = [];
 
     /// <summary>
     /// 增加 <see cref="ITcpSocketClient"/> 数据适配器及其对应的回调方法
@@ -61,13 +61,13 @@ public static class ITcpSocketClientExtensions
     /// <param name="callback"></param>
     public static void AddDataPackageAdapter(this ITcpSocketClient client, IDataPackageAdapter adapter, Func<ReadOnlyMemory<byte>, ValueTask> callback)
     {
-        if (_callbackCache.TryGetValue(client, out var list))
+        if (_cache.TryGetValue(client, out var list))
         {
             list.Add((adapter, cb));
         }
         else
         {
-            _callbackCache.Add(client, [(adapter, cb)]);
+            _cache.Add(client, [(adapter, cb)]);
         }
 
         client.ReceivedCallBack += cb;
@@ -89,7 +89,7 @@ public static class ITcpSocketClientExtensions
     /// <param name="callback"></param>
     public static void RemoveDataPackageAdapter(this ITcpSocketClient client, Func<ReadOnlyMemory<byte>, ValueTask> callback)
     {
-        if (_callbackCache.TryGetValue(client, out var list))
+        if (_cache.TryGetValue(client, out var list))
         {
             var items = list.Where(i => i.Adapter.ReceivedCallBack == callback).ToList();
             foreach (var c in items)
@@ -115,6 +115,17 @@ public static class ITcpSocketClientExtensions
     /// containing the processed data and returns a <see cref="ValueTask"/>.</param>
     public static void SetDataPackageAdapter(this ITcpSocketClient client, IDataPackageAdapter adapter, Func<ReadOnlyMemory<byte>, ValueTask> callback)
     {
+        // 释放缓存
+        if (_cache.TryGetValue(client, out var list))
+        {
+            var items = list.Where(i => i.Callback == callback).ToList();
+            foreach (var item in items)
+            {
+                client.ReceivedCallBack -= item.Callback;
+                list.Remove(item);
+            }
+        }
+
         // 设置 ITcpSocketClient 的回调函数
         client.ReceivedCallBack = async buffer =>
         {
@@ -151,6 +162,16 @@ public static class ITcpSocketClientExtensions
     /// <param name="callback">The callback function to be invoked with the converted entity.</param>
     public static void SetDataPackageAdapter<TEntity>(this ITcpSocketClient client, IDataPackageAdapter adapter, IDataConverter<TEntity> socketDataConverter, Func<TEntity?, Task> callback)
     {
+        // 释放缓存
+        if (_cache.TryGetValue(client, out var list))
+        {
+            foreach (var (Adapter, Callback) in list)
+            {
+                client.ReceivedCallBack -= Callback;
+            }
+            list.Clear();
+        }
+
         // 设置 ITcpSocketClient 的回调函数
         client.ReceivedCallBack = async buffer =>
         {
@@ -185,6 +206,16 @@ public static class ITcpSocketClientExtensions
     /// <param name="callback">The callback function to invoke with the processed entity of type <typeparamref name="TEntity"/>.</param>
     public static void SetDataPackageAdapter<TEntity>(this ITcpSocketClient client, IDataPackageAdapter adapter, Func<TEntity?, Task> callback)
     {
+        // 释放缓存
+        if (_cache.TryGetValue(client, out var list))
+        {
+            foreach (var (Adapter, Callback) in list)
+            {
+                client.ReceivedCallBack -= Callback;
+            }
+            list.Clear();
+        }
+
         // 设置 ITcpSocketClient 的回调函数
         client.ReceivedCallBack = async buffer =>
         {
