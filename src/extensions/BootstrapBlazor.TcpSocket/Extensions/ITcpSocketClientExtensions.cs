@@ -51,6 +51,56 @@ public static class ITcpSocketClientExtensions
         return client.ConnectAsync(endPoint, token);
     }
 
+    private readonly static Dictionary<(ITcpSocketClient Client, IDataPackageAdapter Adapter), List<Func<ReadOnlyMemory<byte>, ValueTask>>> _callbackCache = [];
+
+    /// <summary>
+    /// 增加 <see cref="ITcpSocketClient"/> 数据适配器及其对应的回调方法
+    /// </summary>
+    /// <param name="client"></param>
+    /// <param name="adapter"></param>
+    /// <param name="callback"></param>
+    public static void AddDataPackageAdapter(this ITcpSocketClient client, IDataPackageAdapter adapter, Func<ReadOnlyMemory<byte>, ValueTask> callback)
+    {
+        if (_callbackCache.TryGetValue((client, adapter), out var list))
+        {
+            list.Add(cb);
+        }
+        else
+        {
+            _callbackCache.Add((client, adapter), [cb]);
+        }
+
+        client.ReceivedCallBack += cb;
+
+        // 设置 DataPackageAdapter 的回调函数
+        adapter.ReceivedCallBack = buffer => callback(buffer);
+
+        async ValueTask cb(ReadOnlyMemory<byte> buffer)
+        {
+            // 将接收到的数据传递给 DataPackageAdapter 进行数据处理合规数据触发 ReceivedCallBack 回调
+            await adapter.HandlerAsync(buffer);
+        }
+    }
+
+    /// <summary>
+    /// 移除 <see cref="ITcpSocketClient"/> 数据适配器及其对应的回调方法
+    /// </summary>
+    /// <param name="client"></param>
+    /// <param name="adapter"></param>
+    /// <param name="callback"></param>
+    public static void RemoveDataPackageAdapter(this ITcpSocketClient client, IDataPackageAdapter adapter, Func<ReadOnlyMemory<byte>, ValueTask> callback)
+    {
+        if (_callbackCache.TryGetValue((client, adapter), out var list))
+        {
+            var cbs = list.Where(i => i == callback).ToList();
+            foreach (var cb in cbs)
+            {
+                client.ReceivedCallBack -= cb;
+                list.Remove(cb);
+            }
+        }
+    }
+
     /// <summary>
     /// Configures the specified <see cref="ITcpSocketClient"/> to use the provided <see cref="IDataPackageAdapter"/> 
     /// for processing received data and sets a callback to handle processed data.
