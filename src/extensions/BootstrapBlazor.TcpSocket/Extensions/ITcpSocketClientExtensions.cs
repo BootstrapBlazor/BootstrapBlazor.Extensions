@@ -51,7 +51,7 @@ public static class ITcpSocketClientExtensions
         return client.ConnectAsync(endPoint, token);
     }
 
-    private readonly static Dictionary<(ITcpSocketClient Client, IDataPackageAdapter Adapter), List<Func<ReadOnlyMemory<byte>, ValueTask>>> _callbackCache = [];
+    private readonly static Dictionary<ITcpSocketClient, List<(IDataPackageAdapter Adapter, Func<ReadOnlyMemory<byte>, ValueTask> Callback)>> _callbackCache = [];
 
     /// <summary>
     /// 增加 <see cref="ITcpSocketClient"/> 数据适配器及其对应的回调方法
@@ -61,19 +61,19 @@ public static class ITcpSocketClientExtensions
     /// <param name="callback"></param>
     public static void AddDataPackageAdapter(this ITcpSocketClient client, IDataPackageAdapter adapter, Func<ReadOnlyMemory<byte>, ValueTask> callback)
     {
-        if (_callbackCache.TryGetValue((client, adapter), out var list))
+        if (_callbackCache.TryGetValue(client, out var list))
         {
-            list.Add(cb);
+            list.Add((adapter, cb));
         }
         else
         {
-            _callbackCache.Add((client, adapter), [cb]);
+            _callbackCache.Add(client, [(adapter, cb)]);
         }
 
         client.ReceivedCallBack += cb;
 
         // 设置 DataPackageAdapter 的回调函数
-        adapter.ReceivedCallBack = buffer => callback(buffer);
+        adapter.ReceivedCallBack = callback;
 
         async ValueTask cb(ReadOnlyMemory<byte> buffer)
         {
@@ -86,17 +86,16 @@ public static class ITcpSocketClientExtensions
     /// 移除 <see cref="ITcpSocketClient"/> 数据适配器及其对应的回调方法
     /// </summary>
     /// <param name="client"></param>
-    /// <param name="adapter"></param>
     /// <param name="callback"></param>
-    public static void RemoveDataPackageAdapter(this ITcpSocketClient client, IDataPackageAdapter adapter, Func<ReadOnlyMemory<byte>, ValueTask> callback)
+    public static void RemoveDataPackageAdapter(this ITcpSocketClient client, Func<ReadOnlyMemory<byte>, ValueTask> callback)
     {
-        if (_callbackCache.TryGetValue((client, adapter), out var list))
+        if (_callbackCache.TryGetValue(client, out var list))
         {
-            var cbs = list.Where(i => i == callback).ToList();
-            foreach (var cb in cbs)
+            var items = list.Where(i => i.Adapter.ReceivedCallBack == callback).ToList();
+            foreach (var c in items)
             {
-                client.ReceivedCallBack -= cb;
-                list.Remove(cb);
+                client.ReceivedCallBack -= c.Callback;
+                list.Remove(c);
             }
         }
     }
@@ -135,11 +134,7 @@ public static class ITcpSocketClientExtensions
     /// <param name="callback">回调方法</param>
     public static void SetDataPackageAdapter(this ITcpSocketClient client, IDataPackageHandler handler, Func<ReadOnlyMemory<byte>, ValueTask> callback)
     {
-        var adapter = new DataPackageAdapter
-        {
-            DataPackageHandler = handler
-        };
-        client.SetDataPackageAdapter(adapter, callback);
+        client.SetDataPackageAdapter(new DataPackageAdapter(handler), callback);
     }
 
     /// <summary>
@@ -235,11 +230,7 @@ public static class ITcpSocketClientExtensions
     /// <param name="callback">回调方法</param>
     public static void SetDataPackageAdapter<TEntity>(this ITcpSocketClient client, IDataPackageHandler handler, Func<TEntity?, Task> callback)
     {
-        var adapter = new DataPackageAdapter
-        {
-            DataPackageHandler = handler
-        };
-        client.SetDataPackageAdapter(adapter, callback);
+        client.SetDataPackageAdapter(new DataPackageAdapter(handler), callback);
     }
 
     private static void SetDataAdapterCallback<TEntity>(this IDataPackageAdapter adapter, IDataConverter<TEntity> converter, Func<TEntity?, Task> callback)
