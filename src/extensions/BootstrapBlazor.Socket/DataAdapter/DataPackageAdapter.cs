@@ -1,4 +1,4 @@
-﻿// Copyright (c) Argo Zhang (argo@163.com). All rights reserved.
+﻿// Copyright (c) BootstrapBlazor & Argo Zhang (argo@live.ca). All rights reserved.
 // Licensed under the Apache License, Version 2.0. See License.txt in the project root for license information.
 // Website: https://www.blazor.zone or https://argozhang.github.io/
 
@@ -12,17 +12,12 @@ namespace BootstrapBlazor.DataAdapters;
 /// common methods for sending, receiving, and handling data packages, as well as a property for accessing the
 /// associated data package handler. Derived classes should override the virtual methods to provide specific behavior
 /// for handling data packages.</remarks>
-public class DataPackageAdapter(IDataPackageHandler DataPackageHandler) : IDataPackageAdapter
+public class DataPackageAdapter(IDataPackageHandler? DataPackageHandler = null) : IDataPackageAdapter
 {
     /// <summary>
     /// <inheritdoc/>
     /// </summary>
     public Func<ReadOnlyMemory<byte>, ValueTask>? ReceivedCallBack { get; set; }
-
-    ///// <summary>
-    ///// <inheritdoc/>
-    ///// </summary>
-    //public IDataPackageHandler DataPackageHandler => handler;
 
     /// <summary>
     /// <inheritdoc/>
@@ -34,10 +29,7 @@ public class DataPackageAdapter(IDataPackageHandler DataPackageHandler) : IDataP
     {
         if (DataPackageHandler != null)
         {
-            if (DataPackageHandler.ReceivedCallBack == null)
-            {
-                DataPackageHandler.ReceivedCallBack = OnHandlerReceivedCallBack;
-            }
+            DataPackageHandler.ReceivedCallBack ??= OnHandlerReceivedCallBack;
 
             // 如果存在数据处理器则调用其处理方法
             await DataPackageHandler.HandlerAsync(data, token);

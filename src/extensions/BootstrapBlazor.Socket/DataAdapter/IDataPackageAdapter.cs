@@ -20,11 +20,6 @@ public interface IDataPackageAdapter
     /// issues.</remarks>
     Func<ReadOnlyMemory<byte>, ValueTask>? ReceivedCallBack { get; set; }
 
-    ///// <summary>
-    ///// Gets the handler responsible for processing data packages.
-    ///// </summary>
-    //IDataPackageHandler? DataPackageHandler { get; }
-
     /// <summary>
     /// Asynchronously receives data from a source and processes it.
     /// </summary>
