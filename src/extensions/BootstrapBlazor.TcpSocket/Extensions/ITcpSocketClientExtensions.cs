@@ -118,12 +118,11 @@ public static class ITcpSocketClientExtensions
         // 释放缓存
         if (_cache.TryGetValue(client, out var list))
         {
-            var items = list.Where(i => i.Callback == callback).ToList();
-            foreach (var item in items)
+            foreach (var (Adapter, Callback) in list)
             {
-                client.ReceivedCallBack -= item.Callback;
-                list.Remove(item);
+                client.ReceivedCallBack -= Callback;
             }
+            list.Clear();
         }
 
         // 设置 ITcpSocketClient 的回调函数
@@ -134,7 +133,7 @@ public static class ITcpSocketClientExtensions
         };
 
         // 设置 DataPackageAdapter 的回调函数
-        adapter.ReceivedCallBack = buffer => callback(buffer);
+        adapter.ReceivedCallBack = callback;
     }
 
     /// <summary>
@@ -189,6 +188,19 @@ public static class ITcpSocketClientExtensions
             }
             await callback(ret);
         };
+    }
+
+    /// <summary>
+    /// 通过指定 <see cref="IDataPackageHandler"/> 数据处理实例，设置数据适配器并配置回调方法
+    /// </summary>
+    /// <typeparam name="TEntity"></typeparam>
+    /// <param name="client"></param>
+    /// <param name="handler"></param>
+    /// <param name="socketDataConverter"></param>
+    /// <param name="callback"></param>
+    public static void SetDataPackageAdapter<TEntity>(this ITcpSocketClient client, IDataPackageHandler handler, IDataConverter<TEntity> socketDataConverter, Func<TEntity?, Task> callback)
+    {
+        client.SetDataPackageAdapter(new DataPackageAdapter(handler), socketDataConverter, callback);
     }
 
     /// <summary>
