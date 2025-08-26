@@ -842,6 +842,38 @@ public class TcpSocketFactoryTest
             return ValueTask.CompletedTask;
         }
     }
+
+    [Fact]
+    public async Task SetDataPackageAdapter_Ok()
+    {
+        var port = 8897;
+        var server = StartTcpServer(port, MockSplitPackageAsync);
+
+        var client = CreateClient();
+        var tcs = new TaskCompletionSource();
+        var receivedBuffer = new byte[128];
+
+        // 连接 TCP Server
+        var connect = await client.ConnectAsync("localhost", port);
+
+        client.AddDataPackageAdapter(new DataPackageAdapter(new FixLengthDataPackageHandler(7)), ReceivedCallBack);
+        client.SetDataPackageAdapter(new FixLengthDataPackageHandler(7), ReceivedCallBack);
+
+        var data = new ReadOnlyMemory<byte>([1, 2, 3, 4, 5]);
+        await client.SendAsync(data);
+
+        // 等待接收数据处理完成
+        await tcs.Task;
+
+        ValueTask ReceivedCallBack(ReadOnlyMemory<byte> buffer)
+        {
+            // buffer 即是接收到的数据
+            buffer.CopyTo(receivedBuffer);
+            receivedBuffer = receivedBuffer[..buffer.Length];
+            tcs.SetResult();
+            return ValueTask.CompletedTask;
+        }
+    }
     private static TcpListener StartTcpServer(int port, Func<TcpClient, Task> handler)
     {
         var server = new TcpListener(IPAddress.Loopback, port);
