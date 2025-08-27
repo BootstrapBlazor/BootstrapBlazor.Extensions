@@ -19,7 +19,7 @@ static class DataPropertyExtensions
         {
             var converterParameters = attribute.ConverterParameters;
             var c = Activator.CreateInstance(converterType, converterParameters);
-            if(c is IDataPropertyConverter v)
+            if (c is IDataPropertyConverter v)
             {
                 converter = v;
             }
