@@ -1,4 +1,4 @@
-// Copyright (c) BootstrapBlazor & Argo Zhang (argo@live.ca). All rights reserved.
+﻿// Copyright (c) BootstrapBlazor & Argo Zhang (argo@live.ca). All rights reserved.
 // Licensed under the Apache License, Version 2.0. See License.txt in the project root for license information.
 // Website: https://www.blazor.zone or https://argozhang.github.io/
 
@@ -37,7 +37,7 @@ public static class BinConverter
     /// <returns></returns>
     public static byte[] ToBytes(string str, string? separator = null, StringSplitOptions options = StringSplitOptions.None)
     {
-        // 把 str 内的 delimiter 符号替换掉
+        // 把 str 内的 separator 符号替换掉
         if (!string.IsNullOrEmpty(separator))
         {
             str = string.Join("", str.Split(separator, options).Select(i => i.PadLeft(8, '0')));
