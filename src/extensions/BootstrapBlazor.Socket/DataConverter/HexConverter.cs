@@ -7,7 +7,7 @@ using System.Text;
 namespace BootstrapBlazor.Components.DataConverter;
 
 /// <summary>
-/// Byte 数组扩展方法
+/// 十六进制 与 Byte 数组转换方法
 /// </summary>
 public static class HexConverter
 {
@@ -46,7 +46,7 @@ public static class HexConverter
     /// <param name="separator"></param>
     /// <param name="options"></param>
     /// <returns></returns>
-    public static byte[] ToByte(string str, string? separator = null, StringSplitOptions options = StringSplitOptions.None)
+    public static byte[] ToBytes(string str, string? separator = null, StringSplitOptions options = StringSplitOptions.None)
     {
         // 把 str 内的 delimiter 符号替换掉
         if (!string.IsNullOrEmpty(separator))
