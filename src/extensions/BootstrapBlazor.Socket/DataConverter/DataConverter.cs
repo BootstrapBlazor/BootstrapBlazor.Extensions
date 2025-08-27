@@ -1,4 +1,4 @@
-﻿// Copyright (c) Argo Zhang (argo@163.com). All rights reserved.
+﻿// Copyright (c) BootstrapBlazor & Argo Zhang (argo@live.ca). All rights reserved.
 // Licensed under the Apache License, Version 2.0. See License.txt in the project root for license information.
 // Website: https://www.blazor.zone or https://argozhang.github.io/
 
@@ -59,9 +59,14 @@ public class DataConverter<TEntity>(DataConverterCollections converters) : IData
             {
                 var attr = p.GetCustomAttribute<DataPropertyConverterAttribute>(false)
                     ?? GetPropertyConverterAttribute(p);
-                if (attr != null)
+                if (attr is { Type: not null })
                 {
-                    p.SetValue(entity, attr.ConvertTo(data));
+                    var value = attr.ConvertTo(data);
+                    var valueType = value?.GetType();
+                    if (valueType != null && p.PropertyType.IsAssignableFrom(valueType))
+                    {
+                        p.SetValue(entity, value);
+                    }
                 }
             }
             ret = true;

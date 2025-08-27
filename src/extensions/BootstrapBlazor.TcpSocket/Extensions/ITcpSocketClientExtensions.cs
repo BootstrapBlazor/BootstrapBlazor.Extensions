@@ -242,10 +242,7 @@ public static class ITcpSocketClientExtensions
         if (converterType is { Type: not null })
         {
             // 如果类型上有 SocketDataTypeConverterAttribute 特性则使用特性中指定的转换器
-            if (Activator.CreateInstance(converterType.Type) is IDataConverter<TEntity> socketDataConverter)
-            {
-                converter = socketDataConverter;
-            }
+            converter = converterType.Type.CreateInstance<IDataConverter<TEntity>>();
         }
         else
         {

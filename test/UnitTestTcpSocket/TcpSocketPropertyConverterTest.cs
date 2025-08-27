@@ -67,6 +67,6 @@ public class TcpSocketPropertyConverterTest
     {
         var converter = new DataDoubleLittleEndianConverter();
         var actual = converter.Convert(new byte[] { 0x1F, 0x85, 0xEB, 0x51, 0xB8, 0x1E, 0x09, 0x40 });
-        Assert.Equal((double)3.14, actual);
+        Assert.Equal(3.14, actual);
     }
 }
