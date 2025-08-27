@@ -167,13 +167,6 @@ const createGroupActions = (group, groupType) => {
         if (item.name !== 'bar') {
             const icon = getIcon(item.name);
             actionContainer.append(icon);
-            if(icon.classList.contains('bb-dockview-control-icon-dropdown')){
-                setTimeout(() => {
-                    if (group.model.location.type == 'floating' && group.panels.some(panel => panel.renderer == 'always')) {
-                        observeDisplayChange(icon, group)
-                    }
-                }, 0)
-            }
         }
     });
     setTimeout(() => {
@@ -642,11 +635,12 @@ const dock = (group, floatType) => {
     else {
         group.setParams({ rect })
     }
+    const activePanel = group.activePanel
     dockview.moveGroup({
         from: { group: group },
         to: { group: originGroup, position: 'center' }
     })
-
+    dockview.setActivePanel(activePanel)
     saveConfig(dockview)
 }
 

@@ -19,6 +19,20 @@ const observePanelActiveChange = panel => {
         if (isActive && panel.group.getParams().floatType == 'drawer') {
             setDrawerTitle(panel.group)
         }
+        setTimeout(function () {
+            if (panel.group.model.location.type === 'floating' && panel.renderer == 'always') {
+                if (isActive) {
+                    const contentContainerEle = panel.group.element.querySelector('.dv-content-container');
+                    const contentEle = panel.view.content.element;
+                    contentEle.parentEle = contentEle.parentElement
+                    contentContainerEle.appendChild(contentEle);
+                }
+                else if (isActive === false && panel !== panel.group.activePanel) {
+                    panel.view.content.element.parentEle?.appendChild(panel.view.content.element);
+                    panel.view.content.element.parentEle && delete panel.view.content.element.parentEle;
+                }
+            }
+        }, 0)
     })
 }
 

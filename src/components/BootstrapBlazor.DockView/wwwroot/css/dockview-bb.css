@@ -290,3 +290,6 @@
 .bb-dockview .bb-overflowHidden {
     overflow: hidden;
 }
+.bb-dockview .dv-render-overlay-float {
+    z-index: -1!important;
+}
