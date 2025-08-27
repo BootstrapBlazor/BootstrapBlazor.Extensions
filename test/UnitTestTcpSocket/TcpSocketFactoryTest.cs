@@ -497,7 +497,7 @@ public class TcpSocketFactoryTest
 
         // 设置数据适配器
         var adapter = new DataPackageAdapter(new FixLengthDataPackageHandler(7));
-        client.SetDataPackageAdapter(adapter, buffer =>
+        var callback = new Func<ReadOnlyMemory<byte>, ValueTask>(buffer =>
         {
             // buffer 即是接收到的数据
             buffer.CopyTo(receivedBuffer);
@@ -505,6 +505,7 @@ public class TcpSocketFactoryTest
             tcs.SetResult();
             return ValueTask.CompletedTask;
         });
+        client.AddDataPackageAdapter(adapter, callback);
 
         // 测试 ConnectAsync 方法
         var connect = await client.ConnectAsync("localhost", port);
@@ -538,7 +539,7 @@ public class TcpSocketFactoryTest
 
         // 设置数据适配器
         var adapter = new DataPackageAdapter(new FixLengthDataPackageHandler(7));
-        client.SetDataPackageAdapter(adapter, buffer =>
+        client.AddDataPackageAdapter(adapter, buffer =>
         {
             // buffer 即是接收到的数据
             buffer.CopyTo(receivedBuffer);
@@ -588,7 +589,7 @@ public class TcpSocketFactoryTest
 
         // 设置数据适配器
         var adapter = new DataPackageAdapter(new DelimiterDataPackageHandler([13, 10]));
-        client.SetDataPackageAdapter(adapter, buffer =>
+        client.AddDataPackageAdapter(adapter, buffer =>
         {
             // buffer 即是接收到的数据
             buffer.CopyTo(receivedBuffer);
@@ -641,12 +642,13 @@ public class TcpSocketFactoryTest
 
         // 设置数据适配器
         var adapter = new DataPackageAdapter(new FixLengthDataPackageHandler(29));
-        client.SetDataPackageAdapter(adapter, new DataConverter<MockEntity>(), t =>
+        var callback = new Func<MockEntity?, Task>(t =>
         {
             entity = t;
             tcs.SetResult();
             return Task.CompletedTask;
         });
+        client.AddDataPackageAdapter(adapter, new DataConverter<MockEntity>(), callback);
 
         // 连接 TCP Server
         var connect = await client.ConnectAsync("localhost", port);
@@ -703,10 +705,11 @@ public class TcpSocketFactoryTest
 
         // no attribute
         Assert.Null(entity.Value13);
+        client.RemoveDataPackageAdapter(callback);
 
         // 测试 SocketDataConverter 标签功能
         tcs = new TaskCompletionSource();
-        client.SetDataPackageAdapter<MockEntity>(adapter, t =>
+        client.AddDataPackageAdapter<MockEntity>(adapter, t =>
         {
             entity = t;
             tcs.SetResult();
@@ -728,7 +731,7 @@ public class TcpSocketFactoryTest
         // 测试 SetDataPackageAdapter 泛型无标签情况
         tcs = new TaskCompletionSource();
         NoConvertEntity? noConvertEntity = null;
-        client.SetDataPackageAdapter<NoConvertEntity>(adapter, t =>
+        client.AddDataPackageAdapter<NoConvertEntity>(adapter, t =>
         {
             noConvertEntity = t;
             tcs.SetResult();
@@ -779,7 +782,7 @@ public class TcpSocketFactoryTest
         var adapter = new DataPackageAdapter(new FixLengthDataPackageHandler(7));
 
         OptionConvertEntity? entity = null;
-        client.SetDataPackageAdapter<OptionConvertEntity>(adapter, data =>
+        client.AddDataPackageAdapter<OptionConvertEntity>(adapter, data =>
         {
             // buffer 即是接收到的数据
             entity = data;
@@ -857,7 +860,7 @@ public class TcpSocketFactoryTest
         var connect = await client.ConnectAsync("localhost", port);
 
         client.AddDataPackageAdapter(new DataPackageAdapter(new FixLengthDataPackageHandler(7)), ReceivedCallBack);
-        client.SetDataPackageAdapter(new FixLengthDataPackageHandler(7), ReceivedCallBack);
+        client.AddDataPackageAdapter(new FixLengthDataPackageHandler(7), ReceivedCallBack);
 
         var data = new ReadOnlyMemory<byte>([1, 2, 3, 4, 5]);
         await client.SendAsync(data);
@@ -889,10 +892,10 @@ public class TcpSocketFactoryTest
         var connect = await client.ConnectAsync("localhost", port);
 
         client.AddDataPackageAdapter(new DataPackageAdapter(new FixLengthDataPackageHandler(7)), ReceivedCallBack);
-        client.SetDataPackageAdapter<MockEntity>(new FixLengthDataPackageHandler(7), ReceivedEntityCallBack);
+        client.AddDataPackageAdapter<MockEntity>(new FixLengthDataPackageHandler(7), ReceivedEntityCallBack);
 
         client.AddDataPackageAdapter(new DataPackageAdapter(new FixLengthDataPackageHandler(7)), ReceivedCallBack);
-        client.SetDataPackageAdapter(new FixLengthDataPackageHandler(7), new MockSocketDataConverter(), ReceivedEntityCallBack);
+        client.AddDataPackageAdapter(new FixLengthDataPackageHandler(7), new MockSocketDataConverter(), ReceivedEntityCallBack);
 
         var data = new ReadOnlyMemory<byte>([1, 2, 3, 4, 5]);
         await client.SendAsync(data);
@@ -930,7 +933,7 @@ public class TcpSocketFactoryTest
         // 连接 TCP Server
         var connect = await client.ConnectAsync("localhost", port);
 
-        client.SetDataPackageAdapter<MockConverterEntity>(new FixLengthDataPackageHandler(7), ReceivedCallBack);
+        client.AddDataPackageAdapter<MockConverterEntity>(new FixLengthDataPackageHandler(7), ReceivedCallBack);
 
         var data = new ReadOnlyMemory<byte>([1, 2, 3, 4, 5]);
         await client.SendAsync(data);
