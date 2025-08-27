@@ -17,7 +17,6 @@ public class DataConverter<TEntity>(DataConverterCollections converters) : IData
     /// </summary>
     public DataConverter() : this(new())
     {
-
     }
 
     /// <summary>
@@ -28,9 +27,21 @@ public class DataConverter<TEntity>(DataConverterCollections converters) : IData
     /// <returns></returns>
     public virtual bool TryConvertTo(ReadOnlyMemory<byte> data, [NotNullWhen(true)] out TEntity? entity)
     {
-        var v = CreateEntity();
-        var ret = Parse(data, v);
-        entity = ret ? v : default;
+        var ret = false;
+        entity = default;
+        try
+        {
+            var v = CreateEntity();
+            if (Parse(data, v))
+            {
+                entity = v;
+                ret = true;
+            }
+        }
+        catch (Exception e)
+        {
+        }
+
         return ret;
     }
 
@@ -57,8 +68,7 @@ public class DataConverter<TEntity>(DataConverterCollections converters) : IData
             var properties = entity.GetType().GetProperties().Where(p => p.CanWrite).ToList();
             foreach (var p in properties)
             {
-                var attr = p.GetCustomAttribute<DataPropertyConverterAttribute>(false)
-                    ?? GetPropertyConverterAttribute(p);
+                var attr = p.GetCustomAttribute<DataPropertyConverterAttribute>(false) ?? GetPropertyConverterAttribute(p);
                 if (attr is { Type: not null })
                 {
                     var value = attr.ConvertTo(data);
@@ -69,8 +79,10 @@ public class DataConverter<TEntity>(DataConverterCollections converters) : IData
                     }
                 }
             }
+
             ret = true;
         }
+
         return ret;
     }
 
@@ -81,6 +93,7 @@ public class DataConverter<TEntity>(DataConverterCollections converters) : IData
         {
             attr = v;
         }
+
         return attr;
     }
 }
