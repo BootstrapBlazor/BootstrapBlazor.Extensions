@@ -19,7 +19,7 @@ public static class ActivatorExtensions
     /// <returns></returns>
     public static object? CreateInstance(this Type type, object?[]? args = null)
     {
-        var bindings = BindingFlags.NonPublic | BindingFlags.Public | BindingFlags.Instance | BindingFlags.Default;
+        var bindings = BindingFlags.NonPublic | BindingFlags.Public | BindingFlags.Instance;
         return Activator.CreateInstance(type, bindings, null, args, null);
     }
 
