@@ -101,7 +101,7 @@ public static class ITcpSocketClientExtensions
     }
 
     /// <summary>
-    /// 通过指定 <see cref="IDataPackageHandler"/> 数据处理实例，设置数据适配器并配置回调方法
+    /// 通过指定 <see cref="IDataPackageHandler"/> 数据处理实例，设置数据适配器并配置回调方法，切记使用 <see cref="RemoveDataPackageAdapter(ITcpSocketClient, Func{ReadOnlyMemory{byte}, ValueTask})"/> 移除数据处理委托防止内存泄露
     /// </summary>
     /// <param name="client"><see cref="ITcpSocketClient"/> 实例</param>
     /// <param name="handler"><see cref="IDataPackageHandler"/> 数据处理实例</param>
@@ -115,7 +115,7 @@ public static class ITcpSocketClientExtensions
 
     /// <summary>
     /// Configures the specified <see cref="ITcpSocketClient"/> to use a data package adapter and a callback function
-    /// for processing received data.
+    /// for processing received data. 切记使用 <see cref="RemoveDataPackageAdapter(ITcpSocketClient, Func{ReadOnlyMemory{byte}, ValueTask})"/> 移除数据处理委托防止内存泄露
     /// </summary>
     /// <remarks>This method sets up the <paramref name="client"/> to process incoming data using the
     /// specified <paramref name="adapter"/> and  <paramref name="socketDataConverter"/>. The <paramref
@@ -175,7 +175,7 @@ public static class ITcpSocketClientExtensions
     }
 
     /// <summary>
-    /// 通过指定 <see cref="IDataPackageHandler"/> 数据处理实例，设置数据适配器并配置回调方法
+    /// 通过指定 <see cref="IDataPackageHandler"/> 数据处理实例，设置数据适配器并配置回调方法。切记使用 <see cref="RemoveDataPackageAdapter"/> 移除数据处理委托防止内存泄露
     /// </summary>
     /// <typeparam name="TEntity"></typeparam>
     /// <param name="client"></param>
@@ -189,7 +189,7 @@ public static class ITcpSocketClientExtensions
 
     /// <summary>
     /// Configures the specified <see cref="ITcpSocketClient"/> to use a custom data package adapter and callback
-    /// function.
+    /// function. 切记使用 <see cref="RemoveDataPackageAdapter"/> 移除数据处理委托防止内存泄露
     /// </summary>
     /// <remarks>This method sets up the <paramref name="client"/> to use the specified <paramref
     /// name="adapter"/> for handling incoming data. If the <typeparamref name="TEntity"/> type is decorated with a <see
@@ -251,7 +251,7 @@ public static class ITcpSocketClientExtensions
     }
 
     /// <summary>
-    /// 通过指定 <see cref="IDataPackageHandler"/> 数据处理实例，设置数据适配器并配置回调方法
+    /// 通过指定 <see cref="IDataPackageHandler"/> 数据处理实例，设置数据适配器并配置回调方法。切记使用 <see cref="RemoveDataPackageAdapter"/> 移除数据处理委托防止内存泄露
     /// </summary>
     /// <param name="client"><see cref="ITcpSocketClient"/> 实例</param>
     /// <param name="handler"><see cref="IDataPackageHandler"/> 数据处理实例</param>
