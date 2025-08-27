@@ -30,13 +30,7 @@ public static class HexConverter
             return BitConverter.ToString(bytes);
         }
 
-        var sb = new StringBuilder(bytes.Length * 3);
-        foreach (var b in bytes)
-        {
-            sb.Append(b.ToString("X2"));
-            sb.Append(separator);
-        }
-        return sb.ToString(0, sb.Length - 1);
+        return string.Join(separator, bytes.Select(i => Convert.ToString(i, 16)));
     }
 
     /// <summary>
