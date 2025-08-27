@@ -61,7 +61,11 @@ public class DataConverter<TEntity>(DataConverterCollections converters) : IData
                     ?? GetPropertyConverterAttribute(p);
                 if (attr != null)
                 {
-                    p.SetValue(entity, attr.ConvertTo(data));
+                    var v = attr.ConvertTo(data);
+                    if (v?.GetType() == attr.Type)
+                    {
+                        p.SetValue(entity, v);
+                    }
                 }
             }
             ret = true;
