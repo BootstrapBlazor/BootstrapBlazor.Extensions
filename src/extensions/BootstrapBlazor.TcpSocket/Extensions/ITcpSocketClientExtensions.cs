@@ -61,6 +61,12 @@ public static class ITcpSocketClientExtensions
     /// <param name="callback"></param>
     public static void AddDataPackageAdapter(this ITcpSocketClient client, IDataPackageAdapter adapter, Func<ReadOnlyMemory<byte>, ValueTask> callback)
     {
+        async ValueTask cb(ReadOnlyMemory<byte> buffer)
+        {
+            // 将接收到的数据传递给 DataPackageAdapter 进行数据处理合规数据触发 ReceivedCallBack 回调
+            await adapter.HandlerAsync(buffer);
+        }
+
         if (_cache.TryGetValue(client, out var list))
         {
             list.Add((adapter, cb));
@@ -74,12 +80,6 @@ public static class ITcpSocketClientExtensions
 
         // 设置 DataPackageAdapter 的回调函数
         adapter.ReceivedCallBack = callback;
-
-        async ValueTask cb(ReadOnlyMemory<byte> buffer)
-        {
-            // 将接收到的数据传递给 DataPackageAdapter 进行数据处理合规数据触发 ReceivedCallBack 回调
-            await adapter.HandlerAsync(buffer);
-        }
     }
 
     /// <summary>
@@ -101,50 +101,14 @@ public static class ITcpSocketClientExtensions
     }
 
     /// <summary>
-    /// Configures the specified <see cref="ITcpSocketClient"/> to use the provided <see cref="IDataPackageAdapter"/> 
-    /// for processing received data and sets a callback to handle processed data.
-    /// </summary>
-    /// <remarks>This method sets up a two-way data processing pipeline: <list type="bullet"> <item>
-    /// <description>The <paramref name="client"/> is configured to pass received data to the <paramref name="adapter"/>
-    /// for processing.</description> </item> <item> <description>The <paramref name="adapter"/> is configured to invoke
-    /// the provided <paramref name="callback"/> with the processed data.</description> </item> </list> Use this method
-    /// to integrate a custom data processing adapter with a TCP socket client.</remarks>
-    /// <param name="client">The <see cref="ITcpSocketClient"/> instance to configure.</param>
-    /// <param name="adapter">The <see cref="IDataPackageAdapter"/> used to process incoming data.</param>
-    /// <param name="callback">A callback function invoked with the processed data. The function receives a <see cref="ReadOnlyMemory{T}"/> 
-    /// containing the processed data and returns a <see cref="ValueTask"/>.</param>
-    public static void SetDataPackageAdapter(this ITcpSocketClient client, IDataPackageAdapter adapter, Func<ReadOnlyMemory<byte>, ValueTask> callback)
-    {
-        // 释放缓存
-        if (_cache.TryGetValue(client, out var list))
-        {
-            foreach (var (Adapter, Callback) in list)
-            {
-                client.ReceivedCallBack -= Callback;
-            }
-            list.Clear();
-        }
-
-        // 设置 ITcpSocketClient 的回调函数
-        client.ReceivedCallBack = async buffer =>
-        {
-            // 将接收到的数据传递给 DataPackageAdapter 进行数据处理合规数据触发 ReceivedCallBack 回调
-            await adapter.HandlerAsync(buffer);
-        };
-
-        // 设置 DataPackageAdapter 的回调函数
-        adapter.ReceivedCallBack = callback;
-    }
-
-    /// <summary>
     /// 通过指定 <see cref="IDataPackageHandler"/> 数据处理实例，设置数据适配器并配置回调方法
     /// </summary>
     /// <param name="client"><see cref="ITcpSocketClient"/> 实例</param>
     /// <param name="handler"><see cref="IDataPackageHandler"/> 数据处理实例</param>
     /// <param name="callback">回调方法</param>
-    public static void SetDataPackageAdapter(this ITcpSocketClient client, IDataPackageHandler handler, Func<ReadOnlyMemory<byte>, ValueTask> callback)
+    public static void AddDataPackageAdapter(this ITcpSocketClient client, IDataPackageHandler handler, Func<ReadOnlyMemory<byte>, ValueTask> callback)
     {
-        client.SetDataPackageAdapter(new DataPackageAdapter(handler), callback);
+        client.AddDataPackageAdapter(new DataPackageAdapter(handler), callback);
     }
 
     /// <summary>
@@ -159,24 +123,24 @@ public static class ITcpSocketClientExtensions
     /// <param name="adapter">The data package adapter responsible for handling incoming data.</param>
     /// <param name="socketDataConverter">The converter used to transform the received data into the specified entity type.</param>
     /// <param name="callback">The callback function to be invoked with the converted entity.</param>
-    public static void SetDataPackageAdapter<TEntity>(this ITcpSocketClient client, IDataPackageAdapter adapter, IDataConverter<TEntity> socketDataConverter, Func<TEntity?, Task> callback)
+    public static void AddDataPackageAdapter<TEntity>(this ITcpSocketClient client, IDataPackageAdapter adapter, IDataConverter<TEntity> socketDataConverter, Func<TEntity?, Task> callback)
     {
-        // 释放缓存
-        if (_cache.TryGetValue(client, out var list))
-        {
-            foreach (var (Adapter, Callback) in list)
-            {
-                client.ReceivedCallBack -= Callback;
-            }
-            list.Clear();
-        }
-
-        // 设置 ITcpSocketClient 的回调函数
-        client.ReceivedCallBack = async buffer =>
+        async ValueTask cb(ReadOnlyMemory<byte> buffer)
         {
             // 将接收到的数据传递给 DataPackageAdapter 进行数据处理合规数据触发 ReceivedCallBack 回调
             await adapter.HandlerAsync(buffer);
-        };
+        }
+
+        if (_cache.TryGetValue(client, out var list))
+        {
+            list.Add((adapter, cb));
+        }
+        else
+        {
+            _cache.Add(client, [(adapter, cb)]);
+        }
+
+        client.ReceivedCallBack += cb;
 
         // 设置 DataPackageAdapter 的回调函数
         adapter.ReceivedCallBack = async buffer =>
@@ -198,9 +162,9 @@ public static class ITcpSocketClientExtensions
     /// <param name="handler"></param>
     /// <param name="socketDataConverter"></param>
     /// <param name="callback"></param>
-    public static void SetDataPackageAdapter<TEntity>(this ITcpSocketClient client, IDataPackageHandler handler, IDataConverter<TEntity> socketDataConverter, Func<TEntity?, Task> callback)
+    public static void AddDataPackageAdapter<TEntity>(this ITcpSocketClient client, IDataPackageHandler handler, IDataConverter<TEntity> socketDataConverter, Func<TEntity?, Task> callback)
     {
-        client.SetDataPackageAdapter(new DataPackageAdapter(handler), socketDataConverter, callback);
+        client.AddDataPackageAdapter(new DataPackageAdapter(handler), socketDataConverter, callback);
     }
 
     /// <summary>
@@ -216,24 +180,22 @@ public static class ITcpSocketClientExtensions
     /// <param name="client">The TCP socket client to configure.</param>
     /// <param name="adapter">The data package adapter responsible for processing incoming data.</param>
     /// <param name="callback">The callback function to invoke with the processed entity of type <typeparamref name="TEntity"/>.</param>
-    public static void SetDataPackageAdapter<TEntity>(this ITcpSocketClient client, IDataPackageAdapter adapter, Func<TEntity?, Task> callback)
+    public static void AddDataPackageAdapter<TEntity>(this ITcpSocketClient client, IDataPackageAdapter adapter, Func<TEntity?, Task> callback)
     {
-        // 释放缓存
-        if (_cache.TryGetValue(client, out var list))
-        {
-            foreach (var (Adapter, Callback) in list)
-            {
-                client.ReceivedCallBack -= Callback;
-            }
-            list.Clear();
-        }
-
-        // 设置 ITcpSocketClient 的回调函数
-        client.ReceivedCallBack = async buffer =>
+        async ValueTask cb(ReadOnlyMemory<byte> buffer)
         {
             // 将接收到的数据传递给 DataPackageAdapter 进行数据处理合规数据触发 ReceivedCallBack 回调
             await adapter.HandlerAsync(buffer);
-        };
+        }
+
+        if (_cache.TryGetValue(client, out var list))
+        {
+            list.Add((adapter, cb));
+        }
+        else
+        {
+            _cache.Add(client, [(adapter, cb)]);
+        }
 
         IDataConverter<TEntity>? converter = null;
 
@@ -268,9 +230,9 @@ public static class ITcpSocketClientExtensions
     /// <param name="client"><see cref="ITcpSocketClient"/> 实例</param>
     /// <param name="handler"><see cref="IDataPackageHandler"/> 数据处理实例</param>
     /// <param name="callback">回调方法</param>
-    public static void SetDataPackageAdapter<TEntity>(this ITcpSocketClient client, IDataPackageHandler handler, Func<TEntity?, Task> callback)
+    public static void AddDataPackageAdapter<TEntity>(this ITcpSocketClient client, IDataPackageHandler handler, Func<TEntity?, Task> callback)
     {
-        client.SetDataPackageAdapter(new DataPackageAdapter(handler), callback);
+        client.AddDataPackageAdapter(new DataPackageAdapter(handler), callback);
     }
 
     private static void SetDataAdapterCallback<TEntity>(this IDataPackageAdapter adapter, IDataConverter<TEntity> converter, Func<TEntity?, Task> callback)
