@@ -61,7 +61,7 @@ public static class ITcpSocketClientExtensions
     /// <param name="callback"></param>
     public static void AddDataPackageAdapter(this ITcpSocketClient client, IDataPackageAdapter adapter, Func<ReadOnlyMemory<byte>, ValueTask> callback)
     {
-        async ValueTask cb(ReadOnlyMemory<byte> buffer)
+        async ValueTask ReceivedCallback(ReadOnlyMemory<byte> buffer)
         {
             // 将接收到的数据传递给 DataPackageAdapter 进行数据处理合规数据触发 ReceivedCallBack 回调
             await adapter.HandlerAsync(buffer);
@@ -69,14 +69,14 @@ public static class ITcpSocketClientExtensions
 
         if (Cache.TryGetValue(client, out var list))
         {
-            list.Add((adapter, cb));
+            list.Add((adapter, ReceivedCallback));
         }
         else
         {
-            Cache.Add(client, [(adapter, cb)]);
+            Cache.Add(client, [(adapter, ReceivedCallback)]);
         }
 
-        client.ReceivedCallBack += cb;
+        client.ReceivedCallBack += ReceivedCallback;
 
         // 设置 DataPackageAdapter 的回调函数
         adapter.ReceivedCallBack = callback;
@@ -111,6 +111,8 @@ public static class ITcpSocketClientExtensions
         client.AddDataPackageAdapter(new DataPackageAdapter(handler), callback);
     }
 
+    private static readonly Dictionary<ITcpSocketClient, List<(IDataPackageAdapter Adapter, Delegate Callback)>> EntityCache = [];
+
     /// <summary>
     /// Configures the specified <see cref="ITcpSocketClient"/> to use a data package adapter and a callback function
     /// for processing received data.
@@ -125,22 +127,22 @@ public static class ITcpSocketClientExtensions
     /// <param name="callback">The callback function to be invoked with the converted entity.</param>
     public static void AddDataPackageAdapter<TEntity>(this ITcpSocketClient client, IDataPackageAdapter adapter, IDataConverter<TEntity> socketDataConverter, Func<TEntity?, Task> callback)
     {
-        async ValueTask cb(ReadOnlyMemory<byte> buffer)
+        async ValueTask ReceivedCallback(ReadOnlyMemory<byte> buffer)
         {
             // 将接收到的数据传递给 DataPackageAdapter 进行数据处理合规数据触发 ReceivedCallBack 回调
             await adapter.HandlerAsync(buffer);
         }
 
-        if (Cache.TryGetValue(client, out var list))
+        if (EntityCache.TryGetValue(client, out var list))
         {
-            list.Add((adapter, cb));
+            list.Add((adapter, ReceivedCallback));
         }
         else
         {
-            Cache.Add(client, [(adapter, cb)]);
+            Cache.Add(client, [(adapter, ReceivedCallback)]);
         }
 
-        client.ReceivedCallBack += cb;
+        client.ReceivedCallBack += ReceivedCallback;
 
         // 设置 DataPackageAdapter 的回调函数
         adapter.ReceivedCallBack = async buffer =>
@@ -182,35 +184,31 @@ public static class ITcpSocketClientExtensions
     /// <param name="callback">The callback function to invoke with the processed entity of type <typeparamref name="TEntity"/>.</param>
     public static void AddDataPackageAdapter<TEntity>(this ITcpSocketClient client, IDataPackageAdapter adapter, Func<TEntity?, Task> callback)
     {
-        async ValueTask cb(ReadOnlyMemory<byte> buffer)
+        async ValueTask ReceivedCallback(ReadOnlyMemory<byte> buffer)
         {
             // 将接收到的数据传递给 DataPackageAdapter 进行数据处理合规数据触发 ReceivedCallBack 回调
             await adapter.HandlerAsync(buffer);
         }
 
-        if (Cache.TryGetValue(client, out var list))
+        if (EntityCache.TryGetValue(client, out var list))
         {
-            list.Add((adapter, cb));
+            list.Add((adapter, ReceivedCallback));
         }
         else
         {
-            Cache.Add(client, [(adapter, cb)]);
+            EntityCache.Add(client, [(adapter, ReceivedCallback)]);
         }
 
         IDataConverter<TEntity>? converter = null;
 
         var type = typeof(TEntity);
         var converterType = type.GetCustomAttribute<DataTypeConverterAttribute>();
-        if (converterType is { Type: not null })
-        {
-            // 如果类型上有 SocketDataTypeConverterAttribute 特性则使用特性中指定的转换器
-            converter = converterType.Type.CreateInstance<IDataConverter<TEntity>>();
-        }
-        else
-        {
-            // 如果没有特性则从 ITcpSocketClient 中的服务容器获取转换器
-            converter = client.GetSocketDataConverter<TEntity>();
-        }
+
+        // 如果类型上有 SocketDataTypeConverterAttribute 特性则使用特性中指定的转换器
+        // 如果没有特性则从 ITcpSocketClient 中的服务容器获取转换器
+        converter = converterType is { Type: not null }
+            ? converterType.Type.CreateInstance<IDataConverter<TEntity>>()
+            : client.GetSocketDataConverter<TEntity>();
 
         if (converter == null)
         {
@@ -260,5 +258,23 @@ public static class ITcpSocketClientExtensions
             }
         }
         return converter;
+    }
+
+    /// <summary>
+    /// 移除 <see cref="ITcpSocketClient"/> 数据适配器及其对应的回调方法
+    /// </summary>
+    /// <param name="client"></param>
+    /// <param name="callback"></param>
+    public static void RemoveDataPackageAdapter<TEntity>(this ITcpSocketClient client, Func<TEntity?, Task> callback)
+    {
+        if (EntityCache.TryGetValue(client, out var list))
+        {
+            var items = list.Where(i => i.Adapter.ReceivedCallBack == callback).ToList();
+            foreach (var c in items)
+            {
+                client.ReceivedCallBack -= c.Callback;
+                list.Remove(c);
+            }
+        }
     }
 }
