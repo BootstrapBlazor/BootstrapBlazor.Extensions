@@ -642,12 +642,13 @@ public class TcpSocketFactoryTest
 
         // 设置数据适配器
         var adapter = new DataPackageAdapter(new FixLengthDataPackageHandler(29));
-        client.AddDataPackageAdapter(adapter, new DataConverter<MockEntity>(), t =>
+        var callback = new Func<MockEntity?, Task>(t =>
         {
             entity = t;
             tcs.SetResult();
             return Task.CompletedTask;
         });
+        client.AddDataPackageAdapter(adapter, new DataConverter<MockEntity>(), callback);
 
         // 连接 TCP Server
         var connect = await client.ConnectAsync("localhost", port);
@@ -704,6 +705,7 @@ public class TcpSocketFactoryTest
 
         // no attribute
         Assert.Null(entity.Value13);
+        client.RemoveDataPackageAdapter(callback);
 
         // 测试 SocketDataConverter 标签功能
         tcs = new TaskCompletionSource();
