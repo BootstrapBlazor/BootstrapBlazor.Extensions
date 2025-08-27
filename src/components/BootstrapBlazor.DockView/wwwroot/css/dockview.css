@@ -9,6 +9,10 @@
   height: 4px;
   border-radius: 2px;
   background-color: transparent;
+  /* GPU optimizations */
+  will-change: background-color, transform;
+  transform: translate3d(0, 0, 0);
+  backface-visibility: hidden;
   transition-property: background-color;
   transition-timing-function: ease-in-out;
   transition-duration: 1s;
@@ -629,13 +633,19 @@
 .dv-drop-target-container .dv-drop-target-anchor {
   position: relative;
   border: var(--dv-drag-over-border);
-  transition: opacity var(--dv-transition-duration) ease-in, top var(--dv-transition-duration) ease-out, left var(--dv-transition-duration) ease-out, width var(--dv-transition-duration) ease-out, height var(--dv-transition-duration) ease-out;
   background-color: var(--dv-drag-over-background-color);
   opacity: 1;
+  /* GPU optimizations */
+  will-change: transform, opacity;
+  transform: translate3d(0, 0, 0);
+  backface-visibility: hidden;
+  contain: layout paint;
+  transition: opacity var(--dv-transition-duration) ease-in, transform var(--dv-transition-duration) ease-out;
 }
 .dv-dockview {
   position: relative;
   background-color: var(--dv-group-view-background-color);
+  contain: layout;
 }
 .dv-dockview .dv-watermark-container {
   position: absolute;
@@ -723,12 +733,18 @@
   z-index: calc(var(--dv-overlay-z-index) - 2);
   border: 1px solid var(--dv-tab-divider-color);
   box-shadow: var(--dv-floating-box-shadow);
+  /* GPU optimizations for floating group movement */
+  will-change: transform, opacity;
+  transform: translate3d(0, 0, 0);
+  backface-visibility: hidden;
 }
 .dv-resize-container.dv-hidden {
   display: none;
 }
 .dv-resize-container.dv-resize-container-dragging {
   opacity: 0.5;
+  /* Enhanced GPU acceleration during drag */
+  will-change: transform, opacity;
 }
 .dv-resize-container .dv-resize-handle-top {
   height: 4px;
@@ -806,7 +822,14 @@
   --dv-overlay-z-index: var(--dv-overlay-z-index, 999);
   position: absolute;
   z-index: 1;
+  width: 100%;
   height: 100%;
+  contain: layout paint;
+  isolation: isolate;
+  /* GPU optimizations */
+  will-change: transform;
+  transform: translate3d(0, 0, 0);
+  backface-visibility: hidden;
 }
 .dv-render-overlay.dv-render-overlay-float {
   z-index: calc(var(--dv-overlay-z-index) - 1);
@@ -821,8 +844,11 @@
   width: 100%;
 }
 .dv-pane-container.dv-animated .dv-view {
-  transition-duration: 0.15s;
-  transition-timing-function: ease-out;
+  /* GPU optimizations for smooth pane animations */
+  will-change: transform;
+  transform: translate3d(0, 0, 0);
+  backface-visibility: hidden;
+  transition: transform 0.15s ease-out;
 }
 .dv-pane-container .dv-view {
   overflow: hidden;
@@ -931,8 +957,11 @@
 }
 .dv-split-view-container.dv-animation .dv-view,
 .dv-split-view-container.dv-animation .dv-sash {
-  transition-duration: 0.15s;
-  transition-timing-function: ease-out;
+  /* GPU optimizations for smooth animations */
+  will-change: transform;
+  transform: translate3d(0, 0, 0);
+  backface-visibility: hidden;
+  transition: transform 0.15s ease-out;
 }
 .dv-split-view-container.dv-horizontal {
   height: 100%;
@@ -1104,6 +1133,9 @@
   height: 100%;
   overflow: auto;
   scrollbar-width: thin;
+  /* GPU optimizations for smooth scrolling */
+  will-change: scroll-position;
+  transform: translate3d(0, 0, 0);
   /* Track */
   /* Handle */
 }
@@ -1184,6 +1216,8 @@
 .dv-tabs-and-actions-container .dv-void-container {
   display: flex;
   flex-grow: 1;
+}
+.dv-tabs-and-actions-container .dv-void-container.dv-draggable {
   cursor: grab;
 }
 .dv-tabs-and-actions-container .dv-right-actions-container {
