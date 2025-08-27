@@ -38,9 +38,7 @@ public class DataConverter<TEntity>(DataConverterCollections converters) : IData
                 ret = true;
             }
         }
-        catch (Exception e)
-        {
-        }
+        catch { }
 
         return ret;
     }
