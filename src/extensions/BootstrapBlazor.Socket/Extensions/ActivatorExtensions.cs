@@ -9,7 +9,7 @@ namespace System;
 /// <summary>
 /// Activator 扩展方法
 /// </summary>
-public static class ActivatorExtesnions
+public static class ActivatorExtensions
 {
     /// <summary>
     /// 通过指定类型与参数创建实例方法
