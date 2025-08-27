@@ -1,4 +1,4 @@
-﻿// Copyright (c) Argo Zhang (argo@163.com). All rights reserved.
+﻿// Copyright (c) BootstrapBlazor & Argo Zhang (argo@live.ca). All rights reserved.
 // Licensed under the Apache License, Version 2.0. See License.txt in the project root for license information.
 // Website: https://www.blazor.zone or https://argozhang.github.io/
 
@@ -913,6 +913,61 @@ public class TcpSocketFactoryTest
         {
             tcs.SetResult();
             return Task.CompletedTask;
+        }
+    }
+
+    [Fact]
+    public async Task Convert_Ok()
+    {
+        var port = 8899;
+        var server = StartTcpServer(port, MockSplitPackageAsync);
+
+        var client = CreateClient();
+        var tcs = new TaskCompletionSource();
+        var receivedBuffer = new byte[128];
+        MockConverterEntity? entity = null;
+
+        // 连接 TCP Server
+        var connect = await client.ConnectAsync("localhost", port);
+
+        client.SetDataPackageAdapter<MockConverterEntity>(new FixLengthDataPackageHandler(7), ReceivedCallBack);
+
+        var data = new ReadOnlyMemory<byte>([1, 2, 3, 4, 5]);
+        await client.SendAsync(data);
+
+        // 等待接收数据处理完成
+        await tcs.Task;
+
+        // 验证实体类不为空
+        Assert.NotNull(entity);
+        Assert.Equal("3.14", entity.Value1.ToString("#.##"));
+
+        Task ReceivedCallBack(MockConverterEntity? data)
+        {
+            entity = data;
+            tcs.SetResult();
+            return Task.CompletedTask;
+        }
+    }
+
+    [DataTypeConverter(Type = typeof(DataConverter<MockConverterEntity>))]
+    class MockConverterEntity
+    {
+        [DataPropertyConverter(Type = typeof(byte[]), Offset = 0, Length = 5)]
+        public byte[]? Header { get; set; }
+
+        [DataPropertyConverter(Type = typeof(byte[]), Offset = 5, Length = 2)]
+        public byte[]? Body { get; set; }
+
+        [DataPropertyConverter(Type = typeof(float), Offset = 5, Length = 1, ConverterType = typeof(FloatConverter), ConverterParameters = [0.01f])]
+        public float Value1 { get; set; }
+    }
+
+    class FloatConverter(float rate) : IDataPropertyConverter
+    {
+        public object? Convert(ReadOnlyMemory<byte> data)
+        {
+            return (float)Math.Round(314 * rate, 2);
         }
     }
 
