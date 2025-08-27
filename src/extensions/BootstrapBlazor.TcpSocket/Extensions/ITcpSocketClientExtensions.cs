@@ -20,7 +20,7 @@ public static class ITcpSocketClientExtensions
     /// Sends the specified string content to the connected TCP socket client asynchronously.
     /// </summary>
     /// <remarks>This method converts the provided string content into a byte array using the specified
-    /// encoding  (or UTF-8 by default) and sends it to the connected TCP socket client. Ensure the client is connected 
+    /// encoding  (or UTF-8 by default) and sends it to the connected TCP socket client. Ensure the client is connected
     /// before calling this method.</remarks>
     /// <param name="client">The TCP socket client to which the content will be sent. Cannot be <see langword="null"/>.</param>
     /// <param name="content">The string content to send. Cannot be <see langword="null"/> or empty.</param>
@@ -51,7 +51,7 @@ public static class ITcpSocketClientExtensions
         return client.ConnectAsync(endPoint, token);
     }
 
-    private static readonly Dictionary<ITcpSocketClient, List<(IDataPackageAdapter Adapter, Func<ReadOnlyMemory<byte>, ValueTask> Callback)>> _cache = [];
+    private static readonly Dictionary<ITcpSocketClient, List<(IDataPackageAdapter Adapter, Func<ReadOnlyMemory<byte>, ValueTask> Callback)>> Cache = [];
 
     /// <summary>
     /// 增加 <see cref="ITcpSocketClient"/> 数据适配器及其对应的回调方法
@@ -67,13 +67,13 @@ public static class ITcpSocketClientExtensions
             await adapter.HandlerAsync(buffer);
         }
 
-        if (_cache.TryGetValue(client, out var list))
+        if (Cache.TryGetValue(client, out var list))
         {
             list.Add((adapter, cb));
         }
         else
         {
-            _cache.Add(client, [(adapter, cb)]);
+            Cache.Add(client, [(adapter, cb)]);
         }
 
         client.ReceivedCallBack += cb;
@@ -89,7 +89,7 @@ public static class ITcpSocketClientExtensions
     /// <param name="callback"></param>
     public static void RemoveDataPackageAdapter(this ITcpSocketClient client, Func<ReadOnlyMemory<byte>, ValueTask> callback)
     {
-        if (_cache.TryGetValue(client, out var list))
+        if (Cache.TryGetValue(client, out var list))
         {
             var items = list.Where(i => i.Adapter.ReceivedCallBack == callback).ToList();
             foreach (var c in items)
@@ -131,13 +131,13 @@ public static class ITcpSocketClientExtensions
             await adapter.HandlerAsync(buffer);
         }
 
-        if (_cache.TryGetValue(client, out var list))
+        if (Cache.TryGetValue(client, out var list))
         {
             list.Add((adapter, cb));
         }
         else
         {
-            _cache.Add(client, [(adapter, cb)]);
+            Cache.Add(client, [(adapter, cb)]);
         }
 
         client.ReceivedCallBack += cb;
@@ -188,13 +188,13 @@ public static class ITcpSocketClientExtensions
             await adapter.HandlerAsync(buffer);
         }
 
-        if (_cache.TryGetValue(client, out var list))
+        if (Cache.TryGetValue(client, out var list))
         {
             list.Add((adapter, cb));
         }
         else
         {
-            _cache.Add(client, [(adapter, cb)]);
+            Cache.Add(client, [(adapter, cb)]);
         }
 
         IDataConverter<TEntity>? converter = null;
