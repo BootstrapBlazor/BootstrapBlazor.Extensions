@@ -1,4 +1,4 @@
-// Copyright (c) BootstrapBlazor & Argo Zhang (argo@live.ca). All rights reserved.
+﻿// Copyright (c) BootstrapBlazor & Argo Zhang (argo@live.ca). All rights reserved.
 // Licensed under the Apache License, Version 2.0. See License.txt in the project root for license information.
 // Website: https://www.blazor.zone or https://argozhang.github.io/
 
@@ -8,6 +8,24 @@ namespace UnitTestTcpSocket;
 
 public class HexConverterTest
 {
+    [Fact]
+    public void ToHexString_Null()
+    {
+        var actual = HexConverter.ToString(null);
+        Assert.Equal(string.Empty, actual);
+
+        actual = HexConverter.ToString([]);
+        Assert.Equal(string.Empty, actual);
+    }
+
+    [Fact]
+    public void ToHexString_Exception()
+    {
+        var data = "1A021304FE1";
+        var ex = Assert.ThrowsAny<ArgumentException>(() => HexConverter.ToBytes(data));
+        Assert.NotNull(ex);
+    }
+
     [Fact]
     public void ToHexString_Ok()
     {

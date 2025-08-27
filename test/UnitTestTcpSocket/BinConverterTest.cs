@@ -9,6 +9,16 @@ namespace UnitTestTcpSocket;
 public class BinConverterTest
 {
     [Fact]
+    public void ToHexString_Null()
+    {
+        var actual = BinConverter.ToString(null);
+        Assert.Equal(string.Empty, actual);
+
+        actual = BinConverter.ToString([]);
+        Assert.Equal(string.Empty, actual);
+    }
+
+    [Fact]
     public void ToBinString_Ok()
     {
         var data = new byte[] { 0x1A, 0x02 };
@@ -17,6 +27,14 @@ public class BinConverterTest
 
         actual = BinConverter.ToString(data, " ");
         Assert.Equal("00011010 00000010", actual);
+    }
+
+    [Fact]
+    public void ToHexString_Exception()
+    {
+        var data = "00011010-00000010";
+        var ex = Assert.ThrowsAny<ArgumentException>(() => BinConverter.ToBytes(data));
+        Assert.NotNull(ex);
     }
 
     [Fact]
