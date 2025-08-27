@@ -2,8 +2,6 @@
 // Licensed under the Apache License, Version 2.0. See License.txt in the project root for license information.
 // Website: https://www.blazor.zone or https://argozhang.github.io/
 
-using System.Text;
-
 namespace BootstrapBlazor.Components.DataConverter;
 
 /// <summary>
@@ -17,8 +15,9 @@ public static class HexConverter
     /// </summary>
     /// <param name="bytes">The byte array to convert.</param>
     /// <param name="separator"></param>
+    /// <param name="upper"></param>
     /// <returns>A string containing the hexadecimal representation of the byte array.</returns>
-    public static string ToString(byte[]? bytes, string? separator = "-")
+    public static string ToString(byte[]? bytes, string? separator = "-", bool upper = true)
     {
         if (bytes == null || bytes.Length == 0)
         {
@@ -30,13 +29,7 @@ public static class HexConverter
             return BitConverter.ToString(bytes);
         }
 
-        var sb = new StringBuilder(bytes.Length * 3);
-        foreach (var b in bytes)
-        {
-            sb.Append(b.ToString("X2"));
-            sb.Append(separator);
-        }
-        return sb.ToString(0, sb.Length - 1);
+        return string.Join(separator, bytes.Select(i => upper ? i.ToString("X2") : i.ToString("x2")));
     }
 
     /// <summary>
