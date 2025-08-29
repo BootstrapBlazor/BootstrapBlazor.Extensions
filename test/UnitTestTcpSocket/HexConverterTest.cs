@@ -31,7 +31,10 @@ public class HexConverterTest
         var actual = HexConverter.ToString(data);
         Assert.Equal("1A-02-13-04-FE", actual);
 
-        actual = HexConverter.ToString(data, " ");
+        actual = HexConverter.ToString(data, " ", false);
+        Assert.Equal("1a 02 13 04 fe", actual);
+
+        actual = HexConverter.ToString(data, " ", true);
         Assert.Equal("1A 02 13 04 FE", actual);
     }
 
