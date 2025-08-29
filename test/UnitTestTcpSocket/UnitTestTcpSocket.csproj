@@ -20,9 +20,9 @@
   <ItemGroup>
     <Using Remove="Microsoft.AspNetCore.Components" />
     <Using Remove="BootstrapBlazor.Components" />
-    <Using Include="BootstrapBlazor.DataAdapters" />
-    <Using Include="BootstrapBlazor.DataHandlers" />
-    <Using Include="BootstrapBlazor.DataConverters" />
+    <Using Include="BootstrapBlazor.Socket.DataAdapters" />
+    <Using Include="BootstrapBlazor.Socket.DataHandlers" />
+    <Using Include="BootstrapBlazor.Socket.DataConverters" />
     <Using Include="BootstrapBlazor.TcpSocket" />
   </ItemGroup>
 
