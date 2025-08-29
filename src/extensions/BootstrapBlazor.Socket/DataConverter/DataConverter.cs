@@ -2,9 +2,10 @@
 // Licensed under the Apache License, Version 2.0. See License.txt in the project root for license information.
 // Website: https://www.blazor.zone or https://argozhang.github.io/
 
+using BootstrapBlazor.Socket.Logging;
 using System.Reflection;
 
-namespace BootstrapBlazor.DataConverters;
+namespace BootstrapBlazor.Socket.DataConverters;
 
 /// <summary>
 /// Provides a base class for converting socket data into a specified entity type.
@@ -38,7 +39,10 @@ public class DataConverter<TEntity>(DataConverterCollections converters) : IData
                 ret = true;
             }
         }
-        catch { }
+        catch (Exception ex)
+        {
+            SocketLogging.LogError(ex, "DataConverter TryConvertTo failed");
+        }
 
         return ret;
     }

@@ -2,6 +2,9 @@
 // Licensed under the Apache License, Version 2.0. See License.txt in the project root for license information.
 // Website: https://www.blazor.zone or https://argozhang.github.io/
 
+using BootstrapBlazor.Socket.Logging;
+using Microsoft.Extensions.DependencyInjection;
+using Microsoft.Extensions.Logging;
 using System.Collections.Concurrent;
 using System.Runtime.Versioning;
 
@@ -14,6 +17,14 @@ sealed class DefaultTcpSocketFactory(IServiceProvider provider) : ITcpSocketFact
 
     public ITcpSocketClient GetOrCreate(string name, Action<TcpSocketClientOptions> valueFactory)
     {
+        if (!SocketLogging.Inited)
+        {
+            var logger = provider.GetService<ILogger<DefaultTcpSocketFactory>>();
+            if (logger != null)
+            {
+                SocketLogging.Init(logger);
+            }
+        }
         return _pool.GetOrAdd(name, key =>
         {
             var options = new TcpSocketClientOptions();

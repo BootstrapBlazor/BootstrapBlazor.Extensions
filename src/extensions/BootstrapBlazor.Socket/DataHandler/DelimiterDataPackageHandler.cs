@@ -5,7 +5,7 @@
 using System.Buffers;
 using System.Text;
 
-namespace BootstrapBlazor.DataHandlers;
+namespace BootstrapBlazor.Socket.DataHandlers;
 
 /// <summary>
 /// Handles data packages that are delimited by a specific sequence of bytes or characters.
