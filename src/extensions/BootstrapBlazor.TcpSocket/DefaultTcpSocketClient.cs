@@ -332,7 +332,7 @@ class DefaultTcpSocketClient(TcpSocketClientOptions options) : IServiceProvider,
             if (ReceivedCallback != null)
             {
                 // 如果订阅回调则触发回调
-                await ReceivedCallback(data);
+                await ReceivedCallback(buffer);
             }
         }
         catch (OperationCanceledException ex)
