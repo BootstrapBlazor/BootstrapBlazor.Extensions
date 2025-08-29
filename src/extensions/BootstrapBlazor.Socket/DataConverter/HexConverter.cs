@@ -2,7 +2,7 @@
 // Licensed under the Apache License, Version 2.0. See License.txt in the project root for license information.
 // Website: https://www.blazor.zone or https://argozhang.github.io/
 
-namespace BootstrapBlazor.Socket.DataConverter;
+namespace BootstrapBlazor.Socket.DataConverters;
 
 /// <summary>
 /// 十六进制 与 Byte 数组转换方法
