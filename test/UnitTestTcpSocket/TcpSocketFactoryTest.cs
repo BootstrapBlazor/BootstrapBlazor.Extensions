@@ -337,7 +337,7 @@ public class TcpSocketFactoryTest
         var tcs = new TaskCompletionSource();
 
         // 增加接收回调方法
-        client.ReceivedCallBack = b =>
+        client.ReceivedCallback = b =>
         {
             buffer = b;
             tcs.SetResult();

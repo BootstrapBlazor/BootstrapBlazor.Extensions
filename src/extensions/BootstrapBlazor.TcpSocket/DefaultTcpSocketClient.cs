@@ -47,7 +47,7 @@ class DefaultTcpSocketClient(TcpSocketClientOptions options) : IServiceProvider,
     /// <summary>
     /// <inheritdoc/>
     /// </summary>
-    public Func<ReadOnlyMemory<byte>, ValueTask>? ReceivedCallBack { get; set; }
+    public Func<ReadOnlyMemory<byte>, ValueTask>? ReceivedCallback { get; set; }
 
     /// <summary>
     /// <inheritdoc/>
@@ -329,10 +329,10 @@ class DefaultTcpSocketClient(TcpSocketClientOptions options) : IServiceProvider,
                 buffer = buffer[..len];
             }
 
-            if (ReceivedCallBack != null)
+            if (ReceivedCallback != null)
             {
                 // 如果订阅回调则触发回调
-                await ReceivedCallBack(buffer);
+                await ReceivedCallback(data);
             }
         }
         catch (OperationCanceledException ex)
