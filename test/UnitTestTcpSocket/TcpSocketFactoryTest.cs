@@ -2,6 +2,7 @@
 // Licensed under the Apache License, Version 2.0. See License.txt in the project root for license information.
 // Website: https://www.blazor.zone or https://argozhang.github.io/
 
+using BootstrapBlazor.Socket.Logging;
 using Microsoft.Extensions.Logging;
 using System.Buffers;
 using System.Net;
@@ -337,7 +338,7 @@ public class TcpSocketFactoryTest
         var tcs = new TaskCompletionSource();
 
         // 增加接收回调方法
-        client.ReceivedCallBack = b =>
+        client.ReceivedCallback = b =>
         {
             buffer = b;
             tcs.SetResult();
@@ -629,6 +630,14 @@ public class TcpSocketFactoryTest
 
         ex = Assert.Throws<ArgumentNullException>(() => new DelimiterDataPackageHandler(null!));
         Assert.NotNull(ex);
+    }
+
+    [Fact]
+    public void TryConvertTo_Error()
+    {
+        var converter = new MockErrorDataConverter();
+        var result = converter.TryConvertTo(new byte[] { 0x1, 0x2 }, out var entity);
+        Assert.False(result);
     }
 
     [Fact]
@@ -1414,6 +1423,14 @@ public class TcpSocketFactoryTest
         protected override bool Parse(ReadOnlyMemory<byte> data, MockEntity entity)
         {
             return false;
+        }
+    }
+
+    class MockErrorDataConverter : DataConverter<MockEntity>
+    {
+        protected override bool Parse(ReadOnlyMemory<byte> data, MockEntity entity)
+        {
+            throw new Exception("Mock parse error");
         }
     }
 

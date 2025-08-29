@@ -33,6 +33,16 @@ public static class HexConverter
     }
 
     /// <summary>
+    /// 将 byte[] 转为 16 进制字符串
+    /// <para>Converts a byte array to its hexadecimal string representation.</para>
+    /// </summary>
+    /// <param name="span"></param>
+    /// <param name="separator"></param>
+    /// <param name="upper"></param>
+    /// <returns></returns>
+    public static string ToString(ReadOnlySpan<byte> span, string? separator = "-", bool upper = true) => ToString(span.ToArray(), separator, upper);
+
+    /// <summary>
     /// 将字符串转换为字节数组
     /// </summary>
     /// <param name="str"></param>
