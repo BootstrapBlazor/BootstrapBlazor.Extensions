@@ -95,7 +95,7 @@ public static class ModbusCrc16
     /// </summary>
     /// <param name="dataWithCrc">包含 CRC 校验码的数据</param>
     /// <returns>验证结果</returns>
-    public static bool ValidateChecksum(byte[] dataWithCrc)
+    public static bool Validate(ReadOnlySpan<byte> dataWithCrc)
     {
         if (dataWithCrc.Length < 2)
         {
@@ -103,7 +103,7 @@ public static class ModbusCrc16
         }
 
         ushort receivedCrc = (ushort)(dataWithCrc[^1] << 8 | dataWithCrc[^2]);
-        ushort calculatedCrc = Compute(dataWithCrc.AsSpan()[..^2]);
+        ushort calculatedCrc = Compute(dataWithCrc[..^2]);
         return receivedCrc == calculatedCrc;
     }
 }
