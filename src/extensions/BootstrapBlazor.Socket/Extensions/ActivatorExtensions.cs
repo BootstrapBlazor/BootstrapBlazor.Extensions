@@ -2,6 +2,7 @@
 // Licensed under the Apache License, Version 2.0. See License.txt in the project root for license information.
 // Website: https://www.blazor.zone or https://argozhang.github.io/
 
+using BootstrapBlazor.Socket.Logging;
 using System.Reflection;
 
 namespace System;
@@ -20,7 +21,17 @@ public static class ActivatorExtensions
     public static object? CreateInstance(this Type type, object?[]? args = null)
     {
         var bindings = BindingFlags.NonPublic | BindingFlags.Public | BindingFlags.Instance;
-        return Activator.CreateInstance(type, bindings, null, args, null);
+
+        object? instance = null;
+        try
+        {
+            instance = Activator.CreateInstance(type, bindings, null, args, null);
+        }
+        catch (Exception ex)
+        {
+            SocketLogging.LogError(ex, $"Create Instance {type.FullName} failed");
+        }
+        return instance;
     }
 
     /// <summary>
