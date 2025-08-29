@@ -30,15 +30,17 @@ public static class SocketLogging
     }
 
     /// <summary>
-    /// 
-    /// </summary>
-    /// <param name="message"></param>
-    public static void LogError(string message) => _logger?.LogError(message);
-
-    /// <summary>
-    /// 
+    /// 记录异常信息方法
     /// </summary>
     /// <param name="ex"></param>
     /// <param name="message"></param>
-    public static void LogError(Exception ex, string? message) => _logger?.LogError(ex, message);
+    public static void LogError(Exception ex, string? message = null)
+    {
+        if (_logger == null)
+        {
+            return;
+        }
+
+        _logger.LogError(ex, "{message}", message);
+    }
 }
