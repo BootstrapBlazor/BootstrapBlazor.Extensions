@@ -4,7 +4,7 @@
 
 using System.Text;
 
-namespace BootstrapBlazor.Components.DataConverter;
+namespace BootstrapBlazorSocket.DataConverter;
 
 /// <summary>
 /// 二进制 与 Byte 数组转换方法

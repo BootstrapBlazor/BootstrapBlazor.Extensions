@@ -4,7 +4,7 @@
 
 using System.Buffers.Binary;
 
-namespace BootstrapBlazor.DataConverters;
+namespace BootstrapBlazor.Socket.DataConverters;
 
 /// <summary>
 /// Sokcet 数据转换为 long 数据大端转换器

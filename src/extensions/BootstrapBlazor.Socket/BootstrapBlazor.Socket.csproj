@@ -1,7 +1,7 @@
 ﻿<Project Sdk="Microsoft.NET.Sdk">
 
   <PropertyGroup>
-    <Version>9.0.4</Version>
+    <Version>9.0.5</Version>
   </PropertyGroup>
 
   <PropertyGroup>
@@ -34,9 +34,9 @@
   </ItemGroup>
 
   <ItemGroup>
-    <Using Include="BootstrapBlazor.DataAdapters" />
-    <Using Include="BootstrapBlazor.DataHandlers" />
-    <Using Include="BootstrapBlazor.DataConverters" />
+    <Using Include="BootstrapBlazor.Socket.DataAdapters" />
+    <Using Include="BootstrapBlazor.Socket.DataHandlers" />
+    <Using Include="BootstrapBlazor.Socket.DataConverters" />
   </ItemGroup>
 
 </Project>

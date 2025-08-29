@@ -6,7 +6,7 @@ using System.Collections.Concurrent;
 using System.Linq.Expressions;
 using System.Reflection;
 
-namespace BootstrapBlazor.DataConverters;
+namespace BootstrapBlazor.Socket.DataConverters;
 
 /// <summary>
 /// 数据转换器集合类

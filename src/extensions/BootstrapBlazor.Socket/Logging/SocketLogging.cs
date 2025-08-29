@@ -4,7 +4,7 @@
 
 using Microsoft.Extensions.Logging;
 
-namespace BootstrapBlazor.Components;
+namespace BootstrapBlazor.Socket.Logging;
 
 /// <summary>
 /// Socket 日志记录类
