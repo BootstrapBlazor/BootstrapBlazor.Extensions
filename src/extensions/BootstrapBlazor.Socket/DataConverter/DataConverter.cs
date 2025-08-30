@@ -43,7 +43,6 @@ public class DataConverter<TEntity>(DataConverterCollections converters) : IData
         {
             SocketLogging.LogError(ex, "DataConverter TryConvertTo failed");
         }
-
         return ret;
     }
 
@@ -64,8 +63,6 @@ public class DataConverter<TEntity>(DataConverterCollections converters) : IData
         var ret = false;
         if (entity != null)
         {
-            var unuseProperties = new List<PropertyInfo>(32);
-
             // 通过 SocketDataPropertyConverterAttribute 特性获取属性转换器
             var properties = entity.GetType().GetProperties().Where(p => p.CanWrite).ToList();
             foreach (var p in properties)
@@ -81,10 +78,8 @@ public class DataConverter<TEntity>(DataConverterCollections converters) : IData
                     }
                 }
             }
-
             ret = true;
         }
-
         return ret;
     }
 
@@ -95,7 +90,6 @@ public class DataConverter<TEntity>(DataConverterCollections converters) : IData
         {
             attr = v;
         }
-
         return attr;
     }
 }
