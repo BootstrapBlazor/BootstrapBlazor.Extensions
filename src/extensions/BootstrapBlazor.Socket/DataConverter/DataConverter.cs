@@ -41,7 +41,7 @@ public class DataConverter<TEntity>(DataConverterCollections converters) : IData
         }
         catch (Exception ex)
         {
-            SocketLogging.LogError(ex, "DataConverter TryConvertTo failed");
+            SocketLogging.LogError(ex, $"DataConverter {nameof(TryConvertTo)} failed");
         }
         return ret;
     }
