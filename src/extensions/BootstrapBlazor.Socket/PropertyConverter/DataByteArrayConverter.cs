@@ -5,7 +5,7 @@
 namespace BootstrapBlazor.Socket.DataConverters;
 
 /// <summary>
-/// Sokcet 数据转换为 byte[] 数组转换器
+/// Socket 数据转换为 byte[] 数组转换器
 /// </summary>
 public class DataByteArrayConverter : IDataPropertyConverter
 {
