@@ -3,6 +3,7 @@
 // Website: https://www.blazor.zone or https://argozhang.github.io/
 
 using BootstrapBlazor.Socket.Logging;
+using Microsoft.Extensions.Logging;
 
 namespace UnitTestTcpSocket;
 
@@ -12,5 +13,13 @@ public class SocketLoggingTest
     public void Logger_Ok()
     {
         SocketLogging.LogError(new Exception());
+        SocketLogging.LogInformation("Information");
+        SocketLogging.LogWarning("Warning");
+        SocketLogging.LogDebug("Debug");
+
+        SocketLogging.Init(new LoggerFactory().CreateLogger("SocketLoggingTest"));
+        SocketLogging.LogInformation("Information");
+        SocketLogging.LogWarning("Warning");
+        SocketLogging.LogDebug("Debug");
     }
 }
