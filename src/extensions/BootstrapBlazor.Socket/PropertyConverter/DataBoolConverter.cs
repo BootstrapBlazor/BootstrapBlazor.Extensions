@@ -16,7 +16,7 @@ public class DataBoolConverter : IDataPropertyConverter
     public object? Convert(ReadOnlyMemory<byte> data)
     {
         var ret = false;
-        if (data.Length == 1)
+        if (data.Length > 0)
         {
             ret = data.Span[0] != 0x00;
         }

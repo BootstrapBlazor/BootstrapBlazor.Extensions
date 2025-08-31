@@ -15,6 +15,6 @@ public class DataByteConverter : IDataPropertyConverter
     /// <param name="data"></param>
     public object? Convert(ReadOnlyMemory<byte> data)
     {
-        return data.Span[0];
+        return data.Length > 0 ? data.Span[0] : 0x0;
     }
 }
