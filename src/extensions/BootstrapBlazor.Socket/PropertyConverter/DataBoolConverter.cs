@@ -5,7 +5,7 @@
 namespace BootstrapBlazor.Socket.DataConverters;
 
 /// <summary>
-/// Sokcet 数据转换为 bool 数据转换器
+/// Socket 数据转换为 bool 数据转换器
 /// </summary>
 public class DataBoolConverter : IDataPropertyConverter
 {
@@ -16,7 +16,7 @@ public class DataBoolConverter : IDataPropertyConverter
     public object? Convert(ReadOnlyMemory<byte> data)
     {
         var ret = false;
-        if (data.Length == 1)
+        if (data.Length > 0)
         {
             ret = data.Span[0] != 0x00;
         }

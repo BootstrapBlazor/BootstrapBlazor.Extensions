@@ -7,7 +7,7 @@ using System.Buffers.Binary;
 namespace BootstrapBlazor.Socket.DataConverters;
 
 /// <summary>
-/// Sokcet 数据转换为 ushort 数据大端转换器
+/// Socket 数据转换为 ushort 数据大端转换器
 /// </summary>
 public class DataUInt16BigEndianConverter : IDataPropertyConverter
 {
