@@ -72,13 +72,13 @@ public class DataConverter<TEntity>(DataConverterCollections converters) : IData
                 {
                     var value = attr.ConvertTo(data);
                     var valueType = value?.GetType();
-                    if (valueType != null && p.PropertyType.IsAssignableFrom(valueType))
+                    if (p.PropertyType.IsAssignableFrom(valueType))
                     {
                         p.SetValue(entity, value);
                     }
                     else
                     {
-                        SocketLogging.LogInformation($"{nameof(Parse)} failed. Can't convert value type {valueType?.Name} to {p.PropertyType.Name}");
+                        SocketLogging.LogInformation($"{nameof(Parse)} failed. Can't convert value from {valueType} to {p.PropertyType}");
                     }
                 }
             }
