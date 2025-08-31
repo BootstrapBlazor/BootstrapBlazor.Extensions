@@ -12,5 +12,8 @@ public class SocketLoggingTest
     public void Logger_Ok()
     {
         SocketLogging.LogError(new Exception());
+        SocketLogging.LogInformation("Information");
+        SocketLogging.LogWarning("Warning");
+        SocketLogging.LogDebug("Debug");
     }
 }

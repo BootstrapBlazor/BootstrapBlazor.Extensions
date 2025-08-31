@@ -72,9 +72,13 @@ public class DataConverter<TEntity>(DataConverterCollections converters) : IData
                 {
                     var value = attr.ConvertTo(data);
                     var valueType = value?.GetType();
-                    if (valueType != null && p.PropertyType.IsAssignableFrom(valueType))
+                    if (p.PropertyType.IsAssignableFrom(valueType))
                     {
                         p.SetValue(entity, value);
+                    }
+                    else
+                    {
+                        SocketLogging.LogInformation($"{nameof(Parse)} failed. Can't convert value from {GetValueType(valueType)} to {p.PropertyType}");
                     }
                 }
             }
@@ -82,6 +86,8 @@ public class DataConverter<TEntity>(DataConverterCollections converters) : IData
         }
         return ret;
     }
+
+    private static string GetValueType(Type? type) => type?.FullName ?? "NULL";
 
     private DataPropertyConverterAttribute? GetPropertyConverterAttribute(PropertyInfo propertyInfo)
     {
