@@ -29,7 +29,11 @@ static class DataPropertyExtensions
         var type = attribute.Type;
         if (type != null)
         {
-            if (type == typeof(byte[]))
+            if (type == typeof(byte))
+            {
+                converter = new DataByteConverter();
+            }
+            else if (type == typeof(byte[]))
             {
                 converter = new DataByteArrayConverter();
             }
