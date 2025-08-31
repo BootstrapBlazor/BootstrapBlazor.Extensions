@@ -34,13 +34,23 @@ public static class SocketLogging
     /// </summary>
     /// <param name="ex"></param>
     /// <param name="message"></param>
-    public static void LogError(Exception ex, string? message = null)
-    {
-        if (_logger == null)
-        {
-            return;
-        }
+    public static void LogError(Exception ex, string? message = null) => _logger?.LogError(ex, "{message}", message);
 
-        _logger.LogError(ex, "{message}", message);
-    }
+    /// <summary>
+    /// 记录警告信息方法
+    /// </summary>
+    /// <param name="message"></param>
+    public static void LogWarning(string message) => _logger?.LogWarning("{message}", message);
+
+    /// <summary>
+    /// 记录信息方法
+    /// </summary>
+    /// <param name="message"></param>
+    public static void LogInformation(string message) => _logger?.LogInformation("{message}", message);
+
+    /// <summary>
+    /// 记录调试信息方法
+    /// </summary>
+    /// <param name="message"></param>
+    public static void LogDebug(string message) => _logger?.LogDebug("{message}", message);
 }

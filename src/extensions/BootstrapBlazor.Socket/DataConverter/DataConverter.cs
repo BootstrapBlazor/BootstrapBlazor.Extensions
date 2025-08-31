@@ -76,6 +76,10 @@ public class DataConverter<TEntity>(DataConverterCollections converters) : IData
                     {
                         p.SetValue(entity, value);
                     }
+                    else
+                    {
+                        SocketLogging.LogInformation($"{nameof(Parse)} failed. Can't convert value type {valueType?.Name} to {p.PropertyType.Name}");
+                    }
                 }
             }
             ret = true;
