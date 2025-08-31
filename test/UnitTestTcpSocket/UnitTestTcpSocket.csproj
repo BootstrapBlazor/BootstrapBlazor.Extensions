@@ -14,6 +14,7 @@
   </ItemGroup>
 
   <ItemGroup>
+    <ProjectReference Include="..\..\src\extensions\BootstrapBlazor.Socket\BootstrapBlazor.Socket.csproj" />
     <ProjectReference Include="..\..\src\extensions\BootstrapBlazor.TcpSocket\BootstrapBlazor.TcpSocket.csproj" />
   </ItemGroup>
 
