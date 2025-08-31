@@ -78,7 +78,7 @@ public class DataConverter<TEntity>(DataConverterCollections converters) : IData
                     }
                     else
                     {
-                        SocketLogging.LogInformation($"{nameof(Parse)} failed. Can't convert value from {valueType} to {p.PropertyType}");
+                        SocketLogging.LogInformation($"{nameof(Parse)} failed. Can't convert value from {GetValueType(valueType)} to {p.PropertyType}");
                     }
                 }
             }
@@ -86,6 +86,8 @@ public class DataConverter<TEntity>(DataConverterCollections converters) : IData
         }
         return ret;
     }
+
+    private static string GetValueType(Type? type) => type?.FullName ?? "NULL";
 
     private DataPropertyConverterAttribute? GetPropertyConverterAttribute(PropertyInfo propertyInfo)
     {

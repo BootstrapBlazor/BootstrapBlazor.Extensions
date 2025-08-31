@@ -675,6 +675,12 @@ public class TcpSocketFactoryTest
         Assert.Equal([1, 2, 3, 4, 5], entity.Header);
         Assert.Equal([3, 4], entity.Body);
 
+        // null
+        Assert.Equal((byte)0x0, entity.Value16);
+
+        // null
+        Assert.Equal((byte)0x0, entity.Value17);
+
         // byte
         Assert.Equal(0x1, entity.Value15);
 
@@ -1426,6 +1432,12 @@ public class TcpSocketFactoryTest
 
         [DataPropertyConverter(Type = typeof(byte), Offset = 0, Length = 1)]
         public byte Value15 { get; set; }
+
+        [DataPropertyConverter(Type = typeof(byte), ConverterType = typeof(MockNullConverter), Offset = 0, Length = 1)]
+        public byte Value16 { get; set; }
+
+        [DataPropertyConverter(Type = typeof(byte[]), Offset = 0, Length = 1)]
+        public byte Value17 { get; set; }
     }
 
     class MockSocketDataConverter : DataConverter<MockEntity>
@@ -1441,6 +1453,14 @@ public class TcpSocketFactoryTest
         protected override bool Parse(ReadOnlyMemory<byte> data, MockEntity entity)
         {
             throw new Exception("Mock parse error");
+        }
+    }
+
+    class MockNullConverter : IDataPropertyConverter
+    {
+        public object? Convert(ReadOnlyMemory<byte> data)
+        {
+            return null;
         }
     }
 
