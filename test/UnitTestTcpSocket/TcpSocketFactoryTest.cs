@@ -670,6 +670,9 @@ public class TcpSocketFactoryTest
         Assert.Equal([1, 2, 3, 4, 5], entity.Header);
         Assert.Equal([3, 4], entity.Body);
 
+        // byte
+        Assert.Equal(0x1, entity.Value15);
+
         // string
         Assert.Equal("1", entity.Value1);
 
@@ -1415,6 +1418,9 @@ public class TcpSocketFactoryTest
         public string? Value14 { get; set; }
 
         public string? Value13 { get; set; }
+
+        [DataPropertyConverter(Type = typeof(byte), Offset = 0, Length = 1)]
+        public byte Value15 { get; set; }
     }
 
     class MockSocketDataConverter : DataConverter<MockEntity>
