@@ -84,7 +84,7 @@ public class DataConverter<TEntity>(DataConverterCollections converters) : IData
                     }
                     else
                     {
-                        SocketLogging.LogInformation($"{nameof(Parse)} failed. Data: {BitConverter.ToString(data.ToArray())}. Start: {attr.Offset}. Length: {attr.Length}. Can't convert value from {GetValueType(valueType)} to {p.PropertyType}");
+                        SocketLogging.LogInformation($"{nameof(Parse)} failed. Start: {attr.Offset}. Length: {attr.Length}. Can't convert value from {GetValueType(valueType)} to {p.Name}({p.PropertyType})");
                     }
                 }
             }
