@@ -3,6 +3,7 @@
 // Website: https://www.blazor.zone or https://argozhang.github.io/
 
 using BootstrapBlazor.Socket.Logging;
+using System.Diagnostics;
 using System.Reflection;
 
 namespace BootstrapBlazor.Socket.DataConverters;
@@ -64,7 +65,12 @@ public class DataConverter<TEntity>(DataConverterCollections converters) : IData
         if (entity != null)
         {
             // 通过 SocketDataPropertyConverterAttribute 特性获取属性转换器
+            var debug = System.Diagnostics.Debugger.IsAttached;
             var properties = entity.GetType().GetProperties().Where(p => p.CanWrite).ToList();
+            if (Debugger.IsAttached)
+            {
+                SocketLogging.LogDebug($"Data: {BitConverter.ToString(data.ToArray())}");
+            }
             foreach (var p in properties)
             {
                 var attr = p.GetCustomAttribute<DataPropertyConverterAttribute>(false) ?? GetPropertyConverterAttribute(p);
@@ -78,7 +84,7 @@ public class DataConverter<TEntity>(DataConverterCollections converters) : IData
                     }
                     else
                     {
-                        SocketLogging.LogInformation($"{nameof(Parse)} failed. Can't convert value from {GetValueType(valueType)} to {p.PropertyType}");
+                        SocketLogging.LogInformation($"{nameof(Parse)} failed. Data: {BitConverter.ToString(data.ToArray())}. Start: {attr.Offset}. Length: {attr.Length}. Can't convert value from {GetValueType(valueType)} to {p.PropertyType}");
                     }
                 }
             }
