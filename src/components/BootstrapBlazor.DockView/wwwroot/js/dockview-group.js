@@ -1,5 +1,5 @@
 ﻿import { getIcons, getIcon } from "./dockview-icon.js"
-import { deletePanel, findContentFromPanels } from "./dockview-panel.js"
+import { deletePanel, findContentFromPanels, moveAlwaysRenderPanel } from "./dockview-panel.js"
 import { saveConfig } from "./dockview-config.js"
 import { observeGroup } from "./dockview-utils.js"
 import EventHandler from '../../BootstrapBlazor/modules/event-handler.js'
@@ -557,6 +557,9 @@ const createFloatingGroup = (group, rect, groupType) => {
     observeOverlayChange(overlay, floatingGroup)
     observeGroup(floatingGroup)
     createGroupActions(floatingGroup, groupType)
+    if(floatingGroup.panels.length == 1) {
+        moveAlwaysRenderPanel(floatingGroup.activePanel)
+    }
     return floatingGroup
 }
 const observeOverlayChange = (overlay, group) => {
@@ -613,7 +616,7 @@ const dock = (group, floatType) => {
     originGroup.element.parentElement.classList.remove('bb-maximize')
     const { drawer, rect = {} } = group.getParams()
     const inset = group.element.parentElement.style.inset.split(' ').map(item => isNaN(parseFloat(item)) ? item : parseFloat(item))
-    if(rect.isMaximized === false) {
+    if(!rect.isMaximized) {
         rect.width = group.width + 2;
         rect.height = group.height + 2;
         rect.position = {};
