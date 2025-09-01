@@ -515,9 +515,6 @@ const toggleFull = (group, actionContainer, maximize) => {
 
 const float = group => {
     if (!canFloat(group)) return;
-    if (group.api.isMaximized()) {
-        toggleFull(group, group.header.rightActionsContainer, true);
-    }
     const dockview = group.api.accessor
     const width = dockview.width > 500 ? 500 : (dockview.width - 10)
     const height = dockview.height > 460 ? 460 : (dockview.height - 10)
@@ -612,18 +609,21 @@ const dock = (group, floatType) => {
     const originGroup = dockview.groups.find(g => g.id.split('_')[0] == group.id.split('_')[0] && g.id != group.id)
     if (!originGroup) return
     dockview.setVisible(originGroup, true)
-    const { drawer } = group.getParams()
+    originGroup.header.rightActionsContainer.classList.remove('bb-maximize')
+    originGroup.element.parentElement.classList.remove('bb-maximize')
+    const { drawer, rect = {} } = group.getParams()
     const inset = group.element.parentElement.style.inset.split(' ').map(item => isNaN(parseFloat(item)) ? item : parseFloat(item))
-    const rect = {
-        width: group.width + 2,
-        height: group.height + 2,
-        position: {}
-    }
+    if(rect.isMaximized === false) {
+        rect.width = group.width + 2;
+        rect.height = group.height + 2;
+        rect.position = {};
         ;['top', 'right', 'bottom', 'left'].forEach((key, index) => {
             if (typeof inset[index] == 'number') {
                 rect.position[key] = inset[index]
             }
         })
+    }
+    rect.isMaximized = false
     if (floatType == 'drawer') {
         group.setParams({ drawer: { ...drawer, width: rect.width } })
         group.removePropsOfParams('floatType')
@@ -681,13 +681,14 @@ const floatingMaximize = group => {
     const rect = {
         width: group.width + 2,
         height: group.height + 2,
+        isMaximized: true,
         position: {}
     }
-        ;['top', 'right', 'bottom', 'left'].forEach((key, index) => {
-            if (typeof inset[index] == 'number') {
-                rect.position[key] = inset[index]
-            }
-        })
+    ;['top', 'right', 'bottom', 'left'].forEach((key, index) => {
+        if (typeof inset[index] == 'number') {
+            rect.position[key] = inset[index]
+        }
+    })
     group.setParams({ rect })
 
     parentEle.style.left = 0;
@@ -705,6 +706,7 @@ const floatingExitMaximized = group => {
         .map(item => typeof item == 'number' ? (item + 'px') : 'auto').join(' ')
     parentEle.style.width = `${rect.width}px`;
     parentEle.style.height = `${rect.height}px`;
+    group.setParams({ rect: { ...rect, isMaximized: false } })
 }
 
 const setWidth = (observerList) => {

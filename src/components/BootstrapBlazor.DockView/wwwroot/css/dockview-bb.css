@@ -222,6 +222,9 @@
     justify-content: flex-start;
     flex-direction: column;
 }
+.bb-dockview .bb-dockview-aside:empty {
+    width: 0;
+}
 
 .bb-dockview .bb-dockview-aside-left {
     left: 0;
