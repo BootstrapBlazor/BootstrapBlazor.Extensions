@@ -1,6 +1,6 @@
 /**
  * dockview-core
- * @version 4.7.0
+ * @version 4.7.1
  * @link https://github.com/mathuo/dockview
  * @license MIT
  */

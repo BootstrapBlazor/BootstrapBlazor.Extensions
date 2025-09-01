@@ -635,12 +635,10 @@ const dock = (group, floatType) => {
     else {
         group.setParams({ rect })
     }
-    const activePanel = group.activePanel
     dockview.moveGroup({
         from: { group: group },
         to: { group: originGroup, position: 'center' }
     })
-    dockview.setActivePanel(activePanel)
     saveConfig(dockview)
 }
 
