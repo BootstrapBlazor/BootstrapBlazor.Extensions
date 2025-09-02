@@ -65,7 +65,6 @@ public class DataConverter<TEntity>(DataConverterCollections converters) : IData
         if (entity != null)
         {
             // 通过 SocketDataPropertyConverterAttribute 特性获取属性转换器
-            var debug = System.Diagnostics.Debugger.IsAttached;
             var properties = entity.GetType().GetProperties().Where(p => p.CanWrite).ToList();
             if (Debugger.IsAttached)
             {
