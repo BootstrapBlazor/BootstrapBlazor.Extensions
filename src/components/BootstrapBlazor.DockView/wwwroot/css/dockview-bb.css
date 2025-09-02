@@ -222,9 +222,10 @@
     justify-content: flex-start;
     flex-direction: column;
 }
-.bb-dockview .bb-dockview-aside:empty {
-    width: 0;
-}
+
+    .bb-dockview .bb-dockview-aside:empty {
+        width: 0;
+    }
 
 .bb-dockview .bb-dockview-aside-left {
     left: 0;
@@ -293,6 +294,7 @@
 .bb-dockview .bb-overflowHidden {
     overflow: hidden;
 }
+
 .bb-dockview .dv-render-overlay-float {
-    z-index: -1!important;
+    z-index: -1 !important;
 }
