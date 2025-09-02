@@ -2,7 +2,7 @@
 // Licensed under the Apache License, Version 2.0. See License.txt in the project root for license information.
 // Website: https://www.blazor.zone or https://argozhang.github.io/
 
-namespace BootstrapBlazor.DataConverters;
+namespace BootstrapBlazor.Socket.DataConverters;
 
 static class DataPropertyExtensions
 {
@@ -29,7 +29,11 @@ static class DataPropertyExtensions
         var type = attribute.Type;
         if (type != null)
         {
-            if (type == typeof(byte[]))
+            if (type == typeof(byte))
+            {
+                converter = new DataByteConverter();
+            }
+            else if (type == typeof(byte[]))
             {
                 converter = new DataByteArrayConverter();
             }

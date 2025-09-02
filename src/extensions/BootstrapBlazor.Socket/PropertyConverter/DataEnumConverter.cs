@@ -2,10 +2,10 @@
 // Licensed under the Apache License, Version 2.0. See License.txt in the project root for license information.
 // Website: https://www.blazor.zone or https://argozhang.github.io/
 
-namespace BootstrapBlazor.DataConverters;
+namespace BootstrapBlazor.Socket.DataConverters;
 
 /// <summary>
-/// Sokcet 数据转换为 Enum 数据转换器
+/// Socket 数据转换为 Enum 数据转换器
 /// </summary>
 public class DataEnumConverter(Type? type) : IDataPropertyConverter
 {

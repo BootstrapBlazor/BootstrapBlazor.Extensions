@@ -4,10 +4,10 @@
 
 using System.Buffers.Binary;
 
-namespace BootstrapBlazor.DataConverters;
+namespace BootstrapBlazor.Socket.DataConverters;
 
 /// <summary>
-/// Sokcet 数据转换为 ulong 数据大端转换器
+/// Socket 数据转换为 ulong 数据大端转换器
 /// </summary>
 public class DataUInt64BigEndianConverter : IDataPropertyConverter
 {

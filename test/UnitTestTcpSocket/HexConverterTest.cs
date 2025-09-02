@@ -2,8 +2,6 @@
 // Licensed under the Apache License, Version 2.0. See License.txt in the project root for license information.
 // Website: https://www.blazor.zone or https://argozhang.github.io/
 
-using BootstrapBlazor.Components.DataConverter;
-
 namespace UnitTestTcpSocket;
 
 public class HexConverterTest
@@ -33,7 +31,10 @@ public class HexConverterTest
         var actual = HexConverter.ToString(data);
         Assert.Equal("1A-02-13-04-FE", actual);
 
-        actual = HexConverter.ToString(data, " ");
+        actual = HexConverter.ToString(data, " ", false);
+        Assert.Equal("1a 02 13 04 fe", actual);
+
+        actual = HexConverter.ToString(data, " ", true);
         Assert.Equal("1A 02 13 04 FE", actual);
     }
 

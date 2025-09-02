@@ -2,9 +2,10 @@
 // Licensed under the Apache License, Version 2.0. See License.txt in the project root for license information.
 // Website: https://www.blazor.zone or https://argozhang.github.io/
 
+using BootstrapBlazor.Socket.Logging;
 using System.Reflection;
 
-namespace BootstrapBlazor.DataConverters;
+namespace BootstrapBlazor.Socket.DataConverters;
 
 /// <summary>
 /// Provides a base class for converting socket data into a specified entity type.
@@ -38,8 +39,10 @@ public class DataConverter<TEntity>(DataConverterCollections converters) : IData
                 ret = true;
             }
         }
-        catch { }
-
+        catch (Exception ex)
+        {
+            SocketLogging.LogError(ex, $"DataConverter {nameof(TryConvertTo)} failed");
+        }
         return ret;
     }
 
@@ -60,8 +63,6 @@ public class DataConverter<TEntity>(DataConverterCollections converters) : IData
         var ret = false;
         if (entity != null)
         {
-            var unuseProperties = new List<PropertyInfo>(32);
-
             // 通过 SocketDataPropertyConverterAttribute 特性获取属性转换器
             var properties = entity.GetType().GetProperties().Where(p => p.CanWrite).ToList();
             foreach (var p in properties)
@@ -71,18 +72,22 @@ public class DataConverter<TEntity>(DataConverterCollections converters) : IData
                 {
                     var value = attr.ConvertTo(data);
                     var valueType = value?.GetType();
-                    if (valueType != null && p.PropertyType.IsAssignableFrom(valueType))
+                    if (p.PropertyType.IsAssignableFrom(valueType))
                     {
                         p.SetValue(entity, value);
                     }
+                    else
+                    {
+                        SocketLogging.LogInformation($"{nameof(Parse)} failed. Can't convert value from {GetValueType(valueType)} to {p.PropertyType}");
+                    }
                 }
             }
-
             ret = true;
         }
-
         return ret;
     }
+
+    private static string GetValueType(Type? type) => type?.FullName ?? "NULL";
 
     private DataPropertyConverterAttribute? GetPropertyConverterAttribute(PropertyInfo propertyInfo)
     {
@@ -91,7 +96,6 @@ public class DataConverter<TEntity>(DataConverterCollections converters) : IData
         {
             attr = v;
         }
-
         return attr;
     }
 }

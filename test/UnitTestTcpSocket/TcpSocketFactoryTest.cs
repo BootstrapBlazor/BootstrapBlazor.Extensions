@@ -2,6 +2,7 @@
 // Licensed under the Apache License, Version 2.0. See License.txt in the project root for license information.
 // Website: https://www.blazor.zone or https://argozhang.github.io/
 
+using BootstrapBlazor.Socket.Logging;
 using Microsoft.Extensions.Logging;
 using System.Buffers;
 using System.Net;
@@ -43,6 +44,10 @@ public class TcpSocketFactoryTest
 
         await client5.DisposeAsync();
         await factory.DisposeAsync();
+
+        SocketLogging.LogWarning("Warning");
+        SocketLogging.LogDebug("Debug");
+        SocketLogging.LogInformation("Information");
     }
 
     [Fact]
@@ -337,7 +342,7 @@ public class TcpSocketFactoryTest
         var tcs = new TaskCompletionSource();
 
         // 增加接收回调方法
-        client.ReceivedCallBack = b =>
+        client.ReceivedCallback = b =>
         {
             buffer = b;
             tcs.SetResult();
@@ -632,6 +637,14 @@ public class TcpSocketFactoryTest
     }
 
     [Fact]
+    public void TryConvertTo_Error()
+    {
+        var converter = new MockErrorDataConverter();
+        var result = converter.TryConvertTo(new byte[] { 0x1, 0x2 }, out var entity);
+        Assert.False(result);
+    }
+
+    [Fact]
     public async Task TryConvertTo_Ok()
     {
         var port = 8886;
@@ -661,6 +674,15 @@ public class TcpSocketFactoryTest
         Assert.NotNull(entity);
         Assert.Equal([1, 2, 3, 4, 5], entity.Header);
         Assert.Equal([3, 4], entity.Body);
+
+        // null
+        Assert.Equal((byte)0x0, entity.Value16);
+
+        // null
+        Assert.Equal((byte)0x0, entity.Value17);
+
+        // byte
+        Assert.Equal(0x1, entity.Value15);
 
         // string
         Assert.Equal("1", entity.Value1);
@@ -1407,6 +1429,15 @@ public class TcpSocketFactoryTest
         public string? Value14 { get; set; }
 
         public string? Value13 { get; set; }
+
+        [DataPropertyConverter(Type = typeof(byte), Offset = 0, Length = 1)]
+        public byte Value15 { get; set; }
+
+        [DataPropertyConverter(Type = typeof(byte), ConverterType = typeof(MockNullConverter), Offset = 0, Length = 1)]
+        public byte Value16 { get; set; }
+
+        [DataPropertyConverter(Type = typeof(byte[]), Offset = 0, Length = 1)]
+        public byte Value17 { get; set; }
     }
 
     class MockSocketDataConverter : DataConverter<MockEntity>
@@ -1414,6 +1445,22 @@ public class TcpSocketFactoryTest
         protected override bool Parse(ReadOnlyMemory<byte> data, MockEntity entity)
         {
             return false;
+        }
+    }
+
+    class MockErrorDataConverter : DataConverter<MockEntity>
+    {
+        protected override bool Parse(ReadOnlyMemory<byte> data, MockEntity entity)
+        {
+            throw new Exception("Mock parse error");
+        }
+    }
+
+    class MockNullConverter : IDataPropertyConverter
+    {
+        public object? Convert(ReadOnlyMemory<byte> data)
+        {
+            return null;
         }
     }
 

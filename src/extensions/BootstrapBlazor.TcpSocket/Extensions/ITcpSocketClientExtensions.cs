@@ -76,7 +76,7 @@ public static class ITcpSocketClientExtensions
             Cache.Add(client, [(adapter, ReceivedCallback)]);
         }
 
-        client.ReceivedCallBack += ReceivedCallback;
+        client.ReceivedCallback += ReceivedCallback;
 
         // 设置 DataPackageAdapter 的回调函数
         adapter.ReceivedCallBack = callback;
@@ -94,7 +94,7 @@ public static class ITcpSocketClientExtensions
             var items = list.Where(i => i.Adapter.ReceivedCallBack == callback).ToList();
             foreach (var c in items)
             {
-                client.ReceivedCallBack -= c.Callback;
+                client.ReceivedCallback -= c.Callback;
                 list.Remove(c);
             }
         }
@@ -142,7 +142,7 @@ public static class ITcpSocketClientExtensions
             EntityCache.Add(client, [(ReceivedCallback, callback)]);
         }
 
-        client.ReceivedCallBack += ReceivedCallback;
+        client.ReceivedCallback += ReceivedCallback;
 
         // 设置 DataPackageAdapter 的回调函数
         adapter.ReceivedCallBack = async buffer =>
@@ -168,7 +168,7 @@ public static class ITcpSocketClientExtensions
             var items = list.Where(i => i.EntityCallback.Equals(callback)).ToList();
             foreach (var c in items)
             {
-                client.ReceivedCallBack -= c.ReceivedCallback;
+                client.ReceivedCallback -= c.ReceivedCallback;
                 list.Remove(c);
             }
         }
@@ -217,7 +217,7 @@ public static class ITcpSocketClientExtensions
             EntityCache.Add(client, [(ReceivedCallback, callback)]);
         }
 
-        client.ReceivedCallBack += ReceivedCallback;
+        client.ReceivedCallback += ReceivedCallback;
 
         IDataConverter<TEntity>? converter = null;
 

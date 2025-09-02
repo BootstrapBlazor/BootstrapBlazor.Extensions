@@ -69,4 +69,15 @@ public class TcpSocketPropertyConverterTest
         var actual = converter.Convert(new byte[] { 0x1F, 0x85, 0xEB, 0x51, 0xB8, 0x1E, 0x09, 0x40 });
         Assert.Equal(3.14, actual);
     }
+
+    [Fact]
+    public void ByteConverter_Ok()
+    {
+        var converter = new DataByteConverter();
+        var actual = converter.Convert(new byte[] { 0xFF });
+        Assert.Equal((byte)0xFF, actual);
+
+        actual = converter.Convert(Array.Empty<byte>());
+        Assert.Equal((byte)0x0, actual);
+    }
 }

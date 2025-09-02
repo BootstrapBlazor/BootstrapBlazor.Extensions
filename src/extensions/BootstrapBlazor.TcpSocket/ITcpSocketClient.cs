@@ -35,7 +35,7 @@ public interface ITcpSocketClient : IAsyncDisposable
     /// <remarks>The callback function should be designed to handle the received data efficiently and
     /// asynchronously.  Ensure that the implementation does not block or perform long-running operations, as this may
     /// impact performance.</remarks>
-    Func<ReadOnlyMemory<byte>, ValueTask>? ReceivedCallBack { get; set; }
+    Func<ReadOnlyMemory<byte>, ValueTask>? ReceivedCallback { get; set; }
 
     /// <summary>
     /// Gets or sets the callback function that is invoked when a connection attempt is initiated.

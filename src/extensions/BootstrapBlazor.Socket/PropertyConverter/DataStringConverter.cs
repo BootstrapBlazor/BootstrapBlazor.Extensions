@@ -4,10 +4,10 @@
 
 using System.Text;
 
-namespace BootstrapBlazor.DataConverters;
+namespace BootstrapBlazor.Socket.DataConverters;
 
 /// <summary>
-/// Sokcet 数据转换为 string 数据转换器
+/// Socket 数据转换为 string 数据转换器
 /// </summary>
 public class DataStringConverter(string? encodingName) : IDataPropertyConverter
 {

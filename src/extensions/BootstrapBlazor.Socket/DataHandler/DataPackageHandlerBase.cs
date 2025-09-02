@@ -2,7 +2,7 @@
 // Licensed under the Apache License, Version 2.0. See License.txt in the project root for license information.
 // Website: https://www.blazor.zone or https://argozhang.github.io/
 
-namespace BootstrapBlazor.DataHandlers;
+namespace BootstrapBlazor.Socket.DataHandlers;
 
 /// <summary>
 /// Provides a base implementation for handling data packages in a communication system.

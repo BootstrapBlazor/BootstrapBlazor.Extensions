@@ -1,7 +1,7 @@
 ﻿<Project Sdk="Microsoft.NET.Sdk">
 
   <PropertyGroup>
-    <Version>9.0.4</Version>
+    <Version>9.0.11</Version>
   </PropertyGroup>
 
   <PropertyGroup>
@@ -9,10 +9,34 @@
     <Description>BootstrapBlazor extensions of Socket</Description>
   </PropertyGroup>
 
+  <PropertyGroup>
+    <NET8Version>8.0.*</NET8Version>
+    <NET9Version>9.0.*</NET9Version>
+  </PropertyGroup>
+
+  <ItemGroup Condition="'$(TargetFramework)' == 'net6.0'">
+    <PackageReference Include="Microsoft.Extensions.Logging.Abstractions" Version="$(NET8Version)" />
+  </ItemGroup>
+
+  <ItemGroup Condition="'$(TargetFramework)' == 'net7.0'">
+    <PackageReference Include="Microsoft.Extensions.Logging.Abstractions" Version="$(NET8Version)" />
+  </ItemGroup>
+
+  <ItemGroup Condition="'$(TargetFramework)' == 'net8.0'">
+    <PackageReference Include="Microsoft.Extensions.Logging.Abstractions" Version="$(NET9Version)" />
+  </ItemGroup>
+
+  <ItemGroup Condition="'$(TargetFramework)' == 'net9.0'">
+    <PackageReference Include="Microsoft.Extensions.Logging.Abstractions" Version="$(NET9Version)" />
+  </ItemGroup>
+
   <ItemGroup>
-    <Using Include="BootstrapBlazor.DataAdapters" />
-    <Using Include="BootstrapBlazor.DataHandlers" />
-    <Using Include="BootstrapBlazor.DataConverters" />
+  </ItemGroup>
+
+  <ItemGroup>
+    <Using Include="BootstrapBlazor.Socket.DataAdapters" />
+    <Using Include="BootstrapBlazor.Socket.DataHandlers" />
+    <Using Include="BootstrapBlazor.Socket.DataConverters" />
   </ItemGroup>
 
 </Project>

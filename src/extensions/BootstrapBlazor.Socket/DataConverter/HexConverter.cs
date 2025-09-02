@@ -2,7 +2,7 @@
 // Licensed under the Apache License, Version 2.0. See License.txt in the project root for license information.
 // Website: https://www.blazor.zone or https://argozhang.github.io/
 
-namespace BootstrapBlazor.Components.DataConverter;
+namespace BootstrapBlazor.Socket.DataConverters;
 
 /// <summary>
 /// 十六进制 与 Byte 数组转换方法
@@ -31,6 +31,16 @@ public static class HexConverter
 
         return string.Join(separator, bytes.Select(i => upper ? i.ToString("X2") : i.ToString("x2")));
     }
+
+    /// <summary>
+    /// 将 byte[] 转为 16 进制字符串
+    /// <para>Converts a byte array to its hexadecimal string representation.</para>
+    /// </summary>
+    /// <param name="span"></param>
+    /// <param name="separator"></param>
+    /// <param name="upper"></param>
+    /// <returns></returns>
+    public static string ToString(ReadOnlySpan<byte> span, string? separator = "-", bool upper = true) => ToString(span.ToArray(), separator, upper);
 
     /// <summary>
     /// 将字符串转换为字节数组
