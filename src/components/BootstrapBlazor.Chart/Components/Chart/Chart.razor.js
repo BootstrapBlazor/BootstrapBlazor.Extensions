@@ -1,15 +1,10 @@
 ﻿import '../../js/chart.umd.js'
 import '../../js/chartjs-plugin-datalabels.js'
+import { deepMerge } from '../../../BootstrapBlazor/modules/utility.js'
 import Data from '../../../BootstrapBlazor/modules/data.js'
 import EventHandler from "../../../BootstrapBlazor/modules/event-handler.js"
 
 Chart.register(ChartDataLabels);
-
-// WIP: wait net9 release
-// later will move into bootstrapblazor for global init make sure window.BootstrapBlazor is defined
-if (window.BootstrapBlazor === void 0) {
-    window.BootstrapBlazor = {};
-}
 
 if (window.BootstrapBlazor.Chart === void 0) {
     const elementMap = new Map();
@@ -97,20 +92,6 @@ const genericOptions = {
         intersect: false
     },
     radius: 0
-}
-
-const deepMerge = (obj1, obj2) => {
-    for (let key in obj2) {
-        if (obj2.hasOwnProperty(key)) {
-            if (obj2[key] instanceof Object && obj1[key] instanceof Object) {
-                obj1[key] = deepMerge(obj1[key], obj2[key]);
-            }
-            else {
-                obj1[key] = obj2[key];
-            }
-        }
-    }
-    return obj1;
 }
 
 const getChartOption = function (option) {
@@ -388,7 +369,7 @@ const getChartOption = function (option) {
                     datalabels: {
                         anchor: option.options.anchor,
                         align: option.options.align,
-                        formatter: Math.round,
+                        formatter: option.options.formatter,
                         display: option.options.showDataLabel,
                         color: option.options.chartDataLabelColor,
                         font: {
