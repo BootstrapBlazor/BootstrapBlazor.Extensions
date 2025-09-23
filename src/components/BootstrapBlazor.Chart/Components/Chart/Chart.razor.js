@@ -369,7 +369,7 @@ const getChartOption = function (option) {
                     datalabels: {
                         anchor: option.options.anchor,
                         align: option.options.align,
-                        formatter: Math.round,
+                        formatter: option.options.formatter,
                         display: option.options.showDataLabel,
                         color: option.options.chartDataLabelColor,
                         font: {
