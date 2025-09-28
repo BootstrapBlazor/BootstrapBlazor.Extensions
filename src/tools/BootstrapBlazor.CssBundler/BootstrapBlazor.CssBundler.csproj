@@ -1,0 +1,29 @@
+﻿<Project Sdk="Microsoft.NET.Sdk">
+
+  <PropertyGroup>
+    <Version>1.0.0</Version>
+    <OutputType>Exe</OutputType>
+    <TargetFramework>net9.0</TargetFramework>
+    <ImplicitUsings>enable</ImplicitUsings>
+    <Nullable>enable</Nullable>
+  </PropertyGroup>
+
+  <PropertyGroup>
+    <TargetFrameworks>net9.0</TargetFrameworks>
+  </PropertyGroup>
+
+  <PropertyGroup>
+    <Title>BootstrapBlazor Css Bundler</Title>
+    <PackageId>BootstrapBlazor.CssBundler</PackageId>
+    <PackAsTool>true</PackAsTool>
+    <ToolCommandName>bb-bundler</ToolCommandName>
+    <Authors>Argo Zhang(Argo@live.ca)</Authors>
+    <Copyright>Copyright 2025</Copyright>
+    <Company>Longbow</Company>
+  </PropertyGroup>
+
+  <ItemGroup>
+    <SupportedPlatform Remove="browser" />
+  </ItemGroup>
+
+</Project>
