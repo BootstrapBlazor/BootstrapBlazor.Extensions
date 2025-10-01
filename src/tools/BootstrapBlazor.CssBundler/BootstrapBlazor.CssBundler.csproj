@@ -16,7 +16,7 @@
     <Title>BootstrapBlazor Css Bundler</Title>
     <PackageId>BootstrapBlazor.CssBundler</PackageId>
     <PackAsTool>true</PackAsTool>
-    <ToolCommandName>bb-bundler</ToolCommandName>
+    <ToolCommandName>css-bundler</ToolCommandName>
     <Authors>Argo Zhang(Argo@live.ca)</Authors>
     <Copyright>Copyright 2025</Copyright>
     <Company>Longbow</Company>
