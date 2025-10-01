@@ -97,6 +97,9 @@
     <File Path="src/readme.md" />
     <File Path="src/SourceLink.targets" />
   </Folder>
+  <Folder Name="/src/tools/">
+    <Project Path="src/tools/BootstrapBlazor.CssBundler/BootstrapBlazor.CssBundler.csproj" />
+  </Folder>
   <Folder Name="/test/">
     <Project Path="test/UnitTestEditor/UnitTestEditor.csproj" />
     <Project Path="test/UnitTestHoliday/UnitTestHoliday.csproj" />
