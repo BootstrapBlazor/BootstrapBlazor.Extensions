@@ -2,6 +2,8 @@
 // Licensed under the Apache License, Version 2.0. See License.txt in the project root for license information.
 // Website: https://www.blazor.zone or https://argozhang.github.io/
 
+using System.Text;
+
 namespace BootstrapBlazor.CssBundler;
 
 internal class Bundler
@@ -30,8 +32,16 @@ internal class Bundler
 
     static void BundlerCore(string bundlerFile)
     {
-        var option = BundlerOptions.LoadFromConfigFile(bundlerFile);
+        var options = BundlerOptions.LoadFromConfigFile(bundlerFile);
 
+        foreach (var option in options)
+        {
+            DoBundler(bundlerFile, option);
+        }
+    }
+
+    static void DoBundler(string bundlerFile, BundlerOptions option)
+    {
         if (string.IsNullOrEmpty(option.OutputFileName))
         {
             return;
@@ -58,7 +68,8 @@ internal class Bundler
             }
 
             using var reader = File.OpenText(inputFile);
-            reader.BaseStream.CopyTo(writer);
+            var content = reader.ReadToEnd();
+            writer.Write(Encoding.UTF8.GetBytes(content));
             reader.Close();
         }
         writer.Close();
