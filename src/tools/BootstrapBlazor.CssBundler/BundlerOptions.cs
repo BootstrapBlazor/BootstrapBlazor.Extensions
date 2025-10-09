@@ -13,10 +13,10 @@ sealed class BundlerOptions
 
     public List<string> InputFiles { get; set; } = [];
 
-    public static BundlerOptions LoadFromConfigFile(string configFile)
+    public static List<BundlerOptions> LoadFromConfigFile(string configFile)
     {
         var json = File.ReadAllText(configFile);
 
-        return JsonSerializer.Deserialize<BundlerOptions>(json, JsonSerializerOptions.Web) ?? new();
+        return JsonSerializer.Deserialize<List<BundlerOptions>>(json, JsonSerializerOptions.Web) ?? new();
     }
 }
