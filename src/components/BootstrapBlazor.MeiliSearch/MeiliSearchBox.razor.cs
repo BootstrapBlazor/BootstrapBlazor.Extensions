@@ -112,7 +112,7 @@ public partial class MeiliSearchBox
     [Parameter]
     public RenderFragment? FooterTemplate { get; set; }
 
-    private string? ClassString => CssBuilder.Default("bb-g-search")
+    private string? ClassString => CssBuilder.Default("bb-g-search visually-hidden")
         .AddClassFromAttributes(AdditionalAttributes)
         .Build();
 
