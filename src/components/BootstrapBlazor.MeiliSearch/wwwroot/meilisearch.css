@@ -1,6 +1,7 @@
 ﻿.bb-g-search {
     --bb-global-search-padding: 0.25rem 0.75rem;
     --bb-global-search-width: 168px;
+    --bb-global-search-input-color: rgba(var(--bs-body-color-rgb), 0.5);
     display: flex;
     align-items: center;
     border: var(--bs-border-width) solid var(--bs-border-color);
@@ -8,7 +9,7 @@
     padding: var(--bb-global-search-padding);
     width: var(--bb-global-search-width);
     transition: border-color .3s linear;
-    color: rgba(var(--bs-body-color-rgb), 0.5);
+    color: var(--bb-global-search-input-color);
 }
 
     .bb-g-search:hover {
@@ -25,7 +26,7 @@
     }
 
         .bb-g-search > input::placeholder {
-            color: rgba(var(--bs-body-color-rgb), 0.5);
+            color: var(--bb-global-search-input-color);
         }
 
 .search-dialog-icon {
