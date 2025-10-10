@@ -31,7 +31,6 @@
 
 .search-dialog-icon {
     cursor: pointer;
-    font-size: 18px;
     margin-inline-end: .5rem;
 }
 
@@ -122,7 +121,6 @@
 
     .search-dialog-input .search-dialog-clear {
         cursor: pointer;
-        font-size: 18px;
     }
 
 .search-dialog-status {
