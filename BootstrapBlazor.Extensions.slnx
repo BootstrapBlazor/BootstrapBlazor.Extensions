@@ -1,5 +1,6 @@
 <Solution>
   <Folder Name="/configurations/">
+    <File Path=".gitignore" />
     <File Path="Directory.Build.props" />
     <File Path="exclusion.dic" />
   </Folder>
