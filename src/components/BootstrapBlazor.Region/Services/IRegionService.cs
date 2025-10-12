@@ -32,7 +32,7 @@ public interface IRegionService
     /// <summary>
     /// 获得指定区县的街道地址数据
     /// </summary>
-    /// <param name="county"></param>
+    /// <param name="countyCode"></param>
     /// <returns></returns>
-    List<string> GetDetails(string county);
+    IReadOnlySet<string> GetDetails(string countyCode);
 }

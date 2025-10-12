@@ -8,6 +8,7 @@ using System.Collections.Frozen;
 
 using System.Collections.Concurrent;
 using System.Runtime.CompilerServices;
+using System.Text.Json;
 
 namespace BootstrapBlazor.Components;
 
@@ -15,6 +16,7 @@ class DefaultRegionService : IRegionService
 {
     private static readonly ConcurrentDictionary<string, IReadOnlySet<string>> _citiesCache = new();
     private static readonly ConcurrentDictionary<string, IReadOnlySet<CountyItem>> _countiesCache = new();
+    private static readonly ConcurrentDictionary<string, IReadOnlySet<string>> _detailCache = new();
 
     private static bool _initialized = false;
 
@@ -38,9 +40,36 @@ class DefaultRegionService : IRegionService
         return _countiesCache.TryGetValue(city, out var counties) ? counties : new HashSet<CountyItem>();
     }
 
-    public List<string> GetDetails(string county)
+    public IReadOnlySet<string> GetDetails(string countyCode)
     {
-        throw new NotImplementedException();
+        LoadDetailData(countyCode);
+        return _detailCache.TryGetValue(countyCode, out var details) ? details : new HashSet<string>();
+    }
+
+    private static IReadOnlySet<string> LoadDetailData(string countyCode)
+    {
+        if (_detailCache.TryGetValue(countyCode, out var detail))
+        {
+            return detail;
+        }
+
+        var details = new HashSet<string>();
+        var data = typeof(DefaultRegionService).Assembly.GetManifestResourceStream($"BootstrapBlazor.Components.Data.town.{countyCode}.json");
+        if (data != null)
+        {
+            var document = JsonDocument.Parse(data);
+            var token = document.RootElement.EnumerateObject();
+            foreach (var t in token)
+            {
+                var v = t.Value.GetString();
+                if (!string.IsNullOrEmpty(v))
+                {
+                    details.Add(v);
+                }
+            }
+        }
+        _detailCache.TryAdd(countyCode, details);
+        return details;
     }
 
     private static void LoadCityData()
