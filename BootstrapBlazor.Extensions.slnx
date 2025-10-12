@@ -61,6 +61,7 @@
     <Project Path="src/components/BootstrapBlazor.PdfViewer/BootstrapBlazor.PdfViewer.csproj" />
     <Project Path="src/components/BootstrapBlazor.Player/BootstrapBlazor.Player.csproj" />
     <Project Path="src/components/BootstrapBlazor.RDKit/BootstrapBlazor.RDKit.csproj" />
+    <Project Path="src/components/BootstrapBlazor.Region/BootstrapBlazor.Region.csproj" Id="f4e0b11d-f630-4e34-9dca-e9c6b6b60cee" />
     <Project Path="src/components/BootstrapBlazor.SignaturePad/BootstrapBlazor.SignaturePad.csproj" />
     <Project Path="src/components/BootstrapBlazor.SmilesDrawer/BootstrapBlazor.SmilesDrawer.csproj" />
     <Project Path="src/components/BootstrapBlazor.Sortable/BootstrapBlazor.Sortable.csproj" />
