@@ -6,6 +6,10 @@ import EventHandler from "../../../BootstrapBlazor/modules/event-handler.js"
 
 Chart.register(ChartDataLabels);
 
+if (window.BootstrapBlazor === void 0) {
+    window.BootstrapBlazor = {};
+}
+
 if (window.BootstrapBlazor.Chart === void 0) {
     const elementMap = new Map();
     window.BootstrapBlazor.Chart = new class {
