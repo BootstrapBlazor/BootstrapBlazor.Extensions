@@ -11,25 +11,6 @@ namespace BootstrapBlazor.Components;
 /// </summary>
 public partial class Region
 {
-    private string? ClassString => CssBuilder.Default("select bb-region")
-        .AddClassFromAttributes(AdditionalAttributes)
-        .Build();
-
-    private string? InputId => $"{Id}_input";
-
-    private string? InputClassString => CssBuilder.Default("form-select form-control")
-        .AddClass($"border-{Color.ToDescriptionString()}", Color != Color.None && !IsDisabled && !IsValid.HasValue)
-        .AddClass($"border-success", IsValid.HasValue && IsValid.Value)
-        .AddClass($"border-danger", IsValid.HasValue && !IsValid.Value)
-        .AddClass(CssClass).AddClass(ValidCss)
-        .Build();
-
-    private string? AppendClassString => CssBuilder.Default("form-select-append")
-        .AddClass($"text-{Color.ToDescriptionString()}", Color != Color.None && !IsDisabled && !IsValid.HasValue)
-        .AddClass($"text-success", IsValid.HasValue && IsValid.Value)
-        .AddClass($"text-danger", IsValid.HasValue && !IsValid.Value)
-        .Build();
-
     /// <summary>
     /// Gets or sets the placeholder text.
     /// </summary>
@@ -74,6 +55,25 @@ public partial class Region
     [Inject]
     [NotNull]
     protected IIconTheme? IconTheme { get; set; }
+
+    private string? ClassString => CssBuilder.Default("select bb-region")
+        .AddClassFromAttributes(AdditionalAttributes)
+        .Build();
+
+    private string? InputId => $"{Id}_input";
+
+    private string? InputClassString => CssBuilder.Default("form-select form-control")
+        .AddClass($"border-{Color.ToDescriptionString()}", Color != Color.None && !IsDisabled && !IsValid.HasValue)
+        .AddClass($"border-success", IsValid.HasValue && IsValid.Value)
+        .AddClass($"border-danger", IsValid.HasValue && !IsValid.Value)
+        .AddClass(CssClass).AddClass(ValidCss)
+        .Build();
+
+    private string? AppendClassString => CssBuilder.Default("form-select-append")
+        .AddClass($"text-{Color.ToDescriptionString()}", Color != Color.None && !IsDisabled && !IsValid.HasValue)
+        .AddClass($"text-success", IsValid.HasValue && IsValid.Value)
+        .AddClass($"text-danger", IsValid.HasValue && !IsValid.Value)
+        .Build();
 
     private bool GetClearable() => IsClearable && !IsDisabled;
 
