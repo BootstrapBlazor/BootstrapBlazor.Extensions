@@ -142,11 +142,7 @@ class DefaultRegionService : IRegionService
     [MethodImpl(MethodImplOptions.AggressiveInlining)]
     private static string Trim(string segment) => segment.Replace("\"", string.Empty).Trim();
 
-#if NET9_0_OR_GREATER
-    private static readonly FrozenSet<string> Provinces =
-#else
     private static readonly HashSet<string> Provinces =
-#endif
     [
         "北京市",
         "天津市",
