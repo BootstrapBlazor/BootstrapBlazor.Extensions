@@ -44,12 +44,6 @@ public partial class Region
     public string? ClearIcon { get; set; }
 
     /// <summary>
-    /// Gets or sets whether the select component is clearable. Default is false.
-    /// </summary>
-    [Parameter]
-    public bool IsClearable { get; set; }
-
-    /// <summary>
     /// Gets or sets the <see cref="IIconTheme"/> service instance.
     /// </summary>
     [Inject]
@@ -79,13 +73,35 @@ public partial class Region
         .AddClass($"text-danger", IsValid.HasValue && !IsValid.Value)
         .Build();
 
-    private bool GetClearable() => IsClearable && !IsDisabled;
-
     private string? ClearClassString => CssBuilder.Default("clear-icon")
         .AddClass($"text-{Color.ToDescriptionString()}", Color != Color.None)
         .AddClass($"text-success", IsValid.HasValue && IsValid.Value)
         .AddClass($"text-danger", IsValid.HasValue && !IsValid.Value)
         .Build();
+
+    private string? GetHeaderActiveClass(RegionViewMode type) => _currentViewMode == type ? "active" : null;
+
+    private string? GetBodyActiveClass(RegionViewMode type) => CssBuilder.Default("bb-region-body-item")
+        .AddClass("active", _currentViewMode == type)
+        .Build();
+
+    private string? GetProvinceActiveClass(string item) => _provinceValue == item ? "active" : null;
+
+    private string? GetCityActiveClass(string item) => _cityValue == item ? "active" : null;
+
+    private string? GetCountyActiveClass(CountyItem item) => _countyValue == item ? "active" : null;
+
+    private string? GetDetailActiveClass(string item) => _detailValue == item ? "active" : null;
+
+    private RegionViewMode _currentViewMode = RegionViewMode.Province;
+
+    private string? _provinceValue;
+
+    private string? _cityValue;
+
+    private CountyItem _countyValue;
+
+    private string? _detailValue;
 
     /// <summary>
     /// <inheritdoc/>
@@ -98,8 +114,104 @@ public partial class Region
         ClearIcon ??= IconTheme.GetIconByKey(ComponentIcons.SelectClearIcon);
     }
 
+    /// <summary>
+    /// <inheritdoc/>
+    /// </summary>
+    /// <param name="value"></param>
+    /// <returns></returns>
+    protected override string? FormatValueAsString(string? value) => $"{_provinceValue}{_cityValue}{_countyValue.Name}{_detailValue}";
+
     private void OnClearValue()
     {
-        CurrentValue = "";
+        _provinceValue = "";
+        _cityValue = "";
+        _countyValue = new();
+        _detailValue = "";
+
+        _currentViewMode = RegionViewMode.Province;
+    }
+
+    private IReadOnlySet<string> GetProvinces() => RegionService.GetProvinces();
+
+    private IReadOnlySet<string> GetCities()
+    {
+        if (string.IsNullOrEmpty(_provinceValue))
+        {
+            return new HashSet<string>();
+        }
+
+        return RegionService.GetCities(_provinceValue);
+    }
+
+    private IReadOnlySet<CountyItem> GetCounties()
+    {
+        if (string.IsNullOrEmpty(_cityValue))
+        {
+            return new HashSet<CountyItem>();
+        }
+
+        return RegionService.GetCounties(_cityValue);
+    }
+
+    private IReadOnlySet<string> GetDetails()
+    {
+        if (string.IsNullOrEmpty(_countyValue.Code))
+        {
+            return new HashSet<string>();
+        }
+
+        return RegionService.GetDetails(_countyValue.Code);
+    }
+
+    private void OnClickProvince(string value)
+    {
+        _provinceValue = value;
+        _currentViewMode = RegionViewMode.City;
+    }
+
+    private void OnClickCity(string value)
+    {
+        _cityValue = value;
+        _currentViewMode = RegionViewMode.County;
+    }
+
+    private void OnClickCounty(CountyItem item)
+    {
+        _countyValue = item;
+        _currentViewMode = RegionViewMode.Detail;
+    }
+
+    private async Task OnClickDetail(string value)
+    {
+        _detailValue = value;
+        _currentViewMode = RegionViewMode.Detail;
+
+        await InvokeVoidAsync("hide", Id);
+    }
+
+    private void OnSwitchProvinceView()
+    {
+        _currentViewMode = RegionViewMode.Province;
+        _cityValue = "";
+        _countyValue = new();
+        _detailValue = "";
+    }
+
+    private void OnSwitchCityView()
+    {
+        _currentViewMode = RegionViewMode.City;
+        _countyValue = new();
+        _detailValue = "";
+    }
+
+    private void OnSwitchCountyView()
+    {
+        _currentViewMode = RegionViewMode.County;
+        _detailValue = "";
+    }
+
+    private void OnSwitchDetailView()
+    {
+        _currentViewMode = RegionViewMode.Detail;
     }
 }
