@@ -54,7 +54,11 @@ public partial class Region
     /// </summary>
     [Inject]
     [NotNull]
-    protected IIconTheme? IconTheme { get; set; }
+    private IIconTheme? IconTheme { get; set; }
+
+    [Inject]
+    [NotNull]
+    private IRegionService? RegionService { get; set; }
 
     private string? ClassString => CssBuilder.Default("select bb-region")
         .AddClassFromAttributes(AdditionalAttributes)

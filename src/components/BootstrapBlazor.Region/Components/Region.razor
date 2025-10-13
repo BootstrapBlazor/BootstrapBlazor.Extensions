@@ -7,7 +7,7 @@
     <BootstrapLabel required="@Required" for="@InputId" ShowLabelTooltip="ShowLabelTooltip" Value="@DisplayText" />
 }
 <div @attributes="AdditionalAttributes" id="@Id" class="@ClassString">
-    <div data-bs-toggle="bb.dropdown" data-bs-placement="@PlacementString" data-bs-offset="@OffsetString" data-bs-custom-class="@CustomClassString">
+    <div class="dropdown-toggle" data-bs-toggle="bb.dropdown" data-bs-placement="@PlacementString" data-bs-offset="@OffsetString" data-bs-custom-class="@CustomClassString">
         <input type="text" id="@InputId" disabled="@Disabled" readonly placeholder="@PlaceHolder" class="@InputClassString" value="@CurrentValue" />
         <span class="@AppendClassString"><i class="@DropdownIcon"></i></span>
     </div>
@@ -15,4 +15,27 @@
     {
         <span class="@ClearClassString" @onclick="OnClearValue"><i class="@ClearIcon"></i></span>
     }
+    <div class="dropdown-menu">
+		<div class="bb-region-header">
+			<ul>
+				<li>省/直辖市</li>
+				<li>市</li>
+				<li>区/县</li>
+				<li>乡/镇/街道</li>
+			</ul>
+		</div>
+        <div class="bb-region-body">
+            @RenderProvinces()
+        </div>
+    </div>
 </div>
+
+@code {
+    RenderFragment RenderProvinces() =>
+    @<ul class="bb-region-province">
+        @foreach(var item in RegionService.GetProvinces())
+        {
+            <li>@item</li>
+        }
+    </ul>;
+}
