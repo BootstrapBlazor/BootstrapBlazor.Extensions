@@ -107,6 +107,7 @@
     <Project Path="test/UnitTestHoliday/UnitTestHoliday.csproj" />
     <Project Path="test/UnitTestOpcDa/UnitTestOpcDa.csproj" />
     <Project Path="test/UnitTestOpcUa/UnitTestOpcUa.csproj" />
+    <Project Path="test/UnitTestRegion/UnitTestRegion.csproj" Id="37e8696e-3ae5-468f-b6d9-0a8eb4e81876" />
     <Project Path="test/UnitTestSvgIcon/UnitTestSvgIcon.csproj" />
   </Folder>
 </Solution>
