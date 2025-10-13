@@ -113,6 +113,13 @@ class DefaultRegionService : IRegionService
                         {
                             city = value;
                             cities = [];
+
+                            if(value == "北京市" || value == "天津市" || value == "上海市" || value == "重庆市")
+                            {
+                                // 北京市、天津、上海市、重庆市
+                                cities.Add(value);
+                            }
+
                             _citiesCache.TryAdd(value, cities);
                             counties = null;
                             continue;
