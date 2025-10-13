@@ -114,19 +114,13 @@ public partial class Region
         ClearIcon ??= IconTheme.GetIconByKey(ComponentIcons.SelectClearIcon);
     }
 
-    /// <summary>
-    /// <inheritdoc/>
-    /// </summary>
-    /// <param name="value"></param>
-    /// <returns></returns>
-    protected override string? FormatValueAsString(string? value) => $"{_provinceValue}{_cityValue}{_countyValue.Name}{_detailValue}";
-
     private void OnClearValue()
     {
         _provinceValue = "";
         _cityValue = "";
         _countyValue = new();
         _detailValue = "";
+        CurrentValue = "";
 
         _currentViewMode = RegionViewMode.Province;
     }
@@ -167,25 +161,32 @@ public partial class Region
     {
         _provinceValue = value;
         _currentViewMode = RegionViewMode.City;
+
+        CurrentValue = _provinceValue;
     }
 
     private void OnClickCity(string value)
     {
         _cityValue = value;
         _currentViewMode = RegionViewMode.County;
+
+        CurrentValue = $"{_provinceValue}-{_cityValue}";
     }
 
     private void OnClickCounty(CountyItem item)
     {
         _countyValue = item;
         _currentViewMode = RegionViewMode.Detail;
+
+        CurrentValue = $"{_provinceValue}-{_cityValue}-{_countyValue.Name}";
     }
 
     private async Task OnClickDetail(string value)
     {
         _detailValue = value;
-        _currentViewMode = RegionViewMode.Detail;
+        _currentViewMode = RegionViewMode.Province;
 
+        CurrentValue = $"{_provinceValue}-{_cityValue}-{_countyValue.Name}-{_detailValue}";
         await InvokeVoidAsync("hide", Id);
     }
 
