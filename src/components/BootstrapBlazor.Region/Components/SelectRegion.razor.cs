@@ -113,9 +113,47 @@ public partial class SelectRegion
 
         DropdownIcon ??= IconTheme.GetIconByKey(ComponentIcons.SelectDropdownIcon);
         ClearIcon ??= IconTheme.GetIconByKey(ComponentIcons.SelectClearIcon);
+
+        ResetValue();
     }
 
-    private void OnClearValue()
+    private void ResetValue()
+    {
+        if (!string.IsNullOrEmpty(Value))
+        {
+            var segments = Value.Split('-', StringSplitOptions.RemoveEmptyEntries);
+            if (segments.Length > 0 && _provinceValue != segments[0] && GetProvinces().Contains(segments[0]))
+            {
+                _provinceValue = segments[0];
+
+                Value = _provinceValue;
+            }
+            if (segments.Length > 1 && _cityValue != segments[1] && GetCities().Contains(segments[1]))
+            {
+                _cityValue = segments[1];
+
+                Value = $"{_provinceValue}-{_cityValue}";
+            }
+            if (segments.Length > 2 && _countyValue.Name != segments[2])
+            {
+                var county = GetCounties().First(i => i.Name == segments[2]);
+                if (!string.IsNullOrEmpty(county.Name))
+                {
+                    _countyValue = county;
+                }
+
+                Value = $"{_provinceValue}-{_cityValue}-{_countyValue.Name}";
+            }
+            if (segments.Length > 3 && _cityValue != segments[3] && GetDetails().Contains(segments[3]))
+            {
+                _detailValue = segments[3];
+
+                Value = $"{_provinceValue}-{_cityValue}-{_countyValue.Name}-{_detailValue}";
+            }
+        }
+    }
+
+    private async Task OnClearValue()
     {
         _provinceValue = "";
         _cityValue = "";
@@ -124,35 +162,40 @@ public partial class SelectRegion
         CurrentValue = "";
 
         _currentViewMode = RegionViewMode.Province;
+
+        if (OnClearAsync != null)
+        {
+            await OnClearAsync();
+        }
     }
 
-    private IReadOnlySet<string> GetProvinces() => RegionService.GetProvinces();
+    private HashSet<string> GetProvinces() => RegionService.GetProvinces();
 
-    private IReadOnlySet<string> GetCities()
+    private HashSet<string> GetCities()
     {
         if (string.IsNullOrEmpty(_provinceValue))
         {
-            return new HashSet<string>();
+            return [];
         }
 
         return RegionService.GetCities(_provinceValue);
     }
 
-    private IReadOnlySet<CountyItem> GetCounties()
+    private HashSet<CountyItem> GetCounties()
     {
         if (string.IsNullOrEmpty(_cityValue))
         {
-            return new HashSet<CountyItem>();
+            return [];
         }
 
         return RegionService.GetCounties(_cityValue);
     }
 
-    private IReadOnlySet<string> GetDetails()
+    private HashSet<string> GetDetails()
     {
         if (string.IsNullOrEmpty(_countyValue.Code))
         {
-            return new HashSet<string>();
+            return [];
         }
 
         return RegionService.GetDetails(_countyValue.Code);
