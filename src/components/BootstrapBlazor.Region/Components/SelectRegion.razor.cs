@@ -7,9 +7,9 @@ using Microsoft.AspNetCore.Components;
 namespace BootstrapBlazor.Components;
 
 /// <summary>
-/// Region 组件
+/// SelectRegion 组件
 /// </summary>
-public partial class Region
+public partial class SelectRegion
 {
     /// <summary>
     /// Gets or sets the placeholder text.

@@ -6,6 +6,10 @@
         display: none;
     }
 
+.popover-region .dropdown-menu {
+    --bs-dropdown-padding-y: 0;
+}
+
 .popover-region ul {
     margin: 0;
     padding: 0;
