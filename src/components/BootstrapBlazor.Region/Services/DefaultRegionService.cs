@@ -2,10 +2,6 @@
 // Licensed under the Apache License, Version 2.0. See License.txt in the project root for license information.
 // Website: https://www.blazor.zone or https://argozhang.github.io/
 
-#if NET9_0_OR_GREATER
-using System.Collections.Frozen;
-#endif
-
 using System.Collections.Concurrent;
 using System.Runtime.CompilerServices;
 using System.Text.Json;
@@ -14,9 +10,9 @@ namespace BootstrapBlazor.Components;
 
 class DefaultRegionService : IRegionService
 {
-    private static readonly ConcurrentDictionary<string, IReadOnlySet<string>> _citiesCache = new();
-    private static readonly ConcurrentDictionary<string, IReadOnlySet<CountyItem>> _countiesCache = new();
-    private static readonly ConcurrentDictionary<string, IReadOnlySet<string>> _detailCache = new();
+    private static readonly ConcurrentDictionary<string, HashSet<string>> _citiesCache = new();
+    private static readonly ConcurrentDictionary<string, HashSet<CountyItem>> _countiesCache = new();
+    private static readonly ConcurrentDictionary<string, HashSet<string>> _detailCache = new();
 
     private static bool _initialized = false;
 
@@ -26,35 +22,35 @@ class DefaultRegionService : IRegionService
     private static readonly object _lock = new();
 #endif
 
-    public IReadOnlySet<string> GetProvinces() => Provinces;
+#if NET9_0_OR_GREATER
+    private static readonly Lock _lockDetail = new();
+#else
+    private static readonly object _lockDetail = new();
+#endif
 
-    public IReadOnlySet<string> GetCities(string province)
+    public HashSet<string> GetProvinces() => Provinces;
+
+    public HashSet<string> GetCities(string province)
     {
         LoadCityData();
-        return _citiesCache.TryGetValue(province, out var cities) ? cities : new HashSet<string>();
+        return _citiesCache.TryGetValue(province, out var cities) ? cities : [];
     }
 
-    public IReadOnlySet<CountyItem> GetCounties(string city)
+    public HashSet<CountyItem> GetCounties(string city)
     {
         LoadCityData();
-        return _countiesCache.TryGetValue(city, out var counties) ? counties : new HashSet<CountyItem>();
+        return _countiesCache.TryGetValue(city, out var counties) ? counties : [];
     }
 
-    public IReadOnlySet<string> GetDetails(string countyCode)
+    public HashSet<string> GetDetails(string countyCode)
     {
-        LoadDetailData(countyCode);
-        return _detailCache.TryGetValue(countyCode, out var details) ? details : new HashSet<string>();
+        return _detailCache.GetOrAdd(countyCode, LoadDetailData);
     }
 
-    private static IReadOnlySet<string> LoadDetailData(string countyCode)
+    private static HashSet<string> LoadDetailData(string countyCode)
     {
-        if (_detailCache.TryGetValue(countyCode, out var detail))
-        {
-            return detail;
-        }
-
         var details = new HashSet<string>();
-        var data = typeof(DefaultRegionService).Assembly.GetManifestResourceStream($"BootstrapBlazor.Components.Data.town.{countyCode}.json");
+        using var data = typeof(DefaultRegionService).Assembly.GetManifestResourceStream($"BootstrapBlazor.Components.Data.town.{countyCode}.json");
         if (data != null)
         {
             var document = JsonDocument.Parse(data);
@@ -68,79 +64,79 @@ class DefaultRegionService : IRegionService
                 }
             }
         }
-        _detailCache.TryAdd(countyCode, details);
         return details;
     }
 
     private static void LoadCityData()
     {
-        if (_initialized)
+        if (!_initialized)
         {
-            return;
-        }
-
-        lock (_lock)
-        {
-            if (_initialized)
+            lock (_lock)
             {
-                return;
-            }
-
-            _initialized = true;
-            var data = typeof(DefaultRegionService).Assembly.GetManifestResourceStream("BootstrapBlazor.Components.Data.data.json");
-            if (data != null)
-            {
-                var city = "";
-                HashSet<string> cities = [];
-                HashSet<CountyItem>? counties = null;
-                using var stream = new StreamReader(data);
-                while (!stream.EndOfStream)
+                if (!_initialized)
                 {
-                    var content = stream.ReadLine();
-                    if (!string.IsNullOrEmpty(content))
+                    using var data = typeof(DefaultRegionService).Assembly.GetManifestResourceStream("BootstrapBlazor.Components.Data.data.json");
+                    if (data != null)
                     {
-                        var index = content.IndexOf(':');
-                        if (index == -1)
-                        {
-                            continue;
-                        }
-
-                        var mem = content.AsMemory();
-                        var code = Trim(mem[0..index].ToString());
-                        var value = Trim(mem[(index + 1)..(mem.Length - 1)].ToString());
-
-                        if (code[2..] == "0000")
-                        {
-                            city = value;
-                            cities = [];
-
-                            if (value == "北京市" || value == "天津市" || value == "上海市" || value == "重庆市" || value == "香港特别行政区" || value == "澳门特别行政区")
-                            {
-                                cities.Add(value);
-                            }
-
-                            _citiesCache.TryAdd(value, cities);
-                            counties = null;
-                            continue;
-                        }
-
-                        if (code[4..] == "00")
-                        {
-                            cities.Add(value);
-                            counties = [];
-                            _countiesCache.TryAdd(value, counties);
-                            continue;
-                        }
-
-                        if (counties == null)
-                        {
-                            counties = [];
-                            _countiesCache.TryAdd(city, counties);
-                        }
-
-                        counties.Add(new CountyItem() { Name = value, Code = code });
+                        LoadDataCore(data);
                     }
+                    _initialized = true;
                 }
+            }
+        }
+    }
+
+    private static void LoadDataCore(Stream data)
+    {
+        var city = "";
+        HashSet<string> cities = [];
+        HashSet<CountyItem>? counties = null;
+        using var stream = new StreamReader(data);
+        while (!stream.EndOfStream)
+        {
+            var content = stream.ReadLine();
+            if (!string.IsNullOrEmpty(content))
+            {
+                var index = content.IndexOf(':');
+                if (index == -1)
+                {
+                    continue;
+                }
+
+                var mem = content.AsMemory();
+                var code = Trim(mem[0..index].ToString());
+                var value = Trim(mem[(index + 1)..(mem.Length - 1)].ToString());
+
+                if (code[2..] == "0000")
+                {
+                    city = value;
+                    cities = [];
+
+                    if (value == "北京市" || value == "天津市" || value == "上海市" || value == "重庆市" || value == "香港特别行政区" || value == "澳门特别行政区")
+                    {
+                        cities.Add(value);
+                    }
+
+                    _citiesCache.TryAdd(value, cities);
+                    counties = null;
+                    continue;
+                }
+
+                if (code[4..] == "00")
+                {
+                    cities.Add(value);
+                    counties = [];
+                    _countiesCache.TryAdd(value, counties);
+                    continue;
+                }
+
+                if (counties == null)
+                {
+                    counties = [];
+                    _countiesCache.TryAdd(city, counties);
+                }
+
+                counties.Add(new CountyItem() { Name = value, Code = code });
             }
         }
     }
