@@ -55,6 +55,7 @@ public partial class Region
     private IRegionService? RegionService { get; set; }
 
     private string? ClassString => CssBuilder.Default("select bb-region")
+        .AddClass("disabled", IsDisabled)
         .AddClassFromAttributes(AdditionalAttributes)
         .Build();
 
