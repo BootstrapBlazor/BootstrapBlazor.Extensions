@@ -6,11 +6,7 @@ export function init(id) {
     if (el === null) {
         return
     }
-    const popover = Popover.init(el, {
-        isDisabled: () => {
-            return el.querySelector('.dropdown-toggle').getAttribute('disabled') === 'disabled'
-        }
-    });
+    const popover = Popover.init(el);
 
     Data.set(id, { el, popover });
 }
