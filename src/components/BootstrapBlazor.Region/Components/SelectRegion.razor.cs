@@ -119,7 +119,7 @@ public partial class SelectRegion
 
     private void ResetValue()
     {
-        if (!string.IsNullOrEmpty(Value))
+        if (!string.IsNullOrEmpty(Value) && Value != GetCurrentValue())
         {
             var segments = Value.Split('-', StringSplitOptions.RemoveEmptyEntries);
             if (segments.Length > 0 && _provinceValue != segments[0] && GetProvinces().Contains(segments[0]))
@@ -151,6 +151,28 @@ public partial class SelectRegion
                 Value = $"{_provinceValue}-{_cityValue}-{_countyValue.Name}-{_detailValue}";
             }
         }
+    }
+
+    private string? GetCurrentValue()
+    {
+        string? value = null;
+        if (!string.IsNullOrEmpty(_provinceValue))
+        {
+            value = _provinceValue;
+        }
+        if (!string.IsNullOrEmpty(_cityValue))
+        {
+            value = $"{_provinceValue}-{_cityValue}";
+        }
+        if (!string.IsNullOrEmpty(_countyValue.Name))
+        {
+            value = $"{_provinceValue}-{_cityValue}-{_countyValue.Name}";
+        }
+        if (!string.IsNullOrEmpty(_detailValue))
+        {
+            value = $"{_provinceValue}-{_cityValue}-{_countyValue.Name}-{_detailValue}";
+        }
+        return value;
     }
 
     private async Task OnClearValue()
