@@ -1,0 +1,82 @@
+﻿.bb-region {
+    position: relative;
+}
+
+    .bb-region:not(.disabled):hover .form-select-append {
+        display: none;
+    }
+
+.popover-region .dropdown-menu {
+    --bs-dropdown-padding-y: 0;
+}
+
+.popover-region ul {
+    margin: 0;
+    padding: 0;
+}
+
+.popover-region li {
+    list-style: none;
+    transition: background-color .3s linear, color .3s linear;
+}
+
+.bb-region-header {
+    width: 400px;
+    border-bottom: 1px solid var(--bs-border-color);
+}
+
+    .bb-region-header ul {
+        display: flex;
+        justify-content: space-between;
+        flex-wrap: nowrap;
+        padding: .5rem;
+        font-weight: bold;
+    }
+
+        .bb-region-header ul li {
+            cursor: pointer;
+            padding: 3px 12px;
+            border-radius: var(--bs-border-radius);
+        }
+
+            .bb-region-header ul li.active {
+                background-color: #e3e3e3;
+                color: #000;
+            }
+
+            .bb-region-header ul li:hover {
+                background-color: #e3e3e3;
+                color: #000;
+            }
+
+.bb-region-body {
+    padding: .5rem;
+    width: 400px;
+}
+
+    .bb-region-body ul {
+        display: flex;
+        flex-wrap: wrap;
+        gap: 5px;
+    }
+
+    .bb-region-body .bb-region-body-item:not(.active) {
+        display: none;
+    }
+
+    .bb-region-body ul li {
+        padding: 3px 12px;
+        border-radius: var(--bs-border-radius);
+        cursor: pointer;
+        color: #777;
+    }
+
+        .bb-region-body ul li.active {
+            background-color: #e3e3e3;
+            color: #000;
+        }
+
+        .bb-region-body ul li:hover {
+            background-color: #e3e3e3;
+            color: #000;
+        }

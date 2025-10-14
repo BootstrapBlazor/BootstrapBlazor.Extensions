@@ -1,0 +1,106 @@
+﻿@namespace BootstrapBlazor.Components
+@inherits PopoverSelectBase<string>
+@attribute [JSModuleAutoLoader("./_content/BootstrapBlazor.Region/Components/SelectRegion.razor.js", JSObjectReference = true)]
+
+@if (IsShowLabel)
+{
+    <BootstrapLabel required="@Required" for="@InputId" ShowLabelTooltip="ShowLabelTooltip" Value="@DisplayText" />
+}
+<div @attributes="AdditionalAttributes" id="@Id" class="@ClassString">
+    <div class="dropdown-toggle" data-bs-toggle="bb.dropdown" data-bs-placement="@PlacementString" data-bs-offset="@OffsetString" data-bs-custom-class="@CustomClassString">
+        <input type="text" id="@InputId" disabled="@Disabled" readonly placeholder="@PlaceHolder" class="@InputClassString" value="@CurrentValueAsString" />
+        <span class="@AppendClassString"><i class="@DropdownIcon"></i></span>
+    </div>
+    @if (!IsDisabled)
+    {
+        <span class="@ClearClassString" @onclick="OnClearValue"><i class="@ClearIcon"></i></span>
+    }
+    <div class="dropdown-menu">
+        <div class="bb-region-header">
+            <ul>
+                <li class="@GetHeaderActiveClass(RegionViewMode.Province)" @onclick="@OnSwitchProvinceView">省/直辖市</li>
+                <li class="@GetHeaderActiveClass(RegionViewMode.City)" @onclick="@OnSwitchCityView">市</li>
+                <li class="@GetHeaderActiveClass(RegionViewMode.County)" @onclick="@OnSwitchCountyView">区/县</li>
+                <li class="@GetHeaderActiveClass(RegionViewMode.Detail)" @onclick="@OnSwitchDetailView">乡/镇/街道</li>
+            </ul>
+        </div>
+        <div class="bb-region-body">
+            <div class="@GetBodyActiveClass(RegionViewMode.Province)">
+                @RenderProvinces()
+            </div>
+            <div class="@GetBodyActiveClass(RegionViewMode.City)">
+                @RenderCities()
+            </div>
+            <div class="@GetBodyActiveClass(RegionViewMode.County)">
+                @RenderCounties()
+            </div>
+            <div class="@GetBodyActiveClass(RegionViewMode.Detail)">
+                @RenderDetails()
+            </div>
+        </div>
+    </div>
+</div>
+
+@code {
+    RenderFragment RenderProvinces() =>
+    @<ul>
+        @foreach(var item in GetProvinces())
+        {
+            <li class="@GetProvinceActiveClass(item)" @onclick="() => OnClickProvince(item)">@item</li>
+        }
+    </ul>;
+
+    RenderFragment RenderCities() =>
+    @<ul class="bb-region-province">
+        @{
+            var items = GetCities();
+        }
+        @if (items.Count == 0)
+        {
+            <li>无匹配项目</li>
+        }
+        else
+        {
+            foreach(var item in items)
+            {
+                <li class="@GetCityActiveClass(item)" @onclick="() => OnClickCity(item)">@item</li>
+            }
+        }
+    </ul>;
+
+    RenderFragment RenderCounties() =>
+    @<ul class="bb-region-province">
+        @{
+            var items = GetCounties();
+        }
+        @if (items.Count == 0)
+        {
+            <li>无匹配项目</li>
+        }
+        else
+        {
+            @foreach(var item in items)
+            {
+                <li class="@GetCountyActiveClass(item)" @onclick="() => OnClickCounty(item)">@item.Name</li>
+            }
+        }
+    </ul>;
+
+    RenderFragment RenderDetails() =>
+    @<ul class="bb-region-province">
+        @{
+            var items = GetDetails();
+        }
+        @if (items.Count == 0)
+        {
+            <li>无匹配项目</li>
+        }
+        else
+        {
+            @foreach(var item in items)
+            {
+                <li class="@GetDetailActiveClass(item)" @onclick="() => OnClickDetail(item)">@item</li>
+            }
+        }
+    </ul>;
+}
