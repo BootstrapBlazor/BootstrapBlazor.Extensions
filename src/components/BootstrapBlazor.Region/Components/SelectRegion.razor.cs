@@ -2,8 +2,6 @@
 // Licensed under the Apache License, Version 2.0. See License.txt in the project root for license information.
 // Website: https://www.blazor.zone or https://argozhang.github.io/
 
-using Microsoft.AspNetCore.Components;
-
 namespace BootstrapBlazor.Components;
 
 /// <summary>
@@ -112,11 +110,11 @@ public partial class SelectRegion
 
     private async Task OnClearValue()
     {
-        _provinceValue = "";
-        _cityValue = "";
+        _provinceValue = null;
+        _cityValue = null;
         _countyValue = new();
-        _detailValue = "";
-        CurrentValue = "";
+        _detailValue = null;
+        CurrentValue = null;
 
         _currentViewMode = RegionViewMode.Province;
 
@@ -161,6 +159,9 @@ public partial class SelectRegion
     private void OnClickProvince(string value)
     {
         _provinceValue = value;
+        _cityValue = null;
+        _countyValue = new();
+        _detailValue = null;
         _currentViewMode = RegionViewMode.City;
 
         CurrentValue = _provinceValue;
@@ -169,6 +170,8 @@ public partial class SelectRegion
     private void OnClickCity(string value)
     {
         _cityValue = value;
+        _countyValue = new();
+        _detailValue = null;
         _currentViewMode = RegionViewMode.County;
 
         CurrentValue = $"{_provinceValue}-{_cityValue}";
@@ -177,6 +180,7 @@ public partial class SelectRegion
     private void OnClickCounty(CountyItem item)
     {
         _countyValue = item;
+        _detailValue = null;
         _currentViewMode = RegionViewMode.Detail;
 
         CurrentValue = $"{_provinceValue}-{_cityValue}-{_countyValue.Name}";
@@ -194,22 +198,16 @@ public partial class SelectRegion
     private void OnSwitchProvinceView()
     {
         _currentViewMode = RegionViewMode.Province;
-        _cityValue = "";
-        _countyValue = new();
-        _detailValue = "";
     }
 
     private void OnSwitchCityView()
     {
         _currentViewMode = RegionViewMode.City;
-        _countyValue = new();
-        _detailValue = "";
     }
 
     private void OnSwitchCountyView()
     {
         _currentViewMode = RegionViewMode.County;
-        _detailValue = "";
     }
 
     private void OnSwitchDetailView()
