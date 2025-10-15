@@ -40,6 +40,33 @@ public partial class SelectCity
         }
     }
 
+    private void OnSelectProvince(string province)
+    {
+        if (IsMultiple)
+        {
+            HashSet<string> cities = [];
+            if (province == "直辖市")
+            {
+                cities = Municipalities;
+            }
+            else if (province == "特别行政区")
+            {
+                cities = SpecialAdministrativeRegions;
+            }
+            else
+            {
+                cities = GetCities(province);
+            }
+            foreach (var city in cities)
+            {
+                if (!_values.Remove(city))
+                {
+                    _values.Add(city);
+                }
+            }
+        }
+    }
+
     private void OnSelectCity(string item)
     {
         if (IsMultiple)
@@ -93,26 +120,20 @@ public partial class SelectCity
         ];
     }
 
+    private static readonly HashSet<string> Municipalities = ["北京市", "天津市", "上海市", "重庆市"];
+
+    private static readonly HashSet<string> SpecialAdministrativeRegions = ["香港特别行政区", "澳门特别行政区"];
+
     private HashSet<string> GetCities(string provinceName)
     {
         if (provinceName == "直辖市")
         {
-            return
-            [
-                "北京市",
-                "天津市",
-                "上海市",
-                "重庆市"
-            ];
+            return Municipalities;
         }
 
         if (provinceName == "特别行政区")
         {
-            return
-            [
-                "香港特别行政区",
-                "澳门特别行政区"
-            ];
+            return SpecialAdministrativeRegions;
         }
 
         return RegionService.GetCities(provinceName);

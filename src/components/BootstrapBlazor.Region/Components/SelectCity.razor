@@ -19,7 +19,7 @@
         @foreach (var item in GetProvinces())
         {
             <div class="bb-region-city-item">
-                <div class="bb-region-city-title">@item</div>
+                <div class="bb-region-city-title" @onclick="() => OnSelectProvince(item)">@item</div>
                 <ul>
                     @foreach (var city in GetCities(item))
                     {
