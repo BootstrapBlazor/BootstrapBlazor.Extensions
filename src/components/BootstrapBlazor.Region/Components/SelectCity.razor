@@ -23,7 +23,7 @@
                 <ul>
                     @foreach (var city in GetCities(item))
                     {
-                        <li class="">@city</li>
+                        <li class="@GetActiveClass(city)" @onclick="() => OnSelectCity(city)">@city</li>
                     }
                 </ul>
             </div>

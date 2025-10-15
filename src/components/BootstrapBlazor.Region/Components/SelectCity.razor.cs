@@ -16,6 +16,10 @@ public partial class SelectCity
         .AddClassFromAttributes(AdditionalAttributes)
         .Build();
 
+    private readonly HashSet<string> _values = [];
+
+    private string? GetActiveClass(string item) => _values.Contains(item) ? "active" : null;
+
     private async Task OnClearValue()
     {
         CurrentValue = "";
@@ -24,6 +28,19 @@ public partial class SelectCity
         {
             await OnClearAsync();
         }
+    }
+
+    private void OnSelectCity(string item)
+    {
+        if (_values.Contains(item))
+        {
+            _values.Remove(item);
+        }
+        else
+        {
+            _values.Add(item);
+        }
+        CurrentValue = string.Join(",", _values);
     }
 
     private static HashSet<string> GetProvinces()
