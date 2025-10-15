@@ -17,14 +17,14 @@ public partial class SelectCity
 
     private string? InputId => $"{Id}_input";
 
-    private string? ClassString => CssBuilder.Default("select bb-region")
+    private string? ClassString => CssBuilder.Default("select bb-city")
         .AddClass("disabled", IsDisabled)
         .AddClassFromAttributes(AdditionalAttributes)
         .Build();
 
     private readonly HashSet<string> _values = [];
 
-    private string? GetActiveClass(string item) => _values.Contains(item) ? "active" : null;
+    private string? GetActiveClass(string item) => _values.Contains(item) || CurrentValue == item ? "active" : null;
 
     private async Task OnClearValue()
     {

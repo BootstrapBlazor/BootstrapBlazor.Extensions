@@ -1,4 +1,12 @@
-﻿.dropdown-menu {
+﻿.bb-city {
+    position: relative;
+}
+
+    .bb-city:not(.disabled):hover .form-select-append {
+        display: none;
+    }
+
+.dropdown-menu {
     --bs-dropdown-padding-y: .5rem;
     --bs-dropdown-padding-x: .5rem;
     max-width: 400px;
