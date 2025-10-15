@@ -32,11 +32,7 @@ public partial class SelectCity
 
     private void OnSelectCity(string item)
     {
-        if (_values.Contains(item))
-        {
-            _values.Remove(item);
-        }
-        else
+        if (!_values.Remove(item))
         {
             _values.Add(item);
         }
