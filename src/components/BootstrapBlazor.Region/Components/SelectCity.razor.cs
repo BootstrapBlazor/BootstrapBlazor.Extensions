@@ -9,6 +9,12 @@ namespace BootstrapBlazor.Components;
 /// </summary>
 public partial class SelectCity
 {
+    /// <summary>
+    /// 获得/设置 是否可多选 默认 false 单选
+    /// </summary>
+    [Parameter]
+    public bool IsMultiple { get; set; }
+
     private string? InputId => $"{Id}_input";
 
     private string? ClassString => CssBuilder.Default("select bb-region")
@@ -32,6 +38,10 @@ public partial class SelectCity
 
     private void OnSelectCity(string item)
     {
+        if(IsMultiple)
+        {
+
+        }
         if (!_values.Remove(item))
         {
             _values.Add(item);
