@@ -64,6 +64,7 @@ public partial class SelectCity
                     _values.Add(city);
                 }
             }
+            CurrentValue = string.Join(",", _values);
         }
     }
 
