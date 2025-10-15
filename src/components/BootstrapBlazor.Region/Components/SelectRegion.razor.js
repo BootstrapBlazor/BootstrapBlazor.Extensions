@@ -25,6 +25,6 @@ export function dispose(id) {
 
     const { popover } = region;
     if (popover) {
-        Popover.dispose(select.popover);
+        Popover.dispose(popover);
     }
 }
