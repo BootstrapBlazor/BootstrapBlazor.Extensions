@@ -44,7 +44,7 @@ public partial class SelectCity
     {
         if (IsMultiple)
         {
-            HashSet<string> cities = [];
+            HashSet<string> cities;
             if (province == "直辖市")
             {
                 cities = Municipalities;
