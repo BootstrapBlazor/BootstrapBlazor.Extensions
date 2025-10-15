@@ -1,0 +1,30 @@
+﻿@namespace BootstrapBlazor.Components
+@inherits SelectRegionBase
+@attribute [JSModuleAutoLoader("./_content/BootstrapBlazor.Region/Components/SelectRegion.razor.js")]
+
+@if (IsShowLabel)
+{
+    <BootstrapLabel required="@Required" for="@InputId" ShowLabelTooltip="ShowLabelTooltip" Value="@DisplayText" />
+}
+<div @attributes="AdditionalAttributes" id="@Id" class="@ClassString">
+    <div class="dropdown-toggle" data-bs-toggle="bb.dropdown" data-bs-placement="@PlacementString" data-bs-offset="@OffsetString" data-bs-custom-class="@CustomClassString">
+        <input type="text" id="@InputId" disabled="@Disabled" readonly placeholder="@PlaceHolder" class="@InputClassString" value="@CurrentValueAsString" />
+        <span class="@AppendClassString"><i class="@DropdownIcon"></i></span>
+    </div>
+    @if (!IsDisabled)
+    {
+        <span class="@ClearClassString" @onclick="OnClearValue"><i class="@ClearIcon"></i></span>
+    }
+    <div class="dropdown-menu">
+        @foreach(var item in GetProvinces())
+        {
+            <div class="bb-region-city-item">@item</div>
+            <ul>
+                @foreach (var city in GetCities(item))
+                {
+                    <li class="">@city</li>
+                }
+            </ul>
+        }
+    </div>
+</div>
