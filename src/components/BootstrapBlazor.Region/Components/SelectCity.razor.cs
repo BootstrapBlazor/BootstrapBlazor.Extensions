@@ -28,6 +28,10 @@ public partial class SelectCity
 
     private async Task OnClearValue()
     {
+        if (IsMultiple)
+        {
+            _values.Clear();
+        }
         CurrentValue = "";
 
         if (OnClearAsync != null)
@@ -38,15 +42,18 @@ public partial class SelectCity
 
     private void OnSelectCity(string item)
     {
-        if(IsMultiple)
+        if (IsMultiple)
         {
-
+            if (!_values.Remove(item))
+            {
+                _values.Add(item);
+            }
+            CurrentValue = string.Join(",", _values);
         }
-        if (!_values.Remove(item))
+        else
         {
-            _values.Add(item);
+            CurrentValue = item;
         }
-        CurrentValue = string.Join(",", _values);
     }
 
     private static HashSet<string> GetProvinces()
@@ -86,9 +93,9 @@ public partial class SelectCity
         ];
     }
 
-    private HashSet<string> GetCities(string proviceName)
+    private HashSet<string> GetCities(string provinceName)
     {
-        if (proviceName == "直辖市")
+        if (provinceName == "直辖市")
         {
             return
             [
@@ -99,7 +106,7 @@ public partial class SelectCity
             ];
         }
 
-        if (proviceName == "特别行政区")
+        if (provinceName == "特别行政区")
         {
             return
             [
@@ -108,6 +115,6 @@ public partial class SelectCity
             ];
         }
 
-        return RegionService.GetCities(proviceName);
+        return RegionService.GetCities(provinceName);
     }
 }
