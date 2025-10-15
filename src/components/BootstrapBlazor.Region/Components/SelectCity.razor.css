@@ -34,7 +34,14 @@
             color: #000;
         }
 
-.bb-region-city-item {
+.bb-region-city-item:not(:last-child) {
+    margin-bottom: 3px;
+    padding-bottom: 3px;
+    border-bottom: 1px solid var(--bs-border-color);
+}
+
+.bb-region-city-title {
     padding: 3px 12px;
-    color: #ddd;
+    color: #000;
+    font-weight: bold;
 }
