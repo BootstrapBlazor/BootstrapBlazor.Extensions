@@ -6,19 +6,19 @@
         display: none;
     }
 
-.popover-region .dropdown-menu {
+.dropdown-menu {
     --bs-dropdown-padding-y: 0;
 }
 
-.popover-region ul {
-    margin: 0;
-    padding: 0;
-}
+    .dropdown-menu ul {
+        margin: 0;
+        padding: 0;
+    }
 
-.popover-region li {
-    list-style: none;
-    transition: background-color .3s linear, color .3s linear;
-}
+    .dropdown-menu li {
+        list-style: none;
+        transition: background-color .3s linear, color .3s linear;
+    }
 
 .bb-region-header {
     width: 400px;
