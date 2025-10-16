@@ -9,8 +9,18 @@
 .dropdown-menu {
     --bs-dropdown-padding-y: .5rem;
     --bs-dropdown-padding-x: .5rem;
-    max-width: 400px;
-    max-height: 400px;
+    --bb-region-body-color: #495057;
+    --bb-region-body-hover-bg-color: #e9ecef;
+    --bb-region-body-active-bg-color: #dee2e6;
+    --bb-region-body-hover-color: #000;
+    --bb-region-body-active-color: #000;
+    --bb-region-body-width: 400px;
+    --bb-region-body-height: 400px;
+    --bb-region-body-padding: .5rem;
+    --bb-region-body-item-padding: 3px 12px;
+    --bb-region-body-gap: 5px;
+    width: var(--bb-region-body-width);
+    height: var(--bb-region-body-height);
     overflow-y: auto;
 }
 
@@ -19,27 +29,35 @@
         padding: 0;
         display: flex;
         flex-wrap: wrap;
-        gap: 5px;
+        gap: var(--bb-region-body-gap);
     }
 
     .dropdown-menu li {
         list-style: none;
         transition: background-color .3s linear, color .3s linear;
         cursor: pointer;
-        padding: 3px 12px;
+        padding: var(--bb-region-body-item-padding);
         border-radius: var(--bs-border-radius);
-        color: #777;
+        color: var(--bb-region-body-color);
     }
 
         .dropdown-menu li:hover {
-            background-color: #e9ecef;
-            color: #000;
+            background-color: var(--bb-region-body-hover-bg-color);
+            color: var(--bb-region-body-hover-color);
         }
 
         .dropdown-menu li.active {
-            background-color: #e3e3e3;
-            color: #000;
+            background-color: var(--bb-region-body-active-bg-color);
+            color: var(--bb-region-body-active-color);
         }
+
+[data-bs-theme="dark"] .dropdown-menu {
+    --bb-region-body-color: #ddd;
+    --bb-region-body-hover-color: #fff;
+    --bb-region-body-active-color: #fff;
+    --bb-region-body-hover-bg-color: #495057;
+    --bb-region-body-active-bg-color: #6c757d;
+}
 
 .bb-region-city-item:not(:last-child) {
     margin-bottom: 3px;
@@ -48,14 +66,8 @@
 }
 
 .bb-region-city-title {
-    padding: 3px 12px;
-    color: #000;
+    padding: var(--bb-region-body-item-padding);
+    color: var(--bb-region-body-color);
     font-weight: bold;
     cursor: pointer;
-}
-
-[data-bs-theme="dark"] .bb-region-body {
-    --bb-region-body-color: #b5b5c3;
-    --bb-region-body-hover-color: #000;
-    --bb-region-body-active-color: #000;
 }
