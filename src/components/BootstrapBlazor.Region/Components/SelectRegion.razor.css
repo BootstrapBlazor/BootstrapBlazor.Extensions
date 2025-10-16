@@ -1,4 +1,16 @@
-﻿.bb-region {
+﻿.popover-region {
+    --bb-region-body-color: #777;
+    --bb-region-body-hover-color: #000;
+    --bb-region-body-active-color: #000;
+}
+
+[data-bs-theme="dark"] .bb-region-body {
+    --bb-region-body-color: #b5b5c3;
+    --bb-region-body-hover-color: #000;
+    --bb-region-body-active-color: #000;
+}
+
+.bb-region {
     position: relative;
 }
 
@@ -41,12 +53,12 @@
 
             .bb-region-header ul li.active {
                 background-color: #e3e3e3;
-                color: #000;
+                color: var(--bb-region-body-active-color);
             }
 
             .bb-region-header ul li:hover {
                 background-color: #e3e3e3;
-                color: #000;
+                color: var(--bb-region-body-hover-color);
             }
 
 .bb-region-body {
@@ -68,15 +80,15 @@
         padding: 3px 12px;
         border-radius: var(--bs-border-radius);
         cursor: pointer;
-        color: #777;
+        color: var(--bb-region-body-color);
     }
 
         .bb-region-body ul li:hover {
             background-color: #e9ecef;
-            color: #000;
+            color: var(--bb-region-body-hover-color);
         }
 
         .bb-region-body ul li.active {
             background-color: #e3e3e3;
-            color: #000;
+            color: var(--bb-region-body-active-color);
         }

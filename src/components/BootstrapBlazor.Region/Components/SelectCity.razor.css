@@ -53,3 +53,9 @@
     font-weight: bold;
     cursor: pointer;
 }
+
+[data-bs-theme="dark"] .bb-region-body {
+    --bb-region-body-color: #b5b5c3;
+    --bb-region-body-hover-color: #000;
+    --bb-region-body-active-color: #000;
+}
