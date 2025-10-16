@@ -8,6 +8,18 @@
 
 .dropdown-menu {
     --bs-dropdown-padding-y: 0;
+    --bb-region-header-padding: 3px 12px;
+    --bb-region-header-hover-bg-color: #e9ecef;
+    --bb-region-header-active-bg-color: #dee2e6;
+    --bb-region-body-color: #495057;
+    --bb-region-body-hover-bg-color: #e9ecef;
+    --bb-region-body-active-bg-color: #dee2e6;
+    --bb-region-body-hover-color: #000;
+    --bb-region-body-active-color: #000;
+    --bb-region-body-width: 400px;
+    --bb-region-body-padding: .5rem;
+    --bb-region-body-item-padding: 3px 12px;
+    --bb-region-body-gap: 5px;
 }
 
     .dropdown-menu ul {
@@ -20,8 +32,18 @@
         transition: background-color .3s linear, color .3s linear;
     }
 
+[data-bs-theme="dark"] .dropdown-menu {
+    --bb-region-header-hover-bg-color: #495057;
+    --bb-region-header-active-bg-color: #6c757d;
+    --bb-region-body-color: #ddd;
+    --bb-region-body-hover-color: #fff;
+    --bb-region-body-active-color: #fff;
+    --bb-region-body-hover-bg-color: #495057;
+    --bb-region-body-active-bg-color: #6c757d;
+}
+
 .bb-region-header {
-    width: 400px;
+    width: var(--bb-region-body-width);
     border-bottom: 1px solid var(--bs-border-color);
 }
 
@@ -35,29 +57,29 @@
 
         .bb-region-header ul li {
             cursor: pointer;
-            padding: 3px 12px;
+            padding: var(--bb-region-header-padding);
             border-radius: var(--bs-border-radius);
         }
 
             .bb-region-header ul li.active {
-                background-color: #e3e3e3;
-                color: #000;
+                background-color: var(--bb-region-header-active-bg-color);
+                color: var(--bb-region-body-active-color);
             }
 
             .bb-region-header ul li:hover {
-                background-color: #e3e3e3;
-                color: #000;
+                background-color: var(--bb-region-header-hover-bg-color);
+                color: var(--bb-region-body-hover-color);
             }
 
 .bb-region-body {
-    padding: .5rem;
-    width: 400px;
+    padding: var(--bb-region-body-padding);
+    width: var(--bb-region-body-width);
 }
 
     .bb-region-body ul {
         display: flex;
         flex-wrap: wrap;
-        gap: 5px;
+        gap: var(--bb-region-body-gap);
     }
 
     .bb-region-body .bb-region-body-item:not(.active) {
@@ -65,18 +87,18 @@
     }
 
     .bb-region-body ul li {
-        padding: 3px 12px;
+        padding: var(--bb-region-body-item-padding);
         border-radius: var(--bs-border-radius);
+        color: var(--bb-region-body-color);
         cursor: pointer;
-        color: #777;
     }
 
         .bb-region-body ul li:hover {
-            background-color: #e9ecef;
-            color: #000;
+            background-color: var(--bb-region-body-hover-bg-color);
+            color: var(--bb-region-body-hover-color);
         }
 
         .bb-region-body ul li.active {
-            background-color: #e3e3e3;
-            color: #000;
+            background-color: var(--bb-region-body-active-bg-color);
+            color: var(--bb-region-body-active-color);
         }
