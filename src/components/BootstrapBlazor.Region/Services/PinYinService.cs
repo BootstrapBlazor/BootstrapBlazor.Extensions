@@ -2,11 +2,29 @@
 // Licensed under the Apache License, Version 2.0. See License.txt in the project root for license information.
 // Website: https://www.blazor.zone or https://argozhang.github.io/
 
+using System.Text;
+
 namespace BootstrapBlazor.Components;
 
-class PinYinService
+static class PinYinService
 {
-    public static Dictionary<string, string> codes = new()
+    public static string GetFirstLetters(string text)
+    {
+        var ret = new StringBuilder();
+        foreach (var c in text)
+        {
+            foreach (var item in Cache)
+            {
+                if (item.Value.Contains(c, StringComparison.InvariantCulture))
+                {
+                    ret.Append(item.Key.First());
+                }
+            }
+        }
+        return ret.ToString().ToUpperInvariant();
+    }
+
+    public static Dictionary<string, string> Cache = new()
     {
         { "a", "阿啊吖嗄腌锕" },
         { "ai", "爱埃碍矮挨唉哎哀皑癌蔼艾隘捱嗳嗌嫒瑷暧砹锿霭" },
@@ -46,7 +64,7 @@ class PinYinService
         { "chen", "陈沉称衬尘臣晨郴辰忱趁伧谌谶抻嗔宸琛榇碜龀" },
         { "cheng", "成程称城承乘呈撑诚橙惩澄逞骋秤丞埕噌枨柽塍瞠铖铛裎蛏酲" },
         { "chi", "持尺齿吃赤池迟翅斥耻痴匙弛驰侈炽傺坻墀茌叱哧啻嗤彳饬媸敕眵鸱瘛褫蚩螭笞篪豉踟魑" },
-        { "chong", "虫充冲崇宠茺忡憧铳舂艟" },
+        { "chong", "虫重充冲崇宠茺忡憧铳舂艟" },
         { "chou", "抽仇臭酬畴踌稠愁筹绸瞅丑俦帱惆瘳雠" },
         { "chu", "出处除初础触楚锄储橱厨躇雏滁矗搐亍刍怵憷绌杵楮樗褚蜍蹰黜" },
         { "chuai", "揣搋啜膪踹" },
