@@ -29,6 +29,12 @@ public partial class SelectCity
     [Parameter]
     public string? SearchIcon { get; set; }
 
+    /// <summary>
+    /// 获得/设置 单选时选择后是否自动关闭 默认 true
+    /// </summary>
+    [Parameter]
+    public bool AutoClose { get; set; } = true;
+
     private string? ClassString => CssBuilder.Default("select bb-city")
         .AddClass("disabled", IsDisabled)
         .AddClassFromAttributes(AdditionalAttributes)
@@ -50,7 +56,6 @@ public partial class SelectCity
         .AddClass("prev", !string.IsNullOrEmpty(_searchText) && PinYinService.GetFirstLetters(item).StartsWith(_searchText))
         .Build();
 
-
     /// <summary>
     /// <inheritdoc/>
     /// </summary>
@@ -71,7 +76,7 @@ public partial class SelectCity
     });
 
     /// <summary>
-    /// 触发过滤方法 由 Javascript 触发
+    /// 触发过滤方法 由 JavaScript 触发
     /// </summary>
     /// <param name="v"></param>
     /// <returns></returns>
@@ -124,7 +129,7 @@ public partial class SelectCity
         CurrentValue = string.Join(",", _values);
     }
 
-    private void OnSelectCity(string item)
+    private async Task OnSelectCity(string item)
     {
         if (IsMultiple)
         {
@@ -138,6 +143,11 @@ public partial class SelectCity
         {
             CurrentValue = item;
         }
+
+        if (AutoClose)
+        {
+            await InvokeVoidAsync("hide", Id);
+        }
     }
 
     private HashSet<string> GetProvinces()
@@ -145,6 +155,11 @@ public partial class SelectCity
         if (string.IsNullOrEmpty(_searchText))
         {
             return Provinces;
+        }
+
+        if (IsChinese(_searchText))
+        {
+            return [.. Provinces.Where(i => i.Contains(_searchText) || GetCities(i).Any(city => city.Contains(_searchText)))];
         }
 
         return [.. GenerateProvincePinYin().Where(i => FilterProvince(i, _searchText)).Select(i => i.Name)];
@@ -161,11 +176,7 @@ public partial class SelectCity
         {
             PinYin = PinYinService.GetFirstLetters(i),
             Name = i,
-            Cities = [.. GetCities(i).Select(i => new CityItem()
-            {
-                PinYin = PinYinService.GetFirstLetters(i),
-                Name = i
-            })]
+            Cities = GenerateCityPinYin(i)
         })];
         return _provinceItems;
     }
@@ -177,11 +188,13 @@ public partial class SelectCity
         _ => RegionService.GetCities(provinceName)
     };
 
-    private static HashSet<CityItem> GenerateCityPinYin(HashSet<string> cities) => [.. cities.Select(i => new CityItem()
+    private HashSet<CityItem> GenerateCityPinYin(string provinceName) => [.. GetCities(provinceName).Select(i => new CityItem()
     {
         PinYin = PinYinService.GetFirstLetters(i),
         Name = i
     })];
+
+    private bool IsChinese(string text) => text.Any(i => i >= 0x4E00 && i <= 0x9FFF);
 
     private static readonly HashSet<string> Provinces = [
         "直辖市",
