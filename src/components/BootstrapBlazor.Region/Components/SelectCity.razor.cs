@@ -31,6 +31,7 @@ public partial class SelectCity
 
     /// <summary>
     /// 获得/设置 单选时选择后是否自动关闭 默认 true
+    /// <para><see cref="IsMultiple"/> 值为 true 时，这个参数不生效</para>
     /// </summary>
     [Parameter]
     public bool AutoClose { get; set; } = true;
@@ -144,7 +145,7 @@ public partial class SelectCity
             CurrentValue = item;
         }
 
-        if (AutoClose)
+        if (!IsMultiple && AutoClose)
         {
             await InvokeVoidAsync("hide", Id);
         }
