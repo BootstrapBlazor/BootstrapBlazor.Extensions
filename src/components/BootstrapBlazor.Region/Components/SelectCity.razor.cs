@@ -2,6 +2,8 @@
 // Licensed under the Apache License, Version 2.0. See License.txt in the project root for license information.
 // Website: https://www.blazor.zone or https://argozhang.github.io/
 
+using System.Runtime.CompilerServices;
+
 namespace BootstrapBlazor.Components;
 
 /// <summary>
@@ -43,7 +45,11 @@ public partial class SelectCity
     private readonly HashSet<string> _values = [];
     private string? _searchText;
 
-    private string? GetActiveClass(string item) => _values.Contains(item) || CurrentValue == item ? "active" : null;
+    private string? GetActiveClass(string item) => CssBuilder.Default()
+        .AddClass("active", _values.Contains(item) || CurrentValue == item)
+        .AddClass("prev", !string.IsNullOrEmpty(_searchText) && PinYinService.GetFirstLetters(item).StartsWith(_searchText))
+        .Build();
+
 
     /// <summary>
     /// <inheritdoc/>
@@ -98,18 +104,18 @@ public partial class SelectCity
         }
     };
 
-    private void OnSelectProvince(string province)
+    private void OnSelectProvince(string provinceName)
     {
         if (!IsMultiple)
         {
             return;
         }
 
-        HashSet<string> cities = province switch
+        HashSet<string> cities = provinceName switch
         {
             "直辖市" => Municipalities,
             "特别行政区" => SpecialAdministrativeRegions,
-            _ => GetCities(province)
+            _ => GetCities(provinceName)
         };
         foreach (var city in cities.Where(city => !_values.Remove(city)))
         {
@@ -141,16 +147,41 @@ public partial class SelectCity
             return Provinces;
         }
 
-        // 处理直辖市
-        if (PinYinZXS.Contains(_searchText))
-        {
-            return ["直辖市"];
-        }
-
-        return Provinces;
+        return [.. GenerateProvincePinYin().Where(i => FilterProvince(i, _searchText)).Select(i => i.Name)];
     }
 
-    private static readonly HashSet<string> PinYinZXS = ["BJ", "TJ", "SH", "CQ"];
+    [MethodImpl(MethodImplOptions.AggressiveInlining)]
+    private static bool FilterProvince(ProvinceItem item, string searchText) => item.PinYin.StartsWith(searchText) || item.Cities.Any(city => city.PinYin.StartsWith(searchText));
+
+    private static HashSet<ProvinceItem>? _provinceItems;
+
+    private HashSet<ProvinceItem> GenerateProvincePinYin()
+    {
+        _provinceItems ??= [.. Provinces.Select(i => new ProvinceItem()
+        {
+            PinYin = PinYinService.GetFirstLetters(i),
+            Name = i,
+            Cities = [.. GetCities(i).Select(i => new CityItem()
+            {
+                PinYin = PinYinService.GetFirstLetters(i),
+                Name = i
+            })]
+        })];
+        return _provinceItems;
+    }
+
+    private HashSet<string> GetCities(string provinceName) => provinceName switch
+    {
+        "直辖市" => Municipalities,
+        "特别行政区" => SpecialAdministrativeRegions,
+        _ => RegionService.GetCities(provinceName)
+    };
+
+    private static HashSet<CityItem> GenerateCityPinYin(HashSet<string> cities) => [.. cities.Select(i => new CityItem()
+    {
+        PinYin = PinYinService.GetFirstLetters(i),
+        Name = i
+    })];
 
     private static readonly HashSet<string> Provinces = [
         "直辖市",
@@ -188,19 +219,4 @@ public partial class SelectCity
     private static readonly HashSet<string> Municipalities = ["北京市", "天津市", "上海市", "重庆市"];
 
     private static readonly HashSet<string> SpecialAdministrativeRegions = ["香港特别行政区", "澳门特别行政区"];
-
-    private HashSet<string> GetCities(string provinceName)
-    {
-        if (provinceName == "直辖市")
-        {
-            return Municipalities;
-        }
-
-        if (provinceName == "特别行政区")
-        {
-            return SpecialAdministrativeRegions;
-        }
-
-        return RegionService.GetCities(provinceName);
-    }
 }

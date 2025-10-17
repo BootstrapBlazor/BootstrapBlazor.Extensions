@@ -55,6 +55,11 @@
             color: var(--bb-region-body-active-color);
         }
 
+        .dropdown-menu-city li.prev {
+            background-color: var(--bb-region-body-hover-bg-color);
+            color: var(--bb-region-body-hover-color);
+        }
+
 [data-bs-theme="dark"] .dropdown-menu-city {
     --bb-region-body-color: #c0c4cc;
     --bb-region-body-hover-color: #fff;
