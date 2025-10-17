@@ -15,14 +15,45 @@ public partial class SelectCity
     [Parameter]
     public bool IsMultiple { get; set; }
 
+    /// <summary>
+    /// 获得/设置 是否开启搜索功能 默认 true 开启
+    /// </summary>
+    [Parameter]
+    public bool ShowSearch { get; set; } = true;
+
+    /// <summary>
+    /// Gets or sets the search icon.
+    /// </summary>
+    [Parameter]
+    public string? SearchIcon { get; set; }
+
     private string? ClassString => CssBuilder.Default("select bb-city")
         .AddClass("disabled", IsDisabled)
         .AddClassFromAttributes(AdditionalAttributes)
         .Build();
 
+    private string? SearchIconString => CssBuilder.Default("icon search-icon")
+        .AddClass(SearchIcon)
+        .Build();
+
+    private string? ClearIconString => CssBuilder.Default("icon clear-icon")
+        .AddClass(ClearIcon)
+        .Build();
+
     private readonly HashSet<string> _values = [];
+    private string? _searchText;
 
     private string? GetActiveClass(string item) => _values.Contains(item) || CurrentValue == item ? "active" : null;
+
+    /// <summary>
+    /// <inheritdoc/>
+    /// </summary>
+    protected override void OnParametersSet()
+    {
+        base.OnParametersSet();
+
+        SearchIcon ??= IconTheme.GetIconByKey(ComponentIcons.SelectSearchIcon);
+    }
 
     private async Task OnClearValue()
     {
@@ -37,6 +68,20 @@ public partial class SelectCity
             await OnClearAsync();
         }
     }
+
+    private void OnClearSearch()
+    {
+        _searchText = null;
+        StateHasChanged();
+    }
+
+    private RenderFragment RenderCities() => builder =>
+    {
+        foreach (var item in GetProvinces())
+        {
+            builder.AddContent(0, RenderItem(item));
+        }
+    };
 
     private void OnSelectProvince(string province)
     {
