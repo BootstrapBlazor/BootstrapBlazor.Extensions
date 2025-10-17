@@ -15,8 +15,6 @@ public partial class SelectCity
     [Parameter]
     public bool IsMultiple { get; set; }
 
-    private string? InputId => $"{Id}_input";
-
     private string? ClassString => CssBuilder.Default("select bb-city")
         .AddClass("disabled", IsDisabled)
         .AddClassFromAttributes(AdditionalAttributes)
@@ -42,30 +40,22 @@ public partial class SelectCity
 
     private void OnSelectProvince(string province)
     {
-        if (IsMultiple)
+        if (!IsMultiple)
         {
-            HashSet<string> cities;
-            if (province == "直辖市")
-            {
-                cities = Municipalities;
-            }
-            else if (province == "特别行政区")
-            {
-                cities = SpecialAdministrativeRegions;
-            }
-            else
-            {
-                cities = GetCities(province);
-            }
-            foreach (var city in cities)
-            {
-                if (!_values.Remove(city))
-                {
-                    _values.Add(city);
-                }
-            }
-            CurrentValue = string.Join(",", _values);
+            return;
         }
+
+        HashSet<string> cities = province switch
+        {
+            "直辖市" => Municipalities,
+            "特别行政区" => SpecialAdministrativeRegions,
+            _ => GetCities(province)
+        };
+        foreach (var city in cities.Where(city => !_values.Remove(city)))
+        {
+            _values.Add(city);
+        }
+        CurrentValue = string.Join(",", _values);
     }
 
     private void OnSelectCity(string item)

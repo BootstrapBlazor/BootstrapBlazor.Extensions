@@ -1,16 +1,13 @@
-﻿.bb-region {
+﻿.bb-province {
     position: relative;
 }
 
-    .bb-region:not(.disabled):hover .form-select-append {
+    .bb-province:not(.disabled):hover .form-select-append {
         display: none;
     }
 
 .dropdown-menu {
     --bs-dropdown-padding-y: 0;
-    --bb-region-header-padding: 3px 12px;
-    --bb-region-header-hover-bg-color: #e9ecef;
-    --bb-region-header-active-bg-color: #dee2e6;
     --bb-region-body-color: #495057;
     --bb-region-body-hover-bg-color: #e9ecef;
     --bb-region-body-active-bg-color: #dee2e6;
@@ -33,43 +30,12 @@
     }
 
 [data-bs-theme="dark"] .dropdown-menu {
-    --bb-region-header-hover-bg-color: #495057;
-    --bb-region-header-active-bg-color: #6c757d;
     --bb-region-body-color: #c0c4cc;
     --bb-region-body-hover-color: #fff;
     --bb-region-body-active-color: #fff;
     --bb-region-body-hover-bg-color: #495057;
     --bb-region-body-active-bg-color: #6c757d;
 }
-
-.bb-region-header {
-    width: var(--bb-region-body-width);
-    border-bottom: 1px solid var(--bs-border-color);
-}
-
-    .bb-region-header ul {
-        display: flex;
-        justify-content: space-between;
-        flex-wrap: nowrap;
-        padding: .5rem;
-        font-weight: bold;
-    }
-
-        .bb-region-header ul li {
-            cursor: pointer;
-            padding: var(--bb-region-header-padding);
-            border-radius: var(--bs-border-radius);
-        }
-
-            .bb-region-header ul li.active {
-                background-color: var(--bb-region-header-active-bg-color);
-                color: var(--bb-region-body-active-color);
-            }
-
-            .bb-region-header ul li:hover {
-                background-color: var(--bb-region-header-hover-bg-color);
-                color: var(--bb-region-body-hover-color);
-            }
 
 .bb-region-body {
     padding: var(--bb-region-body-padding);
@@ -80,10 +46,6 @@
         display: flex;
         flex-wrap: wrap;
         gap: var(--bb-region-body-gap);
-    }
-
-    .bb-region-body .bb-region-body-item:not(.active) {
-        display: none;
     }
 
     .bb-region-body ul li {
