@@ -13,12 +13,10 @@ static class PinYinService
         var ret = new StringBuilder();
         foreach (var c in text)
         {
-            foreach (var item in Cache)
+            foreach (var item in Cache.Where(item => item.Value.Contains(c, StringComparison.InvariantCulture)))
             {
-                if (item.Value.Contains(c, StringComparison.InvariantCulture))
-                {
-                    ret.Append(item.Key.First());
-                }
+                ret.Append(item.Key.First());
+                break;
             }
         }
         return ret.ToString().ToUpperInvariant();
@@ -29,7 +27,7 @@ static class PinYinService
         { "a", "阿啊吖嗄腌锕" },
         { "ai", "爱埃碍矮挨唉哎哀皑癌蔼艾隘捱嗳嗌嫒瑷暧砹锿霭" },
         { "an", "安按暗岸案俺氨胺鞍谙埯揞犴庵桉铵鹌黯" },
-        { "ang", "昂肮盎" },
+        { "ang", "昂盎" },
         { "ao", "凹奥敖熬翱袄傲懊澳坳拗嗷岙廒遨媪骜獒聱螯鏊鳌鏖" },
         { "ba", "把八吧巴拔霸罢爸坝芭捌扒叭笆疤跋靶耙茇菝岜灞钯粑鲅魃" },
         { "bai", "百白败摆柏佰拜稗捭掰" },
