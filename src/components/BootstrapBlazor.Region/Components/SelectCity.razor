@@ -1,6 +1,6 @@
 ﻿@namespace BootstrapBlazor.Components
 @inherits SelectRegionBase
-@attribute [JSModuleAutoLoader("./_content/BootstrapBlazor.Region/Components/SelectRegion.razor.js")]
+@attribute [JSModuleAutoLoader("./_content/BootstrapBlazor.Region/Components/SelectCity.razor.js", JSObjectReference = true)]
 
 @if (IsShowLabel)
 {
@@ -21,9 +21,9 @@
             <div class="dropdown-menu-search">
                 <input type="text" class="search-text form-control" autocomplete="off" value="@_searchText" aria-label="search" />
                 <i class="@SearchIconString"></i>
-                <i class="@ClearIconString" @onclick="OnClearSearch"></i>
+                <i class="@ClearIconString"></i>
             </div>
-            <div class="dropdown-menu-city-body">
+            <div class="dropdown-menu-search-body">
                 @RenderCities()
             </div>
         }
