@@ -52,7 +52,7 @@
         }
 
 [data-bs-theme="dark"] .dropdown-menu {
-    --bb-region-body-color: #ddd;
+    --bb-region-body-color: #c0c4cc;
     --bb-region-body-hover-color: #fff;
     --bb-region-body-active-color: #fff;
     --bb-region-body-hover-bg-color: #495057;
