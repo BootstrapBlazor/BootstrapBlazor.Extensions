@@ -99,7 +99,7 @@ class DefaultRegionService : IRegionService
 
                 var mem = content.AsMemory();
                 var code = Trim(mem[0..index].ToString());
-                var value = Trim(mem[(index + 1)..(mem.Length - 1)].ToString());
+                var value = Trim(mem[(index + 1)..^1].ToString());
 
                 if (code[2..] == "0000")
                 {
