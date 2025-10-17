@@ -8,7 +8,13 @@ export function init(id, invoke, options) {
     if (el === null) {
         return
     }
-    const popover = Popover.init(el);
+    const popover = Popover.init(el, {
+        shownCallback: () => {
+            if (searchInput != null) {
+                searchInput.focus();
+            }
+        }
+    });
 
     const searchInput = el.querySelector(".search-text");
     if (searchInput) {
