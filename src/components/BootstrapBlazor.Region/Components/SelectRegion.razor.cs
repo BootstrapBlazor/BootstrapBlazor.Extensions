@@ -9,7 +9,7 @@ namespace BootstrapBlazor.Components;
 /// </summary>
 public partial class SelectRegion
 {
-    private string? InputId => $"{Id}_input";
+    private string InputId => $"{Id}_input";
 
     private string? ClassString => CssBuilder.Default("select bb-region")
         .AddClass("disabled", IsDisabled)
