@@ -6,10 +6,15 @@
         display: none;
     }
 
-.dropdown-menu {
+.dropdown-menu-city {
     --bs-dropdown-padding-y: .5rem;
     --bs-dropdown-padding-x: .5rem;
+    --bb-select-search-padding: .5rem 0;
+    --bb-select-search-icon-right: 12px;
+    --bb-select-search-padding-right: 34px;
     --bb-region-body-color: #495057;
+    --bb-region-body-prev-bg-color: #eee;
+    --bb-region-body-prev-color: #6c757d;
     --bb-region-body-hover-bg-color: #e9ecef;
     --bb-region-body-active-bg-color: #dee2e6;
     --bb-region-body-hover-color: #000;
@@ -22,9 +27,10 @@
     width: var(--bb-region-body-width);
     height: var(--bb-region-body-height);
     overflow-y: auto;
+    flex-direction: column;
 }
 
-    .dropdown-menu ul {
+    .dropdown-menu-city ul {
         margin: 0;
         padding: 0;
         display: flex;
@@ -32,7 +38,7 @@
         gap: var(--bb-region-body-gap);
     }
 
-    .dropdown-menu li {
+    .dropdown-menu-city li {
         list-style: none;
         transition: background-color .3s linear, color .3s linear;
         cursor: pointer;
@@ -41,22 +47,53 @@
         color: var(--bb-region-body-color);
     }
 
-        .dropdown-menu li:hover {
+        .dropdown-menu-city li.prev {
+            background-color: var(--bb-region-body-prev-bg-color);
+            color: var(--bb-region-body-prev-color);
+        }
+
+        .dropdown-menu-city li:hover {
             background-color: var(--bb-region-body-hover-bg-color);
             color: var(--bb-region-body-hover-color);
         }
 
-        .dropdown-menu li.active {
+        .dropdown-menu-city li.active {
             background-color: var(--bb-region-body-active-bg-color);
             color: var(--bb-region-body-active-color);
         }
 
-[data-bs-theme="dark"] .dropdown-menu {
+[data-bs-theme="dark"] .dropdown-menu-city {
     --bb-region-body-color: #c0c4cc;
     --bb-region-body-hover-color: #fff;
     --bb-region-body-active-color: #fff;
     --bb-region-body-hover-bg-color: #495057;
     --bb-region-body-active-bg-color: #6c757d;
+}
+
+.show > .dropdown-menu-city {
+    display: flex;
+}
+
+.dropdown-menu-search .clear-icon {
+    cursor: pointer;
+}
+
+.dropdown-menu-search:hover .search-icon {
+    display: none;
+}
+
+.dropdown-menu-search:not(:hover) .clear-icon {
+    display: none;
+}
+
+.dropdown-menu-search .search-text {
+    text-transform: uppercase;
+}
+
+.dropdown-menu-search-body {
+    flex: 1;
+    height: 1%;
+    overflow-y: auto;
 }
 
 .bb-region-city-item:not(:last-child) {
