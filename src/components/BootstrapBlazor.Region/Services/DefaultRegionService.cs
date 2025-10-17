@@ -10,22 +10,16 @@ namespace BootstrapBlazor.Components;
 
 class DefaultRegionService : IRegionService
 {
-    private static readonly ConcurrentDictionary<string, HashSet<string>> _citiesCache = new();
-    private static readonly ConcurrentDictionary<string, HashSet<CountyItem>> _countiesCache = new();
-    private static readonly ConcurrentDictionary<string, HashSet<string>> _detailCache = new();
+    private static readonly ConcurrentDictionary<string, HashSet<string>> CitiesCache = new();
+    private static readonly ConcurrentDictionary<string, HashSet<CountyItem>> CountiesCache = new();
+    private static readonly ConcurrentDictionary<string, HashSet<string>> DetailCache = new();
 
-    private static bool _initialized = false;
-
-#if NET9_0_OR_GREATER
-    private static readonly Lock _lock = new();
-#else
-    private static readonly object _lock = new();
-#endif
+    private static bool _initialized;
 
 #if NET9_0_OR_GREATER
-    private static readonly Lock _lockDetail = new();
+    private static readonly Lock Lock = new();
 #else
-    private static readonly object _lockDetail = new();
+    private static readonly object Lock = new();
 #endif
 
     public HashSet<string> GetProvinces() => Provinces;
@@ -33,18 +27,18 @@ class DefaultRegionService : IRegionService
     public HashSet<string> GetCities(string province)
     {
         LoadCityData();
-        return _citiesCache.TryGetValue(province, out var cities) ? cities : [];
+        return CitiesCache.TryGetValue(province, out var cities) ? cities : [];
     }
 
     public HashSet<CountyItem> GetCounties(string city)
     {
         LoadCityData();
-        return _countiesCache.TryGetValue(city, out var counties) ? counties : [];
+        return CountiesCache.TryGetValue(city, out var counties) ? counties : [];
     }
 
     public HashSet<string> GetDetails(string countyCode)
     {
-        return _detailCache.GetOrAdd(countyCode, LoadDetailData);
+        return DetailCache.GetOrAdd(countyCode, LoadDetailData);
     }
 
     private static HashSet<string> LoadDetailData(string countyCode)
@@ -71,7 +65,7 @@ class DefaultRegionService : IRegionService
     {
         if (!_initialized)
         {
-            lock (_lock)
+            lock (Lock)
             {
                 if (!_initialized)
                 {
@@ -117,7 +111,7 @@ class DefaultRegionService : IRegionService
                         cities.Add(value);
                     }
 
-                    _citiesCache.TryAdd(value, cities);
+                    CitiesCache.TryAdd(value, cities);
                     counties = null;
                     continue;
                 }
@@ -126,14 +120,14 @@ class DefaultRegionService : IRegionService
                 {
                     cities.Add(value);
                     counties = [];
-                    _countiesCache.TryAdd(value, counties);
+                    CountiesCache.TryAdd(value, counties);
                     continue;
                 }
 
                 if (counties == null)
                 {
                     counties = [];
-                    _countiesCache.TryAdd(city, counties);
+                    CountiesCache.TryAdd(city, counties);
                 }
 
                 counties.Add(new CountyItem() { Name = value, Code = code });
