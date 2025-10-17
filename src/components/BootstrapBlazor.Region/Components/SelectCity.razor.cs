@@ -15,8 +15,6 @@ public partial class SelectCity
     [Parameter]
     public bool IsMultiple { get; set; }
 
-    private string InputId => $"{Id}_input";
-
     private string? ClassString => CssBuilder.Default("select bb-city")
         .AddClass("disabled", IsDisabled)
         .AddClassFromAttributes(AdditionalAttributes)

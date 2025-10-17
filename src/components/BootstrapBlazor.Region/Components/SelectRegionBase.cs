@@ -84,6 +84,11 @@ public abstract class SelectRegionBase : PopoverSelectBase<string>
         .Build();
 
     /// <summary>
+    /// 获得 选择框组件 Id
+    /// </summary>
+    protected string InputId => $"{Id}_input";
+
+    /// <summary>
     /// <inheritdoc/>
     /// </summary>
     protected override void OnParametersSet()
