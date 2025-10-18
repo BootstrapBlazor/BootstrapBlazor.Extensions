@@ -36,6 +36,10 @@ public partial class SelectCity
     [Parameter]
     public bool AutoClose { get; set; } = true;
 
+    [Inject]
+    [NotNull]
+    private IPinyinService? PinyinService { get; set; }
+
     private string? ClassString => CssBuilder.Default("select bb-city")
         .AddClass("disabled", IsDisabled)
         .AddClassFromAttributes(AdditionalAttributes)
@@ -55,7 +59,7 @@ public partial class SelectCity
     private string? GetActiveClass(string item) => CssBuilder.Default()
         .AddClass("active", _values.Contains(item) && IsMultiple)
         .AddClass("active", CurrentValue == item && !IsMultiple)
-        .AddClass("prev", !string.IsNullOrEmpty(_searchText) && PinYinService.GetFirstLetters(item).StartsWith(_searchText))
+        .AddClass("prev", !string.IsNullOrEmpty(_searchText) && PinyinService.GetFirstLetters(item).StartsWith(_searchText))
         .Build();
 
     /// <summary>
@@ -164,7 +168,7 @@ public partial class SelectCity
             return Provinces;
         }
 
-        if (IsChinese(_searchText))
+        if (PinyinService.IsChinese(_searchText))
         {
             return [.. Provinces.Where(i => i.Contains(_searchText) || GetCities(i).Any(city => city.Contains(_searchText)))];
         }
@@ -181,7 +185,7 @@ public partial class SelectCity
     {
         _provinceItems ??= [.. Provinces.Select(i => new ProvinceItem()
         {
-            PinYin = PinYinService.GetFirstLetters(i),
+            PinYin = PinyinService.GetFirstLetters(i),
             Name = i,
             Cities = GenerateCityPinYin(i)
         })];
@@ -197,11 +201,9 @@ public partial class SelectCity
 
     private HashSet<CityItem> GenerateCityPinYin(string provinceName) => [.. GetCities(provinceName).Select(i => new CityItem()
     {
-        PinYin = PinYinService.GetFirstLetters(i),
+        PinYin = PinyinService.GetFirstLetters(i),
         Name = i
     })];
-
-    private bool IsChinese(string text) => text.Any(i => i >= 0x4E00 && i <= 0x9FFF);
 
     private static readonly HashSet<string> Provinces = [
         "直辖市",
