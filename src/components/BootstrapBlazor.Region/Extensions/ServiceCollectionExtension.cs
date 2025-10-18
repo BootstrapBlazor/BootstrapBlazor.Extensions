@@ -19,6 +19,7 @@ public static class ServiceCollectionExtension
     public static IServiceCollection AddBootstrapBlazorRegionService(this IServiceCollection services)
     {
         services.AddSingleton<IRegionService, DefaultRegionService>();
+        services.AddPinyinService();
 
         return services;
     }
