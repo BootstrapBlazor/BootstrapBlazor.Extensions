@@ -59,6 +59,7 @@
     <Project Path="src/components/BootstrapBlazor.OpenAI.GPT3/BootstrapBlazor.OpenAI.csproj" />
     <Project Path="src/components/BootstrapBlazor.PdfReader/BootstrapBlazor.PdfReader.csproj" />
     <Project Path="src/components/BootstrapBlazor.PdfViewer/BootstrapBlazor.PdfViewer.csproj" />
+    <Project Path="src/components/BootstrapBlazor.Pinyin/BootstrapBlazor.Pinyin.csproj" Id="8aa8ae66-562c-4205-9e64-a6787860fdf3" />
     <Project Path="src/components/BootstrapBlazor.Player/BootstrapBlazor.Player.csproj" />
     <Project Path="src/components/BootstrapBlazor.RDKit/BootstrapBlazor.RDKit.csproj" />
     <Project Path="src/components/BootstrapBlazor.Region/BootstrapBlazor.Region.csproj" Id="f4e0b11d-f630-4e34-9dca-e9c6b6b60cee" />
