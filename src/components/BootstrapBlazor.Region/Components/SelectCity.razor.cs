@@ -53,7 +53,8 @@ public partial class SelectCity
     private string? _searchText;
 
     private string? GetActiveClass(string item) => CssBuilder.Default()
-        .AddClass("active", _values.Contains(item) || CurrentValue == item)
+        .AddClass("active", _values.Contains(item) && IsMultiple)
+        .AddClass("active", CurrentValue == item && !IsMultiple)
         .AddClass("prev", !string.IsNullOrEmpty(_searchText) && PinYinService.GetFirstLetters(item).StartsWith(_searchText))
         .Build();
 
@@ -65,6 +66,11 @@ public partial class SelectCity
         base.OnParametersSet();
 
         SearchIcon ??= IconTheme.GetIconByKey(ComponentIcons.SelectSearchIcon);
+
+        if (!IsMultiple)
+        {
+            _values.Clear();
+        }
     }
 
     /// <summary>
