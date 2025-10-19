@@ -1,4 +1,4 @@
-﻿// Copyright (c) Argo Zhang (argo@163.com). All rights reserved.
+﻿// Copyright (c) BootstrapBlazor & Argo Zhang (argo@live.ca). All rights reserved.
 // Licensed under the Apache License, Version 2.0. See License.txt in the project root for license information.
 // Website: https://www.blazor.zone or https://argozhang.github.io/
 
@@ -18,9 +18,9 @@ public static class BootstrapBlazoIP2RegionExtensions
     /// <param name="services"></param>
     public static IServiceCollection AddBootstrapBlazorIP2RegionService(this IServiceCollection services)
     {
-        services.TryAddSingleton<IIpLocatorProvider, IP2RegionService>();
+        services.AddSingleton<IIpLocatorProvider, IP2RegionService>();
 #if NET8_0_OR_GREATER
-        services.TryAddKeyedSingleton<IIpLocatorProvider, IP2RegionService>("BootstrapBlazor.IP2Region");
+        services.AddKeyedSingleton<IIpLocatorProvider, IP2RegionService>("BootstrapBlazor.IP2Region");
 #endif
 
         services.AddOptionsMonitor<IP2RegionOptions>();
