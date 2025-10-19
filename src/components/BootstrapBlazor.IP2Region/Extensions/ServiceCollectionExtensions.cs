@@ -9,7 +9,7 @@ namespace Microsoft.Extensions.DependencyInjection;
 /// <summary>
 /// BootstrapBlazor 服务扩展类
 /// </summary>
-public static class BootstrapBlazoIP2RegionExtensions
+public static class ServiceCollectionExtensions
 {
     /// <summary>
     /// 添加 IP2RegionService 服务
