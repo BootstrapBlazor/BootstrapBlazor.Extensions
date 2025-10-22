@@ -86,10 +86,6 @@
     display: none;
 }
 
-.dropdown-menu-search .search-text {
-    text-transform: uppercase;
-}
-
 .dropdown-menu-search-body {
     flex: 1;
     height: 1%;
