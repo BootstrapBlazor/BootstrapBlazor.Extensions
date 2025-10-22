@@ -8,7 +8,7 @@ readonly record struct ProvinceItem
 {
     public string Name { get; init; }
 
-    public string PinYin { get; init; }
+    public HashSet<string> PinYin { get; init; }
 
     public HashSet<CityItem> Cities { get; init; }
 }

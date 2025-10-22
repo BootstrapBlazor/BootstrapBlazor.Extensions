@@ -50,7 +50,6 @@
     <Project Path="src/components/BootstrapBlazor.Mermaid/BootstrapBlazor.Mermaid.csproj" />
     <Project Path="src/components/BootstrapBlazor.MindMap/BootstrapBlazor.MindMap.csproj" />
     <Project Path="src/components/BootstrapBlazor.MouseFollower/BootstrapBlazor.MouseFollower.csproj" />
-    <Project Path="src/components/BootstrapBlazor.OCR/BootstrapBlazor.OCR.csproj" />
     <Project Path="src/components/BootstrapBlazor.OctIcon/BootstrapBlazor.OctIcon.csproj" />
     <Project Path="src/components/BootstrapBlazor.OfdReader/BootstrapBlazor.OfdReader.csproj" />
     <Project Path="src/components/BootstrapBlazor.OfficeViewer/BootstrapBlazor.OfficeViewer.csproj" />

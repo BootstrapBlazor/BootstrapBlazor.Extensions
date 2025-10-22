@@ -59,7 +59,7 @@ public partial class SelectCity
     private string? GetActiveClass(string item) => CssBuilder.Default()
         .AddClass("active", _values.Contains(item) && IsMultiple)
         .AddClass("active", CurrentValue == item && !IsMultiple)
-        .AddClass("prev", !string.IsNullOrEmpty(_searchText) && PinyinService.GetFirstLetters(item).StartsWith(_searchText))
+        .AddClass("prev", !string.IsNullOrEmpty(_searchText) && StartsWith(PinyinService.GetFirstLetters(item), _searchText))
         .Build();
 
     /// <summary>
@@ -168,7 +168,7 @@ public partial class SelectCity
             return Provinces;
         }
 
-        if (PinyinService.IsChinese(_searchText))
+        if (PinyinService.ContainsChinese(_searchText))
         {
             return [.. Provinces.Where(i => i.Contains(_searchText) || GetCities(i).Any(city => city.Contains(_searchText)))];
         }
@@ -177,7 +177,10 @@ public partial class SelectCity
     }
 
     [MethodImpl(MethodImplOptions.AggressiveInlining)]
-    private static bool FilterProvince(ProvinceItem item, string searchText) => item.PinYin.StartsWith(searchText) || item.Cities.Any(city => city.PinYin.StartsWith(searchText));
+    private static bool FilterProvince(ProvinceItem item, string searchText) => StartsWith(item.PinYin, searchText) || item.Cities.Any(city => StartsWith(city.PinYin, searchText));
+
+    [MethodImpl(MethodImplOptions.AggressiveInlining)]
+    private static bool StartsWith(HashSet<string> source, string searchText) => source.Any(i => i.StartsWith(searchText, StringComparison.OrdinalIgnoreCase));
 
     private static HashSet<ProvinceItem>? _provinceItems;
 

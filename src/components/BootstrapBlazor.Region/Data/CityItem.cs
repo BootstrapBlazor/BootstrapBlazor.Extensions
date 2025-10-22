@@ -8,5 +8,5 @@ readonly record struct CityItem
 {
     public string Name { get; init; }
 
-    public string PinYin { get; init; }
+    public HashSet<string> PinYin { get; init; }
 }
