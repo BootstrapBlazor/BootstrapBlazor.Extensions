@@ -1,7 +1,11 @@
 <Project Sdk="Microsoft.NET.Sdk.Razor">
 
-  <PropertyGroup>
-    <Version>9.0.1</Version>
+  <PropertyGroup Condition="'$(VisualStudioVersion)' == '17.0'">
+    <Version>9.0.2</Version>
+  </PropertyGroup>
+
+  <PropertyGroup Condition="'$(VisualStudioVersion)' == '18.0'">
+    <Version>10.0.0-rc.2.1.0</Version>
   </PropertyGroup>
 
   <PropertyGroup>
