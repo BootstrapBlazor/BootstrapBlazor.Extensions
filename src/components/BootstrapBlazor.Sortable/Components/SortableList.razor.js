@@ -104,7 +104,7 @@ const initSortable = (id, element, invoke, op) => {
     }
 
     if (op.triggerAdd) {
-        op.onAdd = event => {
+        op.onAdd = async event => {
             var closestParent = event.from.closest('.bb-sortable');
             if (closestParent) {
                 const items = [];
@@ -116,7 +116,11 @@ const initSortable = (id, element, invoke, op) => {
                 else {
                     items.push({ oldIndex: event.oldIndex, newIndex: event.newIndex, FromId: closestParent.id });
                 }
-                invoke.invokeMethodAsync('TriggerAdd', items);
+
+                await invoke.invokeMethodAsync('TriggerAdd', items);
+                if (event.pullMode === 'clone') {
+                    event.item.remove();
+                }
             }
         }
     }
