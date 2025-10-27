@@ -1,7 +1,7 @@
 ﻿<Project Sdk="Microsoft.NET.Sdk.Razor">
 
   <PropertyGroup>
-    <Version>9.0.4</Version>
+    <Version>9.0.6-beta01</Version>
   </PropertyGroup>
 
   <PropertyGroup>
@@ -10,7 +10,7 @@
   </PropertyGroup>
 
   <ItemGroup>
-    <PackageReference Include="BootstrapBlazor" Version="$(BBVersion)" />
+    <PackageReference Include="BootstrapBlazor" Version="9.11.5-beta07" />
     <PackageReference Include="PuppeteerSharp" Version="20.2.4" />
   </ItemGroup>
 
