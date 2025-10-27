@@ -1,4 +1,4 @@
-﻿// Copyright (c) Argo Zhang (argo@163.com). All rights reserved.
+﻿// Copyright (c) BootstrapBlazor & Argo Zhang (argo@live.ca). All rights reserved.
 // Licensed under the Apache License, Version 2.0. See License.txt in the project root for license information.
 // Website: https://www.blazor.zone or https://argozhang.github.io/
 
@@ -19,10 +19,7 @@ class DefaultPdfService(ILogger<DefaultPdfService> logger) : IHtml2Pdf
     /// </summary>
     public IWebProxy? WebProxy { get; set; }
 
-    /// <summary>
-    /// <inheritdoc/>
-    /// </summary>
-    public async Task<byte[]> PdfDataAsync(string url)
+    public async Task<byte[]> PdfDataAsync(string url, PdfOptions? options = null)
     {
         try
         {
@@ -30,7 +27,7 @@ class DefaultPdfService(ILogger<DefaultPdfService> logger) : IHtml2Pdf
             await using var page = await browser.NewPageAsync();
 
             await page.GoToAsync(url);
-            return await page.PdfDataAsync();
+            return await page.PdfDataAsync(GetOptions(options));
         }
         catch (Exception ex)
         {
@@ -39,10 +36,7 @@ class DefaultPdfService(ILogger<DefaultPdfService> logger) : IHtml2Pdf
         }
     }
 
-    /// <summary>
-    /// <inheritdoc/>
-    /// </summary>
-    public async Task<Stream> PdfStreamAsync(string url)
+    public async Task<Stream> PdfStreamAsync(string url, PdfOptions? options = null)
     {
         try
         {
@@ -50,7 +44,7 @@ class DefaultPdfService(ILogger<DefaultPdfService> logger) : IHtml2Pdf
             await using var page = await browser.NewPageAsync();
             await page.GoToAsync(url);
 
-            return await page.PdfStreamAsync();
+            return await page.PdfStreamAsync(GetOptions(options));
         }
         catch (Exception ex)
         {
@@ -59,13 +53,7 @@ class DefaultPdfService(ILogger<DefaultPdfService> logger) : IHtml2Pdf
         }
     }
 
-    /// <summary>
-    /// Export method
-    /// </summary>
-    /// <param name="html">html raw string</param>
-    /// <param name="links"></param>
-    /// <param name="scripts"></param>
-    public async Task<byte[]> PdfDataFromHtmlAsync(string html, IEnumerable<string>? links = null, IEnumerable<string>? scripts = null)
+    public async Task<byte[]> PdfDataFromHtmlAsync(string html, IEnumerable<string>? links = null, IEnumerable<string>? scripts = null, PdfOptions? options = null)
     {
         try
         {
@@ -76,7 +64,7 @@ class DefaultPdfService(ILogger<DefaultPdfService> logger) : IHtml2Pdf
             await AddStyleTagAsync(page, links);
             await AddScriptTagAsync(page, scripts);
 
-            return await page.PdfDataAsync();
+            return await page.PdfDataAsync(GetOptions(options));
         }
         catch (Exception ex)
         {
@@ -85,13 +73,7 @@ class DefaultPdfService(ILogger<DefaultPdfService> logger) : IHtml2Pdf
         }
     }
 
-    /// <summary>
-    /// Export method
-    /// </summary>
-    /// <param name="html">html raw string</param>
-    /// <param name="links"></param>
-    /// <param name="scripts"></param>
-    public async Task<Stream> PdfStreamFromHtmlAsync(string html, IEnumerable<string>? links = null, IEnumerable<string>? scripts = null)
+    public async Task<Stream> PdfStreamFromHtmlAsync(string html, IEnumerable<string>? links = null, IEnumerable<string>? scripts = null, PdfOptions? options = null)
     {
         try
         {
@@ -102,13 +84,21 @@ class DefaultPdfService(ILogger<DefaultPdfService> logger) : IHtml2Pdf
             await AddStyleTagAsync(page, links);
             await AddScriptTagAsync(page, scripts);
 
-            return await page.PdfStreamAsync();
+            return await page.PdfStreamAsync(GetOptions(options));
         }
         catch (Exception ex)
         {
             Log(ex, "Error generating PDF from HTML content");
             throw;
         }
+    }
+
+    private static PuppeteerSharp.PdfOptions GetOptions(PdfOptions? options)
+    {
+        return options == null ? new PuppeteerSharp.PdfOptions() : new PuppeteerSharp.PdfOptions
+        {
+            Landscape = options.Landscape
+        };
     }
 
     private static async Task AddStyleTagAsync(IPage page, IEnumerable<string>? links = null)
