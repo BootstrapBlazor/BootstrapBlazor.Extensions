@@ -161,13 +161,16 @@ class DefaultPdfService(ILogger<DefaultPdfService> logger) : IHtml2Pdf
 
     private void Log(Exception? exception, string? message, params object?[] args)
     {
-        if (args.Length != 0)
+        if (logger.IsEnabled(LogLevel.Information))
         {
-            logger.LogInformation(exception, "{Message} | Args: {Args}", message, args);
-        }
-        else
-        {
-            logger.LogInformation(exception, "{Message}", message);
+            if (args.Length != 0)
+            {
+                logger.LogInformation(exception, "{Message} | Args: {Args}", message, args);
+            }
+            else
+            {
+                logger.LogInformation(exception, "{Message}", message);
+            }
         }
     }
 }
