@@ -1,7 +1,11 @@
 ﻿<Project Sdk="Microsoft.NET.Sdk.Razor">
 
-  <PropertyGroup>
-    <Version>9.0.6-beta01</Version>
+  <PropertyGroup Condition="'$(VisualStudioVersion)' == '17.0'">
+    <Version>9.0.6-beta02</Version>
+  </PropertyGroup>
+
+  <PropertyGroup Condition="'$(VisualStudioVersion)' == '18.0'">
+    <Version>10.0.0-rc.2.1.2</Version>
   </PropertyGroup>
 
   <PropertyGroup>
@@ -9,8 +13,13 @@
     <Description>Bootstrap UI components extensions of Html2Pdf use PuppeteerSharp lib</Description>
   </PropertyGroup>
 
-  <ItemGroup>
-    <PackageReference Include="BootstrapBlazor" Version="9.11.5-beta07" />
+  <ItemGroup Condition="'$(VisualStudioVersion)' == '17.0'">
+    <PackageReference Include="BootstrapBlazor" Version="9.11.5-beta11" />
+    <PackageReference Include="PuppeteerSharp" Version="20.2.4" />
+  </ItemGroup>
+
+  <ItemGroup Condition="'$(VisualStudioVersion)' == '18.0'">
+    <PackageReference Include="BootstrapBlazor" Version="10.0.0-rc.2.1.10" />
     <PackageReference Include="PuppeteerSharp" Version="20.2.4" />
   </ItemGroup>
 
