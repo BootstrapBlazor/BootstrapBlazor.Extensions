@@ -97,8 +97,73 @@ class DefaultPdfService(ILogger<DefaultPdfService> logger) : IHtml2Pdf
     {
         return options == null ? new PuppeteerSharp.PdfOptions() : new PuppeteerSharp.PdfOptions
         {
-            Landscape = options.Landscape
+            Landscape = options.Landscape,
+            PrintBackground = options.PrintBackground,
+            Format = GetFormat(options.Format),
+            MarginOptions = GetMarginOptions(options.MarginOptions),
+            DisplayHeaderFooter = options.DisplayHeaderFooter,
+            Scale = options.Scale
         };
+    }
+
+    private static PuppeteerSharp.Media.MarginOptions? GetMarginOptions(MarginOptions options) => new PuppeteerSharp.Media.MarginOptions
+    {
+        Top = options.Top,
+        Bottom = options.Bottom,
+        Left = options.Left,
+        Right = options.Right
+    };
+
+    private static PuppeteerSharp.Media.PaperFormat GetFormat(PaperFormat format)
+    {
+        if (format == PaperFormat.A0)
+        {
+            return PuppeteerSharp.Media.PaperFormat.A0;
+        }
+        else if (format == PaperFormat.A1)
+        {
+            return PuppeteerSharp.Media.PaperFormat.A1;
+        }
+        else if (format == PaperFormat.A2)
+        {
+            return PuppeteerSharp.Media.PaperFormat.A2;
+        }
+        else if (format == PaperFormat.A3)
+        {
+            return PuppeteerSharp.Media.PaperFormat.A3;
+        }
+        else if (format == PaperFormat.A4)
+        {
+            return PuppeteerSharp.Media.PaperFormat.A4;
+        }
+        else if (format == PaperFormat.A5)
+        {
+            return PuppeteerSharp.Media.PaperFormat.A5;
+        }
+        else if (format == PaperFormat.A6)
+        {
+            return PuppeteerSharp.Media.PaperFormat.A6;
+        }
+        else if (format == PaperFormat.Letter)
+        {
+            return PuppeteerSharp.Media.PaperFormat.Letter;
+        }
+        else if (format == PaperFormat.Legal)
+        {
+            return PuppeteerSharp.Media.PaperFormat.Legal;
+        }
+        else if (format == PaperFormat.Tabloid)
+        {
+            return PuppeteerSharp.Media.PaperFormat.Tabloid;
+        }
+        else if (format == PaperFormat.Ledger)
+        {
+            return PuppeteerSharp.Media.PaperFormat.Ledger;
+        }
+        else
+        {
+            return new PuppeteerSharp.Media.PaperFormat(format.Width, format.Height);
+        }
     }
 
     private static async Task AddStyleTagAsync(IPage page, IEnumerable<string>? links = null)
