@@ -17,7 +17,7 @@ export function start(id, options, config) {
     const d = Data.get(id);
     if (d) {
         d.config = config;
-        const { autoDrive, index } = config;
+        const { index } = config;
         const { hookDestroyStarted, hookDestroyed } = options;
         if (hookDestroyStarted) {
             delete options.hookDestroyStarted;
@@ -36,10 +36,7 @@ export function start(id, options, config) {
         }
         const driverObj = driver(options);
         d.driver = driverObj;
-
-        if (autoDrive) {
-            driverObj.drive(index);
-        }
+        driverObj.drive(index);
     }
 }
 
