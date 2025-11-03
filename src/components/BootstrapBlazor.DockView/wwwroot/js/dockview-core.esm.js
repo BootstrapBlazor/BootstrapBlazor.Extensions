@@ -1,6 +1,6 @@
 /**
  * dockview-core
- * @version 4.7.1
+ * @version 4.10.0
  * @link https://github.com/mathuo/dockview
  * @license MIT
  */
@@ -10464,8 +10464,8 @@ class GridviewComponent extends BaseGrid {
             accessor: this,
             isVisible: true,
         });
-        this.registerPanel(view);
         this.doAddGroup(view, relativeLocation, options.size);
+        this.registerPanel(view);
         this.doSetGroupActive(view);
         return view;
     }
