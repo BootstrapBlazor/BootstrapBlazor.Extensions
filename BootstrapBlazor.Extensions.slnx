@@ -1,4 +1,9 @@
 <Solution>
+  <Folder Name="/actions/">
+    <File Path=".github/workflows/auto-pull-request-checks.yml" />
+    <File Path=".github/workflows/build.yml" />
+    <File Path=".github/workflows/release.yml" />
+  </Folder>
   <Folder Name="/configurations/">
     <File Path=".gitignore" />
     <File Path="Directory.Build.props" />
