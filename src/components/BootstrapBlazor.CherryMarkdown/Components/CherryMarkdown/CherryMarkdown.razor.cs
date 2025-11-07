@@ -1,4 +1,4 @@
-﻿// Copyright (c) Argo Zhang (argo@163.com). All rights reserved.
+// Copyright (c) Argo Zhang (argo@163.com). All rights reserved.
 // Licensed under the Apache License, Version 2.0. See License.txt in the project root for license information.
 // Website: https://www.blazor.zone or https://argozhang.github.io/
 
@@ -31,17 +31,6 @@ public partial class CherryMarkdown
     public bool IsSupportMath { get; set; } = true;
 
     private string? _lastValue;
-    /// <summary>
-    /// 获得/设置 组件值
-    /// </summary>
-    [Parameter]
-    public string? Value { get; set; }
-
-    /// <summary>
-    /// 获得/设置 组件值回调
-    /// </summary>
-    [Parameter]
-    public EventCallback<string?> ValueChanged { get; set; }
 
     /// <summary>
     /// 获得/设置 组件 Html 代码
