@@ -13,6 +13,10 @@ namespace BootstrapBlazor.Components;
 /// </summary>
 public partial class Editor
 {
+    private string? ClassString => CssBuilder.Default("editor")
+        .AddClass(CssClass).AddClass(ValidCss)
+        .Build();
+
     /// <summary>
     /// 获得 Editor 样式
     /// </summary>
