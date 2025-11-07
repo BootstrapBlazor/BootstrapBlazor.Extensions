@@ -1,24 +1,17 @@
 ﻿<Project Sdk="Microsoft.NET.Sdk.Razor">
 
   <PropertyGroup>
-    <Version>9.1.12</Version>
-  </PropertyGroup>
-
-  <PropertyGroup>
     <PackageTags>Bootstrap Blazor WebAssembly wasm UI Components MeiliSearch</PackageTags>
     <Description>Bootstrap UI components extensions of MeiliSearch Client</Description>
   </PropertyGroup>
 
   <ItemGroup>
     <Content Remove="wwwroot\meilisearch.umd.js" />
-  </ItemGroup>
-
-  <ItemGroup>
     <None Include="wwwroot\meilisearch.umd.js" />
   </ItemGroup>
 
   <ItemGroup>
-    <PackageReference Include="BootstrapBlazor" Version="9.11.1" />
+    <PackageReference Include="BootstrapBlazor" Version="$(BBVersion)" />
   </ItemGroup>
 
   <ItemGroup>
