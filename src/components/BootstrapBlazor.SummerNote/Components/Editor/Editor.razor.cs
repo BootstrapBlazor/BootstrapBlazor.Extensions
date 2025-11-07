@@ -1,4 +1,4 @@
-﻿// Copyright (c) Argo Zhang (argo@163.com). All rights reserved.
+// Copyright (c) Argo Zhang (argo@163.com). All rights reserved.
 // Licensed under the Apache License, Version 2.0. See License.txt in the project root for license information.
 // Website: https://www.blazor.zone or https://argozhang.github.io/
 
@@ -77,12 +77,6 @@ public partial class Editor
     private string? _lastValue;
 
     /// <summary>
-    /// 获得/设置 组件值
-    /// </summary>
-    [Parameter]
-    public string? Value { get; set; }
-
-    /// <summary>
     /// 获得/设置 语言，默认为 null 自动判断，内置中英文额外语言包需要自行引入语言包
     /// </summary>
     [Parameter]
@@ -93,18 +87,6 @@ public partial class Editor
     /// </summary>
     [Parameter]
     public string? LanguageUrl { get; set; }
-
-    /// <summary>
-    /// 获得/设置 组件值变化后的回调委托
-    /// </summary>
-    [Parameter]
-    public EventCallback<string?> ValueChanged { get; set; }
-
-    /// <summary>
-    /// 获得/设置 组件值变化后的回调委托
-    /// </summary>
-    [Parameter]
-    public Func<string, Task>? OnValueChanged { get; set; }
 
     /// <summary>
     /// 获取/设置 插件点击时的回调委托
