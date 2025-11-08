@@ -1,4 +1,9 @@
-﻿@import url('index.css');
+@import url('index.css');
+
+.bb-vditor {
+    border-radius: var(--bs-border-radius);
+    overflow: hidden;
+}
 
 .bb-vditor.is-invalid {
     border-color: var(--bs-danger);
