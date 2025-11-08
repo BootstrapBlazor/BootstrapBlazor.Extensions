@@ -62,6 +62,11 @@ public partial class CherryMarkdown
     [Parameter]
     public string? Language { get; set; }
 
+    private string? ClassString => CssBuilder.Default("bb-cherry-markdown")
+        .AddClass(CssClass)
+        .AddClass(ValidCss)
+        .Build();
+
     /// <summary>
     /// <inheritdoc/>
     /// </summary>
