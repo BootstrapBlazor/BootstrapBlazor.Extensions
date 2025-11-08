@@ -13,6 +13,10 @@ namespace BootstrapBlazor.Components;
 /// </summary>
 public partial class Editor
 {
+    private string? ClassString => CssBuilder.Default("editor")
+        .AddClass(CssClass).AddClass(ValidCss)
+        .Build();
+
     /// <summary>
     /// 获得 Editor 样式
     /// </summary>
@@ -182,20 +186,10 @@ public partial class Editor
     /// </summary>
     /// <param name="value"></param>
     [JSInvokable]
-    public async Task Update(string value)
+    public void Update(string value)
     {
-        Value = value;
-        _lastValue = Value;
-
-        if (ValueChanged.HasDelegate)
-        {
-            await ValueChanged.InvokeAsync(Value);
-        }
-
-        if (OnValueChanged != null)
-        {
-            await OnValueChanged.Invoke(value);
-        }
+        CurrentValue = value;
+        _lastValue = value;
     }
 
     /// <summary>

@@ -1,4 +1,4 @@
-﻿import '../../js/summernote-bs5.min.js'
+import '../../js/summernote-bs5.min.js'
 import { addLink, addScript } from '../../../BootstrapBlazor/modules/utility.js'
 import Data from '../../../BootstrapBlazor/modules/data.js'
 import EventHandler from '../../../BootstrapBlazor/modules/event-handler.js'
@@ -175,7 +175,11 @@ export function getCode(id) {
 }
 
 export function reset(id) {
-    const editor = Data.get(id)
+    const editor = Data.get(id);
+    if (!editor.$editor) {
+        return;
+    }
+
     const context = editor.$editor.data('summernote')
 
     const showSubmit = editor.el.getAttribute("data-bb-submit") === "true"
