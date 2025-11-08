@@ -62,6 +62,11 @@ public partial class CherryMarkdown
     [Parameter]
     public string? Language { get; set; }
 
+    private string? ClassString => CssBuilder.Default("bb-cherry-markdown")
+        .AddClass(CssClass)
+        .AddClass(ValidCss)
+        .Build();
+
     /// <summary>
     /// <inheritdoc/>
     /// </summary>
@@ -101,9 +106,15 @@ public partial class CherryMarkdown
     /// <inheritdoc/>
     /// </summary>
     /// <returns></returns>
-    protected override Task InvokeInitAsync() => InvokeVoidAsync("init", Id, Interop,
-        new { Value, IsSupportMath, IsViewer, Locale = Language, Editor = EditorSettings ?? new(), Toolbars = ToolbarSettings ?? new() },
-        nameof(Upload));
+    protected override Task InvokeInitAsync() => InvokeVoidAsync("init", Id, Interop, new
+    {
+        Value,
+        IsSupportMath,
+        IsViewer,
+        Locale = Language,
+        Editor = EditorSettings ?? new(),
+        Toolbars = ToolbarSettings ?? new()
+    }, nameof(Upload));
 
     /// <summary>
     /// 文件上传回调
