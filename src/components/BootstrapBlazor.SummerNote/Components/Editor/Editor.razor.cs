@@ -186,20 +186,10 @@ public partial class Editor
     /// </summary>
     /// <param name="value"></param>
     [JSInvokable]
-    public async Task Update(string value)
+    public void Update(string value)
     {
-        Value = value;
-        _lastValue = Value;
-
-        if (ValueChanged.HasDelegate)
-        {
-            await ValueChanged.InvokeAsync(Value);
-        }
-
-        if (OnValueChanged != null)
-        {
-            await OnValueChanged.Invoke(value);
-        }
+        CurrentValue = value;
+        _lastValue = value;
     }
 
     /// <summary>
