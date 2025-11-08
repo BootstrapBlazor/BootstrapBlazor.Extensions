@@ -106,9 +106,15 @@ public partial class CherryMarkdown
     /// <inheritdoc/>
     /// </summary>
     /// <returns></returns>
-    protected override Task InvokeInitAsync() => InvokeVoidAsync("init", Id, Interop,
-        new { Value, IsSupportMath, IsViewer, Locale = Language, Editor = EditorSettings ?? new(), Toolbars = ToolbarSettings ?? new() },
-        nameof(Upload));
+    protected override Task InvokeInitAsync() => InvokeVoidAsync("init", Id, Interop, new
+    {
+        Value,
+        IsSupportMath,
+        IsViewer,
+        Locale = Language,
+        Editor = EditorSettings ?? new(),
+        Toolbars = ToolbarSettings ?? new()
+    }, nameof(Upload));
 
     /// <summary>
     /// 文件上传回调
