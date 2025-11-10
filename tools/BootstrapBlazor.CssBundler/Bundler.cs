@@ -58,7 +58,7 @@ internal class Bundler
             return;
         }
 
-        var buffer = ArrayPool<byte>.Shared.Rent(64 * 1024 * 1024);
+        var buffer = ArrayPool<byte>.Shared.Rent(64 * 1024);
         try
         {
             using var writer = File.OpenWrite(Path.Combine(rootFolder, option.OutputFileName));
