@@ -68,7 +68,7 @@ internal class Bundler
                 continue;
             }
             using var reader = File.OpenRead(inputFile);
-            if (IsUtf8Bom(reader))
+            if (!IsUtf8Bom(reader))
             {
                 reader.Seek(0, SeekOrigin.Begin);
             }
