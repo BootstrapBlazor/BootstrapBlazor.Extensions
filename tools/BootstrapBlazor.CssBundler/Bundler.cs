@@ -1,8 +1,8 @@
-﻿// Copyright (c) BootstrapBlazor & Argo Zhang (argo@live.ca). All rights reserved.
+// Copyright (c) BootstrapBlazor & Argo Zhang (argo@live.ca). All rights reserved.
 // Licensed under the Apache License, Version 2.0. See License.txt in the project root for license information.
 // Website: https://www.blazor.zone or https://argozhang.github.io/
 
-using System.Text;
+using System.Buffers;
 
 namespace BootstrapBlazor.CssBundler;
 
@@ -58,21 +58,42 @@ internal class Bundler
             return;
         }
 
-        using var writer = File.OpenWrite(Path.Combine(rootFolder, option.OutputFileName));
-        foreach (var file in option.InputFiles)
+        var buffer = ArrayPool<byte>.Shared.Rent(64 * 1024 * 1024);
+        try
         {
-            var inputFile = Path.Combine(rootFolder, file);
-            if (!File.Exists(inputFile))
+            using var writer = File.OpenWrite(Path.Combine(rootFolder, option.OutputFileName));
+            foreach (var file in option.InputFiles)
             {
-                continue;
-            }
+                var inputFile = Path.Combine(rootFolder, file);
+                if (!File.Exists(inputFile))
+                {
+                    continue;
+                }
 
-            using var reader = File.OpenText(inputFile);
-            var content = reader.ReadToEnd();
-            writer.Write(Encoding.UTF8.GetBytes(content));
-            reader.Close();
+                using var reader = File.OpenRead(inputFile);
+                while (true)
+                {
+                    var read = reader.Read(buffer, 0, buffer.Length);
+                    if (read == 0)
+                    {
+                        break;
+                    }
+
+                    if (reader.Position == read && read >= 3 && buffer[0] == 0xEF && buffer[1] == 0xBB && buffer[2] == 0xBF)
+                    {
+                        // skip bom
+                        writer.Write(buffer, 3, read - 3);
+                        continue;
+                    }
+                    writer.Write(buffer, 0, read);
+                }
+            }
+            writer.Close();
         }
-        writer.Close();
+        finally
+        {
+            ArrayPool<byte>.Shared.Return(buffer);
+        }
 
         Console.WriteLine($"Bundler Completed .... {option.OutputFileName}");
     }
