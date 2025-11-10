@@ -71,20 +71,19 @@ internal class Bundler
                 }
 
                 using var reader = File.OpenRead(inputFile);
-                while (true)
+                var read = reader.Read(buffer, 0, buffer.Length);
+                if (read >= 3 && buffer[0] == 0xEF && buffer[1] == 0xBB && buffer[2] == 0xBF)
                 {
-                    var read = reader.Read(buffer, 0, buffer.Length);
-                    if (read == 0)
-                    {
-                        break;
-                    }
+                    writer.Write(buffer, 3, read - 3);
+                }
+                else
+                {
+                    writer.Write(buffer, 0, read);
+                }
 
-                    if (reader.Position == read && read >= 3 && buffer[0] == 0xEF && buffer[1] == 0xBB && buffer[2] == 0xBF)
-                    {
-                        // skip bom
-                        writer.Write(buffer, 3, read - 3);
-                        continue;
-                    }
+                while (reader.Position < reader.Length)
+                {
+                    read = reader.Read(buffer, 0, buffer.Length);
                     writer.Write(buffer, 0, read);
                 }
             }
