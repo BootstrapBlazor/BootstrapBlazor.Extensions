@@ -8,4 +8,9 @@
     <ProjectReference Include="..\..\src\components\BootstrapBlazor.SummerNote\BootstrapBlazor.SummerNote.csproj" />
   </ItemGroup>
 
+  <ItemGroup>
+    <Using Include="BootstrapBlazor.Components"/>
+    <Using Include="Microsoft.Extensions.DependencyInjection" />
+  </ItemGroup>
+
 </Project>
