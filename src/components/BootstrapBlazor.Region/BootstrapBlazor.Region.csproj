@@ -10,12 +10,8 @@
     <EmbeddedResource Include="Data\**\*.json" />
   </ItemGroup>
 
-  <ItemGroup Condition="'$(VisualStudioVersion)' == '17.0'">
-    <PackageReference Include="BootstrapBlazor" Version="9.12.0" />
-  </ItemGroup>
-
-  <ItemGroup Condition="'$(VisualStudioVersion)' == '18.0'">
-    <PackageReference Include="BootstrapBlazor" Version="10.0.0-rc.2.1.0" />
+  <ItemGroup>
+    <PackageReference Include="BootstrapBlazor" Version="$(BBVersion)" />
   </ItemGroup>
 
   <ItemGroup>

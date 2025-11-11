@@ -3,15 +3,14 @@
   <PropertyGroup>
     <PackageTags>Bootstrap Blazor Viewer 图片浏览器 组件</PackageTags>
     <Description>Bootstrap UI Viewer components experience</Description>
-    <NoWarn>1591</NoWarn>
   </PropertyGroup>
 
   <ItemGroup>
-    <Using Include="BootstrapBlazor.Components" />
+    <PackageReference Include="BootstrapBlazor" Version="$(BBVersion)" />
   </ItemGroup>
 
   <ItemGroup>
-    <PackageReference Include="BootstrapBlazor" Version="$(BBVersion)" />
+    <Using Include="BootstrapBlazor.Components" />
   </ItemGroup>
 
 </Project>
