@@ -1,4 +1,4 @@
-﻿// Copyright (c) Argo Zhang (argo@163.com). All rights reserved.
+// Copyright (c) BootstrapBlazor & Argo Zhang (argo@live.ca). All rights reserved.
 // Licensed under the Apache License, Version 2.0. See License.txt in the project root for license information.
 // Website: https://www.blazor.zone or https://argozhang.github.io/
 
@@ -11,41 +11,23 @@ namespace BootstrapBlazor.Components;
 /// </summary>
 class DefaultPdfService : IHtml2Pdf
 {
-    /// <summary>
-    /// <inheritdoc/>
-    /// </summary>
-    public Task<byte[]> PdfDataAsync(string url)
+    public Task<byte[]> PdfDataAsync(string url, PdfOptions? options = null)
     {
         return GeneratePdfFromUrlAsync(url);
     }
 
-    /// <summary>
-    /// <inheritdoc/>
-    /// </summary>
-    public async Task<Stream> PdfStreamAsync(string url)
+    public async Task<Stream> PdfStreamAsync(string url, PdfOptions? options = null)
     {
         var data = await GeneratePdfFromUrlAsync(url);
         return new MemoryStream(data);
     }
 
-    /// <summary>
-    /// Export method
-    /// </summary>
-    /// <param name="html">html raw string</param>
-    /// <param name="links"></param>
-    /// <param name="scripts"></param>
-    public Task<byte[]> PdfDataFromHtmlAsync(string html, IEnumerable<string>? links = null, IEnumerable<string>? scripts = null)
+    public Task<byte[]> PdfDataFromHtmlAsync(string html, IEnumerable<string>? links = null, IEnumerable<string>? scripts = null, PdfOptions? options = null)
     {
         return GeneratePdfFromHtmlAsync(html, links, scripts);
     }
 
-    /// <summary>
-    /// Export method
-    /// </summary>
-    /// <param name="html">html raw string</param>
-    /// <param name="links"></param>
-    /// <param name="scripts"></param>
-    public async Task<Stream> PdfStreamFromHtmlAsync(string html, IEnumerable<string>? links = null, IEnumerable<string>? scripts = null)
+    public async Task<Stream> PdfStreamFromHtmlAsync(string html, IEnumerable<string>? links = null, IEnumerable<string>? scripts = null, PdfOptions? options = null)
     {
         var data = await PdfDataFromHtmlAsync(html, links, scripts);
         return new MemoryStream(data);
