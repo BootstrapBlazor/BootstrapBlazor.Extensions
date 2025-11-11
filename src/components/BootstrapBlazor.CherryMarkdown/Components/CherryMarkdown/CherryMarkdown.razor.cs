@@ -1,4 +1,4 @@
-﻿// Copyright (c) Argo Zhang (argo@163.com). All rights reserved.
+// Copyright (c) Argo Zhang (argo@163.com). All rights reserved.
 // Licensed under the Apache License, Version 2.0. See License.txt in the project root for license information.
 // Website: https://www.blazor.zone or https://argozhang.github.io/
 
@@ -31,17 +31,6 @@ public partial class CherryMarkdown
     public bool IsSupportMath { get; set; } = true;
 
     private string? _lastValue;
-    /// <summary>
-    /// 获得/设置 组件值
-    /// </summary>
-    [Parameter]
-    public string? Value { get; set; }
-
-    /// <summary>
-    /// 获得/设置 组件值回调
-    /// </summary>
-    [Parameter]
-    public EventCallback<string?> ValueChanged { get; set; }
 
     /// <summary>
     /// 获得/设置 组件 Html 代码
@@ -72,6 +61,11 @@ public partial class CherryMarkdown
     /// </summary>
     [Parameter]
     public string? Language { get; set; }
+
+    private string? ClassString => CssBuilder.Default("bb-cherry-markdown")
+        .AddClass(CssClass)
+        .AddClass(ValidCss)
+        .Build();
 
     /// <summary>
     /// <inheritdoc/>
@@ -112,9 +106,15 @@ public partial class CherryMarkdown
     /// <inheritdoc/>
     /// </summary>
     /// <returns></returns>
-    protected override Task InvokeInitAsync() => InvokeVoidAsync("init", Id, Interop,
-        new { Value, IsSupportMath, IsViewer, Locale = Language, Editor = EditorSettings ?? new(), Toolbars = ToolbarSettings ?? new() },
-        nameof(Upload));
+    protected override Task InvokeInitAsync() => InvokeVoidAsync("init", Id, Interop, new
+    {
+        Value,
+        IsSupportMath,
+        IsViewer,
+        Locale = Language,
+        Editor = EditorSettings ?? new(),
+        Toolbars = ToolbarSettings ?? new()
+    }, nameof(Upload));
 
     /// <summary>
     /// 文件上传回调

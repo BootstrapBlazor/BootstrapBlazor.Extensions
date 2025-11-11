@@ -1,7 +1,8 @@
-﻿// Copyright (c) BootstrapBlazor & Argo Zhang (argo@live.ca). All rights reserved.
+// Copyright (c) BootstrapBlazor & Argo Zhang (argo@live.ca). All rights reserved.
 // Licensed under the Apache License, Version 2.0. See License.txt in the project root for license information.
 // Website: https://www.blazor.zone or https://argozhang.github.io/
 
+using System.Buffers;
 using System.Text;
 
 namespace BootstrapBlazor.CssBundler;
@@ -66,14 +67,25 @@ internal class Bundler
             {
                 continue;
             }
-
-            using var reader = File.OpenText(inputFile);
-            var content = reader.ReadToEnd();
-            writer.Write(Encoding.UTF8.GetBytes(content));
-            reader.Close();
+            using var reader = File.OpenRead(inputFile);
+            if (!IsUtf8Bom(reader))
+            {
+                reader.Seek(0, SeekOrigin.Begin);
+            }
+            reader.CopyTo(writer);
         }
         writer.Close();
 
         Console.WriteLine($"Bundler Completed .... {option.OutputFileName}");
+    }
+
+    private static bool IsUtf8Bom(Stream stream)
+    {
+        Span<byte> buffer = stackalloc byte[3];
+        if (stream.Read(buffer) != buffer.Length)
+        {
+            return false;
+        }
+        return buffer.SequenceEqual(Encoding.UTF8.GetPreamble());
     }
 }
