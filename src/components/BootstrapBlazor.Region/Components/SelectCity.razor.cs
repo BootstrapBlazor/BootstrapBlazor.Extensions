@@ -1,4 +1,4 @@
-﻿// Copyright (c) BootstrapBlazor & Argo Zhang (argo@live.ca). All rights reserved.
+// Copyright (c) BootstrapBlazor & Argo Zhang (argo@live.ca). All rights reserved.
 // Licensed under the Apache License, Version 2.0. See License.txt in the project root for license information.
 // Website: https://www.blazor.zone or https://argozhang.github.io/
 
@@ -55,6 +55,7 @@ public partial class SelectCity
 
     private readonly HashSet<string> _values = [];
     private string? _searchText;
+    private bool _showSearch;
 
     private string? GetActiveClass(string item) => CssBuilder.Default()
         .AddClass("active", _values.Contains(item) && IsMultiple)
@@ -74,6 +75,32 @@ public partial class SelectCity
         if (!IsMultiple)
         {
             _values.Clear();
+        }
+
+        if (ShowSearch == false)
+        {
+            _searchText = "";
+        }
+    }
+
+    /// <summary>
+    /// <inheritdoc/>
+    /// </summary>
+    /// <param name="firstRender"></param>
+    /// <returns></returns>
+    protected override async Task OnAfterRenderAsync(bool firstRender)
+    {
+        await base.OnAfterRenderAsync(firstRender);
+
+        if (firstRender)
+        {
+            _showSearch = ShowSearch;
+        }
+
+        if (!_showSearch != ShowSearch)
+        {
+            _showSearch = ShowSearch;
+            await InvokeVoidAsync("resetSearch", Id, ShowSearch);
         }
     }
 
