@@ -1,0 +1,16 @@
+﻿<Project Sdk="Microsoft.NET.Sdk.Razor">
+
+  <PropertyGroup>
+    <Version>10.0.0</Version>
+  </PropertyGroup>
+
+  <PropertyGroup>
+    <PackageTags>Bootstrap Blazor WebAssembly wasm UI Components Dom Image</PackageTags>
+    <Description>Bootstrap UI components extensions of DomToImage use snapDom lib</Description>
+  </PropertyGroup>
+
+  <ItemGroup>
+    <PackageReference Include="BootstrapBlazor" Version="$(BBVersion)" />
+  </ItemGroup>
+
+</Project>
