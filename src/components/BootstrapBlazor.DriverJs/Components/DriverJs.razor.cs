@@ -13,6 +13,8 @@ public partial class DriverJs
     /// 获得/设置 是否自动开始向导 默认 true
     /// </summary>
     [Parameter]
+    [Obsolete("已弃用，删除即可；Deprecated, just delete it")]
+    [ExcludeFromCodeCoverage]
     public bool AutoDrive { get; set; } = true;
 
     /// <summary>
@@ -53,7 +55,6 @@ public partial class DriverJs
 
         await InvokeVoidAsync("start", Id, Config, new
         {
-            AutoDrive,
             Index = index
         });
     }

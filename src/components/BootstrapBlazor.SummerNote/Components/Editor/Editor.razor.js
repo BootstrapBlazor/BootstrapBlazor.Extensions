@@ -1,4 +1,4 @@
-﻿import '../../js/summernote-bs5.min.js'
+import '../../js/summernote-bs5.min.js'
 import { addLink, addScript } from '../../../BootstrapBlazor/modules/utility.js'
 import Data from '../../../BootstrapBlazor/modules/data.js'
 import EventHandler from '../../../BootstrapBlazor/modules/event-handler.js'
@@ -51,8 +51,7 @@ export async function init(id, invoker, methodGetPluginAttrs, methodClickPluginI
                     editor.files = files
                     for (let i = 0; i < files.length; i++) {
                         const file = files[i];
-                        const buffer = await file.arrayBuffer();
-                        const stream = DotNet.createJSStreamReference(buffer);
+                        const stream = DotNet.createJSStreamReference(file);
                         const url = await editor.invoker.invokeMethodAsync('ImageUpload',
                             file.name,
                             file.type || 'application/octet-stream',
@@ -176,7 +175,11 @@ export function getCode(id) {
 }
 
 export function reset(id) {
-    const editor = Data.get(id)
+    const editor = Data.get(id);
+    if (!editor.$editor) {
+        return;
+    }
+
     const context = editor.$editor.data('summernote')
 
     const showSubmit = editor.el.getAttribute("data-bb-submit") === "true"

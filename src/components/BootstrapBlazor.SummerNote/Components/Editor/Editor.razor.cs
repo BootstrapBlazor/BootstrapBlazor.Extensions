@@ -1,4 +1,4 @@
-﻿// Copyright (c) Argo Zhang (argo@163.com). All rights reserved.
+// Copyright (c) Argo Zhang (argo@163.com). All rights reserved.
 // Licensed under the Apache License, Version 2.0. See License.txt in the project root for license information.
 // Website: https://www.blazor.zone or https://argozhang.github.io/
 
@@ -13,6 +13,10 @@ namespace BootstrapBlazor.Components;
 /// </summary>
 public partial class Editor
 {
+    private string? ClassString => CssBuilder.Default("editor")
+        .AddClass(CssClass).AddClass(ValidCss)
+        .Build();
+
     /// <summary>
     /// 获得 Editor 样式
     /// </summary>
@@ -77,12 +81,6 @@ public partial class Editor
     private string? _lastValue;
 
     /// <summary>
-    /// 获得/设置 组件值
-    /// </summary>
-    [Parameter]
-    public string? Value { get; set; }
-
-    /// <summary>
     /// 获得/设置 语言，默认为 null 自动判断，内置中英文额外语言包需要自行引入语言包
     /// </summary>
     [Parameter]
@@ -93,18 +91,6 @@ public partial class Editor
     /// </summary>
     [Parameter]
     public string? LanguageUrl { get; set; }
-
-    /// <summary>
-    /// 获得/设置 组件值变化后的回调委托
-    /// </summary>
-    [Parameter]
-    public EventCallback<string?> ValueChanged { get; set; }
-
-    /// <summary>
-    /// 获得/设置 组件值变化后的回调委托
-    /// </summary>
-    [Parameter]
-    public Func<string, Task>? OnValueChanged { get; set; }
 
     /// <summary>
     /// 获取/设置 插件点击时的回调委托
@@ -200,20 +186,10 @@ public partial class Editor
     /// </summary>
     /// <param name="value"></param>
     [JSInvokable]
-    public async Task Update(string value)
+    public void Update(string value)
     {
-        Value = value;
-        _lastValue = Value;
-
-        if (ValueChanged.HasDelegate)
-        {
-            await ValueChanged.InvokeAsync(Value);
-        }
-
-        if (OnValueChanged != null)
-        {
-            await OnValueChanged.Invoke(value);
-        }
+        CurrentValue = value;
+        _lastValue = value;
     }
 
     /// <summary>
@@ -270,7 +246,7 @@ public partial class Editor
     /// <param name="size"></param>
     /// <param name="stream"></param>
     [JSInvokable]
-    public async Task<string> ImageUpload(string name, string contentType, long size, IJSStreamReference stream)
+    public async Task<string?> ImageUpload(string name, string contentType, long size, IJSStreamReference stream)
     {
         string? ret = null;
         await using var data = await stream.OpenReadStreamAsync(size);
@@ -279,7 +255,7 @@ public partial class Editor
         {
             ret = await OnFileUpload(file);
         }
-        return ret ?? "";
+        return ret;
     }
 
     /// <summary>
