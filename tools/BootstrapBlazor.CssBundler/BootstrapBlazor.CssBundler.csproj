@@ -9,10 +9,6 @@
   </PropertyGroup>
 
   <PropertyGroup>
-    <TargetFrameworks>net10.0</TargetFrameworks>
-  </PropertyGroup>
-
-  <PropertyGroup>
     <Title>BootstrapBlazor Css Bundler</Title>
     <PackageId>BootstrapBlazor.CssBundler</PackageId>
     <PackAsTool>true</PackAsTool>
