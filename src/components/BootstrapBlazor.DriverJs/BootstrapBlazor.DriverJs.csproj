@@ -14,7 +14,7 @@
     <EmbeddedResource Include="Locales\*.json" />
   </ItemGroup>
 
-  <ItemGroup Condition="'$(VisualStudioVersion)' == '17.0'">
+  <ItemGroup>
     <PackageReference Include="BootstrapBlazor" Version="$(BBVersion)" />
   </ItemGroup>
 
