@@ -29,6 +29,7 @@
     <Project Path="src/components/BootstrapBlazor.CodeEditor/BootstrapBlazor.CodeEditor.csproj" />
     <Project Path="src/components/BootstrapBlazor.Dock/BootstrapBlazor.Dock.csproj" />
     <Project Path="src/components/BootstrapBlazor.DockView/BootstrapBlazor.DockView.csproj" />
+    <Project Path="src/components/BootstrapBlazor.Dom2Image/BootstrapBlazor.Dom2Image.csproj" />
     <Project Path="src/components/BootstrapBlazor.DriverJs/BootstrapBlazor.DriverJs.csproj" />
     <Project Path="src/components/BootstrapBlazor.ElementIcon/BootstrapBlazor.ElementIcon.csproj" />
     <Project Path="src/components/BootstrapBlazor.FileSystem/BootstrapBlazor.FileSystem.csproj" />
