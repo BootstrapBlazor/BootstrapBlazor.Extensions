@@ -1,10 +1,6 @@
 <Project Sdk="Microsoft.NET.Sdk.Razor">
 
   <PropertyGroup>
-    <Version>9.0.6</Version>
-  </PropertyGroup>
-
-  <PropertyGroup>
     <PackageTags>Bootstrap Blazor WebAssembly wasm UI Components Pdf Viewer</PackageTags>
     <Description>Bootstrap UI components extensions of Pdf Viewer</Description>
   </PropertyGroup>
