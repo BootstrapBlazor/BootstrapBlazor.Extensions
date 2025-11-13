@@ -8,6 +8,10 @@
     <File Path=".gitignore" />
     <File Path="exclusion.dic" />
   </Folder>
+  <Folder Name="/docs/">
+    <File Path="README.md" />
+    <File Path="README.zh-CN.md" />
+  </Folder>
   <Folder Name="/props/">
     <File Path="Directory.Build.props" />
   </Folder>
@@ -98,7 +102,6 @@
     <Project Path="src/middleware/BootstrapBlazor.Middleware/BootstrapBlazor.Middleware.csproj" />
   </Folder>
   <Folder Name="/src/props/">
-    <File Path="src/.gitignore" />
     <File Path="src/Directory.Build.props" />
     <File Path="src/Directory.Build.targets" />
     <File Path="src/Frameworks.props" />
