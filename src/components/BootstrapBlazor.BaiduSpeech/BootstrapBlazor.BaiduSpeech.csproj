@@ -1,6 +1,10 @@
 <Project Sdk="Microsoft.NET.Sdk.Razor">
 
   <PropertyGroup>
+    <Version>10.0.1</Version>
+  </PropertyGroup>
+
+  <PropertyGroup>
     <PackageTags>Bootstrap Blazor Baidu WebAssembly wasm Speech Components</PackageTags>
     <Description>Bootstrap UI components extensions of Baidu Speech</Description>
     <RootNamespace>BootstrapBlazor.Components</RootNamespace>
