@@ -1,7 +1,7 @@
-<Project Sdk="Microsoft.NET.Sdk.Razor">
+﻿<Project Sdk="Microsoft.NET.Sdk.Razor">
 
   <PropertyGroup>
-    <Vesion>10.0.1</Vesion>
+    <Version>10.0.1</Version>
   </PropertyGroup>
 
   <PropertyGroup>
