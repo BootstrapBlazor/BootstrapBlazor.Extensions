@@ -3,7 +3,7 @@
   <PropertyGroup>
     <Vesion>10.0.1</Vesion>
   </PropertyGroup>
-  
+
   <PropertyGroup>
     <PackageTags>Bootstrap Blazor Baidu WebAssembly wasm Ocr Components</PackageTags>
     <Description>Bootstrap UI components extensions of Baidu Ocr</Description>
