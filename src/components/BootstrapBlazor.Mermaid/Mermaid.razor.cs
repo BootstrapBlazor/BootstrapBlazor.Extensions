@@ -58,7 +58,7 @@ public partial class Mermaid
     protected override Task InvokeInitAsync() => InvokeVoidAsync("init", Id, BuildDiagramText());
 
     /// <summary>
-    /// 内容改变时重新渲染mermaid
+    /// 内容改变时重新渲染 mermaid
     /// </summary>
     /// <returns></returns>
     public Task MermaidChanged() => InvokeVoidAsync("init", Id, BuildDiagramText());
