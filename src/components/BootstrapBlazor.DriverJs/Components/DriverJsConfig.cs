@@ -1,4 +1,4 @@
-﻿// Copyright (c) Argo Zhang (argo@163.com). All rights reserved.
+// Copyright (c) BootstrapBlazor & Argo Zhang (argo@live.ca). All rights reserved.
 // Licensed under the Apache License, Version 2.0. See License.txt in the project root for license information.
 // Website: https://www.blazor.zone or https://argozhang.github.io/
 
@@ -142,4 +142,19 @@ public class DriverJsConfig
     /// </summary>
     [JsonIgnore]
     public Func<Task>? OnDestroyedAsync { get; set; }
+
+    /// <summary>
+    /// 获得/设置 点击遮罩行为 close nextStep function 默认 close
+    /// </summary>
+    [JsonIgnore(Condition = JsonIgnoreCondition.WhenWritingNull)]
+    public string? OverlayClickBehavior { get; set; }
+
+    [JsonInclude]
+    private string OverlayClickCallbackMethod => nameof(OnOverlayClickedAsync);
+
+    /// <summary>
+    /// 获得/设置 组件销毁前回调方法名称
+    /// </summary>
+    [JsonIgnore]
+    public Func<DriverJsConfig, int, Task>? OnOverlayClickedAsync { get; set; }
 }
