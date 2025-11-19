@@ -1,4 +1,4 @@
-﻿// Copyright (c) Argo Zhang (argo@163.com). All rights reserved.
+// Copyright (c) BootstrapBlazor & Argo Zhang (argo@live.ca). All rights reserved.
 // Licensed under the Apache License, Version 2.0. See License.txt in the project root for license information.
 // Website: https://www.blazor.zone or https://argozhang.github.io/
 
@@ -67,7 +67,7 @@ public partial class DriverJs
     {
         string? ret = null;
 
-        if (Config?.OnDestroyStartedAsync != null)
+        if (Config is { OnDestroyStartedAsync: not null })
         {
             ret = await Config.OnDestroyStartedAsync(Config, index);
         }
@@ -81,9 +81,22 @@ public partial class DriverJs
     [JSInvokable]
     public async Task OnDestroyed()
     {
-        if (Config?.OnDestroyedAsync != null)
+        if (Config is { OnDestroyedAsync: not null })
         {
             await Config.OnDestroyedAsync();
+        }
+    }
+
+    /// <summary>
+    /// 点击组件这招回调方法由 JavaScript 调用
+    /// </summary>
+    /// <returns></returns>
+    [JSInvokable]
+    public async Task OnOverlayClicked(int index)
+    {
+        if (Config is { OnOverlayClickedAsync: not null })
+        {
+            await Config.OnOverlayClickedAsync(this, Config, index);
         }
     }
 
