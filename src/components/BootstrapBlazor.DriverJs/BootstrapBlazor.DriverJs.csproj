@@ -1,7 +1,7 @@
 <Project Sdk="Microsoft.NET.Sdk.Razor">
 
   <PropertyGroup>
-    <RootNamespace>BootstrapBlazor.Components</RootNamespace>
+    <Version>10.0.1</Version>
   </PropertyGroup>
 
   <PropertyGroup>
