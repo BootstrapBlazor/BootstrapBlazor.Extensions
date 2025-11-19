@@ -156,5 +156,5 @@ public class DriverJsConfig
     /// 获得/设置 组件销毁前回调方法名称
     /// </summary>
     [JsonIgnore]
-    public Func<DriverJsConfig, int, Task>? OnOverlayClickedAsync { get; set; }
+    public Func<DriverJs, DriverJsConfig, int, Task>? OnOverlayClickedAsync { get; set; }
 }

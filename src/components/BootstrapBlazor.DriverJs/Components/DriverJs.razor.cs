@@ -96,7 +96,7 @@ public partial class DriverJs
     {
         if (Config is { OnOverlayClickedAsync: not null })
         {
-            await Config.OnOverlayClickedAsync(Config, index);
+            await Config.OnOverlayClickedAsync(this, Config, index);
         }
     }
 
