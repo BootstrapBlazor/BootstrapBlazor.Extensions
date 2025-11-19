@@ -1,4 +1,4 @@
-import { snapdom } from './lib/snapdom.min.mjs'
+import { snapdom } from './lib/snapdom.mjs'
 
 export async function getUrl(selector, options) {
     let data = null;
