@@ -1,4 +1,4 @@
-﻿import { driver } from "../driver.js"
+import { driver } from "../driver.js.mjs"
 import { addLink } from '../../BootstrapBlazor/modules/utility.js'
 import Data from "../../BootstrapBlazor/modules/data.js"
 
