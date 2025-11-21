@@ -1,14 +1,9 @@
-﻿@namespace BootstrapBlazor.Components
+@namespace BootstrapBlazor.Components
+@inherits BootstrapModuleComponentBase
 
-@if (Debug)
-{
-    <p>@(Url??UrlDebug)</p>
-}
-@if (!string.IsNullOrEmpty(ErrorMessage))
-{
-    <p>@ErrorMessage</p>
-}
-<iframe @ref="Element"
-        allow="fullscreen"
-        style="@($"border: none; width: {Width}; height: {Height};{StyleString}")"
-        src=@Url />
+<div @attributes="@AdditionalAttributes" id="@Id" class="@ClassString">
+    <div id="viewerContainer">
+        <div id="viewer" class="pdfViewer"></div>
+    </div>
+    @* <canvas></canvas> *@
+</div>
