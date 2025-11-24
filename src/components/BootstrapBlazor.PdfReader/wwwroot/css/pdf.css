@@ -50,6 +50,18 @@
     justify-content: center;
 }
 
+    .bb-view-body.fit-page .bb-view-fit-page {
+        display: none;
+    }
+
+    .bb-view-body.fit-page .bb-view-fit-width {
+        display: block;
+    }
+
+    .bb-view-body .bb-view-fit-width {
+        display: none;
+    }
+
 .bb-view-num, .bb-view-scale {
     width: 36px;
     text-align: center;

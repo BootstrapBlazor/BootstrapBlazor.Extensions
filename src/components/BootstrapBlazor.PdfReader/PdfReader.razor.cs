@@ -39,7 +39,12 @@ public partial class PdfReader
         .AddClassFromAttributes(AdditionalAttributes)
         .Build();
 
+    private string? ViewBodyString => CssBuilder.Default("bb-view-body")
+        .AddClass("fit-page", IsFitToPage)
+        .Build();
+
     private string? _docTitle;
+    private bool _isFitToPage;
 
     /// <summary>
     /// <inheritdoc/>
@@ -49,6 +54,27 @@ public partial class PdfReader
         base.OnParametersSet();
 
         _docTitle = Path.GetFileName(Url);
+    }
+
+    /// <summary>
+    /// <inheritdoc/>
+    /// </summary>
+    /// <param name="firstRender"></param>
+    /// <returns></returns>
+    protected override async Task OnAfterRenderAsync(bool firstRender)
+    {
+        await base.OnAfterRenderAsync(firstRender);
+
+        if (firstRender)
+        {
+            _isFitToPage = IsFitToPage;
+        }
+
+        if (_isFitToPage != IsFitToPage)
+        {
+            _isFitToPage = IsFitToPage;
+            await TriggerFit(IsFitToPage ? "fitToPage" : "fitToWidth");
+        }
     }
 
     /// <summary>
@@ -65,16 +91,18 @@ public partial class PdfReader
     public Task NavigateToPageAsync(int pageNumber) => InvokeVoidAsync("navigateToPage", Id, pageNumber);
 
     /// <summary>
-    /// 
+    /// 适应页面宽度
     /// </summary>
     /// <returns></returns>
-    public Task FitToPage() => InvokeVoidAsync("fitToPage", Id);
+    public void FitToPage() => IsFitToPage = true;
 
     /// <summary>
-    /// 跳转到指定页码方法
+    /// 适应文档宽度
     /// </summary>
     /// <returns></returns>
-    public Task FitToWidth() => InvokeVoidAsync("fitToWidth", Id);
+    public void FitToWidth() => IsFitToPage = false;
+
+    private Task TriggerFit(string methodName) => InvokeVoidAsync(methodName, Id);
 
     /// <summary>
     /// 页面开始初始化时回调方法

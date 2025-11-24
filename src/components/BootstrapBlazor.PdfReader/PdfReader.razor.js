@@ -42,10 +42,10 @@ export async function init(id, invoke, options) {
 
     eventBus.on("pagesinit", function () {
         if (options.isFitToPage) {
-            pdfViewer.currentScaleValue = 1.0;
+            pdfViewer.currentScaleValue = "page-width";
         }
         else {
-            pdfViewer.currentScaleValue = "page-width";
+            pdfViewer.currentScaleValue = 1.0;
         }
     });
 
@@ -79,14 +79,14 @@ export async function init(id, invoke, options) {
     Data.set(id, pdfViewer);
 }
 
-export function fitToPage(id) {
+export function fitToWidth(id) {
     const pdfViewer = Data.get(id);
     if (pdfViewer) {
         pdfViewer.currentScaleValue = 1.0;
     }
 }
 
-export function fitToWidth(id) {
+export function fitToPage(id) {
     const pdfViewer = Data.get(id);
     if (pdfViewer) {
         pdfViewer.currentScaleValue = "page-width";
