@@ -1,9 +1,26 @@
 @namespace BootstrapBlazor.Components
 @inherits BootstrapModuleComponentBase
 
-<div @attributes="@AdditionalAttributes" id="@Id" class="@ClassString">
-    <div id="viewerContainer">
-        <div id="viewer" class="pdfViewer"></div>
+<div @attributes="@AdditionalAttributes" id="@Id" class="@ClassString" style="@StyleString">
+    <div class="bb-view-toolbar">
+        <div class="bb-view-title">
+            <div class="bb-view-bar"><i class="fa-solid fa-bars"></i></div>
+            <span class="bb-view-subject">@_docTitle</span>
+        </div>
+        <div class="bb-view-pages">
+            <div>-</div>
+            <input type="text" class="bb-view-num" /><span class="bb-view-slash">/</span><div>14</div>
+            <div>+</div>
+            <div class="bb-view-divider"></div>
+            <div class="bb-view-fit-page"></div>
+            <div class="bb-view-fit-width"></div>
+            <div class="bb-view-fit-rotate"></div>
+            <div class="bb-view-divider"></div>
+            <div class="bb-view-draw"></div>
+        </div>
+        <div class="bb-view-controls"></div>
     </div>
-    @* <canvas></canvas> *@
+    <div class="bb-view-container">
+        <div class="pdfViewer"></div>
+    </div>
 </div>

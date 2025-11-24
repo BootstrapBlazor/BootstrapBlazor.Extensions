@@ -1,36 +1,30 @@
-import './pdf.min.mjs'
-import './pdf_viewer.mjs'
+import './lib/pdf.min.mjs'
+import './lib/pdf_viewer.mjs'
 import { addLink } from '../BootstrapBlazor/modules/utility.js';
+import Data from '../BootstrapBlazor/modules/data.js';
 
 if (pdfjsLib != null) {
     pdfjsLib.GlobalWorkerOptions.workerSrc = './pdf.worker.min.mjs';
 }
 
-export async function init(id, invoke, scale, rotation, url, password = null) {
+export async function init(id, invoke, options) {
     const el = document.getElementById(id);
     if (el === null) {
         return;
     }
 
-    await addLink('./_content/BootstrapBlazor.PdfReader/pdf_viewer.css');
-
-    scale = 1.5;
-    rotation = 0;
-    url = './samples/sample.pdf';
+    await addLink('./_content/BootstrapBlazor.PdfReader/css/pdf.css');
 
     //const elementId = el.querySelector('canvas');
     //const pdf = new Pdf(elementId);
     //pdf.scale = scale;
     //pdf.rotation = rotation;
 
-    // prepare loading options (optional password allowed)
-    const options = { url };
-    if (password) {
-        options.password = password; // pre-supply if user already has it
-    }
-
-    // begin loading document
     const loadingTask = pdfjsLib.getDocument(options);
+
+    loadingTask.onProgress = function (progressData) {
+        console.log(progressData.loaded, progressData.total);
+    };
 
     // handle password only when required (optional password support)
     loadingTask.onPassword = function (updatePassword, reason) {
@@ -44,7 +38,7 @@ export async function init(id, invoke, scale, rotation, url, password = null) {
         }
     };
 
-    const container = document.getElementById("viewerContainer");
+    const container = el.querySelector(".bb-view-container");
     const eventBus = new pdfjsViewer.EventBus();
     const pdfViewer = new pdfjsViewer.PDFViewer({
         container,
@@ -55,39 +49,41 @@ export async function init(id, invoke, scale, rotation, url, password = null) {
     eventBus.on("pagesinit", function () {
         // We can use pdfViewer now, e.g. let's change default scale.
         pdfViewer.currentScaleValue = "page-width";
+        console.log("pagesInit");
     });
 
     // handle the promise
     const pdfDocument = await loadingTask.promise;
     pdfViewer.setDocument(pdfDocument);
 
-//    pdfDocument.then(function (doc) {
-//        pdf.pdfDoc = doc;
-//        pdf.pagesCount = doc.numPages;
-//        renderPage(pdf, pdf.pageNum);
+    //    pdfDocument.then(function (doc) {
+    //        pdf.pdfDoc = doc;
+    //        pdf.pagesCount = doc.numPages;
+    //        renderPage(pdf, pdf.pageNum);
 
-//        // notify .NET side that document is loaded
-//        invoke.invokeMethodAsync('DocumentLoaded', {
-//            pagesCount: pdf.pagesCount,
-//            pageNumber: pdf.pageNum
-//        });
-//    })
-//        .catch(function (error) {
-//            console.error("PDF loading error:", error);
+    //        // notify .NET side that document is loaded
+    //        invoke.invokeMethodAsync('DocumentLoaded', {
+    //            pagesCount: pdf.pagesCount,
+    //            pageNumber: pdf.pageNum
+    //        });
+    //    })
+    //        .catch(function (error) {
+    //            console.error("PDF loading error:", error);
 
-//            // handle password exceptions specifically
-//            if (error.name === "PasswordException") {
-//                console.error("Password required but not provided");
-//            }
+    //            // handle password exceptions specifically
+    //            if (error.name === "PasswordException") {
+    //                console.error("Password required but not provided");
+    //            }
 
-//            // notify .NET side that document loading failed
-//            invoke.invokeMethodAsync('DocumentLoadError', error.message);
-//        });
+    //            // notify .NET side that document loading failed
+    //            invoke.invokeMethodAsync('DocumentLoadError', error.message);
+    //        });
 
+    Data.set(id, pdfViewer);
 }
 
 export function dispose(id) {
-
+    data.remove(id);
 }
 
 function getCanvas(item) {
@@ -133,6 +129,11 @@ class Pdf {
 
         pdfInstances[this.id] = this;
     }
+}
+
+export function navigateToPage(id, pageNumber) {
+    const pdf = Data.get(id);
+    pdf.currentPageNumber = pageNumber;
 }
 
 export function firstPage(invoke, elementId) {
