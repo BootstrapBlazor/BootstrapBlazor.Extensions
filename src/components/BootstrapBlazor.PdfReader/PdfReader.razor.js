@@ -93,6 +93,15 @@ export function fitToPage(id) {
     }
 }
 
+export function rotate(id) {
+    const pdfViewer = Data.get(id);
+    if (pdfViewer) {
+        let rotate = pdfViewer.pagesRotation || 360;
+        rotate -= 90;
+        pdfViewer.pagesRotation = rotate % 360;
+    }
+}
+
 export function dispose(id) {
     Data.get(id);
 }
@@ -252,16 +261,16 @@ export async function print(invoke, elementId, url) {
         1000);
 }
 
-export function rotate(invoke, elementId, rotation) {
-    const pdf = getPdf(elementId);
+//export function rotate(invoke, elementId, rotation) {
+//    const pdf = getPdf(elementId);
 
-    if (pdf == null || Number.isNaN(rotation) || rotation % 90 !== 0)
-        return;
+//    if (pdf == null || Number.isNaN(rotation) || rotation % 90 !== 0)
+//        return;
 
-    pdf.rotation = rotation;
+//    pdf.rotation = rotation;
 
-    queueRenderPage(pdf, pdf.pageNum);
-}
+//    queueRenderPage(pdf, pdf.pageNum);
+//}
 
 export function zoomInOut(invoke, elementId, scale) {
     const pdf = getPdf(elementId);
