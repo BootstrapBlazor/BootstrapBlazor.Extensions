@@ -8,12 +8,8 @@
   <ItemGroup>
     <Content Remove="wwwroot\pdf.mjs" />
     <Content Remove="wwwroot\pdf.worker.mjs" />
-    <None Include="wwwroot\pdf.mjs" />
-    <None Include="wwwroot\pdf.worker.mjs" />
-  </ItemGroup>
-
-  <ItemGroup>
-    <!--<PackageReference Include="BootstrapBlazor" Version="$(BBVersion)" />-->
+    <None Include="wwwroot\lib\pdf.mjs" />
+    <None Include="wwwroot\lib\pdf.worker.mjs" />
   </ItemGroup>
 
   <ItemGroup>
