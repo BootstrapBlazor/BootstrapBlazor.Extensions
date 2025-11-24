@@ -1,4 +1,4 @@
-<Project Sdk="Microsoft.NET.Sdk.Razor">
+﻿<Project Sdk="Microsoft.NET.Sdk.Razor">
 
   <PropertyGroup>
     <PackageTags>Bootstrap Blazor WebAssembly wasm UI Components Pdf Reader</PackageTags>
@@ -6,8 +6,14 @@
   </PropertyGroup>
 
   <ItemGroup>
-    <PackageReference Include="UAParser" Version="3.1.47" />
-    <PackageReference Include="BootstrapBlazor" Version="$(BBVersion)" />
+    <Content Remove="wwwroot\pdf.mjs" />
+    <Content Remove="wwwroot\pdf.worker.mjs" />
+    <None Include="wwwroot\lib\pdf.mjs" />
+    <None Include="wwwroot\lib\pdf.worker.mjs" />
+  </ItemGroup>
+
+  <ItemGroup>
+    <ProjectReference Include="..\..\..\..\BootstrapBlazor\src\BootstrapBlazor\BootstrapBlazor.csproj" />
   </ItemGroup>
 
   <ItemGroup>
