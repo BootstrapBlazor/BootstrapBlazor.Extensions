@@ -83,7 +83,7 @@ export async function init(id, invoke, options) {
 }
 
 export function dispose(id) {
-    data.remove(id);
+    Data.remove(id);
 }
 
 function getCanvas(item) {
