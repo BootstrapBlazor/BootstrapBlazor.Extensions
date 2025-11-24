@@ -93,11 +93,11 @@ export function fitToPage(id) {
     }
 }
 
-export function rotate(id) {
+export function rotate(id, offset) {
     const pdfViewer = Data.get(id);
     if (pdfViewer) {
         let rotate = pdfViewer.pagesRotation || 360;
-        rotate -= 90;
+        rotate += offset;
         pdfViewer.pagesRotation = rotate % 360;
     }
 }
