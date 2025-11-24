@@ -1,4 +1,4 @@
-﻿// Copyright (c) BootstrapBlazor & Argo Zhang (argo@live.ca). All rights reserved.
+// Copyright (c) BootstrapBlazor & Argo Zhang (argo@live.ca). All rights reserved.
 // Licensed under the Apache License, Version 2.0. See License.txt in the project root for license information.
 // Website: https://www.blazor.zone or https://argozhang.github.io/
 
@@ -19,7 +19,7 @@ public class UnitTest1
         Assert.Equal(34, provinces.Count);
 
         var cities = regionService.GetCities("北京市");
-        Assert.Empty(cities);
+        Assert.Single(cities);
 
         cities = regionService.GetCities("河北省");
         Assert.Equal(11, cities.Count);
