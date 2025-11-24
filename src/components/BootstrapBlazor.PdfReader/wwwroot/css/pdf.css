@@ -23,6 +23,12 @@
     padding: 0 1rem;
 }
 
+.bb-view-icon {
+    margin: 0 .5rem;
+    padding: .5rem;
+    cursor: pointer;
+}
+
 .bb-view-bar {
     margin-inline-end: 2rem;
 }
@@ -35,7 +41,7 @@
     max-width: 300px;
 }
 
-.bb-view-pages {
+.bb-view-body {
     flex: 1;
     min-width: 0;
     width: 1%;
@@ -44,11 +50,16 @@
     justify-content: center;
 }
 
-.bb-view-num {
+.bb-view-num, .bb-view-scale {
     width: 36px;
     text-align: center;
     background-color: #000;
     border: none;
+    color: #fff;
+}
+
+.bb-view-scale {
+    width: 40px;
 }
 
 .bb-view-slash {
@@ -59,7 +70,14 @@
     width: .6px;
     height: calc(var(--bb-pdf-toolbar-height) / 3);
     background-color: #777;
-    margin: 0 .5rem;
+    margin: 0 1rem;
+}
+
+.bb-view-controls {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    padding: 0 1rem;
 }
 
 .bb-view-container {
