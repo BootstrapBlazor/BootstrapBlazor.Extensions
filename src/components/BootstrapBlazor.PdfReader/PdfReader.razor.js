@@ -15,13 +15,7 @@ export async function init(id, invoke, options) {
 
     await addLink('./_content/BootstrapBlazor.PdfReader/css/pdf.css');
 
-    //const elementId = el.querySelector('canvas');
-    //const pdf = new Pdf(elementId);
-    //pdf.scale = scale;
-    //pdf.rotation = rotation;
-
     const loadingTask = pdfjsLib.getDocument(options);
-
     loadingTask.onProgress = function (progressData) {
         console.log(progressData.loaded, progressData.total);
     };
@@ -47,9 +41,12 @@ export async function init(id, invoke, options) {
 
 
     eventBus.on("pagesinit", function () {
-        // We can use pdfViewer now, e.g. let's change default scale.
-        pdfViewer.currentScaleValue = "page-width";
-        console.log("pagesInit");
+        if (options.isFitToPage) {
+            pdfViewer.currentScaleValue = 1.0;
+        }
+        else {
+            pdfViewer.currentScaleValue = "page-width";
+        }
     });
 
     // handle the promise
@@ -82,8 +79,22 @@ export async function init(id, invoke, options) {
     Data.set(id, pdfViewer);
 }
 
+export function fitToPage(id) {
+    const pdfViewer = Data.get(id);
+    if (pdfViewer) {
+        pdfViewer.currentScaleValue = 1.0;
+    }
+}
+
+export function fitToWidth(id) {
+    const pdfViewer = Data.get(id);
+    if (pdfViewer) {
+        pdfViewer.currentScaleValue = "page-width";
+    }
+}
+
 export function dispose(id) {
-    Data.remove(id);
+    Data.get(id);
 }
 
 function getCanvas(item) {

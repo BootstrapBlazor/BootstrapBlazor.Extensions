@@ -24,6 +24,12 @@ public partial class PdfReader
     [Parameter]
     public string? ViewHeight { get; set; }
 
+    /// <summary>
+    /// 获得/设置 是否适配当前页面宽度 默认 false
+    /// </summary>
+    [Parameter]
+    public bool IsFitToPage { get; set; }
+
     private string? ClassString => CssBuilder.Default("bb-pdf-reader")
         .AddClassFromAttributes(AdditionalAttributes)
         .Build();
@@ -49,7 +55,7 @@ public partial class PdfReader
     /// <inheritdoc/>
     /// </summary>
     /// <returns></returns>
-    protected override Task InvokeInitAsync() => InvokeVoidAsync("init", Id, Interop, new { Url });
+    protected override Task InvokeInitAsync() => InvokeVoidAsync("init", Id, Interop, new { Url, IsFitToPage });
 
     /// <summary>
     /// 跳转到指定页码方法
@@ -57,6 +63,18 @@ public partial class PdfReader
     /// <param name="pageNumber"></param>
     /// <returns></returns>
     public Task NavigateToPageAsync(int pageNumber) => InvokeVoidAsync("navigateToPage", Id, pageNumber);
+
+    /// <summary>
+    /// 
+    /// </summary>
+    /// <returns></returns>
+    public Task FitToPage() => InvokeVoidAsync("fitToPage", Id);
+
+    /// <summary>
+    /// 跳转到指定页码方法
+    /// </summary>
+    /// <returns></returns>
+    public Task FitToWidth() => InvokeVoidAsync("fitToWidth", Id);
 
     /// <summary>
     /// 页面开始初始化时回调方法
