@@ -93,14 +93,30 @@ public partial class PdfReader
     /// <summary>
     /// 适应页面宽度
     /// </summary>
-    /// <returns></returns>
     public void FitToPage() => IsFitToPage = true;
 
     /// <summary>
     /// 适应文档宽度
     /// </summary>
-    /// <returns></returns>
     public void FitToWidth() => IsFitToPage = false;
+
+    /// <summary>
+    /// 旋转页面方法
+    /// </summary>
+    /// <returns></returns>
+    public async Task RotateLeft()
+    {
+        await InvokeVoidAsync("rotate", Id, -90);
+    }
+
+    /// <summary>
+    /// 旋转页面方法
+    /// </summary>
+    /// <returns></returns>
+    public async Task RotateRight()
+    {
+        await InvokeVoidAsync("rotate", Id, 90);
+    }
 
     private Task TriggerFit(string methodName) => InvokeVoidAsync(methodName, Id);
 
