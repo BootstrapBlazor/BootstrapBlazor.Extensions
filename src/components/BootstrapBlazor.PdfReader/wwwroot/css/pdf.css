@@ -1,0 +1,71 @@
+@import url('pdf_viewer.css');
+
+.bb-pdf-reader {
+    --bb-pdf-view-height: 600px;
+    --bb-pdf-toolbar-height: 60px;
+    --bb-toolbar-background-color: #3c3c3c;
+    position: relative;
+    height: calc(var(--bb-pdf-view-height) + var(--bb-pdf-toolbar-height));
+}
+
+.bb-view-toolbar {
+    height: var(--bb-pdf-toolbar-height);
+    background-color: var(--bb-toolbar-background-color);
+    display: flex;
+    align-items: center;
+    color: #fff;
+}
+
+.bb-view-title {
+    display: flex;
+    align-items: center;
+    flex-wrap: nowrap;
+    padding: 0 1rem;
+}
+
+.bb-view-bar {
+    margin-inline-end: 2rem;
+}
+
+.bb-view-subject {
+    white-space: nowrap;
+    display: block;
+    overflow: hidden;
+    text-overflow: ellipsis;
+    max-width: 300px;
+}
+
+.bb-view-pages {
+    flex: 1;
+    min-width: 0;
+    width: 1%;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+}
+
+.bb-view-num {
+    width: 36px;
+    text-align: center;
+    background-color: #000;
+    border: none;
+}
+
+.bb-view-slash {
+    margin: 0 .5rem;
+}
+
+.bb-view-divider {
+    width: .6px;
+    height: calc(var(--bb-pdf-toolbar-height) / 3);
+    background-color: #777;
+    margin: 0 .5rem;
+}
+
+.bb-view-container {
+    overflow: auto;
+    position: absolute;
+    background-color: #000;
+    width: 100%;
+    height: var(--bb-pdf-view-height);
+}
