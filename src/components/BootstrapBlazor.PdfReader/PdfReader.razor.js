@@ -35,19 +35,32 @@ export async function init(id, invoke, options) {
         }
     };
 
-    const container = el.querySelector(".bb-view-container");
-    const eventBus = new pdfjsViewer.EventBus();
-    const pdfViewer = new pdfjsViewer.PDFViewer({
-        container,
-        eventBus
+    const eventBusLeft = new pdfjsViewer.EventBus();
+    const pdfViewerLeft = new pdfjsViewer.PDFViewer({
+        container: el.querySelector('.bb-view-container'),
+        viewer: el.querySelector('.viewer-left'),
+        eventBus: eventBusLeft,
+    });
+    const pdfViewerRight = new pdfjsViewer.PDFViewer({
+        container: el.querySelector('.bb-view-container'),
+        viewer: el.querySelector('.viewer-right'),
+        eventBus: eventBusLeft,
     });
 
-    addEventListener(pdfViewer, eventBus, invoke, options);
+    // const container = el.querySelector(".bb-view-container");
+    // const eventBus = new pdfjsViewer.EventBus();
+    // const pdfViewer = new pdfjsViewer.PDFViewer({
+    //     container,
+    //     eventBus
+    // });
+
+    addEventListener(pdfViewerLeft, eventBusLeft, invoke, options);
 
     const pdfDocument = await loadingTask.promise;
-    pdfViewer.setDocument(pdfDocument);
+    pdfViewerLeft.setDocument(pdfDocument);
+    pdfViewerRight.setDocument(pdfDocument);
 
-    Data.set(id, pdfViewer);
+    Data.set(id, pdfViewerLeft);
 }
 
 export function fitToWidth(id) {
