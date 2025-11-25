@@ -83,8 +83,11 @@ const addEventListener = (pdfViewer, eventBus, invoke, options) => {
             pdfViewer.currentScaleValue = "page-width";
         }
         else {
-            pdfViewer.currentScaleValue = 1.0;
+            pdfViewer.currentScaleValue = "page-actual";
         }
+
+        pdfViewer.currentScaleValue = 'auto';
+        pdfViewer.spreadMode = 1;
 
         const el = pdfViewer.container.parentElement;
         const numPages = pdfViewer.pagesCount;
