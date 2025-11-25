@@ -8,25 +8,28 @@ if (pdfjsLib != null) {
 }
 
 export async function init(id, invoke, options) {
+    await addLink('./_content/BootstrapBlazor.PdfReader/css/pdf_viewer.css');
+
     const el = document.getElementById(id);
     if (el === null) {
         return;
     }
 
-    await addLink('./_content/BootstrapBlazor.PdfReader/css/pdf.css');
+    if (options.url === null) {
+        return;
+    }
 
     const loadingTask = pdfjsLib.getDocument(options);
     loadingTask.onProgress = function (progressData) {
         console.log(progressData.loaded, progressData.total);
     };
 
-    // handle password only when required (optional password support)
     loadingTask.onPassword = function (updatePassword, reason) {
         if (reason === pdfjsLib.PasswordResponses.NEED_PASSWORD) {
-            // only prompt if PDF actually requires password
             const password = prompt("This PDF is password protected. Enter password:");
             updatePassword(password);
-        } else if (reason === pdfjsLib.PasswordResponses.INCORRECT_PASSWORD) {
+        }
+        else if (reason === pdfjsLib.PasswordResponses.INCORRECT_PASSWORD) {
             const password = prompt("Incorrect password. Please try again:");
             updatePassword(password);
         }
@@ -39,42 +42,10 @@ export async function init(id, invoke, options) {
         eventBus
     });
 
+    addEventListener(pdfViewer, eventBus, invoke, options);
 
-    eventBus.on("pagesinit", function () {
-        if (options.isFitToPage) {
-            pdfViewer.currentScaleValue = "page-width";
-        }
-        else {
-            pdfViewer.currentScaleValue = 1.0;
-        }
-    });
-
-    // handle the promise
     const pdfDocument = await loadingTask.promise;
     pdfViewer.setDocument(pdfDocument);
-
-    //    pdfDocument.then(function (doc) {
-    //        pdf.pdfDoc = doc;
-    //        pdf.pagesCount = doc.numPages;
-    //        renderPage(pdf, pdf.pageNum);
-
-    //        // notify .NET side that document is loaded
-    //        invoke.invokeMethodAsync('DocumentLoaded', {
-    //            pagesCount: pdf.pagesCount,
-    //            pageNumber: pdf.pageNum
-    //        });
-    //    })
-    //        .catch(function (error) {
-    //            console.error("PDF loading error:", error);
-
-    //            // handle password exceptions specifically
-    //            if (error.name === "PasswordException") {
-    //                console.error("Password required but not provided");
-    //            }
-
-    //            // notify .NET side that document loading failed
-    //            invoke.invokeMethodAsync('DocumentLoadError', error.message);
-    //        });
 
     Data.set(id, pdfViewer);
 }
@@ -104,6 +75,51 @@ export function rotate(id, step) {
 
 export function dispose(id) {
     Data.get(id);
+}
+
+const addEventListener = (pdfViewer, eventBus, invoke, options) => {
+    eventBus.on("pagesinit", async () => {
+        if (options.isFitToPage) {
+            pdfViewer.currentScaleValue = "page-width";
+        }
+        else {
+            pdfViewer.currentScaleValue = 1.0;
+        }
+
+        const el = pdfViewer.container.parentElement;
+        const numPages = pdfViewer.pagesCount;
+        const countEl = el.querySelector(".bb-view-pagesCount");
+        if (countEl) {
+            countEl.innerHTML = numPages;
+        }
+
+        const toolbarEl = el.querySelector(".bb-view-toolbar");
+        if (toolbarEl) {
+            toolbarEl.classList.remove("init");
+        }
+
+        if (options.triggerPagesInit === true) {
+            await invoke.invokeMethodAsync("pagesInit", numPages);
+        }
+    });
+
+    eventBus.on("documentloaded", e => {
+        console.log(e);
+    });
+
+    eventBus.on(
+        "pagechanging",
+        function (evt) {
+            const page = evt.pageNumber;
+            console.log(page);
+            //const numPages = PDFViewerApplication.pagesCount;
+
+            //document.getElementById("pageNumber").value = page;
+            //document.getElementById("previous").disabled = page <= 1;
+            //document.getElementById("next").disabled = page >= numPages;
+        },
+        true
+    );
 }
 
 function getCanvas(item) {

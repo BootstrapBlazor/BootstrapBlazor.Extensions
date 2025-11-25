@@ -1,5 +1,3 @@
-@import url('pdf_viewer.css');
-
 .bb-pdf-reader {
     --bb-pdf-view-height: 600px;
     --bb-pdf-toolbar-height: 60px;
@@ -15,6 +13,10 @@
     align-items: center;
     color: #fff;
 }
+
+    .bb-view-toolbar.init > div {
+        visibility: hidden;
+    }
 
 .bb-view-title {
     display: flex;
