@@ -31,6 +31,10 @@
     cursor: pointer;
 }
 
+    .bb-view-icon.disabled {
+        color: #6c757d;
+    }
+
 .bb-view-bar {
     margin-inline-end: 2rem;
 }

@@ -37,6 +37,9 @@ public partial class PdfReader
     private bool _isFitToPage;
     private uint _currentPage;
     private string? _url;
+    private string? _currentScale;
+
+    private readonly HashSet<string> AllowedScaleValues = ["page-actual", "page-width", "page-height", "page-fit", "auto"];
 
     private string CurrentPageString
     {
@@ -49,6 +52,33 @@ public partial class PdfReader
         if (uint.TryParse(value, NumberStyles.Integer, CultureInfo.InvariantCulture, out var num))
         {
             Options.CurrentPage = num;
+        }
+    }
+
+    private string CurrentScaleString
+    {
+        get => $"{Options.CurrentScale ?? "100"}%";
+        set => SetCurrentScale(value);
+    }
+
+    private void SetCurrentScale(string value)
+    {
+        if (string.IsNullOrEmpty(value))
+        {
+            Options.CurrentScale = "100";
+        }
+        else if (float.TryParse(value.TrimEnd("%"), out var v))
+        {
+            if (v > 500)
+            {
+                v = 500;
+            }
+            else if (v < 25)
+            {
+                v = 25;
+            }
+
+            Options.CurrentScale = v.ToString(CultureInfo.InvariantCulture);
         }
     }
 
@@ -82,6 +112,7 @@ public partial class PdfReader
             _isFitToPage = Options.IsFitToPage;
             _currentPage = Options.CurrentPage;
             _url = Options.Url;
+            _currentScale = Options.CurrentScale;
         }
 
         if (_url != Options.Url)
@@ -99,6 +130,11 @@ public partial class PdfReader
         {
             _currentPage = Options.CurrentPage;
             await NavigateToPageAsync(_currentPage);
+        }
+        if (_currentScale != Options.CurrentScale)
+        {
+            _currentScale = Options.CurrentScale;
+            await InvokeVoidAsync("scale", Id, _currentScale);
         }
     }
 
