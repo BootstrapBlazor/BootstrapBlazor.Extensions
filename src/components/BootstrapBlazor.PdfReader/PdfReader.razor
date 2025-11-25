@@ -3,31 +3,34 @@
 @inherits BootstrapModuleComponentBase
 
 <div @attributes="@AdditionalAttributes" id="@Id" class="@ClassString" style="@StyleString">
-    <div class="bb-view-toolbar">
-        <div class="bb-view-title">
-            <div class="bb-view-icon bb-view-bar"><i class="fa-solid fa-bars"></i></div>
-            <span class="bb-view-subject">@_docTitle</span>
+    @if (Options.ShowToolbar)
+    {
+        <div class="bb-view-toolbar init">
+            <div class="bb-view-title">
+                <div class="bb-view-icon bb-view-bar"><i class="fa-solid fa-bars"></i></div>
+                <span class="bb-view-subject">@_docTitle</span>
+            </div>
+            <div class="@ViewBodyString">
+                <input type="text" class="bb-view-num" @bind="CurrentPageString" /><span class="bb-view-slash">/</span><div class="bb-view-pagesCount"></div>
+                <div class="bb-view-divider"></div>
+                <div class="bb-view-icon"><i class="fa-solid fa-minus"></i></div>
+                <input type="text" class="bb-view-scale" value="100%" />
+                <div class="bb-view-icon"><i class="fa-solid fa-plus"></i></div>
+                <div class="bb-view-divider"></div>
+                <div class="bb-view-icon bb-view-fit-page" @onclick="FitToPage"><i class="fa-solid fa-arrows-left-right-to-line"></i></div>
+                <div class="bb-view-icon bb-view-fit-width" @onclick="FitToWidth"><i class="fa-solid fa-arrows-left-right"></i></div>
+                <div class="bb-view-icon bb-view-fit-rotate" @onclick="RotateLeft"><i class="fa-solid fa-rotate-left"></i></div>
+                <div class="bb-view-icon bb-view-fit-rotate" @onclick="RotateRight"><i class="fa-solid fa-rotate-right"></i></div>
+                <div class="bb-view-divider"></div>
+                <div class="bb-view-icon bb-view-draw"><i class="fa-solid fa-pen-to-square"></i></div>
+            </div>
+            <div class="bb-view-controls">
+                <div class="bb-view-icon bb-view-download"><i class="fa-solid fa-arrow-right-to-bracket fa-rotate-90"></i></div>
+                <div class="bb-view-icon bb-view-print"><i class="fa-solid fa-print"></i></div>
+                <div class="bb-view-icon bb-view-home"><i class="fa-solid fa-flag"></i></div>
+            </div>
         </div>
-        <div class="@ViewBodyString">
-            <input type="text" class="bb-view-num" value="1" /><span class="bb-view-slash">/</span><div>14</div>
-            <div class="bb-view-divider"></div>
-            <div class="bb-view-icon"><i class="fa-solid fa-minus"></i></div>
-            <input type="text" class="bb-view-scale" value="100%" />
-            <div class="bb-view-icon"><i class="fa-solid fa-plus"></i></div>
-            <div class="bb-view-divider"></div>
-            <div class="bb-view-icon bb-view-fit-page" @onclick="FitToPage"><i class="fa-solid fa-arrows-left-right-to-line"></i></div>
-            <div class="bb-view-icon bb-view-fit-width" @onclick="FitToWidth"><i class="fa-solid fa-arrows-left-right"></i></div>
-            <div class="bb-view-icon bb-view-fit-rotate" @onclick="RotateLeft"><i class="fa-solid fa-rotate-left"></i></div>
-            <div class="bb-view-icon bb-view-fit-rotate" @onclick="RotateRight"><i class="fa-solid fa-rotate-right"></i></div>
-            <div class="bb-view-divider"></div>
-            <div class="bb-view-icon bb-view-draw"><i class="fa-solid fa-pen-to-square"></i></div>
-        </div>
-        <div class="bb-view-controls">
-            <div class="bb-view-icon bb-view-download"><i class="fa-solid fa-arrow-right-to-bracket fa-rotate-90"></i></div>
-            <div class="bb-view-icon bb-view-print"><i class="fa-solid fa-print"></i></div>
-            <div class="bb-view-icon bb-view-home"><i class="fa-solid fa-flag"></i></div>
-        </div>
-    </div>
+    }
     <div class="bb-view-container">
         <div class="pdfViewer"></div>
     </div>

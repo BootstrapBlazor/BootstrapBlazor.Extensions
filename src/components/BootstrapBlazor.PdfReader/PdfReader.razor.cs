@@ -3,6 +3,7 @@
 // Website: https://www.blazor.zone or https://argozhang.github.io/
 
 using Microsoft.AspNetCore.Components;
+using System.Globalization;
 
 namespace BootstrapBlazor.Components;
 
@@ -13,38 +14,43 @@ namespace BootstrapBlazor.Components;
 public partial class PdfReader
 {
     /// <summary>
-    /// 获得/设置 PDF 文档路径
+    /// 获得/设置 <see cref="PdfReaderOptions"/> 配置项实例
     /// </summary>
     [Parameter]
-    public string? Url { get; set; }
-
-    /// <summary>
-    /// 获得/设置 PDF 组件高度 默认 600px
-    /// </summary>
-    [Parameter]
-    public string? ViewHeight { get; set; }
-
-    /// <summary>
-    /// 获得/设置 是否适配当前页面宽度 默认 false
-    /// </summary>
-    [Parameter]
-    public bool IsFitToPage { get; set; }
+    [NotNull]
+    public PdfReaderOptions? Options { get; set; }
 
     private string? ClassString => CssBuilder.Default("bb-pdf-reader")
         .AddClassFromAttributes(AdditionalAttributes)
         .Build();
 
     private string? StyleString => CssBuilder.Default()
-        .AddClass($"--bb-pdf-view-height: {ViewHeight};", !string.IsNullOrEmpty(ViewHeight))
+        .AddClass($"--bb-pdf-view-height: {Options.ViewHeight};", !string.IsNullOrEmpty(Options.ViewHeight))
         .AddClassFromAttributes(AdditionalAttributes)
         .Build();
 
     private string? ViewBodyString => CssBuilder.Default("bb-view-body")
-        .AddClass("fit-page", IsFitToPage)
+        .AddClass("fit-page", Options.IsFitToPage)
         .Build();
 
     private string? _docTitle;
     private bool _isFitToPage;
+    private uint _currentPage;
+    private string? _url;
+
+    private string CurrentPageString
+    {
+        get => Options.CurrentPage.ToString(CultureInfo.InvariantCulture);
+        set => SetCurrentPage(value);
+    }
+
+    private void SetCurrentPage(string value)
+    {
+        if (uint.TryParse(value, NumberStyles.Integer, CultureInfo.InvariantCulture, out var num))
+        {
+            Options.CurrentPage = num;
+        }
+    }
 
     /// <summary>
     /// <inheritdoc/>
@@ -53,7 +59,13 @@ public partial class PdfReader
     {
         base.OnParametersSet();
 
-        _docTitle = Path.GetFileName(Url);
+        Options ??= new PdfReaderOptions();
+
+        if (Options.CurrentPage == 0)
+        {
+            Options.CurrentPage = 1;
+        }
+        _docTitle = Path.GetFileName(Options.Url);
     }
 
     /// <summary>
@@ -67,13 +79,26 @@ public partial class PdfReader
 
         if (firstRender)
         {
-            _isFitToPage = IsFitToPage;
+            _isFitToPage = Options.IsFitToPage;
+            _currentPage = Options.CurrentPage;
+            _url = Options.Url;
         }
 
-        if (_isFitToPage != IsFitToPage)
+        if (_url != Options.Url)
         {
-            _isFitToPage = IsFitToPage;
-            await TriggerFit(IsFitToPage ? "fitToPage" : "fitToWidth");
+            _url = Options.Url;
+            await InvokeInitAsync();
+        }
+
+        if (_isFitToPage != Options.IsFitToPage)
+        {
+            _isFitToPage = Options.IsFitToPage;
+            await TriggerFit(_isFitToPage ? "fitToPage" : "fitToWidth");
+        }
+        if (_currentPage != Options.CurrentPage)
+        {
+            _currentPage = Options.CurrentPage;
+            await NavigateToPageAsync(_currentPage);
         }
     }
 
@@ -81,24 +106,30 @@ public partial class PdfReader
     /// <inheritdoc/>
     /// </summary>
     /// <returns></returns>
-    protected override Task InvokeInitAsync() => InvokeVoidAsync("init", Id, Interop, new { Url, IsFitToPage });
+    protected override Task InvokeInitAsync() => InvokeVoidAsync("init", Id, Interop, new
+    {
+        Options.Url,
+        Options.IsFitToPage,
+        TriggerPagesInit = Options.OnInitAsync != null,
+        TriggerPageChanged = Options.OnPageChangedAsync != null
+    });
 
     /// <summary>
     /// 跳转到指定页码方法
     /// </summary>
     /// <param name="pageNumber"></param>
     /// <returns></returns>
-    public Task NavigateToPageAsync(int pageNumber) => InvokeVoidAsync("navigateToPage", Id, pageNumber);
+    public Task NavigateToPageAsync(uint pageNumber) => InvokeVoidAsync("navigateToPage", Id, pageNumber);
 
     /// <summary>
     /// 适应页面宽度
     /// </summary>
-    public void FitToPage() => IsFitToPage = true;
+    public void FitToPage() => Options.IsFitToPage = true;
 
     /// <summary>
     /// 适应文档宽度
     /// </summary>
-    public void FitToWidth() => IsFitToPage = false;
+    public void FitToWidth() => Options.IsFitToPage = false;
 
     /// <summary>
     /// 旋转页面方法
@@ -125,9 +156,12 @@ public partial class PdfReader
     /// </summary>
     /// <returns></returns>
     [JSInvokable]
-    public Task PagesInit()
+    public async Task PagesInit(int pagesCount)
     {
-        return Task.CompletedTask;
+        if (Options.OnInitAsync != null)
+        {
+            await Options.OnInitAsync(pagesCount);
+        }
     }
 
     /// <summary>
@@ -135,8 +169,14 @@ public partial class PdfReader
     /// </summary>
     /// <returns></returns>
     [JSInvokable]
-    public Task PageChanging()
+    public async Task PageChanged(uint pageIndex)
     {
-        return Task.CompletedTask;
+        _currentPage = pageIndex;
+        Options.CurrentPage = pageIndex;
+
+        if (Options.OnPageChangedAsync != null)
+        {
+            await Options.OnPageChangedAsync(pageIndex);
+        }
     }
 }
