@@ -38,4 +38,9 @@ public class PdfReaderOptions
     /// 页面初始化回调方法
     /// </summary>
     public Func<int, Task>? OnInitAsync { get; set; }
+
+    /// <summary>
+    /// 页面初始化回调方法
+    /// </summary>
+    public Func<uint, Task>? OnPageChangedAsync { get; set; }
 }

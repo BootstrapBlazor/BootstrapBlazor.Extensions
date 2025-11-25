@@ -110,7 +110,8 @@ public partial class PdfReader
     {
         Options.Url,
         Options.IsFitToPage,
-        TriggerPagesInit = Options.OnInitAsync != null
+        TriggerPagesInit = Options.OnInitAsync != null,
+        TriggerPageChanged = Options.OnPageChangedAsync != null
     });
 
     /// <summary>
@@ -168,8 +169,14 @@ public partial class PdfReader
     /// </summary>
     /// <returns></returns>
     [JSInvokable]
-    public Task PageChanging()
+    public async Task PageChanged(uint pageIndex)
     {
-        return Task.CompletedTask;
+        _currentPage = pageIndex;
+        Options.CurrentPage = pageIndex;
+
+        if (Options.OnPageChangedAsync != null)
+        {
+            await Options.OnPageChangedAsync(pageIndex);
+        }
     }
 }

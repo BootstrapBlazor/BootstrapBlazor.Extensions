@@ -103,23 +103,18 @@ const addEventListener = (pdfViewer, eventBus, invoke, options) => {
         }
     });
 
-    eventBus.on("documentloaded", e => {
-        console.log(e);
-    });
+    eventBus.on("pagechanging", async evt => {
+        const page = evt.pageNumber;
+        const el = evt.source.container.parentElement;
+        const pageNumberEl = el.querySelector(".bb-view-num");
+        if (pageNumberEl) {
+            pageNumberEl.value = page;
+        }
 
-    eventBus.on(
-        "pagechanging",
-        function (evt) {
-            const page = evt.pageNumber;
-            console.log(page);
-            //const numPages = PDFViewerApplication.pagesCount;
-
-            //document.getElementById("pageNumber").value = page;
-            //document.getElementById("previous").disabled = page <= 1;
-            //document.getElementById("next").disabled = page >= numPages;
-        },
-        true
-    );
+        if (options.triggerPageChanged === true) {
+            await invoke.invokeMethodAsync("pageChanged", page);
+        }
+    }, true);
 }
 
 function getCanvas(item) {
