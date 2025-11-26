@@ -82,23 +82,9 @@ export function navigateToPage(id, pageNumber) {
 }
 
 export function scale(id, scale) {
-    const { el, pdfViewer } = Data.get(id);
+    const { pdfViewer } = Data.get(id);
     if (pdfViewer) {
         pdfViewer.currentScaleValue = scale / 100;
-
-        const minus = el.querySelector(".bb-page-minus");
-        const plus = el.querySelector(".bb-page-plus");
-
-        if (scale === "25") {
-            minus.classList.add("disabled");
-        }
-        else if (scale === "500") {
-            plus.classList.add("disabled");
-        }
-        else {
-            minus.classList.remove("disabled");
-            plus.classList.remove("disabled");
-        }
     }
 }
 
@@ -206,7 +192,22 @@ const addEventListener = (el, pdfViewer, eventBus, invoke, options) => {
     const scaleEl = el.querySelector(".bb-view-scale");
 
     eventBus.on("scalechanging", evt => {
-        scaleEl.value = `${Math.round(evt.scale * 100, 0)}%`;
+        const scale = evt.scale * 100;
+        scaleEl.value = `${Math.round(scale, 0)}%`;
+
+        const minus = el.querySelector(".bb-page-minus");
+        const plus = el.querySelector(".bb-page-plus");
+
+        if (scale === 25) {
+            minus.classList.add("disabled");
+        }
+        else if (scale === 500) {
+            plus.classList.add("disabled");
+        }
+        else {
+            minus.classList.remove("disabled");
+            plus.classList.remove("disabled");
+        }
     })
 
     EventHandler.on(minus, "click", e => updateScale(pdfViewer, e.target, -1));
