@@ -127,35 +127,7 @@ const addEventListener = (el, pdfViewer, eventBus, invoke, options) => {
 
     eventBus.on("pagesloaded", async e => {
         if (options.enableThumbnails) {
-            const thumbnailsContainer = el.querySelector(".bb-view-thumbnails");
-            pdfViewer.getPagesOverview().map(async (p, i) => {
-                const item = document.createElement("div");
-                item.classList.add("bb-view-thumbnail-item");
-                if (pdfViewer.currentPageNumber === i + 1) {
-                    item.classList.add("active");
-                }
-                item.setAttribute("data-bb-page", `${i + 1}`);
-                thumbnailsContainer.appendChild(item);
-
-                const page = await pdfViewer.pdfDocument.getPage(i + 1);
-                const canvas = await makeThumb(page);
-                const img = document.createElement("img");
-                img.src = canvas.toDataURL();
-                item.appendChild(img);
-            });
-
-            EventHandler.on(thumbnailsContainer, "click", ".bb-view-thumbnail-item", e => {
-                const active = thumbnailsContainer.querySelector('.active');
-                if (active) {
-                    active.classList.remove('active');
-                }
-
-                const item = e.delegateTarget;
-                item.classList.add("active");
-
-                const index = parseInt(item.getAttribute("data-bb-page")) || 1;
-                pdfViewer.currentPageNumber = index;
-            })
+            resetThumbnailsView(el, pdfViewer);
         }
 
         if (options.triggerPagesLoaded === true) {
@@ -232,6 +204,45 @@ const addEventListener = (el, pdfViewer, eventBus, invoke, options) => {
             thumbnailsEl.classList.toggle("show");
         });
     }
+
+    eventBus.on("rotationchanging", evt => {
+        const thumbnailsContainer = el.querySelector(".bb-view-thumbnails");
+        if (thumbnailsContainer) {
+            thumbnailsContainer.style.setProperty('--thumb-rotate', `${evt.pagesRotation}deg`);
+        }
+    })
+}
+
+const resetThumbnailsView = (el, pdfViewer) => {
+    const thumbnailsContainer = el.querySelector(".bb-view-thumbnails");
+    pdfViewer.getPagesOverview().map(async (p, i) => {
+        const item = document.createElement("div");
+        item.classList.add("bb-view-thumbnail-item");
+        if (pdfViewer.currentPageNumber === i + 1) {
+            item.classList.add("active");
+        }
+        item.setAttribute("data-bb-page", `${i + 1}`);
+        thumbnailsContainer.appendChild(item);
+
+        const page = await pdfViewer.pdfDocument.getPage(i + 1);
+        const canvas = await makeThumb(page);
+        const img = document.createElement("img");
+        img.src = canvas.toDataURL();
+        item.appendChild(img);
+    });
+
+    EventHandler.on(thumbnailsContainer, "click", ".bb-view-thumbnail-item", e => {
+        const active = thumbnailsContainer.querySelector('.active');
+        if (active) {
+            active.classList.remove('active');
+        }
+
+        const item = e.delegateTarget;
+        item.classList.add("active");
+
+        const index = parseInt(item.getAttribute("data-bb-page")) || 1;
+        pdfViewer.currentPageNumber = index;
+    });
 }
 
 const updateScale = (pdfViewer, button, rate) => {
