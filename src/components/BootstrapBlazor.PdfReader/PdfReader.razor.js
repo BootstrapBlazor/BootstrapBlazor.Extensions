@@ -143,19 +143,19 @@ const addEventListener = (el, pdfViewer, eventBus, invoke, options) => {
         if (options.enableThumbnails) {
             const thumbnailsContainer = el.querySelector(".bb-view-thumbnails");
             pdfViewer.getPagesOverview().map(async (p, i) => {
-                const page = await pdfViewer.pdfDocument.getPage(i + 1);
-                const canvas = await makeThumb(page);
-                const img = document.createElement("img");
-                img.src = canvas.toDataURL();
-
                 const item = document.createElement("div");
                 item.classList.add("bb-view-thumbnail-item");
                 if (pdfViewer.currentPageNumber === i + 1) {
                     item.classList.add("active");
                 }
-                item.setAttribute("data-bb-page", i + 1)
-                item.appendChild(img);
+                item.setAttribute("data-bb-page", `${i + 1}`);
                 thumbnailsContainer.appendChild(item);
+
+                const page = await pdfViewer.pdfDocument.getPage(i + 1);
+                const canvas = await makeThumb(page);
+                const img = document.createElement("img");
+                img.src = canvas.toDataURL();
+                item.appendChild(img);
             });
 
             EventHandler.on(thumbnailsContainer, "click", ".bb-view-thumbnail-item", e => {
@@ -252,7 +252,7 @@ const updateScale = (pdfViewer, button, rate) => {
     pdfViewer.currentScaleValue = v / 100;
 }
 
-const makeThumb = page => {
+const makeThumb = async page => {
     const outputScale = window.devicePixelRatio || 1;
     const vp = page.getViewport({ scale: 1 });
     const canvas = document.createElement("canvas");
@@ -260,12 +260,12 @@ const makeThumb = page => {
     canvas.width = vp.width * scaleSize * outputScale;
     canvas.height = vp.height * scaleSize * outputScale;
 
-    return page.render({
+    await page.render({
         canvasContext: canvas.getContext("2d"),
         viewport: page.getViewport({ scale: scaleSize * outputScale })
-    }).promise.then(function () {
-        return canvas;
-    })
+    }).promise;
+
+    return canvas;
 }
 
 export function dispose(id) {
