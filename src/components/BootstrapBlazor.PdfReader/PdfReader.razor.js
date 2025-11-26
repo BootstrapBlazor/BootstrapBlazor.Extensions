@@ -139,6 +139,25 @@ const addEventListener = (el, pdfViewer, eventBus, invoke, options) => {
         }
     });
 
+    eventBus.on("pagesloaded", async e => {
+        const thumbnailsContainer = el.querySelector(".bb-view-thumbnails");
+        pdfViewer.getPagesOverview().map(async (p, i) => {
+            var page = await pdfViewer.pdfDocument.getPage(i + 1);
+            var canvas = await makeThumb(page);
+            var img = document.createElement("img");
+            img.src = canvas.toDataURL();
+
+            var item = document.createElement("div");
+            item.classList.add("bb-view-thumbnail-item");
+            item.appendChild(img);
+            thumbnailsContainer.appendChild(item);
+        });
+
+        if (options.triggerPagesLoaded === true) {
+            await invoke.invokeMethodAsync("PagesLoaded", e.pagesCount);
+        }
+    })
+
     eventBus.on("pagechanging", async evt => {
         const page = evt.pageNumber;
         const pageNumberEl = el.querySelector(".bb-view-num");
@@ -192,6 +211,22 @@ const updateScale = (pdfViewer, button, rate) => {
         v = findValues.pop();
     }
     pdfViewer.currentScaleValue = v / 100;
+}
+
+const makeThumb = page => {
+    const outputScale = window.devicePixelRatio || 1;
+    var vp = page.getViewport({ scale: 1 });
+    var canvas = document.createElement("canvas");
+    var scalesize = 1;
+    canvas.width = vp.width * scalesize * outputScale;
+    canvas.height = vp.height * scalesize * outputScale;
+
+    return page.render({
+        canvasContext: canvas.getContext("2d"),
+        viewport: page.getViewport({ scale: scalesize * outputScale })
+    }).promise.then(function () {
+        return canvas;
+    })
 }
 
 export function dispose(id) {

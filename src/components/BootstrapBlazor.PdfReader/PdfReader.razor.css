@@ -6,6 +6,31 @@
     height: calc(var(--bb-pdf-view-height) + var(--bb-pdf-toolbar-height));
 }
 
+.bb-view-thumbnails {
+    position: absolute;
+    top: var(--bb-pdf-toolbar-height);
+    left: 0;
+    bottom: 0;
+    width: 300px;
+    overflow: auto;
+    z-index: 5;
+    background-color: #28292a;
+    padding: 1rem 0;
+}
+
+::deep .bb-view-thumbnail-item {
+    display: block;
+    text-align: center;
+}
+
+    ::deep .bb-view-thumbnail-item:not(:last-child) {
+        margin-block-end: 1rem;
+    }
+
+    ::deep .bb-view-thumbnail-item img {
+        width: 42%;
+    }
+
 .bb-view-toolbar {
     height: var(--bb-pdf-toolbar-height);
     background-color: var(--bb-toolbar-background-color);

@@ -171,7 +171,8 @@ public partial class PdfReader
     {
         Options.Url,
         Options.IsFitToPage,
-        TriggerPagesInit = Options.OnInitAsync != null,
+        TriggerPagesInit = Options.OnPagesInitAsync != null,
+        TriggerPagesLoaded = Options.OnPagesLoadedAsync != null,
         TriggerPageChanged = Options.OnPageChangedAsync != null,
         TriggerTowPagesOnViewChanged = Options.OnTwoPagesOneViewAsync != null
     });
@@ -220,9 +221,22 @@ public partial class PdfReader
     [JSInvokable]
     public async Task PagesInit(int pagesCount)
     {
-        if (Options.OnInitAsync != null)
+        if (Options.OnPagesInitAsync != null)
         {
-            await Options.OnInitAsync(pagesCount);
+            await Options.OnPagesInitAsync(pagesCount);
+        }
+    }
+
+    /// <summary>
+    /// 页面加载完毕时回调方法
+    /// </summary>
+    /// <returns></returns>
+    [JSInvokable]
+    public async Task PagesLoaded(int pagesCount)
+    {
+        if (Options.OnPagesLoadedAsync != null)
+        {
+            await Options.OnPagesLoadedAsync(pagesCount);
         }
     }
 
