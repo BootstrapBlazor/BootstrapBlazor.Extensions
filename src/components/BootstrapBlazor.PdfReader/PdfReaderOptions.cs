@@ -30,6 +30,11 @@ public class PdfReaderOptions
     public uint CurrentPage { get; set; }
 
     /// <summary>
+    /// 获得/设置 当前缩放倍率 默认 null 使用 100%
+    /// </summary>
+    public string? CurrentScale { get; set; }
+
+    /// <summary>
     /// 获得/设置 是否适配当前页面宽度 默认 false
     /// </summary>
     public bool IsFitToPage { get; set; }

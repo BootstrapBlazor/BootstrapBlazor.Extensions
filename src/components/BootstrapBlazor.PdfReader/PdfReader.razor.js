@@ -2,6 +2,7 @@ import './lib/pdf.min.mjs'
 import './lib/pdf_viewer.mjs'
 import { addLink } from '../BootstrapBlazor/modules/utility.js';
 import Data from '../BootstrapBlazor/modules/data.js';
+import EventHandler from '../BootstrapBlazor/modules/event-handler.js';
 
 if (pdfjsLib != null) {
     pdfjsLib.GlobalWorkerOptions.workerSrc = './pdf.worker.min.mjs';
@@ -42,30 +43,30 @@ export async function init(id, invoke, options) {
         eventBus
     });
 
-    addEventListener(pdfViewer, eventBus, invoke, options);
+    addEventListener(el, pdfViewer, eventBus, invoke, options);
 
     const pdfDocument = await loadingTask.promise;
     pdfViewer.setDocument(pdfDocument);
 
-    Data.set(id, pdfViewer);
+    Data.set(id, { el, pdfViewer });
 }
 
 export function fitToWidth(id) {
-    const pdfViewer = Data.get(id);
+    const { pdfViewer } = Data.get(id);
     if (pdfViewer) {
-        pdfViewer.currentScaleValue = 1.0;
+        pdfViewer.currentScaleValue = "page-height";
     }
 }
 
 export function fitToPage(id) {
-    const pdfViewer = Data.get(id);
+    const { pdfViewer } = Data.get(id);
     if (pdfViewer) {
         pdfViewer.currentScaleValue = "page-width";
     }
 }
 
 export function rotate(id, step) {
-    const pdfViewer = Data.get(id);
+    const { pdfViewer } = Data.get(id);
     if (pdfViewer) {
         let rotate = pdfViewer.pagesRotation || 360;
         rotate += step;
@@ -73,11 +74,35 @@ export function rotate(id, step) {
     }
 }
 
-export function dispose(id) {
-    Data.get(id);
+export function navigateToPage(id, pageNumber) {
+    const { pdfViewer } = Data.get(id);
+    if (pdfViewer) {
+        pdfViewer.currentPageNumber = pageNumber;
+    }
 }
 
-const addEventListener = (pdfViewer, eventBus, invoke, options) => {
+export function scale(id, scale) {
+    const { el, pdfViewer } = Data.get(id);
+    if (pdfViewer) {
+        pdfViewer.currentScaleValue = scale / 100;
+
+        const minus = el.querySelector(".bb-page-minus");
+        const plus = el.querySelector(".bb-page-plus");
+
+        if (scale === "25") {
+            minus.classList.add("disabled");
+        }
+        else if (scale === "500") {
+            plus.classList.add("disabled");
+        }
+        else {
+            minus.classList.remove("disabled");
+            plus.classList.remove("disabled");
+        }
+    }
+}
+
+const addEventListener = (el, pdfViewer, eventBus, invoke, options) => {
     eventBus.on("pagesinit", async () => {
         if (options.isFitToPage) {
             pdfViewer.currentScaleValue = "page-width";
@@ -86,10 +111,6 @@ const addEventListener = (pdfViewer, eventBus, invoke, options) => {
             pdfViewer.currentScaleValue = "page-actual";
         }
 
-        pdfViewer.currentScaleValue = 'auto';
-        pdfViewer.spreadMode = 1;
-
-        const el = pdfViewer.container.parentElement;
         const numPages = pdfViewer.pagesCount;
         const countEl = el.querySelector(".bb-view-pagesCount");
         if (countEl) {
@@ -108,7 +129,6 @@ const addEventListener = (pdfViewer, eventBus, invoke, options) => {
 
     eventBus.on("pagechanging", async evt => {
         const page = evt.pageNumber;
-        const el = evt.source.container.parentElement;
         const pageNumberEl = el.querySelector(".bb-view-num");
         if (pageNumberEl) {
             pageNumberEl.value = page;
@@ -118,240 +138,46 @@ const addEventListener = (pdfViewer, eventBus, invoke, options) => {
             await invoke.invokeMethodAsync("pageChanged", page);
         }
     }, true);
+
+    const minus = el.querySelector(".bb-page-minus");
+    const plus = el.querySelector(".bb-page-plus");
+    const scaleEl = el.querySelector(".bb-view-scale");
+
+    eventBus.on("scalechanging", evt => {
+        scaleEl.value = `${Math.round(evt.scale * 100, 0)}%`;
+    })
+
+    EventHandler.on(minus, "click", e => updateScale(pdfViewer, e.target, -1));
+    EventHandler.on(plus, "click", e => updateScale(pdfViewer, e.target, 1));
 }
 
-function getCanvas(item) {
-    if (isDomSupported() && typeof item === 'string') {
-        item = document.getElementById(item);
-    } else if (item && item.length) {
-        // support for array based queries
-        item = item[0];
+const updateScale = (pdfViewer, button, rate) => {
+    if (button.classList.contains('disabled')) {
+        return;
     }
 
-    if (item && item.canvas !== undefined && item.canvas) {
-        // support for any object associated to a canvas (including a context2d)
-        item = item.canvas;
+    const scale = pdfViewer.currentScale;
+    const current = Math.round(parseFloat(scale * 100), 0);
+    const step = [25, 33, 50, 67, 75, 80, 90, 100, 110, 125, 150, 175, 200, 250, 300, 400, 500];
+    const findValues = step.filter(s => rate > 0 ? current  < s : current > s);
+    let v = 100;
+    if (rate > 0) {
+        v = findValues.shift();
     }
-
-    return item;
-}
-
-const getPdf = (key) => {
-    const canvas = getCanvas(key);
-    return Object.values(pdfInstances).filter((c) => c.canvas === canvas).pop();
-};
-
-const pdfInstances = {};
-
-class Pdf {
-    static instances = pdfInstances;
-    static getPdf = getPdf;
-
-    constructor(item) {
-        const canvas = getCanvas(item);
-
-        this.id = canvas.id;
-        this.canvas = canvas;
-        this.ctx = canvas.getContext('2d');
-        this.pdfDoc = null;
-        this.pageNum = 1;
-        this.pagesCount = 0;
-        this.pageRendering = false;
-        this.pageNumPending = null;
-        this.scale = 1;
-        this.rotation = 0;
-
-        pdfInstances[this.id] = this;
+    else {
+        v = findValues.pop();
     }
+    pdfViewer.currentScaleValue = v / 100;
 }
 
-export function navigateToPage(id, pageNumber) {
-    const pdf = Data.get(id);
-    pdf.currentPageNumber = pageNumber;
-}
+export function dispose(id) {
+    Data.remove(id);
 
-export function firstPage(invoke, elementId) {
-    const pdf = getPdf(elementId);
-
-    if (pdf == null || pdf.pageNum === 1)
-        return;
-
-    if (pdf.pageNum > 1)
-        pdf.pageNum = 1;
-
-    queueRenderPage(pdf, pdf.pageNum);
-
-    setPdfViewerMetaData(invoke, pdf);
-}
-
-export function gotoPage(invoke, elementId, gotoPageNum) {
-    const pdf = getPdf(elementId);
-
-    if (pdf == null || gotoPageNum < 1 || gotoPageNum > pdf.pagesCount)
-        return;
-
-    pdf.pageNum = gotoPageNum;
-
-    queueRenderPage(pdf, pdf.pageNum);
-
-    setPdfViewerMetaData(invoke, pdf);
-}
-
-export function lastPage(invoke, elementId) {
-    const pdf = getPdf(elementId);
-
-    if (pdf == null || (pdf.pageNum === 1 && pdf.pageNum === pdf.pagesCount))
-        return;
-
-    if (pdf.pageNum < pdf.pagesCount)
-        pdf.pageNum = pdf.pagesCount;
-
-    queueRenderPage(pdf, pdf.pageNum);
-
-    setPdfViewerMetaData(invoke, pdf);
-}
-
-export function nextPage(invoke, elementId) {
-    const pdf = getPdf(elementId);
-
-    if (pdf == null || pdf.pageNum === pdf.pagesCount)
-        return;
-
-    if (pdf.pageNum < pdf.pagesCount)
-        pdf.pageNum += 1;
-
-    queueRenderPage(pdf, pdf.pageNum);
-
-    setPdfViewerMetaData(invoke, pdf);
-}
-
-export function previousPage(invoke, elementId) {
-    const pdf = getPdf(elementId);
-
-    if (pdf == null || pdf.pageNum === 0 || pdf.pageNum === 1)
-        return;
-
-    if (pdf.pageNum > 0)
-        pdf.pageNum -= 1;
-
-    queueRenderPage(pdf, pdf.pageNum);
-
-    setPdfViewerMetaData(invoke, pdf);
-}
-
-export async function print(invoke, elementId, url) {
-    const pdfDoc = await pdfjsLib.getDocument(url).promise;
-    const pageRange = [1, 2, 3, 4]; // TODO: update this
-
-    const iframeEl = document.createElement('iframe');
-    iframeEl.style = 'display:none';
-    document.body.appendChild(iframeEl);
-
-    for (const pageNumber of pageRange) {
-        const page = await pdfDoc.getPage(pageNumber);
-
-        const viewport = page.getViewport({ scale: 1.5 });
-        const canvas = document.createElement("canvas");
-        canvas.height = viewport.height;
-        canvas.width = viewport.width;
-
-        const ctx = canvas.getContext('2d');
-
-        const renderContext = {
-            //intent: 'print',
-            canvasContext: ctx,
-            viewport: viewport
-        };
-        await page.render(renderContext).promise;
-
-        const iframeDoc = iframeEl.contentWindow.document;
-        iframeDoc.body.appendChild(canvas);
+    const el = document.getElementById(id);
+    if (el) {
+        const minus = el.querySelector(".bb-page-minus");
+        const plus = el.querySelector(".bb-page-plus");
+        EventHandler.off(minus, "click");
+        EventHandler.off(plus, "click");
     }
-
-    setTimeout(() => {
-        iframeEl.contentWindow.print();
-        iframeEl.remove();
-    },
-        1000);
-}
-
-//export function rotate(invoke, elementId, rotation) {
-//    const pdf = getPdf(elementId);
-
-//    if (pdf == null || Number.isNaN(rotation) || rotation % 90 !== 0)
-//        return;
-
-//    pdf.rotation = rotation;
-
-//    queueRenderPage(pdf, pdf.pageNum);
-//}
-
-export function zoomInOut(invoke, elementId, scale) {
-    const pdf = getPdf(elementId);
-
-    if (pdf == null)
-        return;
-
-    if (!Number.isNaN(scale))
-        pdf.scale = scale;
-
-    queueRenderPage(pdf, pdf.pageNum);
-}
-
-function isDomSupported() {
-    return typeof window !== 'undefined' && typeof document !== 'undefined';
-}
-
-function queueRenderPage(pdf, num) {
-    if (pdf.pageRendering) {
-        pdf.pageNumPending = num;
-    } else {
-        renderPage(pdf, num);
-    }
-}
-
-function renderPage(pdf, num) {
-    pdf.pageRendering = true;
-
-    // Using promise to fetch the page
-    pdf.pdfDoc.getPage(num).then((page) => {
-        const viewport = page.getViewport({ scale: pdf.scale, rotation: pdf.rotation });
-        const dpr = window.devicePixelRatio || 1;
-
-        pdf.canvas.height = viewport.height * dpr;
-        pdf.canvas.width = viewport.width * dpr;
-
-        pdf.ctx.scale(dpr, dpr);
-
-        pdf.canvas.style.height = viewport.height + 'px';
-        pdf.canvas.style.width = viewport.width + 'px';
-
-        // Render PDF page into canvas context
-        const renderContext = {
-            canvasContext: pdf.ctx,
-            viewport: viewport
-        };
-
-        const renderTask = page.render(renderContext);
-
-        // Wait for rendering to finish
-        renderTask.promise.then(() => {
-            pdf.pageRendering = false;
-            if (pdf.pageNumPending !== null) {
-                // New page rendering is pending
-                renderPage(pdf, pdf.pageNumPending);
-                pdf.pageNumPending = null;
-            }
-        })
-            .catch((error) => {
-                // TODO: track exception
-            });
-    });
-}
-
-function setPdfViewerMetaData(invoke, pdf) {
-    if (invoke == null)
-        return;
-
-    invoke.invokeMethodAsync('SetPdfViewerMetaData', { pagesCount: pdf.pagesCount, pageNumber: pdf.pageNum });
 }
