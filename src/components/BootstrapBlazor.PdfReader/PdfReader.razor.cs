@@ -44,7 +44,8 @@ public partial class PdfReader
     private uint _currentPage;
     private string? _url;
     private string? _currentScale;
-    private bool _enableTwoPagesOnView;
+    private bool _enableTwoPagesOneView;
+    private string? _twoPagesOneViewIcon;
 
     private readonly HashSet<string> AllowedScaleValues = ["page-actual", "page-width", "page-height", "page-fit", "auto"];
 
@@ -89,6 +90,14 @@ public partial class PdfReader
         }
     }
 
+    private void OnToggleTwoPagesOneView()
+    {
+        _enableTwoPagesOneView = !_enableTwoPagesOneView;
+        Options.EnableTwoPagesOnView = _enableTwoPagesOneView;
+
+        _twoPagesOneViewIcon = _enableTwoPagesOneView ? "fa-solid fa-fw fa-check" : "fa-solid fa-fw";
+    }
+
     /// <summary>
     /// <inheritdoc/>
     /// </summary>
@@ -105,6 +114,7 @@ public partial class PdfReader
         _docTitle = Path.GetFileName(Options.Url);
 
         MoreButtonIcon ??= "fa-solid fa-ellipsis-vertical";
+        _twoPagesOneViewIcon ??= "fa-solid fa-fw";
     }
 
     /// <summary>
@@ -122,7 +132,7 @@ public partial class PdfReader
             _currentPage = Options.CurrentPage;
             _url = Options.Url;
             _currentScale = Options.CurrentScale;
-            _enableTwoPagesOnView = Options.EnableTwoPagesOnView;
+            _enableTwoPagesOneView = Options.EnableTwoPagesOnView;
         }
 
         if (_url != Options.Url)
@@ -146,10 +156,10 @@ public partial class PdfReader
             _currentScale = Options.CurrentScale;
             await InvokeVoidAsync("scale", Id, _currentScale);
         }
-        if (_enableTwoPagesOnView != Options.EnableTwoPagesOnView)
+        if (_enableTwoPagesOneView != Options.EnableTwoPagesOnView)
         {
             _currentScale = Options.CurrentScale;
-            await InvokeVoidAsync("setPages", Id, _enableTwoPagesOnView);
+            await InvokeVoidAsync("setPages", Id, _enableTwoPagesOneView);
         }
     }
 

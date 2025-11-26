@@ -105,7 +105,12 @@ export function scale(id, scale) {
 export function setPages(id, enableTowPagesOnView) {
     const { el, pdfViewer } = Data.get(id);
     if (pdfViewer) {
-        pdfViewer.spreadMode = 1;
+        if (enableTowPagesOnView) {
+            pdfViewer.spreadMode = 1;
+        }
+        else {
+            pdfViewer.spreadMode = 0;
+        }
     }
 }
 

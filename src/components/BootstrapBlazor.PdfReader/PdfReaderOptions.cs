@@ -42,7 +42,7 @@ public class PdfReaderOptions
     /// <summary>
     /// 获得/设置 是否显示双页单视图按钮 默认 true 显示
     /// </summary>
-    public bool ShowTowPagesOnViewButton { get; set; } = true;
+    public bool ShowTwoPagesOnViewButton { get; set; } = true;
 
     /// <summary>
     /// 获得/设置 是否启用双页单视图模式 默认 false

@@ -28,12 +28,14 @@
                 <div class="bb-view-icon bb-view-download"><i class="fa-solid fa-arrow-right-to-bracket fa-rotate-90"></i></div>
                 <div class="bb-view-icon bb-view-print"><i class="fa-solid fa-print"></i></div>
                 <Dropdown TValue="string" Color="Color.None" SkipValidate="true" ShowLabel="false"
-                          IsPopover="true" Icon="@MoreButtonIcon">
+                          IsPopover="false" MenuAlignment="Alignment.Right" Icon="@MoreButtonIcon">
                     <ItemsTemplate>
-                        @if (Options.ShowTowPagesOnViewButton)
+                        @if (Options.ShowTwoPagesOnViewButton)
                         {
-                            <div class="dropdown-item dropdown-item-pages">Two pages on view</div>
+                            <div class="dropdown-item dropdown-item-pages" @onclick="OnToggleTwoPagesOneView"><i class="@_twoPagesOneViewIcon"></i><span>Two pages on view</span></div>
+                            <Divider></Divider>
                         }
+                        <div class="dropdown-item"><i class="fa-solid fa-fw"></i><span>Document properties</span></div>
                     </ItemsTemplate>
                 </Dropdown>
             </div>
