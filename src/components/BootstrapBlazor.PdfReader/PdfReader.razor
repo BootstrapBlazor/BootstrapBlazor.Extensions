@@ -27,7 +27,15 @@
             <div class="bb-view-controls">
                 <div class="bb-view-icon bb-view-download"><i class="fa-solid fa-arrow-right-to-bracket fa-rotate-90"></i></div>
                 <div class="bb-view-icon bb-view-print"><i class="fa-solid fa-print"></i></div>
-                <div class="bb-view-icon bb-view-home"><i class="fa-solid fa-flag"></i></div>
+                <Dropdown TValue="string" Color="Color.None" SkipValidate="true" ShowLabel="false"
+                          IsPopover="true" Icon="@MoreButtonIcon">
+                    <ItemsTemplate>
+                        @if (Options.ShowTowPagesOnViewButton)
+                        {
+                            <div class="dropdown-item dropdown-item-pages">Two pages on view</div>
+                        }
+                    </ItemsTemplate>
+                </Dropdown>
             </div>
         </div>
     }

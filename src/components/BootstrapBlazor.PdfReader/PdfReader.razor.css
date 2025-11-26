@@ -18,6 +18,14 @@
         visibility: hidden;
     }
 
+    .bb-view-toolbar ::deep .btn {
+        --bs-btn-color: #fff;
+    }
+
+    .bb-view-toolbar ::deep .dropdown-toggle::after {
+        content: none;
+    }
+
 .bb-view-title {
     display: flex;
     align-items: center;

@@ -40,6 +40,16 @@ public class PdfReaderOptions
     public bool IsFitToPage { get; set; }
 
     /// <summary>
+    /// 获得/设置 是否显示双页单视图按钮 默认 true 显示
+    /// </summary>
+    public bool ShowTowPagesOnViewButton { get; set; } = true;
+
+    /// <summary>
+    /// 获得/设置 是否启用双页单视图模式 默认 false
+    /// </summary>
+    public bool EnableTwoPagesOnView { get; set; }
+
+    /// <summary>
     /// 页面初始化回调方法
     /// </summary>
     public Func<int, Task>? OnInitAsync { get; set; }
@@ -48,4 +58,9 @@ public class PdfReaderOptions
     /// 页面初始化回调方法
     /// </summary>
     public Func<uint, Task>? OnPageChangedAsync { get; set; }
+
+    /// <summary>
+    /// 设置双页单视图模式回调方法
+    /// </summary>
+    public Func<bool, Task>? OnTwoPagesOneViewAsync { get; set; }
 }

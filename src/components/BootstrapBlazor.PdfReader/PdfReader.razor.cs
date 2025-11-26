@@ -20,6 +20,12 @@ public partial class PdfReader
     [NotNull]
     public PdfReaderOptions? Options { get; set; }
 
+    /// <summary>
+    /// 获得/设置 更多按钮图标 默认为 null 使用内置图标
+    /// </summary>
+    [Parameter]
+    public string? MoreButtonIcon { get; set; }
+
     private string? ClassString => CssBuilder.Default("bb-pdf-reader")
         .AddClassFromAttributes(AdditionalAttributes)
         .Build();
@@ -38,6 +44,7 @@ public partial class PdfReader
     private uint _currentPage;
     private string? _url;
     private string? _currentScale;
+    private bool _enableTwoPagesOnView;
 
     private readonly HashSet<string> AllowedScaleValues = ["page-actual", "page-width", "page-height", "page-fit", "auto"];
 
@@ -96,6 +103,8 @@ public partial class PdfReader
             Options.CurrentPage = 1;
         }
         _docTitle = Path.GetFileName(Options.Url);
+
+        MoreButtonIcon ??= "fa-solid fa-ellipsis-vertical";
     }
 
     /// <summary>
@@ -113,6 +122,7 @@ public partial class PdfReader
             _currentPage = Options.CurrentPage;
             _url = Options.Url;
             _currentScale = Options.CurrentScale;
+            _enableTwoPagesOnView = Options.EnableTwoPagesOnView;
         }
 
         if (_url != Options.Url)
@@ -136,6 +146,11 @@ public partial class PdfReader
             _currentScale = Options.CurrentScale;
             await InvokeVoidAsync("scale", Id, _currentScale);
         }
+        if (_enableTwoPagesOnView != Options.EnableTwoPagesOnView)
+        {
+            _currentScale = Options.CurrentScale;
+            await InvokeVoidAsync("setPages", Id, _enableTwoPagesOnView);
+        }
     }
 
     /// <summary>
@@ -147,7 +162,8 @@ public partial class PdfReader
         Options.Url,
         Options.IsFitToPage,
         TriggerPagesInit = Options.OnInitAsync != null,
-        TriggerPageChanged = Options.OnPageChangedAsync != null
+        TriggerPageChanged = Options.OnPageChangedAsync != null,
+        TriggerTowPagesOnViewChanged = Options.OnTwoPagesOneViewAsync != null
     });
 
     /// <summary>

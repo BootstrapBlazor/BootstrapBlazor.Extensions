@@ -102,6 +102,13 @@ export function scale(id, scale) {
     }
 }
 
+export function setPages(id, enableTowPagesOnView) {
+    const { el, pdfViewer } = Data.get(id);
+    if (pdfViewer) {
+        pdfViewer.spreadMode = 1;
+    }
+}
+
 const addEventListener = (el, pdfViewer, eventBus, invoke, options) => {
     eventBus.on("pagesinit", async () => {
         if (options.isFitToPage) {
@@ -149,6 +156,18 @@ const addEventListener = (el, pdfViewer, eventBus, invoke, options) => {
 
     EventHandler.on(minus, "click", e => updateScale(pdfViewer, e.target, -1));
     EventHandler.on(plus, "click", e => updateScale(pdfViewer, e.target, 1));
+
+    const towPagesOneView = el.querySelector(".dropdown-item-pages");
+    if (towPagesOneView) {
+        EventHandler.on(towPagesOneView, "click", e => {
+            if (pdfViewer.spreadMode === 0) {
+                pdfViewer.spreadMode = 1;
+            }
+            else {
+                pdfViewer.spreadMode = 0;
+            }
+        });
+    }
 }
 
 const updateScale = (pdfViewer, button, rate) => {
@@ -159,7 +178,7 @@ const updateScale = (pdfViewer, button, rate) => {
     const scale = pdfViewer.currentScale;
     const current = Math.round(parseFloat(scale * 100), 0);
     const step = [25, 33, 50, 67, 75, 80, 90, 100, 110, 125, 150, 175, 200, 250, 300, 400, 500];
-    const findValues = step.filter(s => rate > 0 ? current  < s : current > s);
+    const findValues = step.filter(s => rate > 0 ? current < s : current > s);
     let v = 100;
     if (rate > 0) {
         v = findValues.shift();
@@ -177,7 +196,16 @@ export function dispose(id) {
     if (el) {
         const minus = el.querySelector(".bb-page-minus");
         const plus = el.querySelector(".bb-page-plus");
-        EventHandler.off(minus, "click");
-        EventHandler.off(plus, "click");
+        if (minus) {
+            EventHandler.off(minus, "click");
+        }
+        if (plus) {
+            EventHandler.off(plus, "click");
+        }
+
+        const towPagesOneView = el.querySelector(".dropdown-item-pages");
+        if (towPagesOneView) {
+            EventHandler.off(towPagesOneView, "click");
+        }
     }
 }
