@@ -43,10 +43,6 @@
         color: #6c757d;
     }
 
-.bb-view-bar {
-    margin-inline-end: 2rem;
-}
-
 .bb-view-subject {
     white-space: nowrap;
     display: block;
@@ -60,8 +56,10 @@
     min-width: 0;
     width: 1%;
     display: flex;
+    flex-wrap: nowrap;
     align-items: center;
     justify-content: center;
+    overflow: hidden;
 }
 
     .bb-view-body.fit-page .bb-view-fit-page {
@@ -106,10 +104,56 @@
     padding: 0 1rem;
 }
 
+.bb-view-main {
+    display: flex;
+    width: 100%;
+    height: var(--bb-pdf-view-height);
+    overflow: hidden;
+}
+
+.bb-view-thumbnails {
+    flex-basis: 0;
+    overflow: auto;
+    background-color: #28292a;
+    padding: 1rem 0;
+    transition: flex-basis .3s linear;
+}
+
+    .bb-view-thumbnails.show {
+        flex-basis: 300px;
+    }
+
+::deep .bb-view-thumbnail-item {
+    display: block;
+    text-align: center;
+}
+
+    ::deep .bb-view-thumbnail-item:not(:last-child) {
+        margin-block-end: 1rem;
+    }
+
+    ::deep .bb-view-thumbnail-item.active img {
+        border: 2px solid #0d6efd;
+    }
+
+    ::deep .bb-view-thumbnail-item img {
+        width: 128px;
+        padding: 1px;
+        cursor: pointer;
+        border: 2px solid #28292a;
+    }
+
+.bb-view-content {
+    position: relative;
+    flex: 1 1 auto;
+    min-width: 0;
+    width: 1%;
+    height: var(--bb-pdf-view-height);
+}
+
 .bb-view-container {
     overflow: auto;
     position: absolute;
     background-color: #000;
-    width: 100%;
-    height: var(--bb-pdf-view-height);
+    inset: 0;
 }

@@ -15,6 +15,11 @@ public class PdfReaderOptions
     public bool ShowToolbar { get; set; } = true;
 
     /// <summary>
+    /// 获得/设置 是否显示缩略图 默认 true 显示
+    /// </summary>
+    public bool EnableThumbnails { get; set; } = true;
+
+    /// <summary>
     /// 获得/设置 PDF 文档路径
     /// </summary>
     public string? Url { get; set; }
@@ -52,7 +57,12 @@ public class PdfReaderOptions
     /// <summary>
     /// 页面初始化回调方法
     /// </summary>
-    public Func<int, Task>? OnInitAsync { get; set; }
+    public Func<int, Task>? OnPagesInitAsync { get; set; }
+
+    /// <summary>
+    /// 页面加载完毕回调方法
+    /// </summary>
+    public Func<int, Task>? OnPagesLoadedAsync { get; set; }
 
     /// <summary>
     /// 页面初始化回调方法

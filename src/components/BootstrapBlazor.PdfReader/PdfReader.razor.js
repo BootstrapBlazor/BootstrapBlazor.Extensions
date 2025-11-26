@@ -82,23 +82,9 @@ export function navigateToPage(id, pageNumber) {
 }
 
 export function scale(id, scale) {
-    const { el, pdfViewer } = Data.get(id);
+    const { pdfViewer } = Data.get(id);
     if (pdfViewer) {
         pdfViewer.currentScaleValue = scale / 100;
-
-        const minus = el.querySelector(".bb-page-minus");
-        const plus = el.querySelector(".bb-page-plus");
-
-        if (scale === "25") {
-            minus.classList.add("disabled");
-        }
-        else if (scale === "500") {
-            plus.classList.add("disabled");
-        }
-        else {
-            minus.classList.remove("disabled");
-            plus.classList.remove("disabled");
-        }
     }
 }
 
@@ -139,11 +125,61 @@ const addEventListener = (el, pdfViewer, eventBus, invoke, options) => {
         }
     });
 
+    eventBus.on("pagesloaded", async e => {
+        if (options.enableThumbnails) {
+            const thumbnailsContainer = el.querySelector(".bb-view-thumbnails");
+            pdfViewer.getPagesOverview().map(async (p, i) => {
+                const item = document.createElement("div");
+                item.classList.add("bb-view-thumbnail-item");
+                if (pdfViewer.currentPageNumber === i + 1) {
+                    item.classList.add("active");
+                }
+                item.setAttribute("data-bb-page", `${i + 1}`);
+                thumbnailsContainer.appendChild(item);
+
+                const page = await pdfViewer.pdfDocument.getPage(i + 1);
+                const canvas = await makeThumb(page);
+                const img = document.createElement("img");
+                img.src = canvas.toDataURL();
+                item.appendChild(img);
+            });
+
+            EventHandler.on(thumbnailsContainer, "click", ".bb-view-thumbnail-item", e => {
+                const active = thumbnailsContainer.querySelector('.active');
+                if (active) {
+                    active.classList.remove('active');
+                }
+
+                const item = e.delegateTarget;
+                item.classList.add("active");
+
+                const index = parseInt(item.getAttribute("data-bb-page")) || 1;
+                pdfViewer.currentPageNumber = index;
+            })
+        }
+
+        if (options.triggerPagesLoaded === true) {
+            await invoke.invokeMethodAsync("PagesLoaded", e.pagesCount);
+        }
+    })
+
     eventBus.on("pagechanging", async evt => {
         const page = evt.pageNumber;
         const pageNumberEl = el.querySelector(".bb-view-num");
         if (pageNumberEl) {
             pageNumberEl.value = page;
+        }
+
+        if (options.enableThumbnails) {
+            const thumbnailsContainer = el.querySelector(".bb-view-thumbnails");
+            if (thumbnailsContainer) {
+                const active = thumbnailsContainer.querySelector('.active');
+                active.classList.remove('active');
+
+                const item = thumbnailsContainer.querySelector(`[data-bb-page='${page}']`);
+                item.classList.add("active");
+                item.scrollIntoView({ behavior: 'smooth', block: "nearest", inline: "start" });
+            }
         }
 
         if (options.triggerPageChanged === true) {
@@ -156,7 +192,22 @@ const addEventListener = (el, pdfViewer, eventBus, invoke, options) => {
     const scaleEl = el.querySelector(".bb-view-scale");
 
     eventBus.on("scalechanging", evt => {
-        scaleEl.value = `${Math.round(evt.scale * 100, 0)}%`;
+        const scale = evt.scale * 100;
+        scaleEl.value = `${Math.round(scale, 0)}%`;
+
+        const minus = el.querySelector(".bb-page-minus");
+        const plus = el.querySelector(".bb-page-plus");
+
+        if (scale === 25) {
+            minus.classList.add("disabled");
+        }
+        else if (scale === 500) {
+            plus.classList.add("disabled");
+        }
+        else {
+            minus.classList.remove("disabled");
+            plus.classList.remove("disabled");
+        }
     })
 
     EventHandler.on(minus, "click", e => updateScale(pdfViewer, e.target, -1));
@@ -171,6 +222,14 @@ const addEventListener = (el, pdfViewer, eventBus, invoke, options) => {
             else {
                 pdfViewer.spreadMode = 0;
             }
+        });
+    }
+
+    const thumbnailsToggle = el.querySelector(".bb-view-bar");
+    if (thumbnailsToggle) {
+        EventHandler.on(thumbnailsToggle, "click", e => {
+            const thumbnailsEl = el.querySelector(".bb-view-thumbnails");
+            thumbnailsEl.classList.toggle("show");
         });
     }
 }
@@ -194,6 +253,22 @@ const updateScale = (pdfViewer, button, rate) => {
     pdfViewer.currentScaleValue = v / 100;
 }
 
+const makeThumb = async page => {
+    const outputScale = window.devicePixelRatio || 1;
+    const vp = page.getViewport({ scale: 1 });
+    const canvas = document.createElement("canvas");
+    const scaleSize = 1;
+    canvas.width = vp.width * scaleSize * outputScale;
+    canvas.height = vp.height * scaleSize * outputScale;
+
+    await page.render({
+        canvasContext: canvas.getContext("2d"),
+        viewport: page.getViewport({ scale: scaleSize * outputScale })
+    }).promise;
+
+    return canvas;
+}
+
 export function dispose(id) {
     Data.remove(id);
 
@@ -211,6 +286,16 @@ export function dispose(id) {
         const towPagesOneView = el.querySelector(".dropdown-item-pages");
         if (towPagesOneView) {
             EventHandler.off(towPagesOneView, "click");
+        }
+
+        const thumbnailsToggle = el.querySelector(".bb-view-bar");
+        if (thumbnailsToggle) {
+            EventHandler.off(thumbnailsToggle, "click");
+        }
+
+        const thumbnailsContainer = el.querySelector(".bb-view-thumbnails");
+        if (thumbnailsContainer) {
+            EventHandler.off(thumbnailsContainer, "click");
         }
     }
 }

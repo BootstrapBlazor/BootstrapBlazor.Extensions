@@ -8,7 +8,7 @@ using System.Globalization;
 namespace BootstrapBlazor.Components;
 
 /// <summary>
-/// Blazor Pdf Reader PDF 阅读器 组件 
+/// Blazor Pdf Reader PDF 阅读器 组件
 /// </summary>
 [JSModuleAutoLoader("./_content/BootstrapBlazor.PdfReader/PdfReader.razor.js", JSObjectReference = true)]
 public partial class PdfReader
@@ -77,14 +77,12 @@ public partial class PdfReader
         }
         else if (float.TryParse(value.TrimEnd("%"), out var v))
         {
-            if (v > 500)
+            v = v switch
             {
-                v = 500;
-            }
-            else if (v < 25)
-            {
-                v = 25;
-            }
+                > 500 => 500,
+                < 25 => 25,
+                _ => v
+            };
 
             Options.CurrentScale = v.ToString(CultureInfo.InvariantCulture);
         }
@@ -171,7 +169,9 @@ public partial class PdfReader
     {
         Options.Url,
         Options.IsFitToPage,
-        TriggerPagesInit = Options.OnInitAsync != null,
+        Options.EnableThumbnails,
+        TriggerPagesInit = Options.OnPagesInitAsync != null,
+        TriggerPagesLoaded = Options.OnPagesLoadedAsync != null,
         TriggerPageChanged = Options.OnPageChangedAsync != null,
         TriggerTowPagesOnViewChanged = Options.OnTwoPagesOneViewAsync != null
     });
@@ -220,9 +220,22 @@ public partial class PdfReader
     [JSInvokable]
     public async Task PagesInit(int pagesCount)
     {
-        if (Options.OnInitAsync != null)
+        if (Options.OnPagesInitAsync != null)
         {
-            await Options.OnInitAsync(pagesCount);
+            await Options.OnPagesInitAsync(pagesCount);
+        }
+    }
+
+    /// <summary>
+    /// 页面加载完毕时回调方法
+    /// </summary>
+    /// <returns></returns>
+    [JSInvokable]
+    public async Task PagesLoaded(int pagesCount)
+    {
+        if (Options.OnPagesLoadedAsync != null)
+        {
+            await Options.OnPagesLoadedAsync(pagesCount);
         }
     }
 
