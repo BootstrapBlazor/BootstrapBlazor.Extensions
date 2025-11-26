@@ -112,6 +112,7 @@
 }
 
 .bb-view-thumbnails {
+    --thumb-rotate: 0;
     flex-basis: 0;
     overflow: auto;
     background-color: #28292a;
@@ -141,6 +142,7 @@
         padding: 1px;
         cursor: pointer;
         border: 2px solid #28292a;
+        transform: rotate(var(--thumb-rotate));
     }
 
 .bb-view-content {
