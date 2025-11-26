@@ -3,7 +3,7 @@
 @inherits BootstrapModuleComponentBase
 
 <div @attributes="@AdditionalAttributes" id="@Id" class="@ClassString" style="@StyleString">
-    @if (Options.ShowToolbar)
+    @if (ShowToolbar)
     {
         <div class="bb-view-toolbar init">
             <div class="bb-view-title">
@@ -23,12 +23,15 @@
                 <div class="bb-view-icon bb-view-fit-rotate" @onclick="RotateRight"><i class="fa-solid fa-rotate-right"></i></div>
             </div>
             <div class="bb-view-controls">
-                <div class="bb-view-icon bb-view-download"><i class="fa-solid fa-arrow-right-to-bracket fa-rotate-90"></i></div>
+                @if (ShowDownload)
+                {
+                    <div class="bb-view-icon bb-view-download" @onclick="OnDownload"><i class="fa-solid fa-arrow-right-to-bracket fa-rotate-90"></i></div>
+                }
                 <div class="bb-view-icon bb-view-print"><i class="fa-solid fa-print"></i></div>
                 <Dropdown TValue="string" Color="Color.None" SkipValidate="true" ShowLabel="false"
                           IsPopover="false" MenuAlignment="Alignment.Right" Icon="@MoreButtonIcon">
                     <ItemsTemplate>
-                        @if (Options.ShowTwoPagesOnViewButton)
+                        @if (ShowTwoPagesOneViewButton)
                         {
                             <div class="dropdown-item dropdown-item-pages" @onclick="OnToggleTwoPagesOneView"><i class="@_twoPagesOneViewIcon"></i><span>Two pages on view</span></div>
                             <Divider></Divider>
@@ -40,7 +43,7 @@
         </div>
     }
     <div class="bb-view-main">
-        @if (Options.EnableThumbnails)
+        @if (EnableThumbnails)
         {
             <div class="bb-view-thumbnails"></div>
         }

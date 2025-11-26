@@ -14,11 +14,88 @@ namespace BootstrapBlazor.Components;
 public partial class PdfReader
 {
     /// <summary>
-    /// 获得/设置 <see cref="PdfReaderOptions"/> 配置项实例
+    /// 获得/设置 是否显示工具栏 默认 true 显示
     /// </summary>
     [Parameter]
-    [NotNull]
-    public PdfReaderOptions? Options { get; set; }
+    public bool ShowToolbar { get; set; } = true;
+
+    /// <summary>
+    /// 获得/设置 是否显示下载按钮 默认 true 显示
+    /// </summary>
+    [Parameter]
+    public bool ShowDownload { get; set; } = true;
+
+    /// <summary>
+    /// 获得/设置 是否显示缩略图 默认 true 显示
+    /// </summary>
+    [Parameter]
+    public bool EnableThumbnails { get; set; } = true;
+
+    /// <summary>
+    /// 获得/设置 PDF 文档路径
+    /// </summary>
+    [Parameter]
+    public string? Url { get; set; }
+
+    /// <summary>
+    /// 获得/设置 PDF 组件高度 默认 600px
+    /// </summary>
+    [Parameter]
+    public string? ViewHeight { get; set; }
+
+    /// <summary>
+    /// 获得/设置 当前页码
+    /// </summary>
+    [Parameter]
+    public uint CurrentPage { get; set; }
+
+    /// <summary>
+    /// 获得/设置 当前缩放倍率 默认 null 使用 100%
+    /// </summary>
+    [Parameter]
+    public string? CurrentScale { get; set; }
+
+    /// <summary>
+    /// 获得/设置 是否适配当前页面宽度 默认 false
+    /// </summary>
+    [Parameter]
+    public bool IsFitToPage { get; set; }
+
+    /// <summary>
+    /// 获得/设置 是否显示双页单视图按钮 默认 true 显示
+    /// </summary>
+    [Parameter]
+    public bool ShowTwoPagesOneViewButton { get; set; } = true;
+
+    /// <summary>
+    /// 获得/设置 是否启用双页单视图模式 默认 false
+    /// </summary>
+    [Parameter]
+    public bool EnableTwoPagesOneView { get; set; }
+
+    /// <summary>
+    /// 页面初始化回调方法
+    /// </summary>
+    [Parameter]
+    public Func<int, Task>? OnPagesInitAsync { get; set; }
+
+    /// <summary>
+    /// 页面加载完毕回调方法
+    /// </summary>
+    [Parameter]
+    public Func<int, Task>? OnPagesLoadedAsync { get; set; }
+
+    /// <summary>
+    /// 页面初始化回调方法
+    /// </summary>
+    [Parameter]
+    public Func<uint, Task>? OnPageChangedAsync { get; set; }
+
+    /// <summary>
+    /// 设置双页单视图模式回调方法
+    /// </summary>
+    [Parameter]
+    public Func<bool, Task>? OnTwoPagesOneViewAsync { get; set; }
 
     /// <summary>
     /// 获得/设置 更多按钮图标 默认为 null 使用内置图标
@@ -26,17 +103,26 @@ public partial class PdfReader
     [Parameter]
     public string? MoreButtonIcon { get; set; }
 
+    /// <summary>
+    /// 点击下载按钮回调方法 默认 null 使用组件内置下载功能
+    /// </summary>
+    [Parameter]
+    public Func<Task>? OnDownloadAsync { get; set; }
+
+    [Inject, NotNull]
+    private DownloadService? DownloadService { get; set; }
+
     private string? ClassString => CssBuilder.Default("bb-pdf-reader")
         .AddClassFromAttributes(AdditionalAttributes)
         .Build();
 
     private string? StyleString => CssBuilder.Default()
-        .AddClass($"--bb-pdf-view-height: {Options.ViewHeight};", !string.IsNullOrEmpty(Options.ViewHeight))
+        .AddClass($"--bb-pdf-view-height: {ViewHeight};", !string.IsNullOrEmpty(ViewHeight))
         .AddClassFromAttributes(AdditionalAttributes)
         .Build();
 
     private string? ViewBodyString => CssBuilder.Default("bb-view-body")
-        .AddClass("fit-page", Options.IsFitToPage)
+        .AddClass("fit-page", IsFitToPage)
         .Build();
 
     private string? _docTitle;
@@ -45,13 +131,14 @@ public partial class PdfReader
     private string? _url;
     private string? _currentScale;
     private bool _enableTwoPagesOneView;
+    private bool _showTwoPagesOneViewButton;
     private string? _twoPagesOneViewIcon;
 
     private readonly HashSet<string> AllowedScaleValues = ["page-actual", "page-width", "page-height", "page-fit", "auto"];
 
     private string CurrentPageString
     {
-        get => Options.CurrentPage.ToString(CultureInfo.InvariantCulture);
+        get => CurrentPage.ToString(CultureInfo.InvariantCulture);
         set => SetCurrentPage(value);
     }
 
@@ -59,13 +146,13 @@ public partial class PdfReader
     {
         if (uint.TryParse(value, NumberStyles.Integer, CultureInfo.InvariantCulture, out var num))
         {
-            Options.CurrentPage = num;
+            CurrentPage = num;
         }
     }
 
     private string CurrentScaleString
     {
-        get => $"{Options.CurrentScale ?? "100"}%";
+        get => $"{CurrentScale ?? "100"}%";
         set => SetCurrentScale(value);
     }
 
@@ -73,7 +160,7 @@ public partial class PdfReader
     {
         if (string.IsNullOrEmpty(value))
         {
-            Options.CurrentScale = "100";
+            CurrentScale = "100";
         }
         else if (float.TryParse(value.TrimEnd("%"), out var v))
         {
@@ -84,14 +171,14 @@ public partial class PdfReader
                 _ => v
             };
 
-            Options.CurrentScale = v.ToString(CultureInfo.InvariantCulture);
+            CurrentScale = v.ToString(CultureInfo.InvariantCulture);
         }
     }
 
     private void OnToggleTwoPagesOneView()
     {
         _enableTwoPagesOneView = !_enableTwoPagesOneView;
-        Options.EnableTwoPagesOnView = _enableTwoPagesOneView;
+        EnableTwoPagesOneView = _enableTwoPagesOneView;
 
         _twoPagesOneViewIcon = _enableTwoPagesOneView ? "fa-solid fa-fw fa-check" : "fa-solid fa-fw";
     }
@@ -103,16 +190,14 @@ public partial class PdfReader
     {
         base.OnParametersSet();
 
-        Options ??= new PdfReaderOptions();
-
-        if (Options.CurrentPage == 0)
-        {
-            Options.CurrentPage = 1;
-        }
-        _docTitle = Path.GetFileName(Options.Url);
-
         MoreButtonIcon ??= "fa-solid fa-ellipsis-vertical";
         _twoPagesOneViewIcon ??= "fa-solid fa-fw";
+
+        if (CurrentPage == 0)
+        {
+            CurrentPage = 1;
+        }
+        _docTitle = Path.GetFileName(Url);
     }
 
     /// <summary>
@@ -126,37 +211,43 @@ public partial class PdfReader
 
         if (firstRender)
         {
-            _isFitToPage = Options.IsFitToPage;
-            _currentPage = Options.CurrentPage;
-            _url = Options.Url;
-            _currentScale = Options.CurrentScale;
-            _enableTwoPagesOneView = Options.EnableTwoPagesOnView;
+            _isFitToPage = IsFitToPage;
+            _currentPage = CurrentPage;
+            _url = Url;
+            _currentScale = CurrentScale;
+            _enableTwoPagesOneView = EnableTwoPagesOneView;
+            _showTwoPagesOneViewButton = ShowTwoPagesOneViewButton;
         }
 
-        if (_url != Options.Url)
+        if (_url != Url)
         {
-            _url = Options.Url;
+            _url = Url;
             await InvokeInitAsync();
         }
 
-        if (_isFitToPage != Options.IsFitToPage)
+        if (_isFitToPage != IsFitToPage)
         {
-            _isFitToPage = Options.IsFitToPage;
+            _isFitToPage = IsFitToPage;
             await TriggerFit(_isFitToPage ? "fitToPage" : "fitToWidth");
         }
-        if (_currentPage != Options.CurrentPage)
+        if (_currentPage != CurrentPage)
         {
-            _currentPage = Options.CurrentPage;
+            _currentPage = CurrentPage;
             await NavigateToPageAsync(_currentPage);
         }
-        if (_currentScale != Options.CurrentScale)
+        if (_currentScale != CurrentScale)
         {
-            _currentScale = Options.CurrentScale;
+            _currentScale = CurrentScale;
             await InvokeVoidAsync("scale", Id, _currentScale);
         }
-        if (_enableTwoPagesOneView != Options.EnableTwoPagesOnView)
+        if (_enableTwoPagesOneView != EnableTwoPagesOneView)
         {
-            _currentScale = Options.CurrentScale;
+            _enableTwoPagesOneView = EnableTwoPagesOneView;
+            await InvokeVoidAsync("setPages", Id, _enableTwoPagesOneView);
+        }
+        if (_showTwoPagesOneViewButton != ShowTwoPagesOneViewButton)
+        {
+            _showTwoPagesOneViewButton = ShowTwoPagesOneViewButton;
             await InvokeVoidAsync("setPages", Id, _enableTwoPagesOneView);
         }
     }
@@ -167,13 +258,13 @@ public partial class PdfReader
     /// <returns></returns>
     protected override Task InvokeInitAsync() => InvokeVoidAsync("init", Id, Interop, new
     {
-        Options.Url,
-        Options.IsFitToPage,
-        Options.EnableThumbnails,
-        TriggerPagesInit = Options.OnPagesInitAsync != null,
-        TriggerPagesLoaded = Options.OnPagesLoadedAsync != null,
-        TriggerPageChanged = Options.OnPageChangedAsync != null,
-        TriggerTowPagesOnViewChanged = Options.OnTwoPagesOneViewAsync != null
+        Url,
+        IsFitToPage,
+        EnableThumbnails,
+        TriggerPagesInit = OnPagesInitAsync != null,
+        TriggerPagesLoaded = OnPagesLoadedAsync != null,
+        TriggerPageChanged = OnPageChangedAsync != null,
+        TriggerTowPagesOnViewChanged = OnTwoPagesOneViewAsync != null
     });
 
     /// <summary>
@@ -186,12 +277,12 @@ public partial class PdfReader
     /// <summary>
     /// 适应页面宽度
     /// </summary>
-    public void FitToPage() => Options.IsFitToPage = true;
+    public void FitToPage() => IsFitToPage = true;
 
     /// <summary>
     /// 适应文档宽度
     /// </summary>
-    public void FitToWidth() => Options.IsFitToPage = false;
+    public void FitToWidth() => IsFitToPage = false;
 
     /// <summary>
     /// 旋转页面方法
@@ -211,6 +302,14 @@ public partial class PdfReader
         await InvokeVoidAsync("rotate", Id, 90);
     }
 
+    private async Task OnDownload()
+    {
+        if (OnDownloadAsync != null)
+        {
+            await OnDownloadAsync();
+        }
+    }
+
     private Task TriggerFit(string methodName) => InvokeVoidAsync(methodName, Id);
 
     /// <summary>
@@ -220,9 +319,9 @@ public partial class PdfReader
     [JSInvokable]
     public async Task PagesInit(int pagesCount)
     {
-        if (Options.OnPagesInitAsync != null)
+        if (OnPagesInitAsync != null)
         {
-            await Options.OnPagesInitAsync(pagesCount);
+            await OnPagesInitAsync(pagesCount);
         }
     }
 
@@ -233,9 +332,9 @@ public partial class PdfReader
     [JSInvokable]
     public async Task PagesLoaded(int pagesCount)
     {
-        if (Options.OnPagesLoadedAsync != null)
+        if (OnPagesLoadedAsync != null)
         {
-            await Options.OnPagesLoadedAsync(pagesCount);
+            await OnPagesLoadedAsync(pagesCount);
         }
     }
 
@@ -247,11 +346,11 @@ public partial class PdfReader
     public async Task PageChanged(uint pageIndex)
     {
         _currentPage = pageIndex;
-        Options.CurrentPage = pageIndex;
+        CurrentPage = pageIndex;
 
-        if (Options.OnPageChangedAsync != null)
+        if (OnPageChangedAsync != null)
         {
-            await Options.OnPageChangedAsync(pageIndex);
+            await OnPageChangedAsync(pageIndex);
         }
     }
 }
