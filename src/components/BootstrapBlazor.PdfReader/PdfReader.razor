@@ -39,11 +39,15 @@
             </div>
         </div>
     }
-    @if (Options.ShowThumbnails)
-    {
-        <div class="bb-view-thumbnails"></div>
-    }
-    <div class="bb-view-container">
-        <div class="pdfViewer"></div>
+    <div class="bb-view-main">
+        @if (Options.EnableThumbnails)
+        {
+            <div class="bb-view-thumbnails"></div>
+        }
+        <div class="bb-view-content">
+            <div class="bb-view-container">
+                <div class="pdfViewer"></div>
+            </div>
+        </div>
     </div>
 </div>

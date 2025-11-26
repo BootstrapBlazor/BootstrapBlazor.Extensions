@@ -17,7 +17,7 @@ public class PdfReaderOptions
     /// <summary>
     /// 获得/设置 是否显示缩略图 默认 true 显示
     /// </summary>
-    public bool ShowThumbnails { get; set; } = true;
+    public bool EnableThumbnails { get; set; } = true;
 
     /// <summary>
     /// 获得/设置 PDF 文档路径

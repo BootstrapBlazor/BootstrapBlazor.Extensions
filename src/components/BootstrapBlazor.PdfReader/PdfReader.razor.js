@@ -140,18 +140,20 @@ const addEventListener = (el, pdfViewer, eventBus, invoke, options) => {
     });
 
     eventBus.on("pagesloaded", async e => {
-        const thumbnailsContainer = el.querySelector(".bb-view-thumbnails");
-        pdfViewer.getPagesOverview().map(async (p, i) => {
-            var page = await pdfViewer.pdfDocument.getPage(i + 1);
-            var canvas = await makeThumb(page);
-            var img = document.createElement("img");
-            img.src = canvas.toDataURL();
+        if (options.enableThumbnails) {
+            const thumbnailsContainer = el.querySelector(".bb-view-thumbnails");
+            pdfViewer.getPagesOverview().map(async (p, i) => {
+                const page = await pdfViewer.pdfDocument.getPage(i + 1);
+                const canvas = await makeThumb(page);
+                const img = document.createElement("img");
+                img.src = canvas.toDataURL();
 
-            var item = document.createElement("div");
-            item.classList.add("bb-view-thumbnail-item");
-            item.appendChild(img);
-            thumbnailsContainer.appendChild(item);
-        });
+                const item = document.createElement("div");
+                item.classList.add("bb-view-thumbnail-item");
+                item.appendChild(img);
+                thumbnailsContainer.appendChild(item);
+            });
+        }
 
         if (options.triggerPagesLoaded === true) {
             await invoke.invokeMethodAsync("PagesLoaded", e.pagesCount);
@@ -192,6 +194,14 @@ const addEventListener = (el, pdfViewer, eventBus, invoke, options) => {
             }
         });
     }
+
+    const thumbnailsToggle = el.querySelector(".bb-view-bar");
+    if (thumbnailsToggle) {
+        EventHandler.on(thumbnailsToggle, "click", e => {
+            const thumbnailsEl = el.querySelector(".bb-view-thumbnails");
+            thumbnailsEl.classList.toggle("show");
+        });
+    }
 }
 
 const updateScale = (pdfViewer, button, rate) => {
@@ -215,15 +225,15 @@ const updateScale = (pdfViewer, button, rate) => {
 
 const makeThumb = page => {
     const outputScale = window.devicePixelRatio || 1;
-    var vp = page.getViewport({ scale: 1 });
-    var canvas = document.createElement("canvas");
-    var scalesize = 1;
-    canvas.width = vp.width * scalesize * outputScale;
-    canvas.height = vp.height * scalesize * outputScale;
+    const vp = page.getViewport({ scale: 1 });
+    const canvas = document.createElement("canvas");
+    const scaleSize = 1;
+    canvas.width = vp.width * scaleSize * outputScale;
+    canvas.height = vp.height * scaleSize * outputScale;
 
     return page.render({
         canvasContext: canvas.getContext("2d"),
-        viewport: page.getViewport({ scale: scalesize * outputScale })
+        viewport: page.getViewport({ scale: scaleSize * outputScale })
     }).promise.then(function () {
         return canvas;
     })
@@ -246,6 +256,11 @@ export function dispose(id) {
         const towPagesOneView = el.querySelector(".dropdown-item-pages");
         if (towPagesOneView) {
             EventHandler.off(towPagesOneView, "click");
+        }
+
+        const thumbnailsToggle = el.querySelector(".bb-view-bar");
+        if(thumbnailsToggle) {
+            EventHandler.off(thumbnailsToggle, "click");
         }
     }
 }
