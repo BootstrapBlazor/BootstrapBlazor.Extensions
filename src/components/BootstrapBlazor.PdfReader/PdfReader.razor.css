@@ -43,10 +43,6 @@
         color: #6c757d;
     }
 
-.bb-view-bar {
-    margin-inline-end: 2rem;
-}
-
 .bb-view-subject {
     white-space: nowrap;
     display: block;
@@ -60,8 +56,10 @@
     min-width: 0;
     width: 1%;
     display: flex;
+    flex-wrap: nowrap;
     align-items: center;
     justify-content: center;
+    overflow: hidden;
 }
 
     .bb-view-body.fit-page .bb-view-fit-page {
