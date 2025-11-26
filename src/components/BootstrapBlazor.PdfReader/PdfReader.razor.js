@@ -150,9 +150,26 @@ const addEventListener = (el, pdfViewer, eventBus, invoke, options) => {
 
                 const item = document.createElement("div");
                 item.classList.add("bb-view-thumbnail-item");
+                if (pdfViewer.currentPageNumber === i + 1) {
+                    item.classList.add("active");
+                }
+                item.setAttribute("data-bb-page", i + 1)
                 item.appendChild(img);
                 thumbnailsContainer.appendChild(item);
             });
+
+            EventHandler.on(thumbnailsContainer, "click", ".bb-view-thumbnail-item", e => {
+                const active = thumbnailsContainer.querySelector('.active');
+                if (active) {
+                    active.classList.remove('active');
+                }
+
+                const item = e.delegateTarget;
+                item.classList.add("active");
+
+                const index = parseInt(item.getAttribute("data-bb-page")) || 1;
+                pdfViewer.currentPageNumber = index;
+            })
         }
 
         if (options.triggerPagesLoaded === true) {
@@ -165,6 +182,18 @@ const addEventListener = (el, pdfViewer, eventBus, invoke, options) => {
         const pageNumberEl = el.querySelector(".bb-view-num");
         if (pageNumberEl) {
             pageNumberEl.value = page;
+        }
+
+        if (options.enableThumbnails) {
+            const thumbnailsContainer = el.querySelector(".bb-view-thumbnails");
+            if (thumbnailsContainer) {
+                const active = thumbnailsContainer.querySelector('.active');
+                active.classList.remove('active');
+
+                const item = thumbnailsContainer.querySelector(`[data-bb-page='${page}']`);
+                item.classList.add("active");
+                item.scrollIntoView({ behavior: 'smooth', block: "nearest", inline: "start" });
+            }
         }
 
         if (options.triggerPageChanged === true) {
@@ -259,8 +288,13 @@ export function dispose(id) {
         }
 
         const thumbnailsToggle = el.querySelector(".bb-view-bar");
-        if(thumbnailsToggle) {
+        if (thumbnailsToggle) {
             EventHandler.off(thumbnailsToggle, "click");
+        }
+
+        const thumbnailsContainer = el.querySelector(".bb-view-thumbnails");
+        if (thumbnailsContainer) {
+            EventHandler.off(thumbnailsContainer, "click");
         }
     }
 }
