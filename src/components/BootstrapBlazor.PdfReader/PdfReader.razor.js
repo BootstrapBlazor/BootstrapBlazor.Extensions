@@ -127,7 +127,7 @@ const addEventListener = (el, pdfViewer, eventBus, invoke, options) => {
         }
 
         if (options.triggerPagesInit === true) {
-            await invoke.invokeMethodAsync("pagesInit", numPages);
+            await invoke.invokeMethodAsync("PagesInit", numPages);
         }
     });
 
@@ -139,6 +139,12 @@ const addEventListener = (el, pdfViewer, eventBus, invoke, options) => {
         if (options.triggerPagesLoaded === true) {
             await invoke.invokeMethodAsync("PagesLoaded", e.pagesCount);
         }
+
+        const controls = el.querySelector(".bb-view-controls");
+        EventHandler.on(controls, "click", ".bb-view-print", e => {
+            printPdf(options.url);
+            await invoke.invokeMethodAsync("Printing");
+        });
     })
 
     eventBus.on("pagechanging", async evt => {
@@ -276,6 +282,31 @@ const makeThumb = async page => {
     return canvas;
 }
 
+const printPdf = url => {
+    let iframe = document.querySelector(".bb-view-print-iframe");
+    if (iframe) {
+        iframe.remove();
+    }
+
+    iframe = document.createElement("iframe");
+    iframe.classList = "bb-view-print-iframe";
+    iframe.style.position = "fixed";
+    iframe.style.right = "100%";
+    iframe.style.bottom = "100%";
+    iframe.src = url;
+
+    iframe.onload = () => {
+        iframe.contentWindow.addEventListener('afterprint', function () {
+            document.body.removeChild(iframe);
+        });
+
+        iframe.contentWindow.focus();
+        iframe.contentWindow.print();
+    };
+
+    document.body.appendChild(iframe);
+}
+
 export function dispose(id) {
     Data.remove(id);
 
@@ -303,6 +334,14 @@ export function dispose(id) {
         const thumbnailsContainer = el.querySelector(".bb-view-thumbnails");
         if (thumbnailsContainer) {
             EventHandler.off(thumbnailsContainer, "click");
+        }
+
+        const controls = el.querySelector(".bb-view-controls");
+        EventHandler.off(controls, "click");
+
+        const iframe = document.querySelector('.bb-view-print-iframe');
+        if (iframe) {
+            iframe.remove();
         }
     }
 }
