@@ -110,10 +110,16 @@ public partial class PdfReader
     public string? MoreButtonIcon { get; set; }
 
     /// <summary>
-    /// 点击下载按钮回调方法 默认 null 使用组件内置下载功能
+    /// 点击下载按钮回调方法 默认 null
     /// </summary>
     [Parameter]
     public Func<Task>? OnDownloadAsync { get; set; }
+
+    /// <summary>
+    /// 正在打印回调方法 默认 null
+    /// </summary>
+    [Parameter]
+    public Func<Task>? OnPrintingAsync { get; set; }
 
     private string? ClassString => CssBuilder.Default("bb-pdf-reader")
         .AddClassFromAttributes(AdditionalAttributes)
@@ -345,6 +351,19 @@ public partial class PdfReader
         if (OnPageChangedAsync != null)
         {
             await OnPageChangedAsync(pageIndex);
+        }
+    }
+
+    /// <summary>
+    /// 正在打印回调方法
+    /// </summary>
+    /// <returns></returns>
+    [JSInvokable]
+    public async Task Printing()
+    {
+        if (OnPrintingAsync != null)
+        {
+            await OnPrintingAsync();
         }
     }
 }
