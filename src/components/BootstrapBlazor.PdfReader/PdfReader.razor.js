@@ -158,7 +158,7 @@ const addEventListener = (el, pdfViewer, eventBus, invoke, options) => {
 
     const minus = el.querySelector(".bb-page-minus");
     const plus = el.querySelector(".bb-page-plus");
-    const scaleEl = el.querySelector(".bb-view-scale");
+    const scaleEl = el.querySelector(".bb-view-scale-input");
 
     eventBus.on("scalechanging", evt => {
         const scale = evt.scale * 100;
