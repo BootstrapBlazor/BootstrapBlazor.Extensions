@@ -42,7 +42,10 @@
                 {
                     <div class="bb-view-icon bb-view-download" @onclick="OnDownload"><i class="fa-solid fa-fw fa-arrow-right-to-bracket fa-rotate-90"></i></div>
                 }
-                <div class="bb-view-icon bb-view-print"><i class="fa-solid fa-fw fa-print"></i></div>
+                @if (ShowPrint)
+                {
+                    <div class="bb-view-icon bb-view-print"><i class="fa-solid fa-fw fa-print"></i></div>
+                }
                 <div class="dropdown">
                     <button type="button" class="btn dropdown-toggle" data-bs-toggle="dropdown">
                         <i class="@MoreButtonIcon"></i>

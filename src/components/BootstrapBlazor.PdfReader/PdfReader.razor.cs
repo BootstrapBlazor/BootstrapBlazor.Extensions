@@ -26,6 +26,12 @@ public partial class PdfReader
     public bool ShowDownload { get; set; } = true;
 
     /// <summary>
+    /// 获得/设置 是否显示打印按钮 默认 true 显示
+    /// </summary>
+    [Parameter]
+    public bool ShowPrint { get; set; } = true;
+
+    /// <summary>
     /// 获得/设置 是否显示缩略图 默认 true 显示
     /// </summary>
     [Parameter]
