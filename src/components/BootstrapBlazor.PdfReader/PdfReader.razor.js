@@ -79,6 +79,13 @@ export function scale(id, scale) {
     }
 }
 
+export function resetThumbnails(id) {
+    const { el, pdfViewer } = Data.get(id);
+    if (pdfViewer) {
+        resetThumbnailsView(el, pdfViewer);
+    }
+}
+
 const addEventListener = (el, pdfViewer, eventBus, invoke, options) => {
     eventBus.on("pagesinit", async () => {
         if (options.fitMode) {
@@ -139,7 +146,7 @@ const addEventListener = (el, pdfViewer, eventBus, invoke, options) => {
             pageNumberEl.value = page;
         }
 
-        if (options.enableThumbnails) {
+        if (options.enableThumbnails || false) {
             const thumbnailsContainer = el.querySelector(".bb-view-thumbnails");
             if (thumbnailsContainer) {
                 const active = thumbnailsContainer.querySelector('.active');
@@ -179,9 +186,9 @@ const addEventListener = (el, pdfViewer, eventBus, invoke, options) => {
     EventHandler.on(minus, "click", e => updateScale(pdfViewer, e.target, -1));
     EventHandler.on(plus, "click", e => updateScale(pdfViewer, e.target, 1));
 
-    const thumbnailsToggle = el.querySelector(".bb-view-bar");
-    if (thumbnailsToggle) {
-        EventHandler.on(thumbnailsToggle, "click", e => {
+    const titleEl = el.querySelector(".bb-view-title");
+    if (titleEl) {
+        EventHandler.on(titleEl, "click", '.bb-view-bar', e => {
             const thumbnailsEl = el.querySelector(".bb-view-thumbnails");
             thumbnailsEl.classList.toggle("show");
         });
@@ -314,9 +321,9 @@ export function dispose(id) {
             EventHandler.off(towPagesOneView, "click");
         }
 
-        const thumbnailsToggle = el.querySelector(".bb-view-bar");
-        if (thumbnailsToggle) {
-            EventHandler.off(thumbnailsToggle, "click");
+        const titleEl = el.querySelector(".bb-view-title");
+        if (titleEl) {
+            EventHandler.off(titleEl, "click");
         }
 
         const thumbnailsContainer = el.querySelector(".bb-view-thumbnails");
