@@ -1,7 +1,7 @@
 {
   "BootstrapBlazor.Components.PdfReader": {
     "ToggleSidebar": "Toggle sidebar",
-    "ZoomIn": "Zoom In",
+    "ZoomIn": "Zoom in",
     "ZoomOut": "Zoom out",
     "PageActual": "Fit page actual width",
     "FitWidth": "Fit to width",
