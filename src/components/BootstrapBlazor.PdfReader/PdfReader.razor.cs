@@ -3,6 +3,7 @@
 // Website: https://www.blazor.zone or https://argozhang.github.io/
 
 using Microsoft.AspNetCore.Components;
+using Microsoft.Extensions.Localization;
 using System.Globalization;
 
 namespace BootstrapBlazor.Components;
@@ -74,6 +75,12 @@ public partial class PdfReader
     public bool ShowTwoPagesOneView { get; set; } = true;
 
     /// <summary>
+    /// 获得/设置 是否显示按钮 默认 true 显示
+    /// </summary>
+    [Parameter]
+    public bool ShowPresentationMode { get; set; } = false;
+
+    /// <summary>
     /// 获得/设置 是否启用双页单视图模式 默认 false
     /// </summary>
     [Parameter]
@@ -120,6 +127,9 @@ public partial class PdfReader
     /// </summary>
     [Parameter]
     public Func<Task>? OnPrintingAsync { get; set; }
+
+    [Inject, NotNull]
+    private IStringLocalizer<PdfReader>? Localizer { get; set; }
 
     private string? ClassString => CssBuilder.Default("bb-pdf-reader")
         .AddClassFromAttributes(AdditionalAttributes)

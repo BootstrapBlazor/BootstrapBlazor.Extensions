@@ -10,6 +10,10 @@
   </PropertyGroup>
 
   <ItemGroup>
+    <Content Remove="Locales\en.json" />
+    <Content Remove="Locales\zh.json" />
+    <EmbeddedResource Include="Locales\en.json" />
+    <EmbeddedResource Include="Locales\zh.json" />
     <Content Remove="wwwroot\pdf.mjs" />
     <Content Remove="wwwroot\pdf.worker.mjs" />
     <None Include="wwwroot\lib\pdf.mjs" />
