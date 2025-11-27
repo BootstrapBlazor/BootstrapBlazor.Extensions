@@ -88,15 +88,31 @@ export function scale(id, scale) {
     }
 }
 
-export function setPages(id, enableTowPagesOnView) {
+export function setPages(id, enableTwoPagesOneView) {
     const { el, pdfViewer } = Data.get(id);
     if (pdfViewer) {
-        if (enableTowPagesOnView) {
+        if (enableTwoPagesOneView) {
             pdfViewer.spreadMode = 1;
         }
         else {
             pdfViewer.spreadMode = 0;
         }
+    }
+
+    resetTwoPagesOneView(el, pdfViewer);
+}
+
+const resetTwoPagesOneView = (el, pdfViewer) => {
+    const twoPagesOneView = el.querySelector(".dropdown-item-pages");
+    if (twoPagesOneView) {
+        EventHandler.on(twoPagesOneView, "click", e => {
+            if (pdfViewer.spreadMode === 0) {
+                pdfViewer.spreadMode = 1;
+            }
+            else {
+                pdfViewer.spreadMode = 0;
+            }
+        });
     }
 }
 
@@ -185,17 +201,7 @@ const addEventListener = (el, pdfViewer, eventBus, invoke, options) => {
     EventHandler.on(minus, "click", e => updateScale(pdfViewer, e.target, -1));
     EventHandler.on(plus, "click", e => updateScale(pdfViewer, e.target, 1));
 
-    const towPagesOneView = el.querySelector(".dropdown-item-pages");
-    if (towPagesOneView) {
-        EventHandler.on(towPagesOneView, "click", e => {
-            if (pdfViewer.spreadMode === 0) {
-                pdfViewer.spreadMode = 1;
-            }
-            else {
-                pdfViewer.spreadMode = 0;
-            }
-        });
-    }
+    resetTwoPagesOneView(el, pdfViewer);
 
     const thumbnailsToggle = el.querySelector(".bb-view-bar");
     if (thumbnailsToggle) {
