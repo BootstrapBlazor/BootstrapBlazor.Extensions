@@ -50,13 +50,25 @@
                     <button type="button" class="btn dropdown-toggle" data-bs-toggle="dropdown">
                         <i class="@MoreButtonIcon"></i>
                     </button>
-                    <div class="dropdown-menu shadow dropdown-menu-end">
+                    <div class="dropdown-menu shadow dropdown-menu-end bb-view-dropdown-menu">
                         @if (ShowTwoPagesOneView)
                         {
-                            <div class="dropdown-item dropdown-item-pages" @onclick="OnToggleTwoPagesOneView"><i class="@_twoPagesOneViewIcon"></i><span>Two pages on view</span></div>
+                            <div class="dropdown-item dropdown-item-pages">
+                                <i class="@_dropdownItemCheckIcon"></i>
+                                <i class="@_dropdownItemDefaultIcon"></i>
+                                <span>Two pages on view</span>
+                            </div>
                             <Divider></Divider>
                         }
-                        <div class="dropdown-item"><i class="fa-solid fa-fw"></i><span>Document properties</span></div>
+                        <div class="dropdown-item dropdown-item-presentation">
+                            <i class="@_dropdownItemCheckIcon"></i>
+                            <i class="@_dropdownItemDefaultIcon"></i>
+                            <span>Presentation Mode</span>
+                        </div>
+                        <div class="dropdown-item dropdown-item-doc">
+                            <i class="@_dropdownItemDefaultIcon"></i>
+                            <span>Document properties</span>
+                        </div>
                     </div>
                 </div>
             </div>

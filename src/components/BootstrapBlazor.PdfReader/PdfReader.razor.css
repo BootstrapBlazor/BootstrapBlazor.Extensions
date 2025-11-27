@@ -26,6 +26,11 @@
         content: none;
     }
 
+    .bb-view-toolbar .dropdown-menu {
+        --bs-dropdown-link-active-bg: transparent;
+        --bs-dropdown-link-active-color: var(--bs-dropdown-color);
+    }
+
 .bb-view-title {
     display: flex;
     align-items: center;
@@ -132,6 +137,18 @@
 
     .bb-view-controls .dropdown-toggle {
         padding: 7px;
+    }
+
+    .bb-view-controls .dropdown-item .dropdown-item-check {
+        display: none;
+    }
+
+    .bb-view-controls .dropdown-item.active .dropdown-item-check {
+        display: inline-block;
+    }
+
+    .bb-view-controls .dropdown-item.active .dropdown-item-icon {
+        display: none;
     }
 
 .bb-view-main {

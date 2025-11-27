@@ -81,34 +81,6 @@ export function scale(id, scale) {
     }
 }
 
-export function setPages(id, enableTwoPagesOneView) {
-    const { el, pdfViewer } = Data.get(id);
-    if (pdfViewer) {
-        if (enableTwoPagesOneView) {
-            pdfViewer.spreadMode = 1;
-        }
-        else {
-            pdfViewer.spreadMode = 0;
-        }
-    }
-
-    resetTwoPagesOneView(el, pdfViewer);
-}
-
-const resetTwoPagesOneView = (el, pdfViewer) => {
-    const twoPagesOneView = el.querySelector(".dropdown-item-pages");
-    if (twoPagesOneView) {
-        EventHandler.on(twoPagesOneView, "click", e => {
-            if (pdfViewer.spreadMode === 0) {
-                pdfViewer.spreadMode = 1;
-            }
-            else {
-                pdfViewer.spreadMode = 0;
-            }
-        });
-    }
-}
-
 const addEventListener = (el, pdfViewer, eventBus, invoke, options) => {
     eventBus.on("pagesinit", async () => {
         if (options.fitMode) {
@@ -141,9 +113,29 @@ const addEventListener = (el, pdfViewer, eventBus, invoke, options) => {
         }
 
         const controls = el.querySelector(".bb-view-controls");
-        EventHandler.on(controls, "click", ".bb-view-print", e => {
+        EventHandler.on(controls, "click", ".bb-view-print", async e => {
             printPdf(options.url);
             await invoke.invokeMethodAsync("Printing");
+        });
+        EventHandler.on(controls, "click", ".dropdown-item-pages", async e => {
+            e.delegateTarget.classList.toggle("active");
+
+            if (pdfViewer.spreadMode !== 1) {
+                pdfViewer.spreadMode = 1;
+            }
+            else {
+                pdfViewer.spreadMode = 0;
+            }
+        });
+        EventHandler.on(controls, "click", ".dropdown-item-presentation", async e => {
+            e.delegateTarget.classList.toggle("active");
+
+            //if (pdfViewer.isInPresentationMode) {
+            //    document.exitFullscreen();
+            //}
+            //else {
+            //    el.requestFullscreen();
+            //}
         });
     })
 
@@ -179,9 +171,6 @@ const addEventListener = (el, pdfViewer, eventBus, invoke, options) => {
         const scale = evt.scale * 100;
         scaleEl.value = `${Math.round(scale, 0)}%`;
 
-        const minus = el.querySelector(".bb-page-minus");
-        const plus = el.querySelector(".bb-page-plus");
-
         if (scale === 25) {
             minus.classList.add("disabled");
         }
@@ -196,8 +185,6 @@ const addEventListener = (el, pdfViewer, eventBus, invoke, options) => {
 
     EventHandler.on(minus, "click", e => updateScale(pdfViewer, e.target, -1));
     EventHandler.on(plus, "click", e => updateScale(pdfViewer, e.target, 1));
-
-    resetTwoPagesOneView(el, pdfViewer);
 
     const thumbnailsToggle = el.querySelector(".bb-view-bar");
     if (thumbnailsToggle) {
