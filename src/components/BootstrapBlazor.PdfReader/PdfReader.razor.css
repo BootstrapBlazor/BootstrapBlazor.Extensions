@@ -14,10 +14,6 @@
     color: #fff;
 }
 
-    .bb-view-toolbar.init > div {
-        visibility: hidden;
-    }
-
     .bb-view-toolbar .btn {
         --bs-btn-color: #fff;
     }

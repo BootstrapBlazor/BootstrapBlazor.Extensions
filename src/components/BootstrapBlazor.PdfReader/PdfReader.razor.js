@@ -93,11 +93,6 @@ const addEventListener = (el, pdfViewer, eventBus, invoke, options) => {
             countEl.innerHTML = numPages;
         }
 
-        const toolbarEl = el.querySelector(".bb-view-toolbar");
-        if (toolbarEl) {
-            toolbarEl.classList.remove("init");
-        }
-
         if (options.triggerPagesInit === true) {
             await invoke.invokeMethodAsync("PagesInit", numPages);
         }
