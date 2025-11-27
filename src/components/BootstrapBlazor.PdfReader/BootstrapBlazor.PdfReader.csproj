@@ -1,9 +1,9 @@
 ﻿<Project Sdk="Microsoft.NET.Sdk.Razor">
 
   <PropertyGroup>
-    <Version>10.0.1-beta08</Version>
+    <Version>10.0.1</Version>
   </PropertyGroup>
-  
+
   <PropertyGroup>
     <PackageTags>Bootstrap Blazor WebAssembly wasm UI Components Pdf Reader</PackageTags>
     <Description>Bootstrap UI components extensions of PdfReader</Description>
@@ -14,6 +14,13 @@
     <Content Remove="wwwroot\pdf.worker.mjs" />
     <None Include="wwwroot\lib\pdf.mjs" />
     <None Include="wwwroot\lib\pdf.worker.mjs" />
+  </ItemGroup>
+
+  <ItemGroup>
+    <Content Remove="Locales\en.json" />
+    <Content Remove="Locales\zh.json" />
+    <EmbeddedResource Include="Locales\en.json" />
+    <EmbeddedResource Include="Locales\zh.json" />
   </ItemGroup>
 
   <ItemGroup>

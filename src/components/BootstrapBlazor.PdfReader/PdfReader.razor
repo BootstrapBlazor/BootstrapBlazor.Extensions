@@ -5,58 +5,74 @@
 <div @attributes="@AdditionalAttributes" id="@Id" class="@ClassString" style="@StyleString">
     @if (ShowToolbar)
     {
-        <div class="bb-view-toolbar init">
+        <div class="bb-view-toolbar">
             <div class="bb-view-title">
-                <div class="bb-view-icon bb-view-bar"><i class="fa-solid fa-bars"></i></div>
+                <div class="bb-view-icon bb-view-bar" title="@Localizer["ToggleSidebar"]"><i class="fa-solid fa-bars"></i></div>
                 <span class="bb-view-subject">@_docTitle</span>
             </div>
             <div class="@ViewBodyString">
                 <input type="text" class="bb-view-num" @bind="CurrentPageString" /><span class="bb-view-slash">/</span>
                 <div class="bb-view-pagesCount"></div>
                 <div class="bb-view-divider"></div>
-                <div class="bb-view-icon bb-page-minus"><i class="fa-solid fa-fw fa-minus"></i></div>
+                <div class="bb-view-icon bb-page-minus" title="@Localizer["ZoomOut"]"><i class="fa-solid fa-fw fa-minus"></i></div>
                 <input type="text" class="bb-view-scale-input" @bind="CurrentScaleString" />
-                <div class="bb-view-icon bb-page-plus"><i class="fa-solid fa-fw fa-plus"></i></div>
+                <div class="bb-view-icon bb-page-plus" title="@Localizer["ZoomIn"]"><i class="fa-solid fa-fw fa-plus"></i></div>
                 <div class="bb-view-scale">
                     <div class="bb-view-divider"></div>
                     <div class="bb-view-icon btn-group">
-                        <button type="button" class="btn bb-view-fit-height" @onclick="() => SetFitMode(PdfReaderFitMode.PageHeight)"><i class="fa-solid fa-fw fa-arrows-left-right-to-line fa-rotate-90"></i></button>
-                        <button type="button" class="btn bb-view-fit-width" @onclick="() => SetFitMode(PdfReaderFitMode.PageWidth)"><i class="fa-solid fa-fw fa-arrows-left-right-to-line"></i></button>
+                        <button type="button" class="btn bb-view-fit-height" title="@Localizer["FitHeight"]" @onclick="() => SetFitMode(PdfReaderFitMode.PageHeight)"><i class="fa-solid fa-fw fa-arrows-left-right-to-line fa-rotate-90"></i></button>
+                        <button type="button" class="btn bb-view-fit-width" title="@Localizer["FitWidth"]" @onclick="() => SetFitMode(PdfReaderFitMode.PageWidth)"><i class="fa-solid fa-fw fa-arrows-left-right-to-line"></i></button>
                         <button type="button" class="btn dropdown-toggle dropdown-toggle-split" data-bs-toggle="dropdown" aria-expanded="false">
                             <span class="visually-hidden">Toggle Dropdown</span>
                         </button>
                         <div class="dropdown-menu dropdown-menu-end">
-                            <div class="dropdown-item" @onclick="() => SetFitMode(PdfReaderFitMode.PageActual)">page-actual</div>
-                            <div class="dropdown-item" @onclick="() => SetFitMode(PdfReaderFitMode.PageWidth)">page-width</div>
-                            <div class="dropdown-item" @onclick="() => SetFitMode(PdfReaderFitMode.PageHeight)">page-height</div>
-                            <div class="dropdown-item" @onclick="() => SetFitMode(PdfReaderFitMode.PageFit)">page-fit</div>
-                            <div class="dropdown-item" @onclick="() => SetFitMode(PdfReaderFitMode.Auto)">auto</div>
+                            <div class="dropdown-item" @onclick="() => SetFitMode(PdfReaderFitMode.PageActual)">@Localizer["PageActual"]</div>
+                            <div class="dropdown-item" @onclick="() => SetFitMode(PdfReaderFitMode.PageWidth)">@Localizer["FitWidth"]</div>
+                            <div class="dropdown-item" @onclick="() => SetFitMode(PdfReaderFitMode.PageHeight)">@Localizer["FitHeight"]</div>
                         </div>
                     </div>
-                    <div class="bb-view-icon bb-view-fit-rotate" @onclick="RotateLeft"><i class="fa-solid fa-fw fa-rotate-left"></i></div>
-                    <div class="bb-view-icon bb-view-fit-rotate" @onclick="RotateRight"><i class="fa-solid fa-fw fa-rotate-right"></i></div>
+                    <div class="bb-view-icon bb-view-fit-rotate" title="@Localizer["RotateLeft"]" @onclick="RotateLeft"><i class="fa-solid fa-fw fa-rotate-left"></i></div>
+                    <div class="bb-view-icon bb-view-fit-rotate" title="@Localizer["RotateRight"]" @onclick="RotateRight"><i class="fa-solid fa-fw fa-rotate-right"></i></div>
                 </div>
             </div>
             <div class="bb-view-controls">
                 @if (ShowDownload)
                 {
-                    <div class="bb-view-icon bb-view-download" @onclick="OnDownload"><i class="fa-solid fa-fw fa-arrow-right-to-bracket fa-rotate-90"></i></div>
+                    <div class="bb-view-icon bb-view-download" title="@Localizer["Download"]" @onclick="OnDownload"><i class="fa-solid fa-fw fa-arrow-right-to-bracket fa-rotate-90"></i></div>
                 }
                 @if (ShowPrint)
                 {
-                    <div class="bb-view-icon bb-view-print"><i class="fa-solid fa-fw fa-print"></i></div>
+                    <div class="bb-view-icon bb-view-print" title="@Localizer["Print"]"><i class="fa-solid fa-fw fa-print"></i></div>
                 }
                 <div class="dropdown">
                     <button type="button" class="btn dropdown-toggle" data-bs-toggle="dropdown">
                         <i class="@MoreButtonIcon"></i>
                     </button>
-                    <div class="dropdown-menu shadow dropdown-menu-end">
+                    <div class="dropdown-menu shadow dropdown-menu-end bb-view-dropdown-menu">
                         @if (ShowTwoPagesOneView)
                         {
-                            <div class="dropdown-item dropdown-item-pages" @onclick="OnToggleTwoPagesOneView"><i class="@_twoPagesOneViewIcon"></i><span>Two pages on view</span></div>
+                            <div class="dropdown-item dropdown-item-pages">
+                                <i class="@_dropdownItemCheckIcon"></i>
+                                <i class="@_dropdownItemDefaultIcon"></i>
+                                <span>@Localizer["TwoPageView"]</span>
+                            </div>
+                        }
+                        @if (ShowPresentationMode)
+                        {
+                            <div class="dropdown-item dropdown-item-presentation">
+                                <i class="@_dropdownItemCheckIcon"></i>
+                                <i class="@_dropdownItemDefaultIcon"></i>
+                                <span>@Localizer["PresentationMode"]</span>
+                            </div>
+                        }
+                        @if (ShowTwoPagesOneView || ShowPresentationMode)
+                        {
                             <Divider></Divider>
                         }
-                        <div class="dropdown-item"><i class="fa-solid fa-fw"></i><span>Document properties</span></div>
+                        <div class="dropdown-item dropdown-item-doc">
+                            <i class="@_dropdownItemDefaultIcon"></i>
+                            <span>@Localizer["DocumentProperty"]</span>
+                        </div>
                     </div>
                 </div>
             </div>

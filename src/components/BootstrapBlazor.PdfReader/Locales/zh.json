@@ -1,0 +1,17 @@
+{
+  "BootstrapBlazor.Components.PdfReader": {
+    "ToggleSidebar": "收起/展开 缩略图",
+    "ZoomIn": "放大",
+    "ZoomOut": "缩小",
+    "PageActual": "页面实际大小",
+    "FitWidth": "适配宽度",
+    "FitHeight": "适配高度",
+    "RotateLeft": "向左旋转 90 度",
+    "RotateRight": "向右旋转 90 度",
+    "Download": "下载",
+    "Print": "打印",
+    "TwoPageView": "双页视图",
+    "PresentationMode": "演示模式",
+    "DocumentProperty": "文档属性"
+  }
+}

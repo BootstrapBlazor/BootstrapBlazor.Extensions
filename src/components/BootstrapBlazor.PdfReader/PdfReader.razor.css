@@ -14,16 +14,17 @@
     color: #fff;
 }
 
-    .bb-view-toolbar.init > div {
-        visibility: hidden;
-    }
-
     .bb-view-toolbar .btn {
         --bs-btn-color: #fff;
     }
 
     .bb-view-toolbar .bb-view-controls .dropdown-toggle::after {
         content: none;
+    }
+
+    .bb-view-toolbar .dropdown-menu {
+        --bs-dropdown-link-active-bg: transparent;
+        --bs-dropdown-link-active-color: var(--bs-dropdown-color);
     }
 
 .bb-view-title {
@@ -134,6 +135,18 @@
         padding: 7px;
     }
 
+    .bb-view-controls .dropdown-item .dropdown-item-check {
+        display: none;
+    }
+
+    .bb-view-controls .dropdown-item.active .dropdown-item-check {
+        display: inline-block;
+    }
+
+    .bb-view-controls .dropdown-item.active .dropdown-item-icon {
+        display: none;
+    }
+
 .bb-view-main {
     display: flex;
     width: 100%;
@@ -173,7 +186,18 @@
         cursor: pointer;
         border: 2px solid #28292a;
         transform: rotate(var(--thumb-rotate));
+        margin: 0 auto;
     }
+
+    ::deep .bb-view-thumbnail-item .bb-view-thumbnail-group {
+        display: flex;
+        flex-direction: column;
+        justify-content: center;
+    }
+
+        ::deep .bb-view-thumbnail-item .bb-view-thumbnail-group label {
+            color: #fff;
+        }
 
 .bb-view-content {
     position: relative;

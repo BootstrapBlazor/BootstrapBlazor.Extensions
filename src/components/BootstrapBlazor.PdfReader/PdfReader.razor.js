@@ -22,17 +22,15 @@ export async function init(id, invoke, options) {
 
     const loadingTask = pdfjsLib.getDocument(options);
     loadingTask.onProgress = function (progressData) {
-        console.log(progressData.loaded, progressData.total);
+
     };
 
     loadingTask.onPassword = function (updatePassword, reason) {
         if (reason === pdfjsLib.PasswordResponses.NEED_PASSWORD) {
-            const password = prompt("This PDF is password protected. Enter password:");
-            updatePassword(password);
+
         }
         else if (reason === pdfjsLib.PasswordResponses.INCORRECT_PASSWORD) {
-            const password = prompt("Incorrect password. Please try again:");
-            updatePassword(password);
+
         }
     };
 
@@ -81,34 +79,6 @@ export function scale(id, scale) {
     }
 }
 
-export function setPages(id, enableTwoPagesOneView) {
-    const { el, pdfViewer } = Data.get(id);
-    if (pdfViewer) {
-        if (enableTwoPagesOneView) {
-            pdfViewer.spreadMode = 1;
-        }
-        else {
-            pdfViewer.spreadMode = 0;
-        }
-    }
-
-    resetTwoPagesOneView(el, pdfViewer);
-}
-
-const resetTwoPagesOneView = (el, pdfViewer) => {
-    const twoPagesOneView = el.querySelector(".dropdown-item-pages");
-    if (twoPagesOneView) {
-        EventHandler.on(twoPagesOneView, "click", e => {
-            if (pdfViewer.spreadMode === 0) {
-                pdfViewer.spreadMode = 1;
-            }
-            else {
-                pdfViewer.spreadMode = 0;
-            }
-        });
-    }
-}
-
 const addEventListener = (el, pdfViewer, eventBus, invoke, options) => {
     eventBus.on("pagesinit", async () => {
         if (options.fitMode) {
@@ -119,11 +89,6 @@ const addEventListener = (el, pdfViewer, eventBus, invoke, options) => {
         const countEl = el.querySelector(".bb-view-pagesCount");
         if (countEl) {
             countEl.innerHTML = numPages;
-        }
-
-        const toolbarEl = el.querySelector(".bb-view-toolbar");
-        if (toolbarEl) {
-            toolbarEl.classList.remove("init");
         }
 
         if (options.triggerPagesInit === true) {
@@ -141,9 +106,29 @@ const addEventListener = (el, pdfViewer, eventBus, invoke, options) => {
         }
 
         const controls = el.querySelector(".bb-view-controls");
-        EventHandler.on(controls, "click", ".bb-view-print", e => {
+        EventHandler.on(controls, "click", ".bb-view-print", async e => {
             printPdf(options.url);
             await invoke.invokeMethodAsync("Printing");
+        });
+        EventHandler.on(controls, "click", ".dropdown-item-pages", async e => {
+            e.delegateTarget.classList.toggle("active");
+
+            if (pdfViewer.spreadMode !== 1) {
+                pdfViewer.spreadMode = 1;
+            }
+            else {
+                pdfViewer.spreadMode = 0;
+            }
+        });
+        EventHandler.on(controls, "click", ".dropdown-item-presentation", async e => {
+            e.delegateTarget.classList.toggle("active");
+
+            //if (pdfViewer.isInPresentationMode) {
+            //    document.exitFullscreen();
+            //}
+            //else {
+            //    el.requestFullscreen();
+            //}
         });
     })
 
@@ -179,9 +164,6 @@ const addEventListener = (el, pdfViewer, eventBus, invoke, options) => {
         const scale = evt.scale * 100;
         scaleEl.value = `${Math.round(scale, 0)}%`;
 
-        const minus = el.querySelector(".bb-page-minus");
-        const plus = el.querySelector(".bb-page-plus");
-
         if (scale === 25) {
             minus.classList.add("disabled");
         }
@@ -196,8 +178,6 @@ const addEventListener = (el, pdfViewer, eventBus, invoke, options) => {
 
     EventHandler.on(minus, "click", e => updateScale(pdfViewer, e.target, -1));
     EventHandler.on(plus, "click", e => updateScale(pdfViewer, e.target, 1));
-
-    resetTwoPagesOneView(el, pdfViewer);
 
     const thumbnailsToggle = el.querySelector(".bb-view-bar");
     if (thumbnailsToggle) {
@@ -228,9 +208,17 @@ const resetThumbnailsView = (el, pdfViewer) => {
 
         const page = await pdfViewer.pdfDocument.getPage(i + 1);
         const canvas = await makeThumb(page);
+        const group = document.createElement("div");
+        group.classList.add("bb-view-thumbnail-group");
         const img = document.createElement("img");
         img.src = canvas.toDataURL();
-        item.appendChild(img);
+        group.appendChild(img);
+
+        const label = document.createElement("label");
+        label.textContent = `${i + 1}`;
+        group.appendChild(label);
+
+        item.appendChild(group);
     });
 
     EventHandler.on(thumbnailsContainer, "click", ".bb-view-thumbnail-item", e => {

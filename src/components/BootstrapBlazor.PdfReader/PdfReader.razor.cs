@@ -3,6 +3,7 @@
 // Website: https://www.blazor.zone or https://argozhang.github.io/
 
 using Microsoft.AspNetCore.Components;
+using Microsoft.Extensions.Localization;
 using System.Globalization;
 
 namespace BootstrapBlazor.Components;
@@ -74,10 +75,10 @@ public partial class PdfReader
     public bool ShowTwoPagesOneView { get; set; } = true;
 
     /// <summary>
-    /// 获得/设置 是否启用双页单视图模式 默认 false
+    /// 获得/设置 是否显示按钮 默认 true 显示
     /// </summary>
     [Parameter]
-    public bool EnableTwoPagesOneView { get; set; }
+    public bool ShowPresentationMode { get; set; } = false;
 
     /// <summary>
     /// 页面初始化回调方法
@@ -121,6 +122,9 @@ public partial class PdfReader
     [Parameter]
     public Func<Task>? OnPrintingAsync { get; set; }
 
+    [Inject, NotNull]
+    private IStringLocalizer<PdfReader>? Localizer { get; set; }
+
     private string? ClassString => CssBuilder.Default("bb-pdf-reader")
         .AddClassFromAttributes(AdditionalAttributes)
         .Build();
@@ -139,9 +143,8 @@ public partial class PdfReader
     private uint _currentPage;
     private string? _url;
     private string? _currentScale;
-    private bool _enableTwoPagesOneView;
-    private bool _showTwoPagesOneViewButton;
-    private string? _twoPagesOneViewIcon;
+    private string? _dropdownItemCheckIcon;
+    private string? _dropdownItemDefaultIcon;
 
     private string CurrentPageString
     {
@@ -182,14 +185,6 @@ public partial class PdfReader
         }
     }
 
-    private void OnToggleTwoPagesOneView()
-    {
-        _enableTwoPagesOneView = !_enableTwoPagesOneView;
-        EnableTwoPagesOneView = _enableTwoPagesOneView;
-
-        _twoPagesOneViewIcon = _enableTwoPagesOneView ? "fa-solid fa-fw fa-check" : "fa-solid fa-fw";
-    }
-
     /// <summary>
     /// <inheritdoc/>
     /// </summary>
@@ -198,7 +193,8 @@ public partial class PdfReader
         base.OnParametersSet();
 
         MoreButtonIcon ??= "fa-solid fa-fw fa-ellipsis-vertical";
-        _twoPagesOneViewIcon ??= "fa-solid fa-fw";
+        _dropdownItemCheckIcon ??= "dropdown-item-check fa-solid fa-fw fa-check";
+        _dropdownItemDefaultIcon ??= "dropdown-item-icon fa-solid fa-fw";
 
         if (CurrentPage == 0)
         {
@@ -222,8 +218,6 @@ public partial class PdfReader
             _currentPage = CurrentPage;
             _url = Url;
             _currentScale = CurrentScale;
-            _enableTwoPagesOneView = EnableTwoPagesOneView;
-            _showTwoPagesOneViewButton = ShowTwoPagesOneView;
         }
 
         if (_url != Url)
@@ -246,16 +240,6 @@ public partial class PdfReader
         {
             _currentScale = CurrentScale;
             await InvokeVoidAsync("scale", Id, _currentScale);
-        }
-        if (_enableTwoPagesOneView != EnableTwoPagesOneView)
-        {
-            _enableTwoPagesOneView = EnableTwoPagesOneView;
-            await InvokeVoidAsync("setPages", Id, _enableTwoPagesOneView);
-        }
-        if (_showTwoPagesOneViewButton != ShowTwoPagesOneView)
-        {
-            _showTwoPagesOneViewButton = ShowTwoPagesOneView;
-            await InvokeVoidAsync("setPages", Id, _enableTwoPagesOneView);
         }
     }
 
