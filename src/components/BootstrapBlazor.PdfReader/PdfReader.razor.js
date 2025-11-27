@@ -22,7 +22,7 @@ export async function init(id, invoke, options) {
 
     const loadingTask = pdfjsLib.getDocument(options);
     loadingTask.onProgress = function (progressData) {
-        console.log(progressData.loaded, progressData.total);
+
     };
 
     loadingTask.onPassword = function (updatePassword, reason) {
@@ -217,7 +217,7 @@ const resetThumbnailsView = (el, pdfViewer) => {
         group.appendChild(img);
 
         const label = document.createElement("label");
-        label.innerHTML = `${i + 1}`;
+        label.textContent = `${i + 1}`;
         group.appendChild(label);
 
         item.appendChild(group);
