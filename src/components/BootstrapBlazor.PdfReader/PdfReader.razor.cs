@@ -109,9 +109,6 @@ public partial class PdfReader
     [Parameter]
     public Func<Task>? OnDownloadAsync { get; set; }
 
-    [Inject, NotNull]
-    private DownloadService? DownloadService { get; set; }
-
     private string? ClassString => CssBuilder.Default("bb-pdf-reader")
         .AddClassFromAttributes(AdditionalAttributes)
         .Build();
@@ -133,8 +130,6 @@ public partial class PdfReader
     private bool _enableTwoPagesOneView;
     private bool _showTwoPagesOneViewButton;
     private string? _twoPagesOneViewIcon;
-
-    private readonly HashSet<string> AllowedScaleValues = ["page-actual", "page-width", "page-height", "page-fit", "auto"];
 
     private string CurrentPageString
     {
