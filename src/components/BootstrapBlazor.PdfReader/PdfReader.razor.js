@@ -210,9 +210,17 @@ const resetThumbnailsView = (el, pdfViewer) => {
 
         const page = await pdfViewer.pdfDocument.getPage(i + 1);
         const canvas = await makeThumb(page);
+        const group = document.createElement("div");
+        group.classList.add("bb-view-thumbnail-group");
         const img = document.createElement("img");
         img.src = canvas.toDataURL();
-        item.appendChild(img);
+        group.appendChild(img);
+
+        const label = document.createElement("label");
+        label.innerHTML = `${i + 1}`;
+        group.appendChild(label);
+
+        item.appendChild(group);
     });
 
     EventHandler.on(thumbnailsContainer, "click", ".bb-view-thumbnail-item", e => {

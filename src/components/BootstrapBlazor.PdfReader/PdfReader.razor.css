@@ -186,7 +186,18 @@
         cursor: pointer;
         border: 2px solid #28292a;
         transform: rotate(var(--thumb-rotate));
+        margin: 0 auto;
     }
+
+    ::deep .bb-view-thumbnail-item .bb-view-thumbnail-group {
+        display: flex;
+        flex-direction: column;
+        justify-content: center;
+    }
+
+        ::deep .bb-view-thumbnail-item .bb-view-thumbnail-group label {
+            color: #fff;
+        }
 
 .bb-view-content {
     position: relative;
