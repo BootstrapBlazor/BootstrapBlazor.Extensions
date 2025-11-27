@@ -27,12 +27,10 @@ export async function init(id, invoke, options) {
 
     loadingTask.onPassword = function (updatePassword, reason) {
         if (reason === pdfjsLib.PasswordResponses.NEED_PASSWORD) {
-            const password = prompt("This PDF is password protected. Enter password:");
-            updatePassword(password);
+
         }
         else if (reason === pdfjsLib.PasswordResponses.INCORRECT_PASSWORD) {
-            const password = prompt("Incorrect password. Please try again:");
-            updatePassword(password);
+
         }
     };
 

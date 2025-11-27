@@ -81,12 +81,6 @@ public partial class PdfReader
     public bool ShowPresentationMode { get; set; } = false;
 
     /// <summary>
-    /// 获得/设置 是否启用双页单视图模式 默认 false
-    /// </summary>
-    [Parameter]
-    public bool EnableTwoPagesOneView { get; set; }
-
-    /// <summary>
     /// 页面初始化回调方法
     /// </summary>
     [Parameter]
