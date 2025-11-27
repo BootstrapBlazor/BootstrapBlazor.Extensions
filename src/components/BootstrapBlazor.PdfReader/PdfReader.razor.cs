@@ -86,7 +86,7 @@ public partial class PdfReader
     public Func<int, Task>? OnPagesLoadedAsync { get; set; }
 
     /// <summary>
-    /// 页面初始化回调方法
+    /// 页码变化时回调方法
     /// </summary>
     [Parameter]
     public Func<uint, Task>? OnPageChangedAsync { get; set; }
