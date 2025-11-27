@@ -34,7 +34,6 @@
 }
 
 .bb-view-icon {
-    margin: 0 .5rem;
     padding: .5rem;
     cursor: pointer;
 }
@@ -65,6 +64,10 @@
     max-width: 300px;
 }
 
+.bb-view-pagesCount {
+    padding-inline-end: .5rem;
+}
+
 .bb-view-body {
     flex: 1;
     min-width: 0;
@@ -73,13 +76,14 @@
     flex-wrap: nowrap;
     align-items: center;
     justify-content: center;
+    background-color: var(--bb-toolbar-background-color);
 }
 
-    .bb-view-body.fit-page .bb-view-fit-page {
+    .bb-view-body.fit-width .bb-view-fit-height {
         display: none;
     }
 
-    .bb-view-body.fit-page .bb-view-fit-width {
+    .bb-view-body.fit-width .bb-view-fit-width {
         display: block;
     }
 
@@ -87,7 +91,12 @@
         display: none;
     }
 
-.bb-view-num, .bb-view-scale {
+.bb-view-scale {
+    display: flex;
+    align-items: center;
+}
+
+.bb-view-num, .bb-view-scale-input {
     width: 36px;
     text-align: center;
     background-color: #000;
@@ -95,7 +104,7 @@
     color: #fff;
 }
 
-.bb-view-scale {
+.bb-view-scale-input {
     width: 40px;
 }
 
@@ -107,8 +116,12 @@
     width: .6px;
     height: calc(var(--bb-pdf-toolbar-height) / 3);
     background-color: #777;
-    margin: 0 1rem;
+    margin: 0 0.5rem;
 }
+
+    .bb-view-divider + .bb-view-icon {
+        padding-inline-start: 0;
+    }
 
 .bb-view-controls {
     display: flex;
@@ -116,6 +129,10 @@
     justify-content: center;
     padding: 0 1rem;
 }
+
+    .bb-view-controls .dropdown-toggle {
+        padding: 7px;
+    }
 
 .bb-view-main {
     display: flex;
