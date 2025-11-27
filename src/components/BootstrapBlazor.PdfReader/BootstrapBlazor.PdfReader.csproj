@@ -3,17 +3,13 @@
   <PropertyGroup>
     <Version>10.0.1</Version>
   </PropertyGroup>
-  
+
   <PropertyGroup>
     <PackageTags>Bootstrap Blazor WebAssembly wasm UI Components Pdf Reader</PackageTags>
     <Description>Bootstrap UI components extensions of PdfReader</Description>
   </PropertyGroup>
 
   <ItemGroup>
-    <Content Remove="Locales\en.json" />
-    <Content Remove="Locales\zh.json" />
-    <EmbeddedResource Include="Locales\en.json" />
-    <EmbeddedResource Include="Locales\zh.json" />
     <Content Remove="wwwroot\pdf.mjs" />
     <Content Remove="wwwroot\pdf.worker.mjs" />
     <None Include="wwwroot\lib\pdf.mjs" />
@@ -21,11 +17,14 @@
   </ItemGroup>
 
   <ItemGroup>
-    <!--<PackageReference Include="BootstrapBlazor" Version="$(BBVersion)" />-->
+    <Content Remove="Locales\en.json" />
+    <Content Remove="Locales\zh.json" />
+    <EmbeddedResource Include="Locales\en.json" />
+    <EmbeddedResource Include="Locales\zh.json" />
   </ItemGroup>
 
   <ItemGroup>
-    <ProjectReference Include="..\..\..\..\BootstrapBlazor\src\BootstrapBlazor\BootstrapBlazor.csproj" />
+    <PackageReference Include="BootstrapBlazor" Version="$(BBVersion)" />
   </ItemGroup>
 
   <ItemGroup>
