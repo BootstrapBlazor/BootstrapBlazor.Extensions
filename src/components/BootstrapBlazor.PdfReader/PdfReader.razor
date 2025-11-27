@@ -8,37 +8,57 @@
         <div class="bb-view-toolbar init">
             <div class="bb-view-title">
                 <div class="bb-view-icon bb-view-bar"><i class="fa-solid fa-bars"></i></div>
-                <span class="bb-view-subject d-none d-sm-block">@_docTitle</span>
+                <span class="bb-view-subject">@_docTitle</span>
             </div>
             <div class="@ViewBodyString">
-                <input type="text" class="bb-view-num" @bind="CurrentPageString" /><span class="bb-view-slash">/</span><div class="bb-view-pagesCount"></div>
+                <input type="text" class="bb-view-num" @bind="CurrentPageString" /><span class="bb-view-slash">/</span>
+                <div class="bb-view-pagesCount"></div>
                 <div class="bb-view-divider"></div>
-                <div class="bb-view-icon bb-page-minus"><i class="fa-solid fa-minus"></i></div>
-                <input type="text" class="bb-view-scale" @bind="CurrentScaleString" />
-                <div class="bb-view-icon bb-page-plus"><i class="fa-solid fa-plus"></i></div>
-                <div class="bb-view-divider"></div>
-                <div class="bb-view-icon bb-view-fit-page" @onclick="FitToPage"><i class="fa-solid fa-arrows-left-right-to-line fa-rotate-90"></i></div>
-                <div class="bb-view-icon bb-view-fit-width" @onclick="FitToWidth"><i class="fa-solid fa-arrows-left-right-to-line"></i></div>
-                <div class="bb-view-icon bb-view-fit-rotate" @onclick="RotateLeft"><i class="fa-solid fa-rotate-left"></i></div>
-                <div class="bb-view-icon bb-view-fit-rotate" @onclick="RotateRight"><i class="fa-solid fa-rotate-right"></i></div>
+                <div class="bb-view-icon bb-page-minus"><i class="fa-solid fa-fw fa-minus"></i></div>
+                <input type="text" class="bb-view-scale-input" @bind="CurrentScaleString" />
+                <div class="bb-view-icon bb-page-plus"><i class="fa-solid fa-fw fa-plus"></i></div>
+                <div class="bb-view-scale">
+                    <div class="bb-view-divider"></div>
+                    <div class="bb-view-icon btn-group">
+                        <button type="button" class="btn bb-view-fit-height" @onclick="() => SetFitMode(PdfReaderFitMode.PageHeight)"><i class="fa-solid fa-fw fa-arrows-left-right-to-line fa-rotate-90"></i></button>
+                        <button type="button" class="btn bb-view-fit-width" @onclick="() => SetFitMode(PdfReaderFitMode.PageWidth)"><i class="fa-solid fa-fw fa-arrows-left-right-to-line"></i></button>
+                        <button type="button" class="btn dropdown-toggle dropdown-toggle-split" data-bs-toggle="dropdown" aria-expanded="false">
+                            <span class="visually-hidden">Toggle Dropdown</span>
+                        </button>
+                        <div class="dropdown-menu dropdown-menu-end">
+                            <div class="dropdown-item" @onclick="() => SetFitMode(PdfReaderFitMode.PageActual)">page-actual</div>
+                            <div class="dropdown-item" @onclick="() => SetFitMode(PdfReaderFitMode.PageWidth)">page-width</div>
+                            <div class="dropdown-item" @onclick="() => SetFitMode(PdfReaderFitMode.PageHeight)">page-height</div>
+                            <div class="dropdown-item" @onclick="() => SetFitMode(PdfReaderFitMode.PageFit)">page-fit</div>
+                            <div class="dropdown-item" @onclick="() => SetFitMode(PdfReaderFitMode.Auto)">auto</div>
+                        </div>
+                    </div>
+                    <div class="bb-view-icon bb-view-fit-rotate" @onclick="RotateLeft"><i class="fa-solid fa-fw fa-rotate-left"></i></div>
+                    <div class="bb-view-icon bb-view-fit-rotate" @onclick="RotateRight"><i class="fa-solid fa-fw fa-rotate-right"></i></div>
+                </div>
             </div>
             <div class="bb-view-controls">
                 @if (ShowDownload)
                 {
-                    <div class="bb-view-icon bb-view-download" @onclick="OnDownload"><i class="fa-solid fa-arrow-right-to-bracket fa-rotate-90"></i></div>
+                    <div class="bb-view-icon bb-view-download" @onclick="OnDownload"><i class="fa-solid fa-fw fa-arrow-right-to-bracket fa-rotate-90"></i></div>
                 }
-                <div class="bb-view-icon bb-view-print"><i class="fa-solid fa-print"></i></div>
-                <Dropdown TValue="string" Color="Color.None" SkipValidate="true" ShowLabel="false"
-                          IsPopover="false" MenuAlignment="Alignment.Right" Icon="@MoreButtonIcon">
-                    <ItemsTemplate>
-                        @if (ShowTwoPagesOneViewButton)
+                @if (ShowPrint)
+                {
+                    <div class="bb-view-icon bb-view-print"><i class="fa-solid fa-fw fa-print"></i></div>
+                }
+                <div class="dropdown">
+                    <button type="button" class="btn dropdown-toggle" data-bs-toggle="dropdown">
+                        <i class="@MoreButtonIcon"></i>
+                    </button>
+                    <div class="dropdown-menu shadow dropdown-menu-end">
+                        @if (ShowTwoPagesOneView)
                         {
                             <div class="dropdown-item dropdown-item-pages" @onclick="OnToggleTwoPagesOneView"><i class="@_twoPagesOneViewIcon"></i><span>Two pages on view</span></div>
                             <Divider></Divider>
                         }
                         <div class="dropdown-item"><i class="fa-solid fa-fw"></i><span>Document properties</span></div>
-                    </ItemsTemplate>
-                </Dropdown>
+                    </div>
+                </div>
             </div>
         </div>
     }

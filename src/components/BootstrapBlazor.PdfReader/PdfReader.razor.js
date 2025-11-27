@@ -51,17 +51,10 @@ export async function init(id, invoke, options) {
     Data.set(id, { el, pdfViewer });
 }
 
-export function fitToWidth(id) {
+export function setScaleValue(id, value) {
     const { pdfViewer } = Data.get(id);
     if (pdfViewer) {
-        pdfViewer.currentScaleValue = "page-height";
-    }
-}
-
-export function fitToPage(id) {
-    const { pdfViewer } = Data.get(id);
-    if (pdfViewer) {
-        pdfViewer.currentScaleValue = "page-width";
+        pdfViewer.currentScaleValue = value;
     }
 }
 
@@ -118,11 +111,8 @@ const resetTwoPagesOneView = (el, pdfViewer) => {
 
 const addEventListener = (el, pdfViewer, eventBus, invoke, options) => {
     eventBus.on("pagesinit", async () => {
-        if (options.isFitToPage) {
-            pdfViewer.currentScaleValue = "page-width";
-        }
-        else {
-            pdfViewer.currentScaleValue = "page-actual";
+        if (options.fitMode) {
+            pdfViewer.currentScaleValue = fitMode;
         }
 
         const numPages = pdfViewer.pagesCount;

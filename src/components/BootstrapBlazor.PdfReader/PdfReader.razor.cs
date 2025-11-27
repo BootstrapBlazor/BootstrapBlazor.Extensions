@@ -26,6 +26,12 @@ public partial class PdfReader
     public bool ShowDownload { get; set; } = true;
 
     /// <summary>
+    /// 获得/设置 是否显示打印按钮 默认 true 显示
+    /// </summary>
+    [Parameter]
+    public bool ShowPrint { get; set; } = true;
+
+    /// <summary>
     /// 获得/设置 是否显示缩略图 默认 true 显示
     /// </summary>
     [Parameter]
@@ -59,13 +65,13 @@ public partial class PdfReader
     /// 获得/设置 是否适配当前页面宽度 默认 false
     /// </summary>
     [Parameter]
-    public bool IsFitToPage { get; set; }
+    public PdfReaderFitMode FitMode { get; set; }
 
     /// <summary>
     /// 获得/设置 是否显示双页单视图按钮 默认 true 显示
     /// </summary>
     [Parameter]
-    public bool ShowTwoPagesOneViewButton { get; set; } = true;
+    public bool ShowTwoPagesOneView { get; set; } = true;
 
     /// <summary>
     /// 获得/设置 是否启用双页单视图模式 默认 false
@@ -86,7 +92,7 @@ public partial class PdfReader
     public Func<int, Task>? OnPagesLoadedAsync { get; set; }
 
     /// <summary>
-    /// 页面初始化回调方法
+    /// 页码变化时回调方法
     /// </summary>
     [Parameter]
     public Func<uint, Task>? OnPageChangedAsync { get; set; }
@@ -109,9 +115,6 @@ public partial class PdfReader
     [Parameter]
     public Func<Task>? OnDownloadAsync { get; set; }
 
-    [Inject, NotNull]
-    private DownloadService? DownloadService { get; set; }
-
     private string? ClassString => CssBuilder.Default("bb-pdf-reader")
         .AddClassFromAttributes(AdditionalAttributes)
         .Build();
@@ -122,19 +125,17 @@ public partial class PdfReader
         .Build();
 
     private string? ViewBodyString => CssBuilder.Default("bb-view-body")
-        .AddClass("fit-page", IsFitToPage)
+        .AddClass("fit-width", FitMode == PdfReaderFitMode.PageHeight)
         .Build();
 
     private string? _docTitle;
-    private bool _isFitToPage;
+    private PdfReaderFitMode _fitMode;
     private uint _currentPage;
     private string? _url;
     private string? _currentScale;
     private bool _enableTwoPagesOneView;
     private bool _showTwoPagesOneViewButton;
     private string? _twoPagesOneViewIcon;
-
-    private readonly HashSet<string> AllowedScaleValues = ["page-actual", "page-width", "page-height", "page-fit", "auto"];
 
     private string CurrentPageString
     {
@@ -190,7 +191,7 @@ public partial class PdfReader
     {
         base.OnParametersSet();
 
-        MoreButtonIcon ??= "fa-solid fa-ellipsis-vertical";
+        MoreButtonIcon ??= "fa-solid fa-fw fa-ellipsis-vertical";
         _twoPagesOneViewIcon ??= "fa-solid fa-fw";
 
         if (CurrentPage == 0)
@@ -211,12 +212,12 @@ public partial class PdfReader
 
         if (firstRender)
         {
-            _isFitToPage = IsFitToPage;
+            _fitMode = FitMode;
             _currentPage = CurrentPage;
             _url = Url;
             _currentScale = CurrentScale;
             _enableTwoPagesOneView = EnableTwoPagesOneView;
-            _showTwoPagesOneViewButton = ShowTwoPagesOneViewButton;
+            _showTwoPagesOneViewButton = ShowTwoPagesOneView;
         }
 
         if (_url != Url)
@@ -225,10 +226,10 @@ public partial class PdfReader
             await InvokeInitAsync();
         }
 
-        if (_isFitToPage != IsFitToPage)
+        if (_fitMode != FitMode)
         {
-            _isFitToPage = IsFitToPage;
-            await TriggerFit(_isFitToPage ? "fitToPage" : "fitToWidth");
+            _fitMode = FitMode;
+            await InvokeVoidAsync("setScaleValue", Id, _fitMode.ToDescriptionString());
         }
         if (_currentPage != CurrentPage)
         {
@@ -245,9 +246,9 @@ public partial class PdfReader
             _enableTwoPagesOneView = EnableTwoPagesOneView;
             await InvokeVoidAsync("setPages", Id, _enableTwoPagesOneView);
         }
-        if (_showTwoPagesOneViewButton != ShowTwoPagesOneViewButton)
+        if (_showTwoPagesOneViewButton != ShowTwoPagesOneView)
         {
-            _showTwoPagesOneViewButton = ShowTwoPagesOneViewButton;
+            _showTwoPagesOneViewButton = ShowTwoPagesOneView;
             await InvokeVoidAsync("setPages", Id, _enableTwoPagesOneView);
         }
     }
@@ -259,7 +260,7 @@ public partial class PdfReader
     protected override Task InvokeInitAsync() => InvokeVoidAsync("init", Id, Interop, new
     {
         Url,
-        IsFitToPage,
+        FitMode,
         EnableThumbnails,
         TriggerPagesInit = OnPagesInitAsync != null,
         TriggerPagesLoaded = OnPagesLoadedAsync != null,
@@ -277,12 +278,7 @@ public partial class PdfReader
     /// <summary>
     /// 适应页面宽度
     /// </summary>
-    public void FitToPage() => IsFitToPage = true;
-
-    /// <summary>
-    /// 适应文档宽度
-    /// </summary>
-    public void FitToWidth() => IsFitToPage = false;
+    public void SetFitMode(PdfReaderFitMode mode) => FitMode = mode;
 
     /// <summary>
     /// 旋转页面方法
@@ -309,8 +305,6 @@ public partial class PdfReader
             await OnDownloadAsync();
         }
     }
-
-    private Task TriggerFit(string methodName) => InvokeVoidAsync(methodName, Id);
 
     /// <summary>
     /// 页面开始初始化时回调方法
