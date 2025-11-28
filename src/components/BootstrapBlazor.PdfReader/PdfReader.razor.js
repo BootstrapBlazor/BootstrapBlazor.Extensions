@@ -292,7 +292,7 @@ const addToolbarEventHandlers = (el, pdfViewer, invoke, options) => {
         }
         pdfViewer.currentScale = value / 100;
     });
-    EventHandler.on(toolbar, 'focus', '.bb-view-scale-input', e => {
+    EventHandler.on(toolbar, 'focus', '.bb-view-scale-input, .bb-view-num', e => {
         e.delegateTarget.select();
     });
     EventHandler.on(toolbar, 'click', '.bb-view-rotate-left', e => {
