@@ -85,7 +85,7 @@ const loadPdf = async (el, invoke, options) => {
         eventBus
     });
 
-    addEventListener(el, pdfViewer, eventBus, invoke, options);
+    initEventBus(el, pdfViewer, eventBus, invoke, options);
 
     const pdfDocument = await loadingTask.promise;
     pdfViewer.setDocument(pdfDocument);
@@ -164,7 +164,7 @@ const setObserver = el => {
     return observer;
 }
 
-const addEventListener = (el, pdfViewer, eventBus, invoke, options) => {
+const initEventBus = (el, pdfViewer, eventBus, invoke, options) => {
     eventBus.on("pagesinit", async () => {
         if (options.fitMode) {
             pdfViewer.currentScaleValue = fitMode;
