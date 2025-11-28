@@ -273,6 +273,21 @@ const addToolbarEventHandlers = (el, pdfViewer, invoke, options) => {
     });
     EventHandler.on(toolbar, "click", '.bb-page-minus', e => updateScale(pdfViewer, e.delegateTarget, -1));
     EventHandler.on(toolbar, "click", '.bb-page-plus', e => updateScale(pdfViewer, e.delegateTarget, 1));
+    EventHandler.on(toolbar, 'click', '.bb-view-fit-width', e => {
+        const group = el.querySelector('.bb-view-group-rotate');
+        group.classList.remove('fit-height')
+        pdfViewer.currentScaleValue = 'page-width';
+  });
+    EventHandler.on(toolbar, 'click', '.bb-view-fit-height', e => {
+        const group = el.querySelector('.bb-view-group-rotate');
+        group.classList.add('fit-height')
+        pdfViewer.currentScaleValue = 'page-height';
+   });
+    EventHandler.on(toolbar, 'click', '.bb-view-page-actual', e => {
+        const group = el.querySelector('.bb-view-group-rotate');
+        group.classList.remove('fit-height')
+       pdfViewer.currentScaleValue = 'page-actual';
+    });
     EventHandler.on(toolbar, 'change', '.bb-view-scale-input', e => {
         let value = parseInt(e.delegateTarget.value);
         if (value < 25) {

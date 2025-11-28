@@ -134,12 +134,7 @@ public partial class PdfReader
         .AddClassFromAttributes(AdditionalAttributes)
         .Build();
 
-    private string? ViewBodyString => CssBuilder.Default("bb-view-group bb-view-toolbar-main")
-        .AddClass("fit-width", FitMode == PdfReaderFitMode.PageHeight)
-        .Build();
-
     private string? _docTitle;
-    private PdfReaderFitMode _fitMode;
     private uint _currentPage;
     private string? _url;
     private string? _currentScale;
@@ -176,7 +171,6 @@ public partial class PdfReader
 
         if (firstRender)
         {
-            _fitMode = FitMode;
             _currentPage = CurrentPage;
             _url = Url;
             _currentScale = CurrentScale;
@@ -187,12 +181,6 @@ public partial class PdfReader
         {
             _url = Url;
             await InvokeInitAsync();
-        }
-
-        if (_fitMode != FitMode)
-        {
-            _fitMode = FitMode;
-            await InvokeVoidAsync("setScaleValue", Id, _fitMode.ToDescriptionString());
         }
         if (_currentPage != CurrentPage)
         {
@@ -238,27 +226,21 @@ public partial class PdfReader
     public Task NavigateToPageAsync(uint pageNumber) => InvokeVoidAsync("navigateToPage", Id, pageNumber);
 
     /// <summary>
-    /// 适应页面宽度
+    /// 设置页面适配模式方法
     /// </summary>
-    public void SetFitMode(PdfReaderFitMode mode) => FitMode = mode;
+    public Task SetFitMode(PdfReaderFitMode mode) => InvokeVoidAsync("setScaleValue", Id, mode.ToDescriptionString());
 
     /// <summary>
     /// 旋转页面方法
     /// </summary>
     /// <returns></returns>
-    public async Task RotateLeft()
-    {
-        await InvokeVoidAsync("rotate", Id, -90);
-    }
+    public Task RotateLeft() => InvokeVoidAsync("rotate", Id, -90);
 
     /// <summary>
     /// 旋转页面方法
     /// </summary>
     /// <returns></returns>
-    public async Task RotateRight()
-    {
-        await InvokeVoidAsync("rotate", Id, 90);
-    }
+    public Task RotateRight() => InvokeVoidAsync("rotate", Id, 90);
 
     private async Task OnDownload()
     {

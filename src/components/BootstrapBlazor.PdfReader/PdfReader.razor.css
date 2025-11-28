@@ -79,11 +79,11 @@
     width: 1%;
 }
 
-    .bb-view-toolbar-main.fit-width .bb-view-fit-height {
+    .bb-view-toolbar-main .fit-height .bb-view-fit-height {
         display: none;
     }
 
-    .bb-view-toolbar-main.fit-width .bb-view-fit-width {
+    .bb-view-toolbar-main .fit-height .bb-view-fit-width {
         display: block;
     }
 
