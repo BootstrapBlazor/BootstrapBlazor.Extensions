@@ -36,10 +36,14 @@ export function setScaleValue(id, value) {
 export function rotate(id, step) {
     const { pdfViewer } = Data.get(id);
     if (pdfViewer) {
-        let rotate = pdfViewer.pagesRotation || 360;
-        rotate += step;
-        pdfViewer.pagesRotation = rotate % 360;
+        rotateView(pdfViewer, step);
     }
+}
+
+const rotateView = (pdfViewer, step) => {
+    let rotate = pdfViewer.pagesRotation || 360;
+    rotate += step;
+    pdfViewer.pagesRotation = rotate % 360;
 }
 
 export function navigateToPage(id, pageNumber) {
@@ -252,6 +256,19 @@ const addEventBus = (el, pdfViewer, eventBus, invoke, options) => {
 
 const addToolbarEventHandlers = (el, pdfViewer, invoke, options) => {
     const toolbar = el.querySelector(".bb-view-toolbar");
+
+    EventHandler.on(toolbar, "click", '.bb-view-bar', e => {
+        const thumbnailsEl = el.querySelector(".bb-view-thumbnails");
+        thumbnailsEl.classList.toggle("show");
+    });
+    EventHandler.on(toolbar, "click", '.bb-page-minus', e => updateScale(pdfViewer, e.delegateTarget, -1));
+    EventHandler.on(toolbar, "click", '.bb-page-plus', e => updateScale(pdfViewer, e.delegateTarget, 1));
+    EventHandler.on(toolbar, 'click', '.bb-view-rotate-left', e => {
+        rotateView(pdfViewer, -90);
+    });
+    EventHandler.on(toolbar, 'click', '.bb-view-rotate-right', e => {
+        rotateView(pdfViewer, 90);
+    });
     EventHandler.on(toolbar, "click", ".bb-view-print", async e => {
         printPdf(options.url);
         await invoke.invokeMethodAsync("Printing");
@@ -275,13 +292,6 @@ const addToolbarEventHandlers = (el, pdfViewer, invoke, options) => {
         //else {
         //    el.requestFullscreen();
         //}
-    });
-
-    EventHandler.on(toolbar, "click", '.bb-page-minus', e => updateScale(pdfViewer, e.delegateTarget, -1));
-    EventHandler.on(toolbar, "click", '.bb-page-plus', e => updateScale(pdfViewer, e.delegateTarget, 1));
-    EventHandler.on(toolbar, "click", '.bb-view-bar', e => {
-        const thumbnailsEl = el.querySelector(".bb-view-thumbnails");
-        thumbnailsEl.classList.toggle("show");
     });
 }
 
@@ -378,10 +388,6 @@ const printPdf = url => {
     iframe.src = url;
 
     iframe.onload = () => {
-        iframe.contentWindow.addEventListener('afterprint', function () {
-            document.body.removeChild(iframe);
-        });
-
         iframe.contentWindow.focus();
         iframe.contentWindow.print();
     };
@@ -399,32 +405,20 @@ export function dispose(id) {
     }
 
     if (el) {
-        const minus = el.querySelector(".bb-page-minus");
-        const plus = el.querySelector(".bb-page-plus");
-        if (minus) {
-            EventHandler.off(minus, "click");
-        }
-        if (plus) {
-            EventHandler.off(plus, "click");
-        }
-
         const towPagesOneView = el.querySelector(".dropdown-item-pages");
         if (towPagesOneView) {
             EventHandler.off(towPagesOneView, "click");
         }
 
-        const titleEl = el.querySelector(".bb-view-title");
-        if (titleEl) {
-            EventHandler.off(titleEl, "click");
+        const toolbar = el.querySelector(".bb-view-toolbar");
+        if (toolbar) {
+            EventHandler.off(toolbar, "click");
         }
 
         const thumbnailsContainer = el.querySelector(".bb-view-thumbnails");
         if (thumbnailsContainer) {
             EventHandler.off(thumbnailsContainer, "click");
         }
-
-        const controls = el.querySelector(".bb-view-controls");
-        EventHandler.off(controls, "click");
 
         const iframe = document.querySelector('.bb-view-print-iframe');
         if (iframe) {
