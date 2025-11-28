@@ -344,6 +344,14 @@ const resetToolbarView = (el, pdfViewer) => {
         }
     }
 
+    const twoPagesOneView = el.querySelector(".dropdown-item-pages");
+    if (pdfViewer.spreadMode === 1) {
+        twoPagesOneView.classList.add("active");
+    }
+    else {
+        twoPagesOneView.classList.remove("active");
+    }
+
     delete el.widths
     relayoutToolbar(el);
 }
