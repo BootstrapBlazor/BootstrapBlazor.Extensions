@@ -4,7 +4,6 @@
 
 using Microsoft.AspNetCore.Components;
 using Microsoft.Extensions.Localization;
-using System.Globalization;
 
 namespace BootstrapBlazor.Components;
 
@@ -148,45 +147,6 @@ public partial class PdfReader
     private string? _dropdownItemDefaultIcon;
     private bool _enableThumbnails = true;
 
-    private string CurrentPageString
-    {
-        get => CurrentPage.ToString(CultureInfo.InvariantCulture);
-        set => SetCurrentPage(value);
-    }
-
-    private void SetCurrentPage(string value)
-    {
-        if (uint.TryParse(value, NumberStyles.Integer, CultureInfo.InvariantCulture, out var num))
-        {
-            CurrentPage = num;
-        }
-    }
-
-    private string CurrentScaleString
-    {
-        get => $"{CurrentScale ?? "100"}%";
-        set => SetCurrentScale(value);
-    }
-
-    private void SetCurrentScale(string value)
-    {
-        if (string.IsNullOrEmpty(value))
-        {
-            CurrentScale = "100";
-        }
-        else if (float.TryParse(value.TrimEnd("%"), out var v))
-        {
-            v = v switch
-            {
-                > 500 => 500,
-                < 25 => 25,
-                _ => v
-            };
-
-            CurrentScale = v.ToString(CultureInfo.InvariantCulture);
-        }
-    }
-
     /// <summary>
     /// <inheritdoc/>
     /// </summary>
@@ -263,6 +223,7 @@ public partial class PdfReader
         Url,
         FitMode,
         EnableThumbnails,
+        CurrentPage,
         TriggerPagesInit = OnPagesInitAsync != null,
         TriggerPagesLoaded = OnPagesLoadedAsync != null,
         TriggerPageChanged = OnPageChangedAsync != null,

@@ -15,13 +15,13 @@
             </div>
             <div class="@ViewBodyString">
                 <div class="bb-view-group bb-view-group-page">
-                    <input type="text" class="bb-view-num" @bind="CurrentPageString" /><span class="bb-view-slash">/</span>
+                    <input type="text" class="bb-view-num" value="1" /><span class="bb-view-slash">/</span>
                     <div class="bb-view-pagesCount"></div>
                 </div>
                 <div class="bb-view-group bb-view-group-scale">
                     <div class="bb-view-divider"></div>
                     <div class="bb-view-icon bb-page-minus" title="@Localizer["ZoomOut"]"><i class="fa-solid fa-fw fa-minus"></i></div>
-                    <input type="text" class="bb-view-scale-input" @bind="CurrentScaleString" />
+                    <input type="text" class="bb-view-scale-input" value="100%" />
                     <div class="bb-view-icon bb-page-plus" title="@Localizer["ZoomIn"]"><i class="fa-solid fa-fw fa-plus"></i></div>
                 </div>
                 <div class="bb-view-group bb-view-group-rotate">

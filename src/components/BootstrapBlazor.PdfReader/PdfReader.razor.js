@@ -261,8 +261,31 @@ const addToolbarEventHandlers = (el, pdfViewer, invoke, options) => {
         const thumbnailsEl = el.querySelector(".bb-view-thumbnails");
         thumbnailsEl.classList.toggle("show");
     });
+    EventHandler.on(toolbar, "change", '.bb-view-num', e => {
+        let pageNumber = parseInt(e.delegateTarget.value) || 1;
+        if (pageNumber < 1) {
+            pageNumber = 1;
+        }
+        if (pageNumber > pdfViewer.pagesCount) {
+            pageNumber = pdfViewer.pagesCount;
+        }
+        pdfViewer.currentPageNumber = pageNumber;
+    });
     EventHandler.on(toolbar, "click", '.bb-page-minus', e => updateScale(pdfViewer, e.delegateTarget, -1));
     EventHandler.on(toolbar, "click", '.bb-page-plus', e => updateScale(pdfViewer, e.delegateTarget, 1));
+    EventHandler.on(toolbar, 'change', '.bb-view-scale-input', e => {
+        let value = parseInt(e.delegateTarget.value);
+        if (value < 25) {
+            value = 25;
+        }
+        else if (value > 500) {
+            value = 500;
+        }
+        pdfViewer.currentScale = value / 100;
+    });
+    EventHandler.on(toolbar, 'focus', '.bb-view-scale-input', e => {
+        e.delegateTarget.select();
+    });
     EventHandler.on(toolbar, 'click', '.bb-view-rotate-left', e => {
         rotateView(pdfViewer, -90);
     });
@@ -401,7 +424,6 @@ export function dispose(id) {
 
     if (observer) {
         observer.disconnect();
-        observer = null;
     }
 
     if (el) {
@@ -413,6 +435,8 @@ export function dispose(id) {
         const toolbar = el.querySelector(".bb-view-toolbar");
         if (toolbar) {
             EventHandler.off(toolbar, "click");
+            EventHandler.off(toolbar, "change");
+            EventHandler.off(toolbar, "focus");
         }
 
         const thumbnailsContainer = el.querySelector(".bb-view-thumbnails");
