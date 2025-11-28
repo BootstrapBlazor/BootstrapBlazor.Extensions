@@ -3,10 +3,10 @@
 @inherits BootstrapModuleComponentBase
 
 <div @attributes="@AdditionalAttributes" id="@Id" class="@ClassString" style="@StyleString">
-    <div class="bb-view-toolbar">
-        @if (ShowToolbar)
-        {
-            <div class="bb-view-title">
+    @if (ShowToolbar)
+    {
+        <div class="bb-view-toolbar">
+            <div class="bb-view-group bb-view-title">
                 @if (EnableThumbnails)
                 {
                     <div class="bb-view-icon bb-view-bar" title="@Localizer["ToggleSidebar"]"><i class="fa-solid fa-bars"></i></div>
@@ -14,13 +14,17 @@
                 <span class="bb-view-subject">@_docTitle</span>
             </div>
             <div class="@ViewBodyString">
-                <input type="text" class="bb-view-num" @bind="CurrentPageString" /><span class="bb-view-slash">/</span>
-                <div class="bb-view-pagesCount"></div>
-                <div class="bb-view-divider"></div>
-                <div class="bb-view-icon bb-page-minus" title="@Localizer["ZoomOut"]"><i class="fa-solid fa-fw fa-minus"></i></div>
-                <input type="text" class="bb-view-scale-input" @bind="CurrentScaleString" />
-                <div class="bb-view-icon bb-page-plus" title="@Localizer["ZoomIn"]"><i class="fa-solid fa-fw fa-plus"></i></div>
-                <div class="bb-view-scale">
+                <div class="bb-view-group bb-view-group-page">
+                    <input type="text" class="bb-view-num" @bind="CurrentPageString" /><span class="bb-view-slash">/</span>
+                    <div class="bb-view-pagesCount"></div>
+                </div>
+                <div class="bb-view-group bb-view-group-scale">
+                    <div class="bb-view-divider"></div>
+                    <div class="bb-view-icon bb-page-minus" title="@Localizer["ZoomOut"]"><i class="fa-solid fa-fw fa-minus"></i></div>
+                    <input type="text" class="bb-view-scale-input" @bind="CurrentScaleString" />
+                    <div class="bb-view-icon bb-page-plus" title="@Localizer["ZoomIn"]"><i class="fa-solid fa-fw fa-plus"></i></div>
+                </div>
+                <div class="bb-view-group bb-view-group-rotate">
                     <div class="bb-view-divider"></div>
                     <div class="bb-view-icon btn-group">
                         <button type="button" class="btn bb-view-fit-height" title="@Localizer["FitHeight"]" @onclick="() => SetFitMode(PdfReaderFitMode.PageHeight)"><i class="fa-solid fa-fw fa-arrows-left-right-to-line fa-rotate-90"></i></button>
@@ -28,7 +32,7 @@
                         <button type="button" class="btn dropdown-toggle dropdown-toggle-split" data-bs-toggle="dropdown" aria-expanded="false">
                             <span class="visually-hidden">Toggle Dropdown</span>
                         </button>
-                        <div class="dropdown-menu dropdown-menu-end">
+                        <div class="dropdown-menu dropdown-menu-end shadow">
                             <div class="dropdown-item" @onclick="() => SetFitMode(PdfReaderFitMode.PageActual)">@Localizer["PageActual"]</div>
                             <div class="dropdown-item" @onclick="() => SetFitMode(PdfReaderFitMode.PageWidth)">@Localizer["FitWidth"]</div>
                             <div class="dropdown-item" @onclick="() => SetFitMode(PdfReaderFitMode.PageHeight)">@Localizer["FitHeight"]</div>
@@ -38,7 +42,7 @@
                     <div class="bb-view-icon bb-view-fit-rotate" title="@Localizer["RotateRight"]" @onclick="RotateRight"><i class="fa-solid fa-fw fa-rotate-right"></i></div>
                 </div>
             </div>
-            <div class="bb-view-controls">
+            <div class="bb-view-group bb-view-controls">
                 @if (ShowDownload)
                 {
                     <div class="bb-view-icon bb-view-download" title="@Localizer["Download"]" @onclick="OnDownload"><i class="fa-solid fa-fw fa-arrow-right-to-bracket fa-rotate-90"></i></div>
@@ -51,7 +55,7 @@
                     <button type="button" class="btn dropdown-toggle" data-bs-toggle="dropdown">
                         <i class="@MoreButtonIcon"></i>
                     </button>
-                    <div class="dropdown-menu shadow dropdown-menu-end bb-view-dropdown-menu">
+                    <div class="dropdown-menu shadow dropdown-menu-end">
                         @if (ShowTwoPagesOneView)
                         {
                             <div class="dropdown-item dropdown-item-pages">
@@ -79,8 +83,8 @@
                     </div>
                 </div>
             </div>
-        }
-    </div>
+        </div>
+    }
     <div class="bb-view-main">
         @if (EnableThumbnails)
         {

@@ -135,7 +135,7 @@ public partial class PdfReader
         .AddClassFromAttributes(AdditionalAttributes)
         .Build();
 
-    private string? ViewBodyString => CssBuilder.Default("bb-view-body")
+    private string? ViewBodyString => CssBuilder.Default("bb-view-group bb-view-toolbar-main")
         .AddClass("fit-width", FitMode == PdfReaderFitMode.PageHeight)
         .Build();
 

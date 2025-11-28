@@ -27,10 +27,13 @@
         --bs-dropdown-link-active-color: var(--bs-dropdown-color);
     }
 
-.bb-view-title {
+.bb-view-group {
     display: flex;
     align-items: center;
     flex-wrap: nowrap;
+}
+
+.bb-view-title {
     padding: 0 1rem;
 }
 
@@ -69,26 +72,22 @@
     padding-inline-end: .5rem;
 }
 
-.bb-view-body {
+.bb-view-toolbar-main {
+    justify-content: center;
     flex: 1;
     min-width: 0;
     width: 1%;
-    display: flex;
-    flex-wrap: nowrap;
-    align-items: center;
-    justify-content: center;
-    background-color: var(--bb-toolbar-background-color);
 }
 
-    .bb-view-body.fit-width .bb-view-fit-height {
+    .bb-view-toolbar-main.fit-width .bb-view-fit-height {
         display: none;
     }
 
-    .bb-view-body.fit-width .bb-view-fit-width {
+    .bb-view-toolbar-main.fit-width .bb-view-fit-width {
         display: block;
     }
 
-    .bb-view-body .bb-view-fit-width {
+    .bb-view-toolbar-main .bb-view-fit-width {
         display: none;
     }
 
@@ -125,9 +124,6 @@
     }
 
 .bb-view-controls {
-    display: flex;
-    align-items: center;
-    justify-content: center;
     padding: 0 1rem;
 }
 
