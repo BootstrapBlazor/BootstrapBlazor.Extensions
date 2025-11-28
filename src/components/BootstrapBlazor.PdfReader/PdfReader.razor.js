@@ -5,7 +5,7 @@ import Data from '../BootstrapBlazor/modules/data.js';
 import EventHandler from '../BootstrapBlazor/modules/event-handler.js';
 
 if (pdfjsLib != null) {
-    pdfjsLib.GlobalWorkerOptions.workerSrc = './pdf.worker.min.mjs';
+    pdfjsLib.GlobalWorkerOptions.workerSrc = '/_content/BootstrapBlazor.PdfReader/lib/pdf.worker.min.mjs';
 }
 
 export async function init(id, invoke, options) {
