@@ -3,9 +3,9 @@
 @inherits BootstrapModuleComponentBase
 
 <div @attributes="@AdditionalAttributes" id="@Id" class="@ClassString" style="@StyleString">
-    @if (ShowToolbar)
-    {
-        <div class="bb-view-toolbar">
+    <div class="bb-view-toolbar">
+        @if (ShowToolbar)
+        {
             <div class="bb-view-group bb-view-title">
                 @if (EnableThumbnails)
                 {
@@ -83,8 +83,8 @@
                     </div>
                 </div>
             </div>
-        </div>
-    }
+        }
+    </div>
     <div class="bb-view-main">
         @if (EnableThumbnails)
         {
