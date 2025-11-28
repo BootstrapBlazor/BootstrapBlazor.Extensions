@@ -20,31 +20,8 @@ export async function init(id, invoke, options) {
         return;
     }
 
-    const loadingTask = pdfjsLib.getDocument(options);
-    loadingTask.onProgress = function (progressData) {
-
-    };
-
-    loadingTask.onPassword = function (updatePassword, reason) {
-        if (reason === pdfjsLib.PasswordResponses.NEED_PASSWORD) {
-
-        }
-        else if (reason === pdfjsLib.PasswordResponses.INCORRECT_PASSWORD) {
-
-        }
-    };
-
-    const container = el.querySelector(".bb-view-container");
-    const eventBus = new pdfjsViewer.EventBus();
-    const pdfViewer = new pdfjsViewer.PDFViewer({
-        container,
-        eventBus
-    });
-
-    addEventListener(el, pdfViewer, eventBus, invoke, options);
-
-    const pdfDocument = await loadingTask.promise;
-    pdfViewer.setDocument(pdfDocument);
+    const pdfViewer = await loadPdf(el, invoke, options);
+    setObserver(el);
 
     Data.set(id, { el, pdfViewer });
 }
@@ -84,6 +61,44 @@ export function resetThumbnails(id) {
     if (pdfViewer) {
         resetThumbnailsView(el, pdfViewer);
     }
+}
+
+const loadPdf = async (el, invoke, options) => {
+    const loadingTask = pdfjsLib.getDocument(options);
+    loadingTask.onProgress = function (progressData) {
+
+    };
+
+    loadingTask.onPassword = function (updatePassword, reason) {
+        if (reason === pdfjsLib.PasswordResponses.NEED_PASSWORD) {
+
+        }
+        else if (reason === pdfjsLib.PasswordResponses.INCORRECT_PASSWORD) {
+
+        }
+    };
+
+    const container = el.querySelector(".bb-view-container");
+    const eventBus = new pdfjsViewer.EventBus();
+    const pdfViewer = new pdfjsViewer.PDFViewer({
+        container,
+        eventBus
+    });
+
+    addEventListener(el, pdfViewer, eventBus, invoke, options);
+
+    const pdfDocument = await loadingTask.promise;
+    pdfViewer.setDocument(pdfDocument);
+
+    return pdfViewer;
+}
+
+const setObserver = el => {
+    const observer = new ResizeObserver(entries => {
+        console.log(entries);
+    });
+
+    observer.observe(el);
 }
 
 const addEventListener = (el, pdfViewer, eventBus, invoke, options) => {
