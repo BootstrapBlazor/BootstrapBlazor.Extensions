@@ -145,6 +145,7 @@ public partial class PdfReader
     private string? _currentScale;
     private string? _dropdownItemCheckIcon;
     private string? _dropdownItemDefaultIcon;
+    private bool _enableThumbnails = true;
 
     private string CurrentPageString
     {
@@ -218,6 +219,7 @@ public partial class PdfReader
             _currentPage = CurrentPage;
             _url = Url;
             _currentScale = CurrentScale;
+            _enableThumbnails = EnableThumbnails;
         }
 
         if (_url != Url)
@@ -240,6 +242,14 @@ public partial class PdfReader
         {
             _currentScale = CurrentScale;
             await InvokeVoidAsync("scale", Id, _currentScale);
+        }
+        if (_enableThumbnails != EnableThumbnails)
+        {
+            _enableThumbnails = EnableThumbnails;
+            if (_enableThumbnails)
+            {
+                await InvokeVoidAsync("resetThumbnails", Id);
+            }
         }
     }
 
