@@ -20,33 +20,10 @@ export async function init(id, invoke, options) {
         return;
     }
 
-    const loadingTask = pdfjsLib.getDocument(options);
-    loadingTask.onProgress = function (progressData) {
+    const pdfViewer = await loadPdf(el, invoke, options);
+    const observer = setObserver(el);
 
-    };
-
-    loadingTask.onPassword = function (updatePassword, reason) {
-        if (reason === pdfjsLib.PasswordResponses.NEED_PASSWORD) {
-
-        }
-        else if (reason === pdfjsLib.PasswordResponses.INCORRECT_PASSWORD) {
-
-        }
-    };
-
-    const container = el.querySelector(".bb-view-container");
-    const eventBus = new pdfjsViewer.EventBus();
-    const pdfViewer = new pdfjsViewer.PDFViewer({
-        container,
-        eventBus
-    });
-
-    addEventListener(el, pdfViewer, eventBus, invoke, options);
-
-    const pdfDocument = await loadingTask.promise;
-    pdfViewer.setDocument(pdfDocument);
-
-    Data.set(id, { el, pdfViewer });
+    Data.set(id, { el, pdfViewer, observer });
 }
 
 export function setScaleValue(id, value) {
@@ -84,6 +61,107 @@ export function resetThumbnails(id) {
     if (pdfViewer) {
         resetThumbnailsView(el, pdfViewer);
     }
+}
+
+const loadPdf = async (el, invoke, options) => {
+    const loadingTask = pdfjsLib.getDocument(options);
+    loadingTask.onProgress = function (progressData) {
+
+    };
+
+    loadingTask.onPassword = function (updatePassword, reason) {
+        if (reason === pdfjsLib.PasswordResponses.NEED_PASSWORD) {
+
+        }
+        else if (reason === pdfjsLib.PasswordResponses.INCORRECT_PASSWORD) {
+
+        }
+    };
+
+    const container = el.querySelector(".bb-view-container");
+    const eventBus = new pdfjsViewer.EventBus();
+    const pdfViewer = new pdfjsViewer.PDFViewer({
+        container,
+        eventBus
+    });
+
+    addEventListener(el, pdfViewer, eventBus, invoke, options);
+
+    const pdfDocument = await loadingTask.promise;
+    pdfViewer.setDocument(pdfDocument);
+
+    return pdfViewer;
+}
+
+const setObserver = el => {
+    const title = el.querySelector(".bb-view-title");
+    const subject = el.querySelector(".bb-view-subject");
+    const groupPage = el.querySelector(".bb-view-group-page");
+    const groupScale = el.querySelector(".bb-view-group-scale");
+    const groupRotate = el.querySelector(".bb-view-group-rotate");
+    const controls = el.querySelector(".bb-view-controls");
+
+    el.widths = [subject.offsetWidth, groupRotate.offsetWidth, groupScale.offsetWidth, groupPage.offsetWidth, controls.offsetWidth];
+
+    const increaseSpace = toolbar => {
+        if (controls.classList.contains('d-none')) {
+            if (title.offsetWidth + el.widths[4] + groupPage.offsetWidth + groupScale.offsetWidth + groupRotate.offsetWidth + controls.offsetWidth < toolbar.offsetWidth) {
+                controls.classList.remove("d-none");
+            }
+        }
+        else if (groupPage.classList.contains('d-none')) {
+            if (title.offsetWidth + el.widths[3] + groupPage.offsetWidth + groupScale.offsetWidth + groupRotate.offsetWidth + controls.offsetWidth < toolbar.offsetWidth) {
+                groupPage.classList.remove("d-none");
+            }
+        }
+        else if (groupScale.classList.contains('d-none')) {
+            if (title.offsetWidth + el.widths[2] + groupPage.offsetWidth + groupScale.offsetWidth + groupRotate.offsetWidth + controls.offsetWidth < toolbar.offsetWidth) {
+                groupScale.classList.remove("d-none");
+            }
+        }
+        else if (groupRotate.classList.contains('d-none')) {
+            if (title.offsetWidth + el.widths[1] + groupPage.offsetWidth + groupScale.offsetWidth + groupRotate.offsetWidth + controls.offsetWidth < toolbar.offsetWidth) {
+                groupRotate.classList.remove("d-none");
+            }
+        }
+        else if (subject.classList.contains("d-none")) {
+            if (title.offsetWidth + el.widths[0] + groupPage.offsetWidth + groupScale.offsetWidth + groupRotate.offsetWidth + controls.offsetWidth < toolbar.offsetWidth) {
+                subject.classList.remove("d-none");
+            }
+        }
+    }
+    const decreaseSpace = toolbar => {
+        while (title.offsetWidth + groupPage.offsetWidth + groupScale.offsetWidth + groupRotate.offsetWidth + controls.offsetWidth > toolbar.offsetWidth) {
+            if (subject.classList.contains("d-none") === false) {
+                subject.classList.add("d-none");
+            }
+            else if (groupRotate.classList.contains('d-none') === false) {
+                groupRotate.classList.add("d-none");
+            }
+            else if (groupScale.classList.contains('d-none') === false) {
+                groupScale.classList.add("d-none");
+            }
+            else if (groupPage.classList.contains('d-none') === false) {
+                groupPage.classList.add("d-none");
+            }
+            else if (controls.classList.contains('d-none') === false) {
+                controls.classList.add("d-none");
+            }
+        }
+    }
+
+    const observer = new ResizeObserver(entries => {
+        const toolbar = el.querySelector(".bb-view-toolbar");
+        if (toolbar === null) {
+            return;
+        }
+
+        decreaseSpace(toolbar);
+        increaseSpace(toolbar);
+    });
+
+    observer.observe(el);
+    return observer;
 }
 
 const addEventListener = (el, pdfViewer, eventBus, invoke, options) => {
@@ -303,9 +381,14 @@ const printPdf = url => {
 }
 
 export function dispose(id) {
+    const { el, observer } = Data.get(id);
     Data.remove(id);
 
-    const el = document.getElementById(id);
+    if (observer) {
+        observer.disconnect();
+        observer = null;
+    }
+
     if (el) {
         const minus = el.querySelector(".bb-page-minus");
         const plus = el.querySelector(".bb-page-plus");
