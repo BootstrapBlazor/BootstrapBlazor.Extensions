@@ -131,6 +131,7 @@ public partial class PdfReader
 
     private string? StyleString => CssBuilder.Default()
         .AddClass($"--bb-pdf-view-height: {ViewHeight};", !string.IsNullOrEmpty(ViewHeight))
+        .AddClass($"--bb-pdf-toolbar-height: 0;", !ShowToolbar)
         .AddClassFromAttributes(AdditionalAttributes)
         .Build();
 
