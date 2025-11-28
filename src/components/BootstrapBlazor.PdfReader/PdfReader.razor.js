@@ -36,10 +36,14 @@ export function setScaleValue(id, value) {
 export function rotate(id, step) {
     const { pdfViewer } = Data.get(id);
     if (pdfViewer) {
-        let rotate = pdfViewer.pagesRotation || 360;
-        rotate += step;
-        pdfViewer.pagesRotation = rotate % 360;
+        rotateView(pdfViewer, step);
     }
+}
+
+const rotateView = (pdfViewer, step) => {
+    let rotate = pdfViewer.pagesRotation || 360;
+    rotate += step;
+    pdfViewer.pagesRotation = rotate % 360;
 }
 
 export function navigateToPage(id, pageNumber) {
@@ -53,6 +57,13 @@ export function scale(id, scale) {
     const { pdfViewer } = Data.get(id);
     if (pdfViewer) {
         pdfViewer.currentScaleValue = scale / 100;
+    }
+}
+
+export function resetToolbar(id) {
+    const { el, pdfViewer } = Data.get(id);
+    if (pdfViewer) {
+        resetToolbarView(el, pdfViewer);
     }
 }
 
@@ -85,7 +96,7 @@ const loadPdf = async (el, invoke, options) => {
         eventBus
     });
 
-    addEventListener(el, pdfViewer, eventBus, invoke, options);
+    addEventBus(el, pdfViewer, eventBus, invoke, options);
 
     const pdfDocument = await loadingTask.promise;
     pdfViewer.setDocument(pdfDocument);
@@ -94,77 +105,82 @@ const loadPdf = async (el, invoke, options) => {
 }
 
 const setObserver = el => {
-    const title = el.querySelector(".bb-view-title");
-    const subject = el.querySelector(".bb-view-subject");
-    const groupPage = el.querySelector(".bb-view-group-page");
-    const groupScale = el.querySelector(".bb-view-group-scale");
-    const groupRotate = el.querySelector(".bb-view-group-rotate");
-    const controls = el.querySelector(".bb-view-controls");
-
-    el.widths = [subject.offsetWidth, groupRotate.offsetWidth, groupScale.offsetWidth, groupPage.offsetWidth, controls.offsetWidth];
-
-    const increaseSpace = toolbar => {
-        if (controls.classList.contains('d-none')) {
-            if (title.offsetWidth + el.widths[4] + groupPage.offsetWidth + groupScale.offsetWidth + groupRotate.offsetWidth + controls.offsetWidth < toolbar.offsetWidth) {
-                controls.classList.remove("d-none");
-            }
-        }
-        else if (groupPage.classList.contains('d-none')) {
-            if (title.offsetWidth + el.widths[3] + groupPage.offsetWidth + groupScale.offsetWidth + groupRotate.offsetWidth + controls.offsetWidth < toolbar.offsetWidth) {
-                groupPage.classList.remove("d-none");
-            }
-        }
-        else if (groupScale.classList.contains('d-none')) {
-            if (title.offsetWidth + el.widths[2] + groupPage.offsetWidth + groupScale.offsetWidth + groupRotate.offsetWidth + controls.offsetWidth < toolbar.offsetWidth) {
-                groupScale.classList.remove("d-none");
-            }
-        }
-        else if (groupRotate.classList.contains('d-none')) {
-            if (title.offsetWidth + el.widths[1] + groupPage.offsetWidth + groupScale.offsetWidth + groupRotate.offsetWidth + controls.offsetWidth < toolbar.offsetWidth) {
-                groupRotate.classList.remove("d-none");
-            }
-        }
-        else if (subject.classList.contains("d-none")) {
-            if (title.offsetWidth + el.widths[0] + groupPage.offsetWidth + groupScale.offsetWidth + groupRotate.offsetWidth + controls.offsetWidth < toolbar.offsetWidth) {
-                subject.classList.remove("d-none");
-            }
-        }
-    }
-    const decreaseSpace = toolbar => {
-        while (title.offsetWidth + groupPage.offsetWidth + groupScale.offsetWidth + groupRotate.offsetWidth + controls.offsetWidth > toolbar.offsetWidth) {
-            if (subject.classList.contains("d-none") === false) {
-                subject.classList.add("d-none");
-            }
-            else if (groupRotate.classList.contains('d-none') === false) {
-                groupRotate.classList.add("d-none");
-            }
-            else if (groupScale.classList.contains('d-none') === false) {
-                groupScale.classList.add("d-none");
-            }
-            else if (groupPage.classList.contains('d-none') === false) {
-                groupPage.classList.add("d-none");
-            }
-            else if (controls.classList.contains('d-none') === false) {
-                controls.classList.add("d-none");
-            }
-        }
-    }
-
     const observer = new ResizeObserver(entries => {
-        const toolbar = el.querySelector(".bb-view-toolbar");
-        if (toolbar === null) {
-            return;
-        }
-
-        decreaseSpace(toolbar);
-        increaseSpace(toolbar);
+        relayoutToolbar(el);
     });
 
     observer.observe(el);
     return observer;
 }
 
-const addEventListener = (el, pdfViewer, eventBus, invoke, options) => {
+const relayoutToolbar = el => {
+    const toolbar = el.querySelector(".bb-view-toolbar");
+    if (toolbar === null) {
+        return;
+    }
+
+    const title = el.querySelector(".bb-view-title");
+    const subject = el.querySelector(".bb-view-subject");
+    if (subject === null) {
+        return;
+    }
+
+    const groupPage = el.querySelector(".bb-view-group-page");
+    const groupScale = el.querySelector(".bb-view-group-scale");
+    const groupRotate = el.querySelector(".bb-view-group-rotate");
+    const controls = el.querySelector(".bb-view-controls");
+
+    if (el.widths === void 0) {
+        el.widths = [subject.offsetWidth, groupRotate.offsetWidth, groupScale.offsetWidth, groupPage.offsetWidth, controls.offsetWidth];
+    }
+
+    const getActualWidth = () => title.offsetWidth + groupPage.offsetWidth + groupScale.offsetWidth + groupRotate.offsetWidth + controls.offsetWidth;
+    while (getActualWidth() + 8 > toolbar.offsetWidth) {
+        if (subject.classList.contains("d-none") === false) {
+            subject.classList.add("d-none");
+        }
+        else if (groupRotate.classList.contains('d-none') === false) {
+            groupRotate.classList.add("d-none");
+        }
+        else if (groupScale.classList.contains('d-none') === false) {
+            groupScale.classList.add("d-none");
+        }
+        else if (groupPage.classList.contains('d-none') === false) {
+            groupPage.classList.add("d-none");
+        }
+        else if (controls.classList.contains('d-none') === false) {
+            controls.classList.add("d-none");
+        }
+    }
+
+    if (controls.classList.contains('d-none')) {
+        if (getActualWidth() + el.widths[4] < toolbar.offsetWidth) {
+            controls.classList.remove("d-none");
+        }
+    }
+    else if (groupPage.classList.contains('d-none')) {
+        if (getActualWidth() + el.widths[3] < toolbar.offsetWidth) {
+            groupPage.classList.remove("d-none");
+        }
+    }
+    else if (groupScale.classList.contains('d-none')) {
+        if (getActualWidth() + el.widths[2] < toolbar.offsetWidth) {
+            groupScale.classList.remove("d-none");
+        }
+    }
+    else if (groupRotate.classList.contains('d-none')) {
+        if (getActualWidth() + el.widths[1] < toolbar.offsetWidth) {
+            groupRotate.classList.remove("d-none");
+        }
+    }
+    else if (subject.classList.contains("d-none")) {
+        if (getActualWidth() + el.widths[0] < toolbar.offsetWidth) {
+            subject.classList.remove("d-none");
+        }
+    }
+}
+
+const addEventBus = (el, pdfViewer, eventBus, invoke, options) => {
     eventBus.on("pagesinit", async () => {
         if (options.fitMode) {
             pdfViewer.currentScaleValue = fitMode;
@@ -182,39 +198,19 @@ const addEventListener = (el, pdfViewer, eventBus, invoke, options) => {
     });
 
     eventBus.on("pagesloaded", async e => {
-        if (options.enableThumbnails) {
-            resetThumbnailsView(el, pdfViewer);
-        }
-
         if (options.triggerPagesLoaded === true) {
             await invoke.invokeMethodAsync("PagesLoaded", e.pagesCount);
         }
 
-        const controls = el.querySelector(".bb-view-controls");
-        EventHandler.on(controls, "click", ".bb-view-print", async e => {
-            printPdf(options.url);
-            await invoke.invokeMethodAsync("Printing");
-        });
-        EventHandler.on(controls, "click", ".dropdown-item-pages", async e => {
-            e.delegateTarget.classList.toggle("active");
+        if (options.currentPage !== 1) {
+            pdfViewer.currentPageNumber = options.currentPage;
+        }
 
-            if (pdfViewer.spreadMode !== 1) {
-                pdfViewer.spreadMode = 1;
-            }
-            else {
-                pdfViewer.spreadMode = 0;
-            }
-        });
-        EventHandler.on(controls, "click", ".dropdown-item-presentation", async e => {
-            e.delegateTarget.classList.toggle("active");
+        if (options.enableThumbnails) {
+            resetThumbnailsView(el, pdfViewer);
+        }
 
-            //if (pdfViewer.isInPresentationMode) {
-            //    document.exitFullscreen();
-            //}
-            //else {
-            //    el.requestFullscreen();
-            //}
-        });
+        addToolbarEventHandlers(el, pdfViewer, invoke, options);
     })
 
     eventBus.on("pagechanging", async evt => {
@@ -237,40 +233,12 @@ const addEventListener = (el, pdfViewer, eventBus, invoke, options) => {
         }
 
         if (options.triggerPageChanged === true) {
-            await invoke.invokeMethodAsync("pageChanged", page);
+            await invoke.invokeMethodAsync("PageChanged", page);
         }
     }, true);
 
-    const minus = el.querySelector(".bb-page-minus");
-    const plus = el.querySelector(".bb-page-plus");
-    const scaleEl = el.querySelector(".bb-view-scale-input");
 
-    eventBus.on("scalechanging", evt => {
-        const scale = evt.scale * 100;
-        scaleEl.value = `${Math.round(scale, 0)}%`;
-
-        if (scale === 25) {
-            minus.classList.add("disabled");
-        }
-        else if (scale === 500) {
-            plus.classList.add("disabled");
-        }
-        else {
-            minus.classList.remove("disabled");
-            plus.classList.remove("disabled");
-        }
-    })
-
-    EventHandler.on(minus, "click", e => updateScale(pdfViewer, e.target, -1));
-    EventHandler.on(plus, "click", e => updateScale(pdfViewer, e.target, 1));
-
-    const titleEl = el.querySelector(".bb-view-title");
-    if (titleEl) {
-        EventHandler.on(titleEl, "click", '.bb-view-bar', e => {
-            const thumbnailsEl = el.querySelector(".bb-view-thumbnails");
-            thumbnailsEl.classList.toggle("show");
-        });
-    }
+    eventBus.on("scalechanging", evt => updateScaleValue(el, evt.scale));
 
     eventBus.on("rotationchanging", evt => {
         const thumbnailsContainer = el.querySelector(".bb-view-thumbnails");
@@ -278,6 +246,114 @@ const addEventListener = (el, pdfViewer, eventBus, invoke, options) => {
             thumbnailsContainer.style.setProperty('--thumb-rotate', `${evt.pagesRotation}deg`);
         }
     })
+}
+
+const addToolbarEventHandlers = (el, pdfViewer, invoke, options) => {
+    const toolbar = el.querySelector(".bb-view-toolbar");
+
+    EventHandler.on(toolbar, "click", '.bb-view-bar', e => {
+        const thumbnailsEl = el.querySelector(".bb-view-thumbnails");
+        thumbnailsEl.classList.toggle("show");
+    });
+    EventHandler.on(toolbar, "change", '.bb-view-num', e => {
+        let pageNumber = parseInt(e.delegateTarget.value) || 1;
+        if (pageNumber < 1) {
+            pageNumber = 1;
+        }
+        if (pageNumber > pdfViewer.pagesCount) {
+            pageNumber = pdfViewer.pagesCount;
+        }
+        pdfViewer.currentPageNumber = pageNumber;
+    });
+    EventHandler.on(toolbar, "click", '.bb-page-minus', e => updateScale(pdfViewer, e.delegateTarget, -1));
+    EventHandler.on(toolbar, "click", '.bb-page-plus', e => updateScale(pdfViewer, e.delegateTarget, 1));
+    EventHandler.on(toolbar, 'click', '.bb-view-fit-width', e => {
+        const group = el.querySelector('.bb-view-group-rotate');
+        group.classList.remove('fit-height')
+        pdfViewer.currentScaleValue = 'page-width';
+    });
+    EventHandler.on(toolbar, 'click', '.bb-view-fit-height', e => {
+        const group = el.querySelector('.bb-view-group-rotate');
+        group.classList.add('fit-height')
+        pdfViewer.currentScaleValue = 'page-height';
+    });
+    EventHandler.on(toolbar, 'click', '.bb-view-page-actual', e => {
+        const group = el.querySelector('.bb-view-group-rotate');
+        group.classList.remove('fit-height')
+        pdfViewer.currentScaleValue = 'page-actual';
+    });
+    EventHandler.on(toolbar, 'change', '.bb-view-scale-input', e => {
+        let value = parseInt(e.delegateTarget.value);
+        if (value < 25) {
+            value = 25;
+        }
+        else if (value > 500) {
+            value = 500;
+        }
+        pdfViewer.currentScale = value / 100;
+    });
+    EventHandler.on(toolbar, 'focus', '.bb-view-scale-input, .bb-view-num', e => {
+        e.delegateTarget.select();
+    });
+    EventHandler.on(toolbar, 'click', '.bb-view-rotate-left', e => {
+        rotateView(pdfViewer, -90);
+    });
+    EventHandler.on(toolbar, 'click', '.bb-view-rotate-right', e => {
+        rotateView(pdfViewer, 90);
+    });
+    EventHandler.on(toolbar, "click", ".bb-view-print", async e => {
+        printPdf(options.url);
+        await invoke.invokeMethodAsync("Printing");
+    })
+    EventHandler.on(toolbar, "click", ".dropdown-item-pages", async e => {
+        e.delegateTarget.classList.toggle("active");
+
+        if (pdfViewer.spreadMode !== 1) {
+            pdfViewer.spreadMode = 1;
+        }
+        else {
+            pdfViewer.spreadMode = 0;
+        }
+    });
+    EventHandler.on(toolbar, "click", ".dropdown-item-presentation", async e => {
+        e.delegateTarget.classList.toggle("active");
+
+        //if (pdfViewer.isInPresentationMode) {
+        //    document.exitFullscreen();
+        //}
+        //else {
+        //    el.requestFullscreen();
+        //}
+    });
+}
+
+const resetToolbarView = (el, pdfViewer) => {
+    const scaleEl = el.querySelector(".bb-view-scale-input");
+    updateScaleValue(el, pdfViewer.currentScale);
+
+    const pageEl = el.querySelector(".bb-view-num");
+    pageEl.value = pdfViewer.currentPageNumber;
+
+    const group = el.querySelector('.bb-view-group-rotate');
+    if (group) {
+        if (pdfViewer.currentScaleValue === 'page-height') {
+            group.classList.add('fit-height');
+        }
+        else {
+            group.classList.remove('fit-height');
+        }
+    }
+
+    const twoPagesOneView = el.querySelector(".dropdown-item-pages");
+    if (pdfViewer.spreadMode === 1) {
+        twoPagesOneView.classList.add("active");
+    }
+    else {
+        twoPagesOneView.classList.remove("active");
+    }
+
+    delete el.widths
+    relayoutToolbar(el);
 }
 
 const resetThumbnailsView = (el, pdfViewer) => {
@@ -320,6 +396,26 @@ const resetThumbnailsView = (el, pdfViewer) => {
     });
 }
 
+const updateScaleValue = (el, value) => {
+    const minus = el.querySelector(".bb-page-minus");
+    const plus = el.querySelector(".bb-page-plus");
+    const scaleEl = el.querySelector(".bb-view-scale-input");
+
+    const scale = value * 100;
+    scaleEl.value = `${Math.round(scale, 0)}%`;
+
+    if (scale === 25) {
+        minus.classList.add("disabled");
+    }
+    else if (scale === 500) {
+        plus.classList.add("disabled");
+    }
+    else {
+        minus.classList.remove("disabled");
+        plus.classList.remove("disabled");
+    }
+}
+
 const updateScale = (pdfViewer, button, rate) => {
     if (button.classList.contains('disabled')) {
         return;
@@ -329,6 +425,10 @@ const updateScale = (pdfViewer, button, rate) => {
     const current = Math.round(parseFloat(scale * 100), 0);
     const step = [25, 33, 50, 67, 75, 80, 90, 100, 110, 125, 150, 175, 200, 250, 300, 400, 500];
     const findValues = step.filter(s => rate > 0 ? current < s : current > s);
+    if (findValues.length === 0) {
+        return;
+    }
+
     let v = 100;
     if (rate > 0) {
         v = findValues.shift();
@@ -369,10 +469,6 @@ const printPdf = url => {
     iframe.src = url;
 
     iframe.onload = () => {
-        iframe.contentWindow.addEventListener('afterprint', function () {
-            document.body.removeChild(iframe);
-        });
-
         iframe.contentWindow.focus();
         iframe.contentWindow.print();
     };
@@ -386,36 +482,25 @@ export function dispose(id) {
 
     if (observer) {
         observer.disconnect();
-        observer = null;
     }
 
     if (el) {
-        const minus = el.querySelector(".bb-page-minus");
-        const plus = el.querySelector(".bb-page-plus");
-        if (minus) {
-            EventHandler.off(minus, "click");
-        }
-        if (plus) {
-            EventHandler.off(plus, "click");
-        }
-
         const towPagesOneView = el.querySelector(".dropdown-item-pages");
         if (towPagesOneView) {
             EventHandler.off(towPagesOneView, "click");
         }
 
-        const titleEl = el.querySelector(".bb-view-title");
-        if (titleEl) {
-            EventHandler.off(titleEl, "click");
+        const toolbar = el.querySelector(".bb-view-toolbar");
+        if (toolbar) {
+            EventHandler.off(toolbar, "click");
+            EventHandler.off(toolbar, "change");
+            EventHandler.off(toolbar, "focus");
         }
 
         const thumbnailsContainer = el.querySelector(".bb-view-thumbnails");
         if (thumbnailsContainer) {
             EventHandler.off(thumbnailsContainer, "click");
         }
-
-        const controls = el.querySelector(".bb-view-controls");
-        EventHandler.off(controls, "click");
 
         const iframe = document.querySelector('.bb-view-print-iframe');
         if (iframe) {

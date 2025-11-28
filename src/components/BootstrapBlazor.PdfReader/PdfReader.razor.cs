@@ -4,7 +4,6 @@
 
 using Microsoft.AspNetCore.Components;
 using Microsoft.Extensions.Localization;
-using System.Globalization;
 
 namespace BootstrapBlazor.Components;
 
@@ -135,57 +134,13 @@ public partial class PdfReader
         .AddClassFromAttributes(AdditionalAttributes)
         .Build();
 
-    private string? ViewBodyString => CssBuilder.Default("bb-view-group bb-view-toolbar-main")
-        .AddClass("fit-width", FitMode == PdfReaderFitMode.PageHeight)
-        .Build();
-
     private string? _docTitle;
-    private PdfReaderFitMode _fitMode;
     private uint _currentPage;
     private string? _url;
-    private string? _currentScale;
     private string? _dropdownItemCheckIcon;
     private string? _dropdownItemDefaultIcon;
     private bool _enableThumbnails = true;
-
-    private string CurrentPageString
-    {
-        get => CurrentPage.ToString(CultureInfo.InvariantCulture);
-        set => SetCurrentPage(value);
-    }
-
-    private void SetCurrentPage(string value)
-    {
-        if (uint.TryParse(value, NumberStyles.Integer, CultureInfo.InvariantCulture, out var num))
-        {
-            CurrentPage = num;
-        }
-    }
-
-    private string CurrentScaleString
-    {
-        get => $"{CurrentScale ?? "100"}%";
-        set => SetCurrentScale(value);
-    }
-
-    private void SetCurrentScale(string value)
-    {
-        if (string.IsNullOrEmpty(value))
-        {
-            CurrentScale = "100";
-        }
-        else if (float.TryParse(value.TrimEnd("%"), out var v))
-        {
-            v = v switch
-            {
-                > 500 => 500,
-                < 25 => 25,
-                _ => v
-            };
-
-            CurrentScale = v.ToString(CultureInfo.InvariantCulture);
-        }
-    }
+    private bool _showToolbar = true;
 
     /// <summary>
     /// <inheritdoc/>
@@ -216,11 +171,10 @@ public partial class PdfReader
 
         if (firstRender)
         {
-            _fitMode = FitMode;
-            _currentPage = CurrentPage;
             _url = Url;
-            _currentScale = CurrentScale;
+            _currentPage = CurrentPage;
             _enableThumbnails = EnableThumbnails;
+            _showToolbar = ShowToolbar;
         }
 
         if (_url != Url)
@@ -228,21 +182,18 @@ public partial class PdfReader
             _url = Url;
             await InvokeInitAsync();
         }
-
-        if (_fitMode != FitMode)
-        {
-            _fitMode = FitMode;
-            await InvokeVoidAsync("setScaleValue", Id, _fitMode.ToDescriptionString());
-        }
         if (_currentPage != CurrentPage)
         {
             _currentPage = CurrentPage;
             await NavigateToPageAsync(_currentPage);
         }
-        if (_currentScale != CurrentScale)
+        if (_showToolbar != ShowToolbar)
         {
-            _currentScale = CurrentScale;
-            await InvokeVoidAsync("scale", Id, _currentScale);
+            _showToolbar = ShowToolbar;
+            if (_showToolbar)
+            {
+                await InvokeVoidAsync("resetToolbar", Id);
+            }
         }
         if (_enableThumbnails != EnableThumbnails)
         {
@@ -263,6 +214,7 @@ public partial class PdfReader
         Url,
         FitMode,
         EnableThumbnails,
+        CurrentPage,
         TriggerPagesInit = OnPagesInitAsync != null,
         TriggerPagesLoaded = OnPagesLoadedAsync != null,
         TriggerPageChanged = OnPageChangedAsync != null,
@@ -277,27 +229,21 @@ public partial class PdfReader
     public Task NavigateToPageAsync(uint pageNumber) => InvokeVoidAsync("navigateToPage", Id, pageNumber);
 
     /// <summary>
-    /// 适应页面宽度
+    /// 设置页面适配模式方法
     /// </summary>
-    public void SetFitMode(PdfReaderFitMode mode) => FitMode = mode;
+    public Task SetFitMode(PdfReaderFitMode mode) => InvokeVoidAsync("setScaleValue", Id, mode.ToDescriptionString());
 
     /// <summary>
     /// 旋转页面方法
     /// </summary>
     /// <returns></returns>
-    public async Task RotateLeft()
-    {
-        await InvokeVoidAsync("rotate", Id, -90);
-    }
+    public Task RotateLeft() => InvokeVoidAsync("rotate", Id, -90);
 
     /// <summary>
     /// 旋转页面方法
     /// </summary>
     /// <returns></returns>
-    public async Task RotateRight()
-    {
-        await InvokeVoidAsync("rotate", Id, 90);
-    }
+    public Task RotateRight() => InvokeVoidAsync("rotate", Id, 90);
 
     private async Task OnDownload()
     {
