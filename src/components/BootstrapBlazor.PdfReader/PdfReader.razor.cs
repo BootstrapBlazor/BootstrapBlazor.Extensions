@@ -137,10 +137,10 @@ public partial class PdfReader
     private string? _docTitle;
     private uint _currentPage;
     private string? _url;
-    private string? _currentScale;
     private string? _dropdownItemCheckIcon;
     private string? _dropdownItemDefaultIcon;
     private bool _enableThumbnails = true;
+    private bool _showToolbar = true;
 
     /// <summary>
     /// <inheritdoc/>
@@ -171,10 +171,10 @@ public partial class PdfReader
 
         if (firstRender)
         {
-            _currentPage = CurrentPage;
             _url = Url;
-            _currentScale = CurrentScale;
+            _currentPage = CurrentPage;
             _enableThumbnails = EnableThumbnails;
+            _showToolbar = ShowToolbar;
         }
 
         if (_url != Url)
@@ -187,10 +187,13 @@ public partial class PdfReader
             _currentPage = CurrentPage;
             await NavigateToPageAsync(_currentPage);
         }
-        if (_currentScale != CurrentScale)
+        if (_showToolbar != ShowToolbar)
         {
-            _currentScale = CurrentScale;
-            await InvokeVoidAsync("scale", Id, _currentScale);
+            _showToolbar = ShowToolbar;
+            if (_showToolbar)
+            {
+                await InvokeVoidAsync("resetToolbar", Id);
+            }
         }
         if (_enableThumbnails != EnableThumbnails)
         {

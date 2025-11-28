@@ -60,6 +60,13 @@ export function scale(id, scale) {
     }
 }
 
+export function resetToolbar(id) {
+    const { el, pdfViewer } = Data.get(id);
+    if (pdfViewer) {
+        resetToolbarView(el, pdfViewer);
+    }
+}
+
 export function resetThumbnails(id) {
     const { el, pdfViewer } = Data.get(id);
     if (pdfViewer) {
@@ -98,74 +105,79 @@ const loadPdf = async (el, invoke, options) => {
 }
 
 const setObserver = el => {
+    const observer = new ResizeObserver(entries => {
+        relayoutToolbar(el);
+    });
+
+    observer.observe(el);
+    return observer;
+}
+
+const relayoutToolbar = el => {
+    const toolbar = el.querySelector(".bb-view-toolbar");
+    if (toolbar === null) {
+        return;
+    }
+
     const title = el.querySelector(".bb-view-title");
     const subject = el.querySelector(".bb-view-subject");
+    if (subject === null) {
+        return;
+    }
+
     const groupPage = el.querySelector(".bb-view-group-page");
     const groupScale = el.querySelector(".bb-view-group-scale");
     const groupRotate = el.querySelector(".bb-view-group-rotate");
     const controls = el.querySelector(".bb-view-controls");
 
-    el.widths = [subject.offsetWidth, groupRotate.offsetWidth, groupScale.offsetWidth, groupPage.offsetWidth, controls.offsetWidth];
-
-    const increaseSpace = toolbar => {
-        if (controls.classList.contains('d-none')) {
-            if (title.offsetWidth + el.widths[4] + groupPage.offsetWidth + groupScale.offsetWidth + groupRotate.offsetWidth + controls.offsetWidth < toolbar.offsetWidth) {
-                controls.classList.remove("d-none");
-            }
-        }
-        else if (groupPage.classList.contains('d-none')) {
-            if (title.offsetWidth + el.widths[3] + groupPage.offsetWidth + groupScale.offsetWidth + groupRotate.offsetWidth + controls.offsetWidth < toolbar.offsetWidth) {
-                groupPage.classList.remove("d-none");
-            }
-        }
-        else if (groupScale.classList.contains('d-none')) {
-            if (title.offsetWidth + el.widths[2] + groupPage.offsetWidth + groupScale.offsetWidth + groupRotate.offsetWidth + controls.offsetWidth < toolbar.offsetWidth) {
-                groupScale.classList.remove("d-none");
-            }
-        }
-        else if (groupRotate.classList.contains('d-none')) {
-            if (title.offsetWidth + el.widths[1] + groupPage.offsetWidth + groupScale.offsetWidth + groupRotate.offsetWidth + controls.offsetWidth < toolbar.offsetWidth) {
-                groupRotate.classList.remove("d-none");
-            }
-        }
-        else if (subject.classList.contains("d-none")) {
-            if (title.offsetWidth + el.widths[0] + groupPage.offsetWidth + groupScale.offsetWidth + groupRotate.offsetWidth + controls.offsetWidth < toolbar.offsetWidth) {
-                subject.classList.remove("d-none");
-            }
-        }
+    if (el.widths === void 0) {
+        el.widths = [subject.offsetWidth, groupRotate.offsetWidth, groupScale.offsetWidth, groupPage.offsetWidth, controls.offsetWidth];
     }
-    const decreaseSpace = toolbar => {
-        while (title.offsetWidth + groupPage.offsetWidth + groupScale.offsetWidth + groupRotate.offsetWidth + controls.offsetWidth > toolbar.offsetWidth) {
-            if (subject.classList.contains("d-none") === false) {
-                subject.classList.add("d-none");
-            }
-            else if (groupRotate.classList.contains('d-none') === false) {
-                groupRotate.classList.add("d-none");
-            }
-            else if (groupScale.classList.contains('d-none') === false) {
-                groupScale.classList.add("d-none");
-            }
-            else if (groupPage.classList.contains('d-none') === false) {
-                groupPage.classList.add("d-none");
-            }
-            else if (controls.classList.contains('d-none') === false) {
-                controls.classList.add("d-none");
-            }
+
+    const getActualWidth = () => title.offsetWidth + groupPage.offsetWidth + groupScale.offsetWidth + groupRotate.offsetWidth + controls.offsetWidth;
+    while (getActualWidth() + 8 > toolbar.offsetWidth) {
+        if (subject.classList.contains("d-none") === false) {
+            subject.classList.add("d-none");
+        }
+        else if (groupRotate.classList.contains('d-none') === false) {
+            groupRotate.classList.add("d-none");
+        }
+        else if (groupScale.classList.contains('d-none') === false) {
+            groupScale.classList.add("d-none");
+        }
+        else if (groupPage.classList.contains('d-none') === false) {
+            groupPage.classList.add("d-none");
+        }
+        else if (controls.classList.contains('d-none') === false) {
+            controls.classList.add("d-none");
         }
     }
 
-    const observer = new ResizeObserver(entries => {
-        const toolbar = el.querySelector(".bb-view-toolbar");
-        if (toolbar === null) {
-            return;
+    if (controls.classList.contains('d-none')) {
+        if (getActualWidth() + el.widths[4] < toolbar.offsetWidth) {
+            controls.classList.remove("d-none");
         }
-
-        decreaseSpace(toolbar);
-        increaseSpace(toolbar);
-    });
-
-    observer.observe(el);
-    return observer;
+    }
+    else if (groupPage.classList.contains('d-none')) {
+        if (getActualWidth() + el.widths[3] < toolbar.offsetWidth) {
+            groupPage.classList.remove("d-none");
+        }
+    }
+    else if (groupScale.classList.contains('d-none')) {
+        if (getActualWidth() + el.widths[2] < toolbar.offsetWidth) {
+            groupScale.classList.remove("d-none");
+        }
+    }
+    else if (groupRotate.classList.contains('d-none')) {
+        if (getActualWidth() + el.widths[1] < toolbar.offsetWidth) {
+            groupRotate.classList.remove("d-none");
+        }
+    }
+    else if (subject.classList.contains("d-none")) {
+        if (getActualWidth() + el.widths[0] < toolbar.offsetWidth) {
+            subject.classList.remove("d-none");
+        }
+    }
 }
 
 const addEventBus = (el, pdfViewer, eventBus, invoke, options) => {
@@ -226,25 +238,7 @@ const addEventBus = (el, pdfViewer, eventBus, invoke, options) => {
     }, true);
 
 
-    eventBus.on("scalechanging", evt => {
-        const minus = el.querySelector(".bb-page-minus");
-        const plus = el.querySelector(".bb-page-plus");
-        const scaleEl = el.querySelector(".bb-view-scale-input");
-
-        const scale = evt.scale * 100;
-        scaleEl.value = `${Math.round(scale, 0)}%`;
-
-        if (scale === 25) {
-            minus.classList.add("disabled");
-        }
-        else if (scale === 500) {
-            plus.classList.add("disabled");
-        }
-        else {
-            minus.classList.remove("disabled");
-            plus.classList.remove("disabled");
-        }
-    })
+    eventBus.on("scalechanging", evt => updateScaleValue(el, evt.scale));
 
     eventBus.on("rotationchanging", evt => {
         const thumbnailsContainer = el.querySelector(".bb-view-thumbnails");
@@ -277,16 +271,16 @@ const addToolbarEventHandlers = (el, pdfViewer, invoke, options) => {
         const group = el.querySelector('.bb-view-group-rotate');
         group.classList.remove('fit-height')
         pdfViewer.currentScaleValue = 'page-width';
-  });
+    });
     EventHandler.on(toolbar, 'click', '.bb-view-fit-height', e => {
         const group = el.querySelector('.bb-view-group-rotate');
         group.classList.add('fit-height')
         pdfViewer.currentScaleValue = 'page-height';
-   });
+    });
     EventHandler.on(toolbar, 'click', '.bb-view-page-actual', e => {
         const group = el.querySelector('.bb-view-group-rotate');
         group.classList.remove('fit-height')
-       pdfViewer.currentScaleValue = 'page-actual';
+        pdfViewer.currentScaleValue = 'page-actual';
     });
     EventHandler.on(toolbar, 'change', '.bb-view-scale-input', e => {
         let value = parseInt(e.delegateTarget.value);
@@ -333,6 +327,27 @@ const addToolbarEventHandlers = (el, pdfViewer, invoke, options) => {
     });
 }
 
+const resetToolbarView = (el, pdfViewer) => {
+    const scaleEl = el.querySelector(".bb-view-scale-input");
+    updateScaleValue(el, pdfViewer.currentScale);
+
+    const pageEl = el.querySelector(".bb-view-num");
+    pageEl.value = pdfViewer.currentPageNumber;
+
+    const group = el.querySelector('.bb-view-group-rotate');
+    if (group) {
+        if (pdfViewer.currentScaleValue === 'page-height') {
+            group.classList.add('fit-height');
+        }
+        else {
+            group.classList.remove('fit-height');
+        }
+    }
+
+    delete el.widths
+    relayoutToolbar(el);
+}
+
 const resetThumbnailsView = (el, pdfViewer) => {
     const thumbnailsContainer = el.querySelector(".bb-view-thumbnails");
     pdfViewer.getPagesOverview().map(async (p, i) => {
@@ -371,6 +386,26 @@ const resetThumbnailsView = (el, pdfViewer) => {
         const index = parseInt(item.getAttribute("data-bb-page")) || 1;
         pdfViewer.currentPageNumber = index;
     });
+}
+
+const updateScaleValue = (el, value) => {
+    const minus = el.querySelector(".bb-page-minus");
+    const plus = el.querySelector(".bb-page-plus");
+    const scaleEl = el.querySelector(".bb-view-scale-input");
+
+    const scale = value * 100;
+    scaleEl.value = `${Math.round(scale, 0)}%`;
+
+    if (scale === 25) {
+        minus.classList.add("disabled");
+    }
+    else if (scale === 500) {
+        plus.classList.add("disabled");
+    }
+    else {
+        minus.classList.remove("disabled");
+        plus.classList.remove("disabled");
+    }
 }
 
 const updateScale = (pdfViewer, button, rate) => {
