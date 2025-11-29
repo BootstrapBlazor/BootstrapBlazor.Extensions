@@ -12,6 +12,7 @@
     "Print": "打印",
     "TwoPageView": "双页视图",
     "PresentationMode": "演示模式",
-    "DocumentProperty": "文档属性"
+    "DocumentProperty": "文档属性",
+    "CloseButtonText": "关闭"
   }
 }

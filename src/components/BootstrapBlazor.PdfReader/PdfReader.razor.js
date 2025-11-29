@@ -5,7 +5,7 @@ import Data from '../BootstrapBlazor/modules/data.js';
 import EventHandler from '../BootstrapBlazor/modules/event-handler.js';
 
 if (pdfjsLib != null) {
-    pdfjsLib.GlobalWorkerOptions.workerSrc = './pdf.worker.min.mjs';
+    pdfjsLib.GlobalWorkerOptions.workerSrc = '/_content/BootstrapBlazor.PdfReader/lib/pdf.worker.min.mjs';
 }
 
 export async function init(id, invoke, options) {
@@ -101,7 +101,118 @@ const loadPdf = async (el, invoke, options) => {
     const pdfDocument = await loadingTask.promise;
     pdfViewer.setDocument(pdfDocument);
 
+    pdfDocument.getMetadata().then(metadata => {
+        loadMetadata(el, pdfViewer, metadata);
+    });
+
     return pdfViewer;
+}
+
+const loadMetadata = (el, pdfViewer, metadata) => {
+    console.log(metadata);
+
+    const filename = el.querySelector('.bb-view-pdf-dialog-filename');
+    const docTitle = el.querySelector('.bb-view-subject');
+    filename.textContent = docTitle.textContent;
+
+    const filesize = el.querySelector('.bb-view-pdf-dialog-filesize');
+    filesize.textContent = getFilesize(metadata);
+
+    const title = el.querySelector('.bb-view-pdf-dialog-title');
+    const author = el.querySelector('.bb-view-pdf-dialog-author');
+    const subject = el.querySelector('.bb-view-pdf-dialog-subject');
+    const keywords = el.querySelector('.bb-view-pdf-dialog-keywords');
+    const created = el.querySelector('.bb-view-pdf-dialog-created');
+    created.textContent = parsePdfDate(metadata.info.CreationDate)?.toLocaleString();
+
+    const modified = el.querySelector('.bb-view-pdf-dialog-modified');
+
+    const application = el.querySelector('.bb-view-pdf-dialog-application');
+    application.textContent = metadata.info.Creator;
+
+    const producer = el.querySelector('.bb-view-pdf-dialog-producer');
+    producer.textContent = metadata.info.Producer;
+
+    const version = el.querySelector('.bb-view-pdf-dialog-version');
+    version.textContent = metadata.info.PDFFormatVersion;
+
+    const count = el.querySelector('.bb-view-pdf-dialog-count');
+    count.textContent = pdfViewer.pagesCount;
+
+    const size = el.querySelector('.bb-view-pdf-dialog-size');
+    pdfViewer.pdfDocument.getPage(pdfViewer.currentPageNumber).then(page => {
+        const viewport = page.getViewport({ scale: 1 });
+        size.textContent = `${(viewport.width / 72).toFixed(2)} * ${(viewport.height / 72).toFixed(2)} in (portrait)`;
+    });
+
+    const webview = el.querySelector('.bb-view-pdf-dialog-webview');
+}
+
+function parsePdfDate(pdfDateString) {
+    if (!pdfDateString || typeof pdfDateString !== 'string') {
+        return null;
+    }
+
+    let dateStr = pdfDateString.startsWith('D:') ? pdfDateString.substring(2) : pdfDateString;
+
+    const pdfDateRegex = /^(\d{4})(\d{2})(\d{2})(\d{2})(\d{2})(\d{2})([Zz+-])(\d{2})'?(\d{2})'?$/;
+    const match = dateStr.match(pdfDateRegex);
+
+    if (!match) {
+        return null;
+    }
+
+    const [, year, month, day, hours, minutes, seconds, timezoneSign, timezoneHours, timezoneMinutes] = match;
+
+    const date = new Date(
+        parseInt(year),
+        parseInt(month) - 1,
+        parseInt(day),
+        parseInt(hours),
+        parseInt(minutes),
+        parseInt(seconds)
+    );
+
+    if (timezoneSign === 'Z' || timezoneSign === 'z') {
+        const utcTime = Date.UTC(
+            parseInt(year),
+            parseInt(month) - 1,
+            parseInt(day),
+            parseInt(hours),
+            parseInt(minutes),
+            parseInt(seconds)
+        );
+        date.setTime(utcTime);
+    }
+    else if (timezoneSign === '+' || timezoneSign === '-') {
+        const offsetHours = parseInt(timezoneHours);
+        const offsetMinutes = parseInt(timezoneMinutes || 0);
+        const totalOffsetMinutes = offsetHours * 60 + offsetMinutes;
+
+        if (timezoneSign === '+') {
+            date.setMinutes(date.getMinutes() - totalOffsetMinutes);
+        }
+        else {
+            date.setMinutes(date.getMinutes() + totalOffsetMinutes);
+        }
+    }
+    return date;
+}
+
+const getFilesize = metadata => {
+    const length = metadata.contentLength;
+    if (length < 1024) {
+        return `${Math.round(length)}B`;
+    }
+    else if (length < 1024 * 1024) {
+        return `${Math.round(length / 1024)}KB`;
+    }
+    else if (length < 1024 * 1024 * 1024) {
+        return `${length / 1024 / 1024}MB`;
+    }
+    else if (length < 1024 * 1024 * 1024 * 1024) {
+        return `${length / 1024 / 1024 / 1024}GB`;
+    }
 }
 
 const setObserver = el => {
@@ -325,6 +436,20 @@ const addToolbarEventHandlers = (el, pdfViewer, invoke, options) => {
         //    el.requestFullscreen();
         //}
     });
+    EventHandler.on(toolbar, "click", ".dropdown-item-doc", e => {
+        const dialog = el.querySelector(".bb-view-pdf-info");
+        if (dialog) {
+            dialog.classList.add("show");
+        }
+    });
+
+    const closeButton = el.querySelector(".btn-close-doc");
+    EventHandler.on(closeButton, 'click', e => {
+        const dialog = el.querySelector(".bb-view-pdf-info");
+        if (dialog) {
+            dialog.classList.remove("show");
+        }
+    });
 }
 
 const resetToolbarView = (el, pdfViewer) => {
@@ -402,7 +527,7 @@ const updateScaleValue = (el, value) => {
     const scaleEl = el.querySelector(".bb-view-scale-input");
 
     const scale = value * 100;
-    scaleEl.value = `${Math.round(scale, 0)}%`;
+    scaleEl.value = `${Math.round(scale)}%`;
 
     if (scale === 25) {
         minus.classList.add("disabled");
@@ -422,7 +547,7 @@ const updateScale = (pdfViewer, button, rate) => {
     }
 
     const scale = pdfViewer.currentScale;
-    const current = Math.round(parseFloat(scale * 100), 0);
+    const current = Math.round(parseFloat(scale * 100));
     const step = [25, 33, 50, 67, 75, 80, 90, 100, 110, 125, 150, 175, 200, 250, 300, 400, 500];
     const findValues = step.filter(s => rate > 0 ? current < s : current > s);
     if (findValues.length === 0) {
@@ -462,7 +587,7 @@ const printPdf = url => {
     }
 
     iframe = document.createElement("iframe");
-    iframe.classList = "bb-view-print-iframe";
+    iframe.classList.add("bb-view-print-iframe");
     iframe.style.position = "fixed";
     iframe.style.right = "100%";
     iframe.style.bottom = "100%";
@@ -505,6 +630,11 @@ export function dispose(id) {
         const iframe = document.querySelector('.bb-view-print-iframe');
         if (iframe) {
             iframe.remove();
+        }
+
+        const closeButton = el.querySelector(".btn-close-doc");
+        if (closeButton) {
+            EventHandler.off(closeButton, "click");
         }
     }
 }
