@@ -13,6 +13,21 @@
     "TwoPageView": "Two pages on view",
     "PresentationMode": "Presentation mode",
     "DocumentProperty": "Document properties",
-    "CloseButtonText": "Close"
+    "CloseButtonText": "Close",
+    "DocumentProperties": "Document properties",
+    "DocumentFileName": "File name:",
+    "DocumentFileSize": "File size:",
+    "DocumentTitle": "Title:",
+    "DocumentAuthor": "Author:",
+    "DocumentSubject": "Subject:",
+    "DocumentKeywords": "Keywords:",
+    "DocumentCreationDate": "Created:",
+    "DocumentModificationDate": "Modified:",
+    "DocumentApplication": "Application:",
+    "DocumentProducer": "PDF producer:",
+    "DocumentVersion": "PDF version:",
+    "DocumentPageCount": "Page count:",
+    "DocumentPageSize": "Page size:",
+    "DocumentFastWebView": "Fast web view:"
   }
 }
