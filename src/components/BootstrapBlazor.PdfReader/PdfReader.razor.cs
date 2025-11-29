@@ -141,6 +141,7 @@ public partial class PdfReader
     private string? _dropdownItemDefaultIcon;
     private bool _enableThumbnails = true;
     private bool _showToolbar = true;
+    private PdfReaderFitMode _fitMode;
 
     /// <summary>
     /// <inheritdoc/>
@@ -175,6 +176,7 @@ public partial class PdfReader
             _currentPage = CurrentPage;
             _enableThumbnails = EnableThumbnails;
             _showToolbar = ShowToolbar;
+            _fitMode = FitMode;
         }
 
         if (_url != Url)
@@ -202,6 +204,11 @@ public partial class PdfReader
             {
                 await InvokeVoidAsync("resetThumbnails", Id);
             }
+        }
+        if (_fitMode != FitMode)
+        {
+            _fitMode = FitMode;
+            await SetFitMode(_fitMode);
         }
     }
 
