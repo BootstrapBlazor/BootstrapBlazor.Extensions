@@ -141,7 +141,7 @@ const loadMetadata = (el, pdfViewer, metadata) => {
 
     const size = el.querySelector('.bb-view-pdf-dialog-size');
     pdfViewer.pdfDocument.getPage(pdfViewer.currentPageNumber).then(page => {
-        const viewport = page.getViewport({scale: 1});
+        const viewport = page.getViewport({ scale: 1 });
         size.textContent = `${(viewport.width / 72).toFixed(2)} * ${(viewport.height / 72).toFixed(2)} in (portrait)`;
     });
 
@@ -162,7 +162,7 @@ function parsePdfDate(pdfDateString) {
         return null;
     }
 
-    const [, year, month, day, hours, minutes, seconds, timezoneSign, timezoneHours, timezoneMinutes ] = match;
+    const [, year, month, day, hours, minutes, seconds, timezoneSign, timezoneHours, timezoneMinutes] = match;
 
     const date = new Date(
         parseInt(year),
@@ -435,6 +435,12 @@ const addToolbarEventHandlers = (el, pdfViewer, invoke, options) => {
         //else {
         //    el.requestFullscreen();
         //}
+    });
+    EventHandler.on(toolbar, "click", ".dropdown-item-doc", e => {
+        const dialog = el.querySelector(".bb-view-pdf-info");
+        if (dialog) {
+            dialog.classList.add("show");
+        }
     });
 }
 

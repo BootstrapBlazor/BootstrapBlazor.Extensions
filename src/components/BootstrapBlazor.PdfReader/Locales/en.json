@@ -12,6 +12,7 @@
     "Print": "Print",
     "TwoPageView": "Two pages on view",
     "PresentationMode": "Presentation mode",
-    "DocumentProperty": "Document properties"
+    "DocumentProperty": "Document properties",
+    "CloseButtonText": "Close"
   }
 }
