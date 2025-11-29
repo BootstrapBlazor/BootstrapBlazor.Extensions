@@ -349,7 +349,13 @@ const addEventBus = (el, pdfViewer, eventBus, invoke, options) => {
     }, true);
 
 
-    eventBus.on("scalechanging", evt => updateScaleValue(el, evt.scale));
+    eventBus.on("scalechanging", async evt => {
+        updateScaleValue(el, evt.scale);
+
+        if (options.triggerScaleChanged) {
+            await invoke.invokeMethodAsync("ScaleChanged", evt.scale);
+        }
+    })
 
     eventBus.on("rotationchanging", evt => {
         const thumbnailsContainer = el.querySelector(".bb-view-thumbnails");

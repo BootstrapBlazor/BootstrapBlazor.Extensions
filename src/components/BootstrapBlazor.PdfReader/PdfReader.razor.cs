@@ -104,6 +104,12 @@ public partial class PdfReader
     public Func<bool, Task>? OnTwoPagesOneViewAsync { get; set; }
 
     /// <summary>
+    /// 设置缩放倍率回调方法
+    /// </summary>
+    [Parameter]
+    public Func<float, Task>? OnScaleChangedAsync { get; set; }
+
+    /// <summary>
     /// 获得/设置 更多按钮图标 默认为 null 使用内置图标
     /// </summary>
     [Parameter]
@@ -225,7 +231,8 @@ public partial class PdfReader
         TriggerPagesInit = OnPagesInitAsync != null,
         TriggerPagesLoaded = OnPagesLoadedAsync != null,
         TriggerPageChanged = OnPageChangedAsync != null,
-        TriggerTowPagesOnViewChanged = OnTwoPagesOneViewAsync != null
+        TriggerTowPagesOnViewChanged = OnTwoPagesOneViewAsync != null,
+        TriggerScaleChanged = OnScaleChangedAsync != null
     });
 
     /// <summary>
@@ -299,6 +306,19 @@ public partial class PdfReader
         if (OnPageChangedAsync != null)
         {
             await OnPageChangedAsync(pageIndex);
+        }
+    }
+
+    /// <summary>
+    /// 缩放倍率更改回调方法
+    /// </summary>
+    /// <returns></returns>
+    [JSInvokable]
+    public async Task ScaleChanged(float val)
+    {
+        if (OnScaleChangedAsync != null)
+        {
+            await OnScaleChangedAsync(val);
         }
     }
 
