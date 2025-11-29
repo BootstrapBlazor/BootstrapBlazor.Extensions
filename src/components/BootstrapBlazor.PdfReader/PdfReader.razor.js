@@ -442,6 +442,14 @@ const addToolbarEventHandlers = (el, pdfViewer, invoke, options) => {
             dialog.classList.add("show");
         }
     });
+
+    const closeButton = el.querySelector(".btn-close-doc");
+    EventHandler.on(closeButton, 'click', e => {
+        const dialog = el.querySelector(".bb-view-pdf-info");
+        if (dialog) {
+            dialog.classList.remove("show");
+        }
+    });
 }
 
 const resetToolbarView = (el, pdfViewer) => {
@@ -622,6 +630,11 @@ export function dispose(id) {
         const iframe = document.querySelector('.bb-view-print-iframe');
         if (iframe) {
             iframe.remove();
+        }
+
+        const closeButton = el.querySelector(".btn-close-doc");
+        if (closeButton) {
+            EventHandler.off(closeButton, "click");
         }
     }
 }
