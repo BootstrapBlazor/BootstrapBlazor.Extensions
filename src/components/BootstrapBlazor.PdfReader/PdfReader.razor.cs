@@ -56,10 +56,10 @@ public partial class PdfReader
     public uint CurrentPage { get; set; }
 
     /// <summary>
-    /// 获得/设置 当前缩放倍率 默认 null 使用 100%
+    /// 获得/设置 当前旋转角度 默认 0 数值范围 0 90 180 270
     /// </summary>
     [Parameter]
-    public string? CurrentScale { get; set; }
+    public int CurrentRotation { get; set; }
 
     /// <summary>
     /// 获得/设置 是否适配当前页面宽度 默认 false
@@ -110,6 +110,12 @@ public partial class PdfReader
     public Func<float, Task>? OnScaleChangedAsync { get; set; }
 
     /// <summary>
+    /// 页面旋转回调方法
+    /// </summary>
+    [Parameter]
+    public Func<int, Task>? OnRotationChanged { get; set; }
+
+    /// <summary>
     /// 获得/设置 更多按钮图标 默认为 null 使用内置图标
     /// </summary>
     [Parameter]
@@ -142,6 +148,7 @@ public partial class PdfReader
 
     private string? _docTitle;
     private uint _currentPage;
+    private float _currentRotation;
     private string? _url;
     private string? _dropdownItemCheckIcon;
     private string? _dropdownItemDefaultIcon;
@@ -195,6 +202,11 @@ public partial class PdfReader
             _currentPage = CurrentPage;
             await NavigateToPageAsync(_currentPage);
         }
+        if (_currentRotation != CurrentRotation)
+        {
+            _currentRotation = CurrentRotation;
+            await InvokeVoidAsync("rotate", Id, _currentRotation);
+        }
         if (_showToolbar != ShowToolbar)
         {
             _showToolbar = ShowToolbar;
@@ -232,7 +244,8 @@ public partial class PdfReader
         TriggerPagesLoaded = OnPagesLoadedAsync != null,
         TriggerPageChanged = OnPageChangedAsync != null,
         TriggerTowPagesOnViewChanged = OnTwoPagesOneViewAsync != null,
-        TriggerScaleChanged = OnScaleChangedAsync != null
+        TriggerScaleChanged = OnScaleChangedAsync != null,
+        TriggerRotationChanged = OnRotationChanged != null,
     });
 
     /// <summary>
@@ -332,6 +345,20 @@ public partial class PdfReader
         if (OnPrintingAsync != null)
         {
             await OnPrintingAsync();
+        }
+    }
+
+    /// <summary>
+    /// 页面旋转回调方法
+    /// </summary>
+    /// <param name="angle"></param>
+    /// <returns></returns>
+    [JSInvokable]
+    public async Task RotationChanged(int angle)
+    {
+        if (OnRotationChanged != null)
+        {
+            await OnRotationChanged(angle);
         }
     }
 }
