@@ -357,10 +357,14 @@ const addEventBus = (el, pdfViewer, eventBus, invoke, options) => {
         }
     })
 
-    eventBus.on("rotationchanging", evt => {
+    eventBus.on("rotationchanging", async evt => {
         const thumbnailsContainer = el.querySelector(".bb-view-thumbnails");
         if (thumbnailsContainer) {
             thumbnailsContainer.style.setProperty('--thumb-rotate', `${evt.pagesRotation}deg`);
+        }
+
+        if (options.triggerRotationChanged) {
+            await invoke.invokeMethodAsync("RotationChanged", evt.pagesRotation);
         }
     })
 }
