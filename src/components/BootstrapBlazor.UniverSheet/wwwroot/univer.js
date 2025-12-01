@@ -1,4 +1,4 @@
-﻿import { addScript, addLink } from '../BootstrapBlazor/modules/utility.js'
+import { addScript, addLink } from '../BootstrapBlazor/modules/utility.js'
 import DataService from './data-service.js'
 
 const loadAssets = async lang => {
@@ -60,7 +60,7 @@ export async function createUniverSheetAsync(sheet) {
         DefaultPlugin: '_content/BootstrapBlazor.UniverSheet/plugin.js'
     };
     for (const name in plugins) {
-        const module = await import(`../../../${plugins[name]}`);
+        const module = await import(`../../${plugins[name]}`);
         const plugin = module[name];
         options.plugins.push(plugin);
     }
