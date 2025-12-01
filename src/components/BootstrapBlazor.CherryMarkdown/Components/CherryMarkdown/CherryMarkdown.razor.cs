@@ -121,7 +121,7 @@ public partial class CherryMarkdown
     /// </summary>
     /// <param name="uploadFile"></param>
     [JSInvokable]
-    public async Task<string> Upload(CherryMarkdownUploadFile uploadFile, CancellationToken token = default)
+    public async Task<string> Upload(CherryMarkdownUploadFile uploadFile)
     {
         var ret = "";
         if (Module != null)
@@ -129,7 +129,7 @@ public partial class CherryMarkdown
             var stream = await InvokeAsync<IJSStreamReference>("fetch", Id);
             if (stream != null)
             {
-                using var data = await stream.OpenReadStreamAsync(stream.Length, token);
+                using var data = await stream.OpenReadStreamAsync(stream.Length);
                 uploadFile.UploadStream = data;
                 if (OnFileUpload != null)
                 {
