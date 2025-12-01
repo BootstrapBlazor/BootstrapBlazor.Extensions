@@ -22,7 +22,10 @@
   </PropertyGroup>
 
   <PropertyGroup>
-    <BBVersion>10.*</BBVersion>
+    <BBVersion>10.0.0</BBVersion>
+  </PropertyGroup>
+
+  <PropertyGroup>
     <NET6Version>6.0.*</NET6Version>
     <NET7Version>7.0.*</NET7Version>
     <NET8Version>8.0.*</NET8Version>
