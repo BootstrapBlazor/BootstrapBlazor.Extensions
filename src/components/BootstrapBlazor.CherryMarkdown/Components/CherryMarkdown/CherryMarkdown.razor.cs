@@ -1,4 +1,4 @@
-// Copyright (c) Argo Zhang (argo@163.com). All rights reserved.
+// Copyright (c) BootstrapBlazor & Argo Zhang (argo@live.ca). All rights reserved.
 // Licensed under the Apache License, Version 2.0. See License.txt in the project root for license information.
 // Website: https://www.blazor.zone or https://argozhang.github.io/
 
@@ -129,7 +129,7 @@ public partial class CherryMarkdown
             var stream = await InvokeAsync<IJSStreamReference>("fetch", Id);
             if (stream != null)
             {
-                using var data = await stream.OpenReadStreamAsync();
+                using var data = await stream.OpenReadStreamAsync(stream.Length);
                 uploadFile.UploadStream = data;
                 if (OnFileUpload != null)
                 {
