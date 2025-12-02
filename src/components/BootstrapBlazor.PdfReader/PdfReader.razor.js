@@ -226,7 +226,7 @@ const setObserver = el => {
 
 const relayoutToolbar = el => {
     const toolbar = el.querySelector(".bb-view-toolbar");
-    if (toolbar === null) {
+    if (toolbar === null || toolbar.offsetWidth === 0) {
         return;
     }
 
