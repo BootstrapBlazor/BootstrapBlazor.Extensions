@@ -13,7 +13,7 @@
                 }
                 <span class="bb-view-subject">@_docTitle</span>
             </div>
-            <div class="bb-view-group bb-view-toolbar-main">
+            <div class="bb-view-group bb-view-toolbar-main invisible">
                 <div class="bb-view-group bb-view-group-page">
                     <input type="text" class="bb-view-num" value="1" /><span class="bb-view-slash">/</span>
                     <div class="bb-view-pagesCount"></div>
@@ -42,7 +42,7 @@
                     <div class="bb-view-icon bb-view-rotate-right" title="@Localizer["RotateRight"]"><i class="fa-solid fa-fw fa-rotate-right"></i></div>
                 </div>
             </div>
-            <div class="bb-view-group bb-view-controls">
+            <div class="bb-view-group bb-view-controls invisible">
                 @if (ShowDownload)
                 {
                     <div class="bb-view-icon bb-view-download" title="@Localizer["Download"]" @onclick="OnDownload"><i class="fa-solid fa-fw fa-arrow-right-to-bracket fa-rotate-90"></i></div>
@@ -98,7 +98,7 @@
             </div>
         </div>
     </div>
-    <div class="bb-view-pdf-info">
+    <div class="bb-view-pdf-info invisible">
         <div class="bb-view-pdf-backdrop"></div>
         <div class="bb-view-pdf-dialog">
             <div class="bb-view-pdf-dialog-title mb-3">@Localizer["DocumentProperties"]</div>
