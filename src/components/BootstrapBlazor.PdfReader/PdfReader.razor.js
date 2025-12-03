@@ -371,6 +371,9 @@ const addEventBus = (el, pdfViewer, eventBus, invoke, options) => {
 
 const addToolbarEventHandlers = (el, pdfViewer, invoke, options) => {
     const toolbar = el.querySelector(".bb-view-toolbar");
+    [...el.querySelectorAll('.invisible')].forEach(i => {
+        i.classList.remove('invisible');
+    });
 
     EventHandler.on(toolbar, "click", '.bb-view-bar', e => {
         const thumbnailsEl = el.querySelector(".bb-view-thumbnails");
