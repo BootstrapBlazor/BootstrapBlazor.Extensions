@@ -1,3 +1,5 @@
+@import url('pdf_viewer.css');
+
 .bb-pdf-reader {
     --bb-pdf-view-height: 600px;
     --bb-pdf-toolbar-height: 60px;
@@ -163,20 +165,20 @@
         flex-basis: 300px;
     }
 
-::deep .bb-view-thumbnail-item {
+.bb-view-thumbnail-item {
     display: block;
     text-align: center;
 }
 
-    ::deep .bb-view-thumbnail-item:not(:last-child) {
+    .bb-view-thumbnail-item:not(:last-child) {
         margin-block-end: 1rem;
     }
 
-    ::deep .bb-view-thumbnail-item.active img {
+    .bb-view-thumbnail-item.active img {
         border: 2px solid #0d6efd;
     }
 
-    ::deep .bb-view-thumbnail-item img {
+    .bb-view-thumbnail-item img {
         width: 128px;
         padding: 1px;
         cursor: pointer;
@@ -185,13 +187,13 @@
         margin: 0 auto;
     }
 
-    ::deep .bb-view-thumbnail-item .bb-view-thumbnail-group {
+    .bb-view-thumbnail-item .bb-view-thumbnail-group {
         display: flex;
         flex-direction: column;
         justify-content: center;
     }
 
-        ::deep .bb-view-thumbnail-item .bb-view-thumbnail-group label {
+        .bb-view-thumbnail-item .bb-view-thumbnail-group label {
             color: #fff;
         }
 

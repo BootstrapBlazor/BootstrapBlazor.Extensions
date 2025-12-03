@@ -9,7 +9,7 @@ if (pdfjsLib != null) {
 }
 
 export async function init(id, invoke, options) {
-    await addLink('./_content/BootstrapBlazor.PdfReader/css/pdf_viewer.css');
+    await addLink('./_content/BootstrapBlazor.PdfReader/css/pdf_reader.css');
 
     const el = document.getElementById(id);
     if (el === null) {
