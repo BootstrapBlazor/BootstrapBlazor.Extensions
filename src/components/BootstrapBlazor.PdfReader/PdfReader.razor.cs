@@ -122,12 +122,6 @@ public partial class PdfReader
     public string? MoreButtonIcon { get; set; }
 
     /// <summary>
-    /// 点击下载按钮回调方法 默认 null
-    /// </summary>
-    [Parameter]
-    public Func<Task>? OnDownloadAsync { get; set; }
-
-    /// <summary>
     /// 正在打印回调方法 默认 null
     /// </summary>
     [Parameter]
@@ -271,14 +265,6 @@ public partial class PdfReader
     /// </summary>
     /// <returns></returns>
     public Task RotateRight() => InvokeVoidAsync("rotate", Id, 90);
-
-    private async Task OnDownload()
-    {
-        if (OnDownloadAsync != null)
-        {
-            await OnDownloadAsync();
-        }
-    }
 
     /// <summary>
     /// 页面开始初始化时回调方法
