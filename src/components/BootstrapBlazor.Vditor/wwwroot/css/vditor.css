@@ -1,14 +1,14 @@
 @import url('index.css');
 
-.bb-vditor {
+.bb-vditor .vditor {
     border-radius: var(--bs-border-radius);
     overflow: hidden;
 }
 
-.bb-vditor.is-invalid {
+.bb-vditor.is-invalid .vditor {
     border-color: var(--bs-danger);
 }
 
-.bb-vditor.is-valid {
+.bb-vditor.is-valid .vditor {
     border-color: var(--bs-success);
 }
