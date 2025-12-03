@@ -43,6 +43,7 @@
     <Project Path="src/components/BootstrapBlazor.FontAwesome/BootstrapBlazor.FontAwesome.csproj" />
     <Project Path="src/components/BootstrapBlazor.Gantt/BootstrapBlazor.Gantt.csproj" />
     <Project Path="src/components/BootstrapBlazor.Graph/BootstrapBlazor.Graph.csproj" />
+    <Project Path="src/components/BootstrapBlazor.HikVision/BootstrapBlazor.HikVision.csproj" Id="62fa4e31-4a04-4c99-9074-3ea0c037e244" />
     <Project Path="src/components/BootstrapBlazor.Holiday/BootstrapBlazor.Holiday.csproj" />
     <Project Path="src/components/BootstrapBlazor.Html2Image/BootstrapBlazor.Html2Image.csproj" />
     <Project Path="src/components/BootstrapBlazor.Html2Pdf.Playwright/BootstrapBlazor.Html2Pdf.Playwright.csproj" />
