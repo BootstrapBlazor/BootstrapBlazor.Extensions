@@ -437,6 +437,17 @@ const addToolbarEventHandlers = (el, pdfViewer, invoke, options) => {
             pdfViewer.spreadMode = 0;
         }
     });
+    EventHandler.on(toolbar, "click", ".bb-view-download", e => {
+        if (options.url) {
+            const docTitle = el.querySelector('.bb-view-subject');
+            const anchorElement = document.createElement('a');
+            anchorElement.href = options.url;
+            anchorElement.download = docTitle.textContent;
+            anchorElement.click();
+            anchorElement.remove();
+        }
+    });
+
     EventHandler.on(toolbar, "click", ".dropdown-item-presentation", async e => {
         e.delegateTarget.classList.toggle("active");
 
