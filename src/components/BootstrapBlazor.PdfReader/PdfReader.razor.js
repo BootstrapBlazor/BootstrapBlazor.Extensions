@@ -109,8 +109,6 @@ const loadPdf = async (el, invoke, options) => {
 }
 
 const loadMetadata = (el, pdfViewer, metadata) => {
-    console.log(metadata);
-
     const filename = el.querySelector('.bb-view-pdf-dialog-filename');
     const docTitle = el.querySelector('.bb-view-subject');
     filename.textContent = docTitle.textContent;
