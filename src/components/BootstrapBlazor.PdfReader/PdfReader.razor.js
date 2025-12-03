@@ -9,7 +9,7 @@ if (pdfjsLib != null) {
 }
 
 export async function init(id, invoke, options) {
-    await addLink('./_content/BootstrapBlazor.PdfReader/css/pdf_viewer.css');
+    await addLink('./_content/BootstrapBlazor.PdfReader/css/pdf_reader.css');
 
     const el = document.getElementById(id);
     if (el === null) {
@@ -109,8 +109,6 @@ const loadPdf = async (el, invoke, options) => {
 }
 
 const loadMetadata = (el, pdfViewer, metadata) => {
-    console.log(metadata);
-
     const filename = el.querySelector('.bb-view-pdf-dialog-filename');
     const docTitle = el.querySelector('.bb-view-subject');
     filename.textContent = docTitle.textContent;
@@ -371,6 +369,9 @@ const addEventBus = (el, pdfViewer, eventBus, invoke, options) => {
 
 const addToolbarEventHandlers = (el, pdfViewer, invoke, options) => {
     const toolbar = el.querySelector(".bb-view-toolbar");
+    [...el.querySelectorAll('.invisible')].forEach(i => {
+        i.classList.remove('invisible');
+    });
 
     EventHandler.on(toolbar, "click", '.bb-view-bar', e => {
         const thumbnailsEl = el.querySelector(".bb-view-thumbnails");
@@ -436,6 +437,17 @@ const addToolbarEventHandlers = (el, pdfViewer, invoke, options) => {
             pdfViewer.spreadMode = 0;
         }
     });
+    EventHandler.on(toolbar, "click", ".bb-view-download", e => {
+        if (options.url) {
+            const docTitle = el.querySelector('.bb-view-subject');
+            const anchorElement = document.createElement('a');
+            anchorElement.href = options.url;
+            anchorElement.download = docTitle.textContent;
+            anchorElement.click();
+            anchorElement.remove();
+        }
+    });
+
     EventHandler.on(toolbar, "click", ".dropdown-item-presentation", async e => {
         e.delegateTarget.classList.toggle("active");
 
