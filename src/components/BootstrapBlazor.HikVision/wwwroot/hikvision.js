@@ -237,6 +237,10 @@ export function stopRealPlay(id) {
 }
 
 export function dispose(id) {
+    stopRealPlay(id);
+    logout(id);
+    WebVideoCtrl.I_DestroyPlugin();
+
     Data.remove(id);
 }
 
