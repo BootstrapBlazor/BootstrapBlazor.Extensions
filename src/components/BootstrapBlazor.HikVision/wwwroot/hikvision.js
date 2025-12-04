@@ -1,114 +1,249 @@
 import { addScript } from '../BootstrapBlazor/modules/utility.js';
+import Data from '../BootstrapBlazor/modules/data.js';
 
-export async function login(ip, port, userName, password, loginType) {
+export async function init(id) {
     await addScript('./_content/BootstrapBlazor.HikVision/jsVideoPlugin-1.0.0.min.js');
     await addScript('./_content/BootstrapBlazor.HikVision/webVideoCtrl.js');
 
-    await init_video_plugin();
+    const el = document.getElementById(id);
+    if (el === null) {
+        return;
+    }
 
-    //var szDeviceIdentify = `${ip}_ ${port}`;
+    const result = await initWindow(id);
+    if (result.inited === false) {
+        return;
+    }
 
-    WebVideoCtrl.I_Login(ip, loginType, port, userName, password, {
-        timeout: 3000,
-        success: function (xmlDoc) {
-            showOPInfo(szDeviceIdentify + " 登录成功！");
-            $("#ip").prepend("<option value='" + szDeviceIdentify + "'>" + szDeviceIdentify + "</option>");
-            setTimeout(function () {
-                $("#ip").val(szDeviceIdentify);
-                setTimeout(function () {
-                    getChannelInfo();
-                }, 1000);
-                getDevicePort();
-            }, 10);
-            console.log(xmlDoc);
-        },
-        error: function (oError) {
-            console.log(oError);
-            //if (ERROR_CODE_LOGIN_REPEATLOGIN === status) {
-            //    showOPInfo(szDeviceIdentify + " 已登录过！");
-            //} else {
-            //    if (oError.errorCode === 401) {
-            //        showOPInfo(szDeviceIdentify + " 登录失败，已自动切换认证方式！");
-            //    } else {
-            //        showOPInfo(szDeviceIdentify + " 登录失败！", oError.errorCode, oError.errorMsg);
-            //    }
-            //}
-        }
+    Data.set(id, {
+        iWndIndex: result.iWndIndex
     });
-
-    return true;
 }
 
-const init_video_plugin = async () => {
-    let inited = false;
+const initWindow = id => {
+    const result = { inited: null, iWndIndex: -1 };
     WebVideoCtrl.I_InitPlugin({
         bWndFull: true,
         iWndowType: 1,
         cbSelWnd: function (xmlDoc) {
-            //g_iWndIndex = parseInt($(xmlDoc).find("SelectWnd").eq(0).text(), 10);
-            //var szInfo = "当前选择的窗口编号：" + g_iWndIndex;
-            //showCBInfo(szInfo);
+            result.iWndIndex = getTagNameFirstValue(xmlDoc, "SelectWnd")
         },
         cbDoubleClickWnd: function (iWndIndex, bFullScreen) {
-            //    var szInfo = "当前放大的窗口编号：" + iWndIndex;
-            //    if (!bFullScreen) {
-            //        szInfo = "当前还原的窗口编号：" + iWndIndex;
-            //    }
-            //    showCBInfo(szInfo);
+
         },
         cbEvent: function (iEventType, iParam1, iParam2) {
-            //    if (2 == iEventType) {// 回放正常结束
-            //        showCBInfo("窗口" + iParam1 + "回放结束！");
-            //    } else if (-1 == iEventType) {
-            //        showCBInfo("设备" + iParam1 + "网络错误！");
-            //    } else if (3001 == iEventType) {
-            //        clickStopRecord(g_szRecordType, iParam1);
-            //    }
+
         },
         cbInitPluginComplete: function () {
-            WebVideoCtrl.I_InsertOBJECTPlugin("divPlugin").then(() => {
-                WebVideoCtrl.I_CheckPluginVersion().then((bFlag) => {
-                    if (bFlag) {
-                        alert("检测到新的插件版本，双击开发包目录里的HCWebSDKPluginsUserSetup.exe升级！");
-                    }
-
-                    inited = true;
-                });
+            WebVideoCtrl.I_InsertOBJECTPlugin(id).then(() => {
+                result.inited = true;
             }, () => {
-                alert("插件初始化失败，请确认是否已安装插件；如果未安装，请双击开发包目录里的HCWebSDKPluginsUserSetup.exe安装！");
+                result.inited = false;
             });
         }
     });
 
     return new Promise((resolve, reject) => {
         const handler = setInterval(() => {
-            if (inited) {
+            if (result.inited === false || (result.inited && result.iWndIndex !== -1)) {
                 clearInterval(handler)
-                resolve()
+                resolve(result);
             }
-        }, 20)
-    })
-}
-
-export function logout(id) {
-    var szDeviceIdentify = `${ip}_ ${port}`;
-
-    WebVideoCtrl.I_Logout(szDeviceIdentify).then(() => {
-        //$("#ip option:contains(" + szDeviceIdentify + ")").remove();
-        //showOPInfo(szDeviceIdentify + " " + "退出成功！");
-    }, () => {
-        //showOPInfo(szDeviceIdentify + " " + "退出失败！");
+        }, 16);
     });
 }
 
-export function startRealPlay() {
+export async function login(id, ip, port, userName, password, loginType) {
+    const vision = Data.get(id);
+    vision.szDeviceIdentify = `${ip}_${port}`;
+    vision.logined = null;
+    vision.loginErrorCode = null;
+    vision.loginErrorMsg = null;
 
+    WebVideoCtrl.I_Login(ip, loginType, port, userName, password, {
+        timeout: 3000,
+        success: function (xmlDoc) {
+            vision.logined = true;
+        },
+        error: function (oError) {
+            const ERROR_CODE_LOGIN_REPEATLOGIN = 2001;
+            if (oError.errorCode === ERROR_CODE_LOGIN_REPEATLOGIN) {
+                vision.logined = true;
+                return;
+            }
+
+            vision.logined = false;
+            vision.loginErrorCode = oError.errorCode;
+            vision.loginErrorMsg = oError.errorMsg;
+        }
+    });
+
+    return new Promise((resolve, reject) => {
+        const handler = setInterval(async () => {
+            if (vision.logined !== void 0) {
+                clearInterval(handler)
+                resolve(vision);
+            }
+        }, 16);
+    });
 }
 
-export function stopRealPlay() {
+const getChannelInfo = vision => {
+    const { szDeviceIdentify } = vision;
+    let analog_completed = false;
+    WebVideoCtrl.I_GetAnalogChannelInfo(szDeviceIdentify, {
+        success: function (xmlDoc) {
+            const channels = [...getTagNameValues(xmlDoc, "VideoInputChannel")];
+            vision.analogChannels = channels.map(channel => {
+                return {
+                    id: getTagNameFirstValue(channel, "id"),
+                    inputPort: getTagNameFirstValue(channel, "inputPort"),
+                    name: getTagNameFirstValue(channel, "name"),
+                    videoFormat: getTagNameFirstValue(channel, "videoFormat")
+                };
+            });
+            analog_completed = true;
+        },
+        error: function (oError) {
+            analog_completed = true;
+        }
+    });
 
+    let digital_completed = false;
+    WebVideoCtrl.I_GetDigitalChannelInfo(szDeviceIdentify, {
+        success: function (xmlDoc) {
+            const channels = [...getTagNameValues(xmlDoc, "InputProxyChannelStatus")];
+            vision.digitalChannels = channels.map(channel => {
+                return {
+                    id: getTagNameFirstValue(channel, "id"),
+                    name: getTagNameFirstValue(channel, "name"),
+                    online: getTagNameFirstValue(channel, "online")
+                };
+            });
+            digital_completed = true;
+        },
+        error: function (oError) {
+            digital_completed = true;
+        }
+    });
+
+    let zero_completed = false;
+    WebVideoCtrl.I_GetZeroChannelInfo(szDeviceIdentify, {
+        success: function (xmlDoc) {
+            const channels = [...getTagNameValues(xmlDoc, "ZeroVideoChannel")];
+            vision.zeroChannels = channels.map(channel => {
+                return {
+                    id: getTagNameFirstValue(channel, "id"),
+                    name: getTagNameFirstValue(channel, "name")
+                };
+            });
+            zero_completed = true;
+        },
+        error: function (oError) {
+            zero_completed = true;
+        }
+    });
+
+    return new Promise((resolve, reject) => {
+        const handler = setInterval(() => {
+            if (analog_completed && digital_completed && zero_completed) {
+                clearInterval(handler)
+                resolve(vision);
+            }
+        }, 16);
+    });
 }
 
-export function dispose() {
+export function logout(id) {
+    const vision = Data.get(id);
+    const { szDeviceIdentify } = vision;
 
+    let completed = null;
+    WebVideoCtrl.I_Logout(szDeviceIdentify).then(() => {
+        completed = true;
+    }, () => {
+        completed = false;
+    });
+
+    return new Promise((resolve, reject) => {
+        const handler = setInterval(() => {
+            if (completed !== null) {
+                clearInterval(handler)
+                resolve(vision);
+            }
+        }, 16);
+    });
+}
+
+export async function startRealPlay(id) {
+    const vision = Data.get(id);
+    const { iWndIndex, szDeviceIdentify } = vision;
+
+    vision.devicePort = await WebVideoCtrl.I_GetDevicePort(vision.szDeviceIdentify);
+    await getChannelInfo(vision);
+
+    const oWndInfo = WebVideoCtrl.I_GetWindowStatus(iWndIndex);
+    const iRtspPort = vision.devicePort.iRtspPort;
+    const iChannelID = 1;
+    const bZeroChannel = false;
+    const iStreamType = 1;
+
+    const startRealPlay = function () {
+        WebVideoCtrl.I_StartRealPlay(szDeviceIdentify, {
+            iStreamType: iStreamType,
+            iChannelID: iChannelID,
+            bZeroChannel: bZeroChannel,
+            iPort: iRtspPort,
+            success: function () {
+
+            },
+            error: function (oError) {
+
+            }
+        });
+    };
+
+    if (oWndInfo != null) {
+        WebVideoCtrl.I_Stop({
+            success: function () {
+                startRealPlay();
+            }
+        });
+    }
+    else {
+        startRealPlay();
+    }
+}
+
+export function stopRealPlay(id) {
+    const vision = Data.get(id);
+    const { iWndIndex, szDeviceIdentify } = vision;
+
+    const oWndInfo = WebVideoCtrl.I_GetWindowStatus(iWndIndex);
+    if (oWndInfo !== null) {
+        WebVideoCtrl.I_Stop({
+            success: function () {
+
+            },
+            error: function (oError) {
+
+            }
+        });
+    }
+}
+
+export function dispose(id) {
+    Data.remove(id);
+}
+
+const getTagNameFirstValue = (xmlDoc, tagName) => {
+    const tags = xmlDoc.getElementsByTagName(tagName);
+    if (tags.length > 0) {
+        return tags[0].textContent;
+    }
+    return null;
+}
+
+const getTagNameValues = (xmlDoc, tagName) => {
+    return xmlDoc.getElementsByTagName(tagName);
 }
