@@ -7,39 +7,11 @@ export async function init(id) {
         return;
     }
 
-    const previewId = `${id}_preview`;
-    await initVision(previewId);
-
-    const controls = el.querySelector('.bb-hik-controls');
-    if (controls) {
-        EventHandler.on(controls, 'click', '.bb-hik-login', async e => {
-            console.log('login');
-            await login(previewId, '47.121.113.151', 9980, 'admin', 'vhbn8888', 1)
-        });
-        EventHandler.on(controls, 'click', '.bb-hik-logout', e => {
-            console.log('logout');
-            logout(previewId);
-        });
-        EventHandler.on(controls, 'click', '.bb-hik-start', e => {
-            console.log('start');
-            startRealPlay(previewId);
-        });
-        EventHandler.on(controls, 'click', '.bb-hik-stop', e => {
-            console.log('stop');
-            stopRealPlay(previewId);
-        });
-    }
+    await initVision(id);
 }
 
-export function dispose(id) {
-    const el = document.getElementById(id);
-    if (el !== null) {
-        const controls = el.querySelector('.bb-hik-controls');
-        if (controls) {
-            EventHandler.off(controls, 'click');
-        }
-    }
+export { login, logout, startRealPlay, stopRealPlay }
 
-    const previewId = `${id}_preview`;
-    disposeVision(previewId);
+export function dispose(id) {
+    disposeVision(id);
 }
