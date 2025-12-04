@@ -5,6 +5,10 @@ export async function init(id) {
     await addScript('./_content/BootstrapBlazor.HikVision/jsVideoPlugin-1.0.0.min.js');
     await addScript('./_content/BootstrapBlazor.HikVision/webVideoCtrl.js');
 
+    if (window.$ === void 0) {
+        await addScript('./_content/BootstrapBlazor.HikVision/jquery-1.7.1.min.js');
+    }
+
     const el = document.getElementById(id);
     if (el === null) {
         return;
