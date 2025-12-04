@@ -84,7 +84,7 @@ public partial class HikVision
     /// <param name="password"></param>
     /// <param name="loginType"></param>
     /// <returns></returns>
-    public async Task Login(string ip, string port, string userName, string password, LoginType loginType = LoginType.Http)
+    public async Task Login(string ip, int port, string userName, string password, LoginType loginType = LoginType.Http)
     {
         await InvokeVoidAsync("login", Id, ip, port, userName, password, (int)loginType);
     }
@@ -96,5 +96,23 @@ public partial class HikVision
     public async Task Logout()
     {
         await InvokeVoidAsync("logout", Id);
+    }
+
+    /// <summary>
+    /// 开始实时预览方法
+    /// </summary>
+    /// <returns></returns>
+    public async Task StartRealPlay()
+    {
+        await InvokeVoidAsync("startRealPlay", Id);
+    }
+
+    /// <summary>
+    /// 停止实时预览方法
+    /// </summary>
+    /// <returns></returns>
+    public async Task StopRealPlay()
+    {
+        await InvokeVoidAsync("stopRealPlay", Id);
     }
 }
