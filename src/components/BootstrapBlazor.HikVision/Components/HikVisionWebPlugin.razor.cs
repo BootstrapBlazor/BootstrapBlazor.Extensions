@@ -7,10 +7,10 @@ using Microsoft.AspNetCore.Components;
 namespace BootstrapBlazor.Components;
 
 /// <summary>
-/// 海康威视网络摄像机组件
+/// 海康威视网络摄像机组件 (Websdk Plugin 插件版本)
 /// </summary>
-[JSModuleAutoLoader("./_content/BootstrapBlazor.HikVision/Components/HikVision.razor.js")]
-public partial class HikVision
+[JSModuleAutoLoader("./_content/BootstrapBlazor.HikVision/Components/HikVisionWebPlugin.razor.js", JSObjectReference = true)]
+public partial class HikVisionWebPlugin
 {
     /// <summary>
     /// 获得/设置 网络摄像机 IP 地址
@@ -54,6 +54,12 @@ public partial class HikVision
     [Parameter]
     public string? Height { get; set; }
 
+    /// <summary>
+    /// 获得/设置 插件初始化完成后回调方法
+    /// </summary>
+    [Parameter]
+    public Func<bool, Task> OnInitedAsync { get; set; }
+
     private string? ClassString => CssBuilder.Default("bb-hik")
         .AddClassFromAttributes(AdditionalAttributes)
         .Build();
@@ -63,6 +69,21 @@ public partial class HikVision
         .AddClass($"height: {Height};", !string.IsNullOrEmpty(Height))
         .AddStyleFromAttributes(AdditionalAttributes)
         .Build();
+
+    /// <summary>
+    /// 获得 Websdk 插件是否初始化成功
+    /// </summary>
+    public bool Inited { get; private set; }
+
+    /// <summary>
+    /// 获得 是否已登录
+    /// </summary>
+    public bool IsLogined { get; private set; }
+
+    /// <summary>
+    /// 获得 是否正在实时预览
+    /// </summary>
+    public bool IsRealPlaying { get; private set; }
 
     /// <summary>
     /// <inheritdoc/>
@@ -84,9 +105,11 @@ public partial class HikVision
     /// <param name="password"></param>
     /// <param name="loginType"></param>
     /// <returns></returns>
-    public async Task Login(string ip, int port, string userName, string password, LoginType loginType = LoginType.Http)
+    public async Task<bool> Login(string ip, int port, string userName, string password, LoginType loginType = LoginType.Http)
     {
-        await InvokeVoidAsync("login", Id, ip, port, userName, password, (int)loginType);
+        ThrowIfNotInited();
+        IsLogined = await InvokeAsync<bool?>("login", Id, ip, port, userName, password, (int)loginType) ?? false;
+        return IsLogined;
     }
 
     /// <summary>
@@ -95,16 +118,23 @@ public partial class HikVision
     /// <returns></returns>
     public async Task Logout()
     {
-        await InvokeVoidAsync("logout", Id);
+        if (IsLogined)
+        {
+            await InvokeVoidAsync("logout", Id);
+        }
+        IsLogined = false;
     }
 
     /// <summary>
     /// 开始实时预览方法
     /// </summary>
     /// <returns></returns>
-    public async Task StartRealPlay()
+    public async Task StartRealPlay(int streamType, int channelId)
     {
-        await InvokeVoidAsync("startRealPlay", Id);
+        if (IsLogined && !IsRealPlaying)
+        {
+            IsRealPlaying = await InvokeAsync<bool?>("startRealPlay", Id, streamType, channelId) ?? false;
+        }
     }
 
     /// <summary>
@@ -113,6 +143,36 @@ public partial class HikVision
     /// <returns></returns>
     public async Task StopRealPlay()
     {
-        await InvokeVoidAsync("stopRealPlay", Id);
+        if (IsLogined && IsRealPlaying)
+        {
+            var result = await InvokeAsync<bool?>("stopRealPlay", Id) ?? false;
+            if (result)
+            {
+                IsRealPlaying = false;
+            }
+        }
+    }
+
+    private void ThrowIfNotInited()
+    {
+        if (!Inited)
+        {
+            throw new InvalidOperationException("HikVision Web Plugin not inited");
+        }
+    }
+
+    /// <summary>
+    /// 触发 <see cref="OnInitedAsync"/> 回调方法由 JavaScript 调用
+    /// </summary>
+    /// <returns></returns>
+    [JSInvokable]
+    public async Task TriggerInited(bool inited)
+    {
+        Inited = inited;
+
+        if (OnInitedAsync != null)
+        {
+            await OnInitedAsync(inited);
+        }
     }
 }

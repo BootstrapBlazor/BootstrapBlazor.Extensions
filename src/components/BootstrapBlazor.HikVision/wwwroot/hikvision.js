@@ -11,17 +11,20 @@ export async function init(id) {
 
     const el = document.getElementById(id);
     if (el === null) {
-        return;
+        return false;
     }
 
     const result = await initWindow(id);
     if (result.inited === false) {
-        return;
+        return false;
     }
 
     Data.set(id, {
-        iWndIndex: result.iWndIndex
+        iWndIndex: result.iWndIndex,
+        inited: true
     });
+
+    return true;
 }
 
 const initWindow = id => {
@@ -30,7 +33,7 @@ const initWindow = id => {
         bWndFull: true,
         iWndowType: 1,
         cbSelWnd: function (xmlDoc) {
-            result.iWndIndex = getTagNameFirstValue(xmlDoc, "SelectWnd")
+            result.iWndIndex = parseInt(getTagNameFirstValue(xmlDoc, "SelectWnd"));
         },
         cbDoubleClickWnd: function (iWndIndex, bFullScreen) {
 
@@ -59,6 +62,14 @@ const initWindow = id => {
 
 export async function login(id, ip, port, userName, password, loginType) {
     const vision = Data.get(id);
+    const { inited, logined } = vision;
+    if (inited !== true || ip.length === 0 || port <= 0 || userName.length === 0 || password.length === 0) {
+        return false;
+    }
+    if (logined === true) {
+        return true;
+    }
+
     vision.szDeviceIdentify = `${ip}_${port}`;
     vision.logined = null;
     vision.loginErrorCode = null;
@@ -84,9 +95,9 @@ export async function login(id, ip, port, userName, password, loginType) {
 
     return new Promise((resolve, reject) => {
         const handler = setInterval(async () => {
-            if (vision.logined !== void 0) {
+            if (vision.logined !== null) {
                 clearInterval(handler)
-                resolve(vision);
+                resolve(vision.logined);
             }
         }, 16);
     });
@@ -152,34 +163,27 @@ const getChannelInfo = vision => {
         const handler = setInterval(() => {
             if (analog_completed && digital_completed && zero_completed) {
                 clearInterval(handler)
-                resolve(vision);
+                resolve();
             }
         }, 16);
     });
 }
 
-export function logout(id) {
+export async function logout(id) {
     const vision = Data.get(id);
-    const { szDeviceIdentify } = vision;
+    const { szDeviceIdentify, logined } = vision;
+    if (logined !== true) {
+        vision.logined = false;
+        return;
+    }
 
-    let completed = null;
-    WebVideoCtrl.I_Logout(szDeviceIdentify).then(() => {
-        completed = true;
-    }, () => {
-        completed = false;
-    });
+    stopRealPlay(id);
 
-    return new Promise((resolve, reject) => {
-        const handler = setInterval(() => {
-            if (completed !== null) {
-                clearInterval(handler)
-                resolve(vision);
-            }
-        }, 16);
-    });
+    await WebVideoCtrl.I_Logout(szDeviceIdentify);
+    vision.logined = false;
 }
 
-export async function startRealPlay(id) {
+export async function startRealPlay(id, iStreamType, iChannelID) {
     const vision = Data.get(id);
     const { iWndIndex, szDeviceIdentify } = vision;
 
@@ -188,26 +192,28 @@ export async function startRealPlay(id) {
 
     const oWndInfo = WebVideoCtrl.I_GetWindowStatus(iWndIndex);
     const iRtspPort = vision.devicePort.iRtspPort;
-    const iChannelID = 1;
     const bZeroChannel = false;
-    const iStreamType = 1;
-
+    let completed = null;
     const startRealPlay = function () {
         WebVideoCtrl.I_StartRealPlay(szDeviceIdentify, {
+            iWndIndex: iWndIndex,
             iStreamType: iStreamType,
             iChannelID: iChannelID,
             bZeroChannel: bZeroChannel,
             iPort: iRtspPort,
             success: function () {
-
+                vision.realPlaying = true;
+                completed = true;
             },
             error: function (oError) {
-
+                vision.realPlaying = false;
+                completed = false;
             }
         });
     };
 
-    if (oWndInfo != null) {
+    console.log(oWndInfo);
+    if (oWndInfo !== null) {
         WebVideoCtrl.I_Stop({
             success: function () {
                 startRealPlay();
@@ -217,39 +223,70 @@ export async function startRealPlay(id) {
     else {
         startRealPlay();
     }
+
+    return new Promise((resolve, reject) => {
+        const handler = setInterval(() => {
+            if (completed !== null) {
+                clearInterval(handler)
+                resolve(completed);
+            }
+        }, 16);
+    });
 }
 
 export function stopRealPlay(id) {
     const vision = Data.get(id);
-    const { iWndIndex, szDeviceIdentify } = vision;
+    const { iWndIndex, realPlaying } = vision;
+
+    if (realPlaying !== true) {
+        return true;
+    }
 
     const oWndInfo = WebVideoCtrl.I_GetWindowStatus(iWndIndex);
+    let completed = null;
     if (oWndInfo !== null) {
         WebVideoCtrl.I_Stop({
             success: function () {
-
+                vision.realPlaying = false;
+                completed = true;
             },
             error: function (oError) {
-
+                completed = false;
             }
         });
     }
+
+    return new Promise((resolve, reject) => {
+        const handler = setInterval(() => {
+            if (completed !== null) {
+                clearInterval(handler)
+                resolve(completed);
+            }
+        }, 16);
+    });
 }
 
 export function dispose(id) {
-    stopRealPlay(id);
-    logout(id);
+    const vision = Data.get(id);
+    Data.remove(id);
+
+    const { realPlaying, logined } = vision;
+    if (realPlaying === true) {
+        stopRealPlay(id);
+    }
+    if (logined === true) {
+        logout(id);
+    }
     WebVideoCtrl.I_DestroyPlugin();
 
-    Data.remove(id);
 }
 
-const getTagNameFirstValue = (xmlDoc, tagName) => {
+const getTagNameFirstValue = (xmlDoc, tagName, defaultValue = '0') => {
     const tags = xmlDoc.getElementsByTagName(tagName);
     if (tags.length > 0) {
         return tags[0].textContent;
     }
-    return null;
+    return defaultValue;
 }
 
 const getTagNameValues = (xmlDoc, tagName) => {
