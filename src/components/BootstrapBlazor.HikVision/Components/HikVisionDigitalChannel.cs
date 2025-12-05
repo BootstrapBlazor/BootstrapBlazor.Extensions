@@ -7,7 +7,7 @@ namespace BootstrapBlazor.Components;
 /// <summary>
 /// 模拟通道信息
 /// </summary>
-public class HikVisionAnalogChannelInfo()
+public class HikVisionDigitalChannel()
 {
     /// <summary>
     /// 获得 通道 Id

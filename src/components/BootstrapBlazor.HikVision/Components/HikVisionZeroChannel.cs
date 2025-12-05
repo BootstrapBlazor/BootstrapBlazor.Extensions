@@ -7,7 +7,7 @@ namespace BootstrapBlazor.Components;
 /// <summary>
 /// 模拟通道信息
 /// </summary>
-public class HikVisionDigitalChannelInfo()
+public class HikVisionZeroChannel()
 {
     /// <summary>
     /// 获得 通道 Id
@@ -20,12 +20,7 @@ public class HikVisionDigitalChannelInfo()
     public int InputPort { get; set; }
 
     /// <summary>
-    /// 获得 通道名称
+    /// 获得 是否使能
     /// </summary>
-    public string? Name { get; set; }
-
-    /// <summary>
-    /// 获得 通道制式
-    /// </summary>
-    public string? VideoFormat { get; set; }
+    public bool Enabled { get; set; }
 }

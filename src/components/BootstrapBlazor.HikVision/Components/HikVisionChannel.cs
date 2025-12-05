@@ -12,15 +12,15 @@ public class HikVisionChannel
     /// <summary>
     /// 获得/设置 模拟通道信息集合
     /// </summary>
-    public List<HikVisionAnalogChannelInfo> AnalogChannels { get; set; } = [];
+    public List<HikVisionAnalogChannel> AnalogChannels { get; set; } = [];
 
     /// <summary>
     /// 获得/设置 数字通道信息集合
     /// </summary>
-    public List<HikVisionDigitalChannelInfo> DigitalChannels { get; set; } = [];
+    public List<HikVisionDigitalChannel> DigitalChannels { get; set; } = [];
 
     /// <summary>
     /// 获得/设置 数字通道信息集合
     /// </summary>
-    public List<HikVisionZeroChannelInfo> ZeroChannels { get; set; } = [];
+    public List<HikVisionZeroChannel> ZeroChannels { get; set; } = [];
 }
