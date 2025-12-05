@@ -7,7 +7,7 @@ namespace BootstrapBlazor.Components;
 /// <summary>
 /// 登录方式
 /// </summary>
-public enum LoginType
+public enum HikVisionLoginType
 {
     /// <summary>
     /// http 方式

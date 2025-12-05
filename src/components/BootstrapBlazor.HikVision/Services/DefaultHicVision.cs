@@ -10,7 +10,7 @@ sealed class DefaultHicVision(IJSRuntime jsRuntime) : IHikVision
     private bool _initialized;
     private bool _logined;
 
-    public async Task<bool> Login(string ip, int port, string userName, string password, LoginType loginType = LoginType.Http)
+    public async Task<bool> Login(string ip, int port, string userName, string password, HikVisionLoginType loginType = HikVisionLoginType.Http)
     {
         await LoadAsync();
 

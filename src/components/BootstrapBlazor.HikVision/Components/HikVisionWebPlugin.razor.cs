@@ -37,10 +37,10 @@ public partial class HikVisionWebPlugin
     public string? Password { get; set; }
 
     /// <summary>
-    /// 获得/设置 网络摄像机 登录类型 默认值 <see cref="LoginType.Http"/>
+    /// 获得/设置 网络摄像机 登录类型 默认值 <see cref="HikVisionLoginType.Http"/>
     /// </summary>
     [Parameter]
-    public LoginType LoginType { get; set; }
+    public HikVisionLoginType LoginType { get; set; }
 
     /// <summary>
     /// 获得/设置 视频图像窗口宽度 默认值 500px
@@ -65,6 +65,12 @@ public partial class HikVisionWebPlugin
     /// </summary>
     [Parameter]
     public Func<Task>? OnLoginedAsync { get; set; }
+
+    /// <summary>
+    /// 获得/设置 停止预览后回调方法
+    /// </summary>
+    [Parameter]
+    public Func<HikVisionChannel, Task>? OnGetChannelsAsync { get; set; }
 
     /// <summary>
     /// 获得/设置 注销成功后回调方法
@@ -129,7 +135,7 @@ public partial class HikVisionWebPlugin
     /// <param name="password"></param>
     /// <param name="loginType"></param>
     /// <returns></returns>
-    public async Task<bool> Login(string ip, int port, string userName, string password, LoginType loginType = LoginType.Http)
+    public async Task<bool> Login(string ip, int port, string userName, string password, HikVisionLoginType loginType = HikVisionLoginType.Http)
     {
         ThrowIfNotInited();
         IsLogined = await InvokeAsync<bool?>("login", Id, ip, port, userName, password, (int)loginType) ?? false;
@@ -169,6 +175,16 @@ public partial class HikVisionWebPlugin
         {
             await OnLogoutedAsync();
         }
+    }
+
+    /// <summary>
+    /// 获得通道列表方法
+    /// </summary>
+    /// <returns></returns>
+    public async Task GetChannelList()
+    {
+        ThrowIfNotInited();
+        await InvokeVoidAsync("getChannelList", Id);
     }
 
     /// <summary>
@@ -237,6 +253,20 @@ public partial class HikVisionWebPlugin
         if (OnInitedAsync != null)
         {
             await OnInitedAsync(inited);
+        }
+    }
+
+    /// <summary>
+    /// 触发 <see cref="OnGetChannelsAsync"/> 回调方法由 JavaScript 调用
+    /// </summary>
+    /// <param name="channel"></param>
+    /// <returns></returns>
+    [JSInvokable]
+    public async Task TriggerGetChannelList(HikVisionChannel channel)
+    {
+        if (OnGetChannelsAsync != null)
+        {
+            await OnGetChannelsAsync(channel);
         }
     }
 }

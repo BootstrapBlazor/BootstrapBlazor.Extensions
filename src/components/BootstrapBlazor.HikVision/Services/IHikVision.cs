@@ -12,13 +12,13 @@ public interface IHikVision : IAsyncDisposable
     /// <summary>
     /// 登录方法
     /// </summary>
-    /// <param name="loginType">登录方式 <see cref="LoginType"/> 实例</param>
+    /// <param name="loginType">登录方式 <see cref="HikVisionLoginType"/> 实例</param>
     /// <param name="ip">设备 Ip 地址</param>
     /// <param name="port">设备端口</param>
     /// <param name="userName">用户名</param>
     /// <param name="password">密码</param>
     /// <returns></returns>
-    Task<bool> Login(string ip, int port, string userName, string password, LoginType loginType = LoginType.Http);
+    Task<bool> Login(string ip, int port, string userName, string password, HikVisionLoginType loginType = HikVisionLoginType.Http);
 
     /// <summary>
     /// 登出方法
