@@ -33,7 +33,7 @@ const initWindow = id => {
         bWndFull: true,
         iWndowType: 1,
         cbSelWnd: function (xmlDoc) {
-            result.iWndIndex = getTagNameFirstValue(xmlDoc, "SelectWnd")
+            result.iWndIndex = parseInt(getTagNameFirstValue(xmlDoc, "SelectWnd"));
         },
         cbDoubleClickWnd: function (iWndIndex, bFullScreen) {
 
@@ -63,7 +63,7 @@ const initWindow = id => {
 export async function login(id, ip, port, userName, password, loginType) {
     const vision = Data.get(id);
     const { inited, logined } = vision;
-    if (inited !== true) {
+    if (inited !== true || ip.length === 0 || port <= 0 || userName.length === 0 || password.length === 0) {
         return false;
     }
     if (logined === true) {
@@ -95,9 +95,9 @@ export async function login(id, ip, port, userName, password, loginType) {
 
     return new Promise((resolve, reject) => {
         const handler = setInterval(async () => {
-            if (vision.logined !== void 0) {
+            if (vision.logined !== null) {
                 clearInterval(handler)
-                resolve(vision);
+                resolve(vision.logined);
             }
         }, 16);
     });
@@ -169,7 +169,7 @@ const getChannelInfo = vision => {
     });
 }
 
-export function logout(id) {
+export async function logout(id) {
     const vision = Data.get(id);
     const { szDeviceIdentify, logined } = vision;
     if (logined !== true) {
@@ -177,21 +177,10 @@ export function logout(id) {
         return;
     }
 
-    let completed = null;
-    WebVideoCtrl.I_Logout(szDeviceIdentify).then(() => {
-        completed = true;
-    }, () => {
-        completed = false;
-    });
+    stopRealPlay(id);
 
-    return new Promise((resolve, reject) => {
-        const handler = setInterval(() => {
-            if (completed !== null) {
-                clearInterval(handler)
-                resolve();
-            }
-        }, 16);
-    });
+    await WebVideoCtrl.I_Logout(szDeviceIdentify);
+    vision.logined = false;
 }
 
 export async function startRealPlay(id, iStreamType, iChannelID) {
@@ -247,11 +236,14 @@ export async function startRealPlay(id, iStreamType, iChannelID) {
 
 export function stopRealPlay(id) {
     const vision = Data.get(id);
-    const { iWndIndex, szDeviceIdentify } = vision;
+    const { iWndIndex, realPlaying } = vision;
+
+    if (realPlaying !== true) {
+        return true;
+    }
 
     const oWndInfo = WebVideoCtrl.I_GetWindowStatus(iWndIndex);
     let completed = null;
-    console.log(oWndInfo);
     if (oWndInfo !== null) {
         WebVideoCtrl.I_Stop({
             success: function () {
@@ -289,12 +281,12 @@ export function dispose(id) {
 
 }
 
-const getTagNameFirstValue = (xmlDoc, tagName) => {
+const getTagNameFirstValue = (xmlDoc, tagName, defaultValue = '0') => {
     const tags = xmlDoc.getElementsByTagName(tagName);
     if (tags.length > 0) {
         return tags[0].textContent;
     }
-    return null;
+    return defaultValue;
 }
 
 const getTagNameValues = (xmlDoc, tagName) => {
