@@ -58,7 +58,31 @@ public partial class HikVisionWebPlugin
     /// 获得/设置 插件初始化完成后回调方法
     /// </summary>
     [Parameter]
-    public Func<bool, Task> OnInitedAsync { get; set; }
+    public Func<bool, Task>? OnInitedAsync { get; set; }
+
+    /// <summary>
+    /// 获得/设置 登录成功后回调方法
+    /// </summary>
+    [Parameter]
+    public Func<Task>? OnLoginedAsync { get; set; }
+
+    /// <summary>
+    /// 获得/设置 注销成功后回调方法
+    /// </summary>
+    [Parameter]
+    public Func<Task>? OnLogoutedAsync { get; set; }
+
+    /// <summary>
+    /// 获得/设置 开始预览后回调方法
+    /// </summary>
+    [Parameter]
+    public Func<Task>? OnStartRealPlayedAsync { get; set; }
+
+    /// <summary>
+    /// 获得/设置 停止预览后回调方法
+    /// </summary>
+    [Parameter]
+    public Func<Task>? OnStopRealPlayedAsync { get; set; }
 
     private string? ClassString => CssBuilder.Default("bb-hik")
         .AddClassFromAttributes(AdditionalAttributes)
@@ -109,7 +133,19 @@ public partial class HikVisionWebPlugin
     {
         ThrowIfNotInited();
         IsLogined = await InvokeAsync<bool?>("login", Id, ip, port, userName, password, (int)loginType) ?? false;
+        if (IsLogined)
+        {
+            await TriggerLogined();
+        }
         return IsLogined;
+    }
+
+    private async Task TriggerLogined()
+    {
+        if (OnLoginedAsync != null)
+        {
+            await OnLoginedAsync();
+        }
     }
 
     /// <summary>
@@ -124,6 +160,15 @@ public partial class HikVisionWebPlugin
         }
         IsRealPlaying = false;
         IsLogined = false;
+        await TriggerLogouted();
+    }
+
+    private async Task TriggerLogouted()
+    {
+        if (OnLogoutedAsync != null)
+        {
+            await OnLogoutedAsync();
+        }
     }
 
     /// <summary>
@@ -135,6 +180,18 @@ public partial class HikVisionWebPlugin
         if (IsLogined && !IsRealPlaying)
         {
             IsRealPlaying = await InvokeAsync<bool?>("startRealPlay", Id, streamType, channelId) ?? false;
+            if (IsRealPlaying)
+            {
+                await TriggerStartRealPlay();
+            }
+        }
+    }
+
+    private async Task TriggerStartRealPlay()
+    {
+        if (OnStartRealPlayedAsync != null)
+        {
+            await OnStartRealPlayedAsync();
         }
     }
 
@@ -144,13 +201,19 @@ public partial class HikVisionWebPlugin
     /// <returns></returns>
     public async Task StopRealPlay()
     {
-        if (IsLogined && IsRealPlaying)
+        if (IsRealPlaying)
         {
-            var result = await InvokeAsync<bool?>("stopRealPlay", Id) ?? false;
-            if (result)
-            {
-                IsRealPlaying = false;
-            }
+            await InvokeVoidAsync("stopRealPlay", Id);
+            IsRealPlaying = false;
+            await TriggerStopRealPlay();
+        }
+    }
+
+    private async Task TriggerStopRealPlay()
+    {
+        if (OnStopRealPlayedAsync != null)
+        {
+            await OnStopRealPlayedAsync();
         }
     }
 
