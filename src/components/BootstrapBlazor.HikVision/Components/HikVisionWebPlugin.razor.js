@@ -22,7 +22,9 @@ export async function login(id, ip, port, userName, password, loginType) {
     const { logined, invoke } = vision;
     if (logined) {
         await invoke.invokeMethodAsync('TriggerGetChannelList', {
-            analogChannels: vision.analogChannels
+            analogChannels: vision.analogChannels,
+            digitalChannels: vision.digitalChannels,
+            zeroChannels: vision.zeroChannels
         });
     }
     return logined;

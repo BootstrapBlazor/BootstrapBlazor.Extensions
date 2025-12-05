@@ -7,7 +7,7 @@ using Microsoft.AspNetCore.Components;
 namespace BootstrapBlazor.Components;
 
 /// <summary>
-/// 海康威视网络摄像机组件 (Websdk Plugin 插件版本)
+/// 海康威视网络摄像机组件 (WebSdk Plugin 插件版本)
 /// </summary>
 [JSModuleAutoLoader("./_content/BootstrapBlazor.HikVision/Components/HikVisionWebPlugin.razor.js", JSObjectReference = true)]
 public partial class HikVisionWebPlugin
@@ -64,7 +64,7 @@ public partial class HikVisionWebPlugin
     /// 获得/设置 登录成功后回调方法
     /// </summary>
     [Parameter]
-    public Func<Task>? OnLoginedAsync { get; set; }
+    public Func<Task>? OnLoginAsync { get; set; }
 
     /// <summary>
     /// 获得/设置 停止预览后回调方法
@@ -76,7 +76,7 @@ public partial class HikVisionWebPlugin
     /// 获得/设置 注销成功后回调方法
     /// </summary>
     [Parameter]
-    public Func<Task>? OnLogoutedAsync { get; set; }
+    public Func<Task>? OnLogoutAsync { get; set; }
 
     /// <summary>
     /// 获得/设置 开始预览后回调方法
@@ -101,14 +101,14 @@ public partial class HikVisionWebPlugin
         .Build();
 
     /// <summary>
-    /// 获得 Websdk 插件是否初始化成功
+    /// 获得 Web sdk 插件是否初始化成功
     /// </summary>
     public bool Inited { get; private set; }
 
     /// <summary>
     /// 获得 是否已登录
     /// </summary>
-    public bool IsLogined { get; private set; }
+    public bool IsLogin { get; private set; }
 
     /// <summary>
     /// 获得 是否正在实时预览
@@ -138,19 +138,19 @@ public partial class HikVisionWebPlugin
     public async Task<bool> Login(string ip, int port, string userName, string password, HikVisionLoginType loginType = HikVisionLoginType.Http)
     {
         ThrowIfNotInited();
-        IsLogined = await InvokeAsync<bool?>("login", Id, ip, port, userName, password, (int)loginType) ?? false;
-        if (IsLogined)
+        IsLogin = await InvokeAsync<bool?>("login", Id, ip, port, userName, password, (int)loginType) ?? false;
+        if (IsLogin)
         {
-            await TriggerLogined();
+            await TriggerLogin();
         }
-        return IsLogined;
+        return IsLogin;
     }
 
-    private async Task TriggerLogined()
+    private async Task TriggerLogin()
     {
-        if (OnLoginedAsync != null)
+        if (OnLoginAsync != null)
         {
-            await OnLoginedAsync();
+            await OnLoginAsync();
         }
     }
 
@@ -160,20 +160,20 @@ public partial class HikVisionWebPlugin
     /// <returns></returns>
     public async Task Logout()
     {
-        if (IsLogined)
+        if (IsLogin)
         {
             await InvokeVoidAsync("logout", Id);
         }
         IsRealPlaying = false;
-        IsLogined = false;
-        await TriggerLogouted();
+        IsLogin = false;
+        await TriggerLogout();
     }
 
-    private async Task TriggerLogouted()
+    private async Task TriggerLogout()
     {
-        if (OnLogoutedAsync != null)
+        if (OnLogoutAsync != null)
         {
-            await OnLogoutedAsync();
+            await OnLogoutAsync();
         }
     }
 
@@ -193,7 +193,7 @@ public partial class HikVisionWebPlugin
     /// <returns></returns>
     public async Task StartRealPlay(int streamType, int channelId)
     {
-        if (IsLogined && !IsRealPlaying)
+        if (IsLogin && !IsRealPlaying)
         {
             IsRealPlaying = await InvokeAsync<bool?>("startRealPlay", Id, streamType, channelId) ?? false;
             if (IsRealPlaying)

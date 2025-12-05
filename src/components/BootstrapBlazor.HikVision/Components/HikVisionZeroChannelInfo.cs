@@ -5,12 +5,22 @@
 namespace BootstrapBlazor.Components;
 
 /// <summary>
-/// 海康威视网络摄像机通道信息
+/// 模拟通道信息
 /// </summary>
-public class HikVisionChannel
+public class HikVisionZeroChannelInfo()
 {
     /// <summary>
-    /// 获得/设置 模拟通道信息集合
+    /// 获得 通道 Id
     /// </summary>
-    public List<HikVisionAnalogChannelInfo> AnalogChannels { get; set; } = [];
+    public int Id { get; set; }
+
+    /// <summary>
+    /// 获得 通道号
+    /// </summary>
+    public int InputPort { get; set; }
+
+    /// <summary>
+    /// 获得 是否使能
+    /// </summary>
+    public bool Enabled { get; set; }
 }

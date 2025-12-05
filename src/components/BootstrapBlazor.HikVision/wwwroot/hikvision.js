@@ -112,7 +112,6 @@ const getChannelList = vision => {
     WebVideoCtrl.I_GetAnalogChannelInfo(szDeviceIdentify, {
         success: function (xmlDoc) {
             const channels = [...getTagNameValues(xmlDoc, "VideoInputChannel")];
-            console.log(xmlDoc);
             vision.analogChannels = channels.map(channel => {
                 return {
                     id: parseInt(getTagNameFirstValue(channel, "id")),
@@ -151,8 +150,9 @@ const getChannelList = vision => {
             const channels = [...getTagNameValues(xmlDoc, "ZeroVideoChannel")];
             vision.zeroChannels = channels.map(channel => {
                 return {
-                    id: getTagNameFirstValue(channel, "id"),
-                    name: getTagNameFirstValue(channel, "name")
+                    id: parseInt(getTagNameFirstValue(channel, "id")),
+                    inputPort: parseInt(getTagNameFirstValue(channel, "inputPort")),
+                    enabled: getTagNameFirstValue(channel, "enabled") === 'true',
                 };
             });
             zero_completed = true;
