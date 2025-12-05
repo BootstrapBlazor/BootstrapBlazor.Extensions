@@ -7,10 +7,10 @@ using Microsoft.AspNetCore.Components;
 namespace BootstrapBlazor.Components;
 
 /// <summary>
-/// 海康威视网络摄像机组件
+/// 海康威视网络摄像机组件 (Websdk Plugin 插件版本)
 /// </summary>
-[JSModuleAutoLoader("./_content/BootstrapBlazor.HikVision/Components/HikVision.razor.js")]
-public partial class HikVision
+[JSModuleAutoLoader("./_content/BootstrapBlazor.HikVision/Components/HikVisionWebPlugin.razor.js")]
+public partial class HikVisionWebPlugin
 {
     /// <summary>
     /// 获得/设置 网络摄像机 IP 地址
@@ -65,6 +65,16 @@ public partial class HikVision
         .Build();
 
     /// <summary>
+    /// 获得 Websdk 插件是否初始化成功
+    /// </summary>
+    public bool Inited { get; private set; }
+
+    /// <summary>
+    /// 获得 是否已登录
+    /// </summary>
+    public bool IsLogined { get; private set; }
+
+    /// <summary>
     /// <inheritdoc/>
     /// </summary>
     protected override void OnParametersSet()
@@ -73,6 +83,15 @@ public partial class HikVision
 
         Width ??= "500px";
         Height ??= "300px";
+    }
+
+    /// <summary>
+    /// <inheritdoc/>
+    /// </summary>
+    /// <returns></returns>
+    protected override async Task InvokeInitAsync()
+    {
+        Inited = await InvokeAsync<bool?>("init", Id) ?? false;
     }
 
     /// <summary>
@@ -86,7 +105,8 @@ public partial class HikVision
     /// <returns></returns>
     public async Task Login(string ip, int port, string userName, string password, LoginType loginType = LoginType.Http)
     {
-        await InvokeVoidAsync("login", Id, ip, port, userName, password, (int)loginType);
+        ThrowIfNotInited();
+        IsLogined = await InvokeAsync<bool>("login", Id, ip, port, userName, password, (int)loginType);
     }
 
     /// <summary>
@@ -95,6 +115,7 @@ public partial class HikVision
     /// <returns></returns>
     public async Task Logout()
     {
+        IsLogined = false;
         await InvokeVoidAsync("logout", Id);
     }
 
@@ -104,7 +125,10 @@ public partial class HikVision
     /// <returns></returns>
     public async Task StartRealPlay()
     {
-        await InvokeVoidAsync("startRealPlay", Id);
+        if (IsLogined)
+        {
+            await InvokeVoidAsync("startRealPlay", Id);
+        }
     }
 
     /// <summary>
@@ -113,6 +137,17 @@ public partial class HikVision
     /// <returns></returns>
     public async Task StopRealPlay()
     {
-        await InvokeVoidAsync("stopRealPlay", Id);
+        if (IsLogined)
+        {
+            await InvokeVoidAsync("stopRealPlay", Id);
+        }
+    }
+
+    private void ThrowIfNotInited()
+    {
+        if (!Inited)
+        {
+            throw new InvalidOperationException("HikVision Web Plugin not inited");
+        }
     }
 }

@@ -7,7 +7,7 @@ export async function init(id) {
         return;
     }
 
-    await initVision(id);
+    return await initVision(id);
 }
 
 export { login, logout, startRealPlay, stopRealPlay }
