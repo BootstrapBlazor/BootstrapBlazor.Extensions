@@ -19,10 +19,9 @@ export async function init(id) {
         return false;
     }
 
-    Data.set(id, {
-        iWndIndex: result.iWndIndex,
-        inited: true
-    });
+    const vision = Data.get(id);
+    vision.iWndIndex = result.iWndIndex;
+    vision.inited = true;
 
     return true;
 }
@@ -64,6 +63,7 @@ export async function login(id, ip, port, userName, password, loginType) {
     const vision = Data.get(id);
     const { inited, logined } = vision;
     if (inited !== true || ip.length === 0 || port <= 0 || userName.length === 0 || password.length === 0) {
+        vision.logined = false;
         return false;
     }
     if (logined === true) {
@@ -78,13 +78,15 @@ export async function login(id, ip, port, userName, password, loginType) {
     WebVideoCtrl.I_Login(ip, loginType, port, userName, password, {
         timeout: 3000,
         success: function (xmlDoc) {
-            vision.logined = true;
+            getChannelList(vision).then(() => {
+                vision.logined = true;
+            });
         },
         error: function (oError) {
             const ERROR_CODE_LOGIN_REPEATLOGIN = 2001;
             if (oError.errorCode === ERROR_CODE_LOGIN_REPEATLOGIN) {
                 vision.logined = true;
-                return;
+                return true;
             }
 
             vision.logined = false;
@@ -103,16 +105,17 @@ export async function login(id, ip, port, userName, password, loginType) {
     });
 }
 
-const getChannelInfo = vision => {
-    const { szDeviceIdentify } = vision;
+const getChannelList = vision => {
+    const { szDeviceIdentify, logined } = vision;
+
     let analog_completed = false;
     WebVideoCtrl.I_GetAnalogChannelInfo(szDeviceIdentify, {
         success: function (xmlDoc) {
             const channels = [...getTagNameValues(xmlDoc, "VideoInputChannel")];
             vision.analogChannels = channels.map(channel => {
                 return {
-                    id: getTagNameFirstValue(channel, "id"),
-                    inputPort: getTagNameFirstValue(channel, "inputPort"),
+                    id: parseInt(getTagNameFirstValue(channel, "id")),
+                    inputPort: parseInt(getTagNameFirstValue(channel, "inputPort")),
                     name: getTagNameFirstValue(channel, "name"),
                     videoFormat: getTagNameFirstValue(channel, "videoFormat")
                 };
@@ -130,8 +133,7 @@ const getChannelInfo = vision => {
             const channels = [...getTagNameValues(xmlDoc, "InputProxyChannelStatus")];
             vision.digitalChannels = channels.map(channel => {
                 return {
-                    id: getTagNameFirstValue(channel, "id"),
-                    name: getTagNameFirstValue(channel, "name"),
+                    id: parseInt(getTagNameFirstValue(channel, "id")),
                     online: getTagNameFirstValue(channel, "online")
                 };
             });
@@ -148,8 +150,9 @@ const getChannelInfo = vision => {
             const channels = [...getTagNameValues(xmlDoc, "ZeroVideoChannel")];
             vision.zeroChannels = channels.map(channel => {
                 return {
-                    id: getTagNameFirstValue(channel, "id"),
-                    name: getTagNameFirstValue(channel, "name")
+                    id: parseInt(getTagNameFirstValue(channel, "id")),
+                    inputPort: parseInt(getTagNameFirstValue(channel, "inputPort")),
+                    enabled: getTagNameFirstValue(channel, "enabled") === 'true',
                 };
             });
             zero_completed = true;
@@ -187,11 +190,8 @@ export async function startRealPlay(id, iStreamType, iChannelID) {
     const vision = Data.get(id);
     const { iWndIndex, szDeviceIdentify } = vision;
 
-    vision.devicePort = await WebVideoCtrl.I_GetDevicePort(vision.szDeviceIdentify);
-    await getChannelInfo(vision);
-
-    const oWndInfo = WebVideoCtrl.I_GetWindowStatus(iWndIndex);
-    const iRtspPort = vision.devicePort.iRtspPort;
+    vision.devicePort = await WebVideoCtrl.I_GetDevicePort(szDeviceIdentify);
+    const { iRtspPort } = vision.devicePort;
     const bZeroChannel = false;
     let completed = null;
     const startRealPlay = function () {
@@ -212,6 +212,7 @@ export async function startRealPlay(id, iStreamType, iChannelID) {
         });
     };
 
+    const oWndInfo = WebVideoCtrl.I_GetWindowStatus(iWndIndex);
     if (oWndInfo !== null) {
         WebVideoCtrl.I_Stop({
             success: function () {
