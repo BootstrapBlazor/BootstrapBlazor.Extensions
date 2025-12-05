@@ -122,6 +122,7 @@ public partial class HikVisionWebPlugin
         {
             await InvokeVoidAsync("logout", Id);
         }
+        IsRealPlaying = false;
         IsLogined = false;
     }
 
