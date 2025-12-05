@@ -212,7 +212,6 @@ export async function startRealPlay(id, iStreamType, iChannelID) {
         });
     };
 
-    console.log(oWndInfo);
     if (oWndInfo !== null) {
         WebVideoCtrl.I_Stop({
             success: function () {
