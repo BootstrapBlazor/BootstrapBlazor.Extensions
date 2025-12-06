@@ -44,7 +44,21 @@ const hackJSDestroyPlugin = function () {
                 return origianlSendRequestProxy.call(this, r);
             }
         }
-        return this.oPlugin.JS_DestroyPlugin(true);
+        this.oPlugin.JS_DestroyPlugin(true);
+
+        JSVideoPlugin = null;
+        delete window.JSVideoPlugin;
+        removePlugin();
+    }
+}
+
+const removePlugin = () => {
+    const scripts = [...document.head.querySelectorAll('script')]
+    const nodes = scripts.filter(function (link) {
+        return link.src.indexOf('/jsVideoPlugin-1.0.0.min.js') > -1
+    })
+    for (let index = 0; index < nodes.length; index++) {
+        document.head.removeChild(nodes[index])
     }
 }
 
