@@ -1,8 +1,7 @@
-import { addScript } from '../BootstrapBlazor/modules/utility.js';
+import { addScript, registerBootstrapBlazorModule } from '../BootstrapBlazor/modules/utility.js';
 import Data from '../BootstrapBlazor/modules/data.js';
 
 export async function init(id) {
-    await addScript('./_content/BootstrapBlazor.HikVision/jsVideoPlugin-1.0.0.min.js');
     await addScript('./_content/BootstrapBlazor.HikVision/webVideoCtrl.js');
 
     if (window.$ === void 0) {
@@ -24,6 +23,29 @@ export async function init(id) {
     vision.inited = true;
 
     return true;
+}
+
+const hackJSResize = function () {
+    const originalResize = JSVideoPlugin.prototype.JS_Resize;
+    JSVideoPlugin.prototype.JS_Resize = function (e, t) {
+        const { szId } = this.oOptions;
+        if (document.getElementById(szId)) {
+            return originalResize.call(this, e, t);
+        }
+    }
+}
+
+const hackJSDestroyPlugin = function () {
+    const originalDestroy = JSVideoPlugin.prototype.JS_DestroyPlugin;
+    JSVideoPlugin.prototype.JS_DestroyPlugin = function (n) {
+        const origianlSendRequestProxy = this.oPlugin.oRequest.oRequest.sendRequest;
+        this.oPlugin.oRequest.oRequest.sendRequest = function (r) {
+            if (this.oWebSocket && WebSocket.OPEN === this.oWebSocket.readyState) {
+                return origianlSendRequestProxy.call(this, r);
+            }
+        }
+        return this.oPlugin.JS_DestroyPlugin(true);
+    }
 }
 
 const initWindow = id => {
@@ -53,7 +75,9 @@ const initWindow = id => {
     return new Promise((resolve, reject) => {
         const handler = setInterval(() => {
             if (result.inited === false || (result.inited && result.iWndIndex !== -1)) {
-                clearInterval(handler)
+                clearInterval(handler);
+                hackJSResize();
+                hackJSDestroyPlugin();
                 resolve(result);
             }
         }, 16);
@@ -278,6 +302,7 @@ export function dispose(id) {
     if (logined === true) {
         logout(id);
     }
+    WebVideoCtrl.I_Stop();
     WebVideoCtrl.I_DestroyPlugin();
 
 }
