@@ -29,6 +29,7 @@ export async function init(id) {
 const initWindow = id => {
     const result = { inited: null, iWndIndex: -1 };
     WebVideoCtrl.I_InitPlugin({
+        szBasePath: './_content/BootstrapBlazor.HikVision',
         bWndFull: true,
         iWndowType: 1,
         cbSelWnd: function (xmlDoc) {
