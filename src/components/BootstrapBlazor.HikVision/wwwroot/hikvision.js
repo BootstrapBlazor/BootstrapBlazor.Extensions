@@ -302,9 +302,7 @@ export function dispose(id) {
     if (logined === true) {
         logout(id);
     }
-    WebVideoCtrl.I_Stop();
     WebVideoCtrl.I_DestroyPlugin();
-
 }
 
 const getTagNameFirstValue = (xmlDoc, tagName, defaultValue = '0') => {
