@@ -22,6 +22,15 @@ export async function init(id) {
     vision.iWndIndex = result.iWndIndex;
     vision.inited = true;
 
+    const observer = new IntersectionObserver(() => {
+        console.log('IntersectionObserver callback');
+        if (checkVisibility(el)) {
+            WebVideoCtrl.I_Resize(el.offsetWidth, el.offsetHeight);
+        }
+    });
+    observer.observe(el);
+    vision.observer = observer;
+
     return true;
 }
 
@@ -309,7 +318,10 @@ export function dispose(id) {
     const vision = Data.get(id);
     Data.remove(id);
 
-    const { realPlaying, logined } = vision;
+    const { realPlaying, logined, observer } = vision;
+    if (observer) {
+        observer.disconnect();
+    }
     if (realPlaying === true) {
         stopRealPlay(id);
     }
