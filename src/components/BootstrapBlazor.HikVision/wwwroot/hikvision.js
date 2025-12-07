@@ -50,40 +50,6 @@ const hackJSResize = function () {
     }
 }
 
-const checkVisibility = el => {
-    if (el.checkVisibility) {
-        return el.checkVisibility();
-    }
-    else {
-        return isVisible(el);
-    }
-}
-
-const isVisible = (element) => {
-    if (!element) return false;
-
-    const style = window.getComputedStyle(element);
-    if (style.display === 'none' || style.visibility === 'hidden' || parseFloat(style.opacity) < 0.01) {
-        return false;
-    }
-
-    const rect = element.getBoundingClientRect();
-    if (rect.width === 0 || rect.height === 0) {
-        return false;
-    }
-
-    let parent = element.parentElement;
-    while (parent) {
-        const parentStyle = window.getComputedStyle(parent);
-        if (parentStyle.display === 'none' || parentStyle.visibility === 'hidden') {
-            return false;
-        }
-        parent = parent.parentElement;
-    }
-
-    return true;
-}
-
 const hackJSShowWnd = function () {
     const originalShowWnd = JSVideoPlugin.prototype.JS_ShowWnd;
     JSVideoPlugin.prototype.JS_ShowWnd = function () {
@@ -401,4 +367,38 @@ const getTagNameFirstValue = (xmlDoc, tagName, defaultValue = '0') => {
 
 const getTagNameValues = (xmlDoc, tagName) => {
     return xmlDoc.getElementsByTagName(tagName);
+}
+
+const checkVisibility = el => {
+    if (el.checkVisibility) {
+        return el.checkVisibility();
+    }
+    else {
+        return isVisible(el);
+    }
+}
+
+const isVisible = (element) => {
+    if (!element) return false;
+
+    const style = window.getComputedStyle(element);
+    if (style.display === 'none' || style.visibility === 'hidden' || parseFloat(style.opacity) < 0.01) {
+        return false;
+    }
+
+    const rect = element.getBoundingClientRect();
+    if (rect.width === 0 || rect.height === 0) {
+        return false;
+    }
+
+    let parent = element.parentElement;
+    while (parent) {
+        const parentStyle = window.getComputedStyle(parent);
+        if (parentStyle.display === 'none' || parentStyle.visibility === 'hidden') {
+            return false;
+        }
+        parent = parent.parentElement;
+    }
+
+    return true;
 }
