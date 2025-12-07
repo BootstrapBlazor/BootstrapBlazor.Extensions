@@ -23,7 +23,6 @@ export async function init(id) {
     vision.inited = true;
 
     const observer = new IntersectionObserver(() => {
-        console.log('IntersectionObserver callback');
         if (checkVisibility(el)) {
             WebVideoCtrl.I_Resize(el.offsetWidth, el.offsetHeight);
         }
@@ -38,8 +37,68 @@ const hackJSResize = function () {
     const originalResize = JSVideoPlugin.prototype.JS_Resize;
     JSVideoPlugin.prototype.JS_Resize = function (e, t) {
         const { szId } = this.oOptions;
-        if (document.getElementById(szId)) {
-            return originalResize.call(this, e, t);
+        const el = document.getElementById(szId);
+        if (el) {
+            const visible = checkVisibility(el);
+            if (visible) {
+                return originalResize.call(this, e, t);
+            }
+            else {
+                WebVideoCtrl.I_HidPlugin();
+            }
+        }
+    }
+}
+
+const checkVisibility = el => {
+    if (el.checkVisibility) {
+        return el.checkVisibility();
+    }
+    else {
+        return isVisible(el);
+    }
+}
+
+const isVisible = (element) => {
+    if (!element) return false;
+
+    const style = window.getComputedStyle(element);
+    if (style.display === 'none' || style.visibility === 'hidden' || parseFloat(style.opacity) < 0.01) {
+        return false;
+    }
+
+    const rect = element.getBoundingClientRect();
+    if (rect.width === 0 || rect.height === 0) {
+        return false;
+    }
+
+    let parent = element.parentElement;
+    while (parent) {
+        const parentStyle = window.getComputedStyle(parent);
+        if (parentStyle.display === 'none' || parentStyle.visibility === 'hidden') {
+            return false;
+        }
+        parent = parent.parentElement;
+    }
+
+    return true;
+}
+
+const hackJSShowWnd = function () {
+    const originalShowWnd = JSVideoPlugin.prototype.JS_ShowWnd;
+    JSVideoPlugin.prototype.JS_ShowWnd = function () {
+        const { szId } = this.oOptions;
+        const el = document.getElementById(szId);
+        if (el) {
+            const visible = checkVisibility(el);
+            if (visible) {
+                return originalShowWnd.call(this);
+            }
+            else {
+                return new Promise((resolve, reject) => {
+                    resolve();
+                });
+            }
         }
     }
 }
@@ -100,6 +159,7 @@ const initWindow = id => {
             if (result.inited === false || (result.inited && result.iWndIndex !== -1)) {
                 clearInterval(handler);
                 hackJSResize();
+                hackJSShowWnd();
                 hackJSDestroyPlugin();
                 resolve(result);
             }
