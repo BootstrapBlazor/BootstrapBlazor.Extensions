@@ -22,6 +22,14 @@ export async function init(id) {
     vision.iWndIndex = result.iWndIndex;
     vision.inited = true;
 
+    const observer = new IntersectionObserver(() => {
+        if (checkVisibility(el)) {
+            WebVideoCtrl.I_Resize(el.offsetWidth, el.offsetHeight);
+        }
+    });
+    observer.observe(el);
+    vision.observer = observer;
+
     return true;
 }
 
@@ -29,8 +37,34 @@ const hackJSResize = function () {
     const originalResize = JSVideoPlugin.prototype.JS_Resize;
     JSVideoPlugin.prototype.JS_Resize = function (e, t) {
         const { szId } = this.oOptions;
-        if (document.getElementById(szId)) {
-            return originalResize.call(this, e, t);
+        const el = document.getElementById(szId);
+        if (el) {
+            const visible = checkVisibility(el);
+            if (visible) {
+                return originalResize.call(this, e, t);
+            }
+            else {
+                WebVideoCtrl.I_HidPlugin();
+            }
+        }
+    }
+}
+
+const hackJSShowWnd = function () {
+    const originalShowWnd = JSVideoPlugin.prototype.JS_ShowWnd;
+    JSVideoPlugin.prototype.JS_ShowWnd = function () {
+        const { szId } = this.oOptions;
+        const el = document.getElementById(szId);
+        if (el) {
+            const visible = checkVisibility(el);
+            if (visible) {
+                return originalShowWnd.call(this);
+            }
+            else {
+                return new Promise((resolve, reject) => {
+                    resolve();
+                });
+            }
         }
     }
 }
@@ -91,6 +125,7 @@ const initWindow = id => {
             if (result.inited === false || (result.inited && result.iWndIndex !== -1)) {
                 clearInterval(handler);
                 hackJSResize();
+                hackJSShowWnd();
                 hackJSDestroyPlugin();
                 resolve(result);
             }
@@ -309,7 +344,10 @@ export function dispose(id) {
     const vision = Data.get(id);
     Data.remove(id);
 
-    const { realPlaying, logined } = vision;
+    const { realPlaying, logined, observer } = vision;
+    if (observer) {
+        observer.disconnect();
+    }
     if (realPlaying === true) {
         stopRealPlay(id);
     }
@@ -329,4 +367,38 @@ const getTagNameFirstValue = (xmlDoc, tagName, defaultValue = '0') => {
 
 const getTagNameValues = (xmlDoc, tagName) => {
     return xmlDoc.getElementsByTagName(tagName);
+}
+
+const checkVisibility = el => {
+    if (el.checkVisibility) {
+        return el.checkVisibility();
+    }
+    else {
+        return isVisible(el);
+    }
+}
+
+const isVisible = (element) => {
+    if (!element) return false;
+
+    const style = window.getComputedStyle(element);
+    if (style.display === 'none' || style.visibility === 'hidden' || parseFloat(style.opacity) < 0.01) {
+        return false;
+    }
+
+    const rect = element.getBoundingClientRect();
+    if (rect.width === 0 || rect.height === 0) {
+        return false;
+    }
+
+    let parent = element.parentElement;
+    while (parent) {
+        const parentStyle = window.getComputedStyle(parent);
+        if (parentStyle.display === 'none' || parentStyle.visibility === 'hidden') {
+            return false;
+        }
+        parent = parent.parentElement;
+    }
+
+    return true;
 }
