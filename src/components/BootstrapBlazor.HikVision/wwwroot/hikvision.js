@@ -26,6 +26,9 @@ export async function init(id) {
         if (checkVisibility(el)) {
             WebVideoCtrl.I_Resize(el.offsetWidth, el.offsetHeight);
         }
+        else {
+            WebVideoCtrl.I_HidPlugin();
+        }
     });
     observer.observe(el);
     vision.observer = observer;

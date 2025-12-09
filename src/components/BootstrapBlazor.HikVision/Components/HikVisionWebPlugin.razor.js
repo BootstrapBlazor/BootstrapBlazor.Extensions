@@ -1,6 +1,5 @@
 import { init as initVision, login as loginVision, logout, startRealPlay, stopRealPlay, dispose as disposeVision } from '../hikvision.js';
 import Data from '../../BootstrapBlazor/modules/data.js';
-import EventHandler from '../../BootstrapBlazor/modules/event-handler.js';
 
 export async function init(id, invoke) {
     const el = document.getElementById(id);
