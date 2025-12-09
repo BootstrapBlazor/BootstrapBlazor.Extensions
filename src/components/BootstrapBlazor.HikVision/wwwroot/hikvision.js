@@ -86,6 +86,10 @@ const hackJSDestroyPlugin = function () {
         JSVideoPlugin = null;
         delete window.JSVideoPlugin;
         removePlugin();
+
+        return new Promise((resolve, reject) => {
+            resolve();
+        });
     }
 }
 
