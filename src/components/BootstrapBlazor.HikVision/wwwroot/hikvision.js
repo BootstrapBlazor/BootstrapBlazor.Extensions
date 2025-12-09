@@ -86,6 +86,10 @@ const hackJSDestroyPlugin = function () {
         JSVideoPlugin = null;
         delete window.JSVideoPlugin;
         removePlugin();
+
+        return new Promise((resolve, reject) => {
+            resolve();
+        });
     }
 }
 
@@ -345,12 +349,12 @@ export function stopRealPlay(id) {
 
 export function dispose(id) {
     const vision = Data.get(id);
-    Data.remove(id);
-
     const { realPlaying, logined, observer } = vision;
     if (observer) {
         observer.disconnect();
     }
+    WebVideoCtrl.I_HidPlugin();
+
     if (realPlaying === true) {
         stopRealPlay(id);
     }
@@ -358,6 +362,8 @@ export function dispose(id) {
         logout(id);
     }
     WebVideoCtrl.I_DestroyPlugin();
+
+    Data.remove(id);
 }
 
 const getTagNameFirstValue = (xmlDoc, tagName, defaultValue = '0') => {
