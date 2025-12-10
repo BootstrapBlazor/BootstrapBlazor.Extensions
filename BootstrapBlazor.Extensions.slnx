@@ -5,6 +5,7 @@
     <File Path=".github/workflows/release.yml" />
   </Folder>
   <Folder Name="/configurations/">
+    <File Path=".editorconfig" />
     <File Path=".gitignore" />
     <File Path="exclusion.dic" />
   </Folder>
