@@ -127,6 +127,13 @@ public partial class PdfReader
     [Parameter]
     public Func<Task>? OnPrintingAsync { get; set; }
 
+    /// <summary>
+    /// 通过流加载 PDF 文档回调方法 默认 null
+    /// </summary>
+    /// <remarks>优先使用 <see cref="Url"/> 未提供 <see cref="Url"/> 时会尝试调用此回调获得流进行渲染</remarks>
+    [Parameter]
+    public Func<Task<Stream>>? OnGetStreamAsync { get; set; }
+
     [Inject, NotNull]
     private IStringLocalizer<PdfReader>? Localizer { get; set; }
 
@@ -228,19 +235,24 @@ public partial class PdfReader
     /// <inheritdoc/>
     /// </summary>
     /// <returns></returns>
-    protected override Task InvokeInitAsync() => InvokeVoidAsync("init", Id, Interop, new
+    protected override async Task InvokeInitAsync()
     {
-        Url,
-        FitMode,
-        EnableThumbnails,
-        CurrentPage,
-        TriggerPagesInit = OnPagesInitAsync != null,
-        TriggerPagesLoaded = OnPagesLoadedAsync != null,
-        TriggerPageChanged = OnPageChangedAsync != null,
-        TriggerTowPagesOnViewChanged = OnTwoPagesOneViewAsync != null,
-        TriggerScaleChanged = OnScaleChangedAsync != null,
-        TriggerRotationChanged = OnRotationChanged != null,
-    });
+        var _data = await GetPdfStreamDataAsync();
+        await InvokeVoidAsync("init", Id, Interop, new
+        {
+            Url,
+            Data = _data,
+            FitMode,
+            EnableThumbnails,
+            CurrentPage,
+            TriggerPagesInit = OnPagesInitAsync != null,
+            TriggerPagesLoaded = OnPagesLoadedAsync != null,
+            TriggerPageChanged = OnPageChangedAsync != null,
+            TriggerTowPagesOnViewChanged = OnTwoPagesOneViewAsync != null,
+            TriggerScaleChanged = OnScaleChangedAsync != null,
+            TriggerRotationChanged = OnRotationChanged != null,
+        });
+    }
 
     /// <summary>
     /// 跳转到指定页码方法
@@ -265,6 +277,19 @@ public partial class PdfReader
     /// </summary>
     /// <returns></returns>
     public Task RotateRight() => InvokeVoidAsync("rotate", Id, 90);
+
+    private async Task<byte[]?> GetPdfStreamDataAsync()
+    {
+        byte[]? pdfBytes = null;
+        if (OnGetStreamAsync != null)
+        {
+            using var memoryStream = new MemoryStream();
+            var stream = await OnGetStreamAsync();
+            await stream.CopyToAsync(memoryStream);
+            pdfBytes = memoryStream.ToArray();
+        }
+        return pdfBytes;
+    }
 
     /// <summary>
     /// 页面开始初始化时回调方法
