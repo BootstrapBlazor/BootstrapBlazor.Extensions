@@ -125,8 +125,34 @@ export function resetThumbnails(id) {
 const loadPdf = async pdf => {
     const { el, invoke, options } = pdf;
     const loadingTask = pdfjsLib.getDocument(options);
-    loadingTask.onProgress = function (progressData) {
 
+    const progressEl = el.querySelector('.bb-view-progress');
+    if (progressEl) {
+        progressEl.classList.add('show');
+    }
+    const bar = el.querySelector('.bb-view-progress-bar');
+    if (bar) {
+        bar.style.setProperty('--bb-view-progress-val', '0');
+    }
+
+    let progressHandler = null;
+    loadingTask.onProgress = function (progressData) {
+        const { loaded, total } = progressData;
+
+        if (bar) {
+            const val = loaded / total * 100;
+            if (val > 100) {
+                val = 100;
+            }
+            bar.style.setProperty('--bb-view-progress-val', `${val}%`);
+
+            if (progressHandler === null) {
+                progressHandler = setTimeout(() => {
+                    clearTimeout(progressHandler);
+                    progressEl.classList.remove('show');
+                }, 300);
+            }
+        }
     };
 
     loadingTask.onPassword = function (updatePassword, reason) {
