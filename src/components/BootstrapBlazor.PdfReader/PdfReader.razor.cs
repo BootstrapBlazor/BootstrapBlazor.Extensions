@@ -196,7 +196,7 @@ public partial class PdfReader
         if (_url != Url)
         {
             _url = Url;
-            await InvokeInitAsync();
+            await InvokeVoidAsync("setUrl", Id, _url);
         }
         if (_currentPage != CurrentPage)
         {
