@@ -47,14 +47,12 @@ export async function setData(id, data) {
         return;
     }
 
-    const { options, objectUrl } = pdf;
-    if (objectUrl) {
-        URL.revokeObjectURL(objectUrl);
-    }
+    const objectUrl = createObjectURLFromByte(data);
+    pdf.objectUrl = objectUrl;
 
-    options.url = createObjectURLFromByte(data);
+    const { options } = pdf;
+    options.url = objectUrl;
     options.data = null;
-    pdf.objectUrl = options.url;
     await loadPdf(pdf);
 }
 
@@ -187,7 +185,11 @@ const loadPdf = async pdf => {
 }
 
 const disposePdf = pdf => {
-    const { el, observer, loadingTask } = pdf;
+    const { el, observer, loadingTask, objectUrl } = pdf;
+    if (objectUrl) {
+        URL.revokeObjectURL(objectUrl);
+    }
+
     if (observer) {
         observer.disconnect();
     }
