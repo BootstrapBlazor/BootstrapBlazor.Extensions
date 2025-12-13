@@ -16,14 +16,42 @@ export async function init(id, invoke, options) {
         return;
     }
 
-    if (options.url === null) {
+    Data.set(id, { el, invoke, options });
+
+    if (options.url) {
+        setUrl(id, options.url);
+    }
+    else {
+        setData(id, options.data);
+    }
+}
+
+export async function setUrl(id, url) {
+    const pdf = Data.get(id);
+    disposePdf(pdf);
+
+    if (!url) {
         return;
     }
 
-    const pdfViewer = await loadPdf(el, invoke, options);
-    const observer = setObserver(el);
+    const { options } = pdf;
+    options.url = url;
+    options.data = null;
+    await loadPdf(pdf);
+}
 
-    Data.set(id, { el, pdfViewer, observer });
+export async function setData(id, data) {
+    const pdf = Data.get(id);
+    disposePdf(pdf);
+
+    if (!data) {
+        return;
+    }
+
+    const { options } = pdf;
+    options.url = null;
+    options.data = data;
+    await loadPdf(pdf);
 }
 
 export function setScaleValue(id, value) {
@@ -74,7 +102,8 @@ export function resetThumbnails(id) {
     }
 }
 
-const loadPdf = async (el, invoke, options) => {
+const loadPdf = async pdf => {
+    const { el, invoke, options } = pdf;
     const loadingTask = pdfjsLib.getDocument(options);
     loadingTask.onProgress = function (progressData) {
 
@@ -96,6 +125,7 @@ const loadPdf = async (el, invoke, options) => {
         eventBus
     });
 
+    resetToolbarView(el, pdfViewer);
     addEventBus(el, pdfViewer, eventBus, invoke, options);
 
     const pdfDocument = await loadingTask.promise;
@@ -105,7 +135,37 @@ const loadPdf = async (el, invoke, options) => {
         loadMetadata(el, pdfViewer, metadata);
     });
 
-    return pdfViewer;
+    pdf.pdfViewer = pdfViewer;
+    pdf.loadingTask = loadingTask;
+    pdf.observer = setObserver(el);
+}
+
+const disposePdf = pdf => {
+    const { el, observer, loadingTask } = pdf;
+    if (observer) {
+        observer.disconnect();
+    }
+
+    if (loadingTask && !loadingTask.destroyed) {
+        loadingTask.destroy();
+    }
+
+    if (el) {
+        removeToolbarEventHandlers(el);
+        const viewContainer = el.querySelector(".bb-view-container");
+        if (viewContainer) {
+            [...viewContainer.children].forEach(i => {
+                if (!i.classList.contains("pdfViewer")) {
+                    i.remove();
+                }
+            })
+        }
+
+        const thumbnailsContainer = el.querySelector(".bb-view-thumbnails");
+        if (thumbnailsContainer) {
+            thumbnailsContainer.innerHTML = "";
+        }
+    }
 }
 
 const loadMetadata = (el, pdfViewer, metadata) => {
@@ -474,6 +534,37 @@ const addToolbarEventHandlers = (el, pdfViewer, invoke, options) => {
     });
 }
 
+const removeToolbarEventHandlers = el => {
+    if (el) {
+        const towPagesOneView = el.querySelector(".dropdown-item-pages");
+        if (towPagesOneView) {
+            EventHandler.off(towPagesOneView, "click");
+        }
+
+        const toolbar = el.querySelector(".bb-view-toolbar");
+        if (toolbar) {
+            EventHandler.off(toolbar, "click");
+            EventHandler.off(toolbar, "change");
+            EventHandler.off(toolbar, "focus");
+        }
+
+        const thumbnailsContainer = el.querySelector(".bb-view-thumbnails");
+        if (thumbnailsContainer) {
+            EventHandler.off(thumbnailsContainer, "click");
+        }
+
+        const iframe = document.querySelector('.bb-view-print-iframe');
+        if (iframe) {
+            iframe.remove();
+        }
+
+        const closeButton = el.querySelector(".btn-close-doc");
+        if (closeButton) {
+            EventHandler.off(closeButton, "click");
+        }
+    }
+}
+
 const resetToolbarView = (el, pdfViewer) => {
     const scaleEl = el.querySelector(".bb-view-scale-input");
     updateScaleValue(el, pdfViewer.currentScale);
@@ -624,39 +715,8 @@ const printPdf = url => {
 }
 
 export function dispose(id) {
-    const { el, observer } = Data.get(id);
+    const pdf = Data.get(id);
     Data.remove(id);
 
-    if (observer) {
-        observer.disconnect();
-    }
-
-    if (el) {
-        const towPagesOneView = el.querySelector(".dropdown-item-pages");
-        if (towPagesOneView) {
-            EventHandler.off(towPagesOneView, "click");
-        }
-
-        const toolbar = el.querySelector(".bb-view-toolbar");
-        if (toolbar) {
-            EventHandler.off(toolbar, "click");
-            EventHandler.off(toolbar, "change");
-            EventHandler.off(toolbar, "focus");
-        }
-
-        const thumbnailsContainer = el.querySelector(".bb-view-thumbnails");
-        if (thumbnailsContainer) {
-            EventHandler.off(thumbnailsContainer, "click");
-        }
-
-        const iframe = document.querySelector('.bb-view-print-iframe');
-        if (iframe) {
-            iframe.remove();
-        }
-
-        const closeButton = el.querySelector(".btn-close-doc");
-        if (closeButton) {
-            EventHandler.off(closeButton, "click");
-        }
-    }
+    disposePdf(pdf);
 }
