@@ -47,29 +47,10 @@ export async function setData(id, data) {
         return;
     }
 
-    const objectUrl = createObjectURLFromByte(data);
-    pdf.objectUrl = objectUrl;
-
     const { options } = pdf;
     options.url = objectUrl;
     options.data = null;
     await loadPdf(pdf);
-}
-
-const createObjectURLFromBase64 = base64Data => {
-    const binaryString = atob(base64Data);
-    const bytes = new Uint8Array(binaryString.length);
-    for (let i = 0; i < binaryString.length; i++) {
-        bytes[i] = binaryString.charCodeAt(i);
-    }
-
-    const blob = new Blob([bytes], { type: 'application/pdf' });
-    return URL.createObjectURL(blob);
-}
-
-const createObjectURLFromByte = bytes => {
-    const blob = new Blob([bytes], { type: 'application/pdf' });
-    return URL.createObjectURL(blob);
 }
 
 export function setScaleValue(id, value) {
@@ -182,10 +163,7 @@ const loadPdf = async pdf => {
 }
 
 const disposePdf = pdf => {
-    const { el, observer, loadingTask, objectUrl } = pdf;
-    if (objectUrl) {
-        URL.revokeObjectURL(objectUrl);
-    }
+    const { el, observer, loadingTask } = pdf;
 
     if (observer) {
         observer.disconnect();
