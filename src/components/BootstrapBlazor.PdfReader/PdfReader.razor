@@ -3,6 +3,9 @@
 @inherits BootstrapModuleComponentBase
 
 <div @attributes="@AdditionalAttributes" id="@Id" class="@ClassString" style="@StyleString">
+    <div class="bb-view-progress">
+        <div class="bb-view-progress-bar"></div>
+    </div>
     <div class="bb-view-toolbar">
         @if (ShowToolbar)
         {

@@ -8,6 +8,25 @@
     height: calc(var(--bb-pdf-view-height) + var(--bb-pdf-toolbar-height));
 }
 
+.bb-view-progress {
+    position: absolute;
+    top: 0;
+    left: 0;
+    right: 0;
+    height: 0.25rem;
+}
+
+    .bb-view-progress:not(.show) {
+        display: none;
+    }
+
+.bb-view-progress-bar {
+    height: 100%;
+    background-color: var(--bs-primary);
+    width: var(--bb-view-progress-val, 0);
+    transition: width .3s linear;
+}
+
 .bb-view-toolbar {
     height: var(--bb-pdf-toolbar-height);
     background-color: var(--bb-toolbar-background-color);
