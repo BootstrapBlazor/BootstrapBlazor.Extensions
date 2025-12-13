@@ -36,6 +36,7 @@ export async function setUrl(id, url) {
 
     const { options } = pdf;
     options.url = url;
+    options.data = null;
     await loadPdf(pdf);
 }
 
@@ -47,29 +48,10 @@ export async function setData(id, data) {
         return;
     }
 
-    const objectUrl = createObjectURLFromByte(data);
-    pdf.objectUrl = objectUrl;
-
     const { options } = pdf;
-    options.url = objectUrl;
-    options.data = null;
+    options.url = null;
+    options.data = data;;
     await loadPdf(pdf);
-}
-
-const createObjectURLFromBase64 = base64Data => {
-    const binaryString = atob(base64Data);
-    const bytes = new Uint8Array(binaryString.length);
-    for (let i = 0; i < binaryString.length; i++) {
-        bytes[i] = binaryString.charCodeAt(i);
-    }
-
-    const blob = new Blob([bytes], { type: 'application/pdf' });
-    return URL.createObjectURL(blob);
-}
-
-const createObjectURLFromByte = bytes => {
-    const blob = new Blob([bytes], { type: 'application/pdf' });
-    return URL.createObjectURL(blob);
 }
 
 export function setScaleValue(id, value) {
@@ -139,10 +121,7 @@ const loadPdf = async pdf => {
 
         if (bar) {
             const val = loaded / total * 100;
-            if (val > 100) {
-                val = 100;
-            }
-            bar.style.setProperty('--bb-view-progress-val', `${val}%`);
+            bar.style.setProperty('--bb-view-progress-val', `${Math.min(val, 100)}%`);
 
             if (progressHandler === null) {
                 progressHandler = setTimeout(() => {
@@ -185,10 +164,7 @@ const loadPdf = async pdf => {
 }
 
 const disposePdf = pdf => {
-    const { el, observer, loadingTask, objectUrl } = pdf;
-    if (objectUrl) {
-        URL.revokeObjectURL(objectUrl);
-    }
+    const { el, observer, loadingTask } = pdf;
 
     if (observer) {
         observer.disconnect();
@@ -203,7 +179,10 @@ const disposePdf = pdf => {
         const viewContainer = el.querySelector(".bb-view-container");
         if (viewContainer) {
             [...viewContainer.children].forEach(i => {
-                if (!i.classList.contains("pdfViewer")) {
+                if (i.classList.contains("pdfViewer")) {
+                    i.innerHTML = "";
+                }
+                else {
                     i.remove();
                 }
             })
