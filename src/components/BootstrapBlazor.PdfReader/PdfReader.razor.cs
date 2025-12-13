@@ -132,7 +132,7 @@ public partial class PdfReader
     /// </summary>
     /// <remarks>优先使用 <see cref="Url"/> 未提供 <see cref="Url"/> 时会尝试调用此回调获得流进行渲染</remarks>
     [Parameter]
-    public Func<Task<Stream>>? OnGetStreamAsync { get; set; }
+    public Func<Task<Stream?>>? OnGetStreamAsync { get; set; }
 
     [Inject, NotNull]
     private IStringLocalizer<PdfReader>? Localizer { get; set; }
@@ -156,6 +156,8 @@ public partial class PdfReader
     private bool _enableThumbnails = true;
     private bool _showToolbar = true;
     private PdfReaderFitMode _fitMode;
+    private string _lastStreamHash = string.Empty;
+    private long _lastStreamLength = 0;
 
     /// <summary>
     /// <inheritdoc/>
@@ -188,14 +190,16 @@ public partial class PdfReader
         {
             _url = Url;
             _currentPage = CurrentPage;
-            _enableThumbnails = EnableThumbnails;
+            _currentRotation = CurrentRotation;
             _showToolbar = ShowToolbar;
+            _enableThumbnails = EnableThumbnails;
             _fitMode = FitMode;
         }
 
         if (_url != Url)
         {
             _url = Url;
+            _lastStreamHash = string.Empty;
             await InvokeVoidAsync("setUrl", Id, _url);
         }
         if (_currentPage != CurrentPage)
@@ -229,7 +233,123 @@ public partial class PdfReader
             _fitMode = FitMode;
             await SetFitMode(_fitMode);
         }
+        if (string.IsNullOrEmpty(Url))
+        {
+            Stream? stream = null;
+            if (OnGetStreamAsync != null)
+            {
+                stream = await OnGetStreamAsync();
+            }
+
+            await SetPdfStream(stream);
+        }
     }
+
+    private async Task SetPdfStream(Stream? stream)
+    {
+        if (stream == null || stream == Stream.Null)
+        {
+            _lastStreamHash = string.Empty;
+            _lastStreamLength = 0;
+            await InvokeVoidAsync("setData", Id, null);
+            return;
+        }
+
+        byte[] pdfBytes = await GetBytes(stream);
+
+        var currentLength = pdfBytes.Length;
+        if (_lastStreamLength != currentLength)
+        {
+            _lastStreamLength = currentLength;
+            await InvokeVoidAsync("setData", Id, pdfBytes);
+            return;
+        }
+
+#if NET6_0
+        var currentHash = ComputerHash(pdfBytes);
+#else
+        var currentHash = await ComputerHash(stream);
+#endif
+        if (_lastStreamHash != currentHash)
+        {
+            _lastStreamHash = currentHash;
+            await InvokeVoidAsync("setData", Id, pdfBytes);
+        }
+    }
+
+    private async Task<byte[]?> GetPdfStreamDataAsync()
+    {
+        byte[]? pdfBytes = null;
+        if (OnGetStreamAsync != null)
+        {
+            var stream = await OnGetStreamAsync();
+            if (stream == null || stream == Stream.Null)
+            {
+                _lastStreamHash = string.Empty;
+                _lastStreamLength = 0;
+            }
+            else
+            {
+                pdfBytes = await GetBytes(stream);
+            }
+        }
+        return pdfBytes;
+    }
+
+    private static async Task<byte[]> GetBytes(Stream stream)
+    {
+        using var memoryStream = new MemoryStream();
+        await stream.CopyToAsync(memoryStream);
+        return memoryStream.ToArray();
+    }
+
+    /// <summary>
+    /// 设置 PDF 流数据方法
+    /// </summary>
+    /// <param name="stream"></param>
+    /// <returns></returns>
+    public async Task SetPdfStreamAsync(Stream stream)
+    {
+        using var memoryStream = new MemoryStream();
+        await stream.CopyToAsync(memoryStream);
+        var pdfBytes = memoryStream.ToArray();
+        _lastStreamLength = pdfBytes.Length;
+#if NET6_0
+        _lastStreamHash = ComputerHash(pdfBytes);
+#else
+        _lastStreamHash = await ComputerHash(stream);
+#endif
+        await InvokeVoidAsync("setData", Id, pdfBytes);
+    }
+
+    /// <summary>
+    /// 设置 Pdf Base64 数据方法
+    /// </summary>
+    /// <param name="base64Data"></param>
+    /// <returns></returns>
+    public async Task SetPdfBase64DataAsync(string base64Data)
+    {
+        var pdfBytes = Convert.FromBase64String(base64Data);
+        await InvokeVoidAsync("setData", Id, pdfBytes);
+    }
+
+#if NET6_0
+    private static string ComputerHash(byte[] data)
+    {
+        var hashBytes = System.Security.Cryptography.SHA256.HashData(data);
+        return Convert.ToBase64String(hashBytes);
+    }
+#else
+    private static async Task<string> ComputerHash(Stream stream)
+    {
+        if (stream.CanSeek)
+        {
+            stream.Seek(0, SeekOrigin.Begin);
+        }
+        var hashBytes = await System.Security.Cryptography.SHA256.HashDataAsync(stream);
+        return Convert.ToBase64String(hashBytes);
+    }
+#endif
 
     /// <summary>
     /// <inheritdoc/>
@@ -277,19 +397,6 @@ public partial class PdfReader
     /// </summary>
     /// <returns></returns>
     public Task RotateRight() => InvokeVoidAsync("rotate", Id, 90);
-
-    private async Task<byte[]?> GetPdfStreamDataAsync()
-    {
-        byte[]? pdfBytes = null;
-        if (OnGetStreamAsync != null)
-        {
-            using var memoryStream = new MemoryStream();
-            var stream = await OnGetStreamAsync();
-            await stream.CopyToAsync(memoryStream);
-            pdfBytes = memoryStream.ToArray();
-        }
-        return pdfBytes;
-    }
 
     /// <summary>
     /// 页面开始初始化时回调方法
