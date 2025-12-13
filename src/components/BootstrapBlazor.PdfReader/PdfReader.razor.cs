@@ -200,6 +200,7 @@ public partial class PdfReader
         {
             _url = Url;
             _lastStreamHash = string.Empty;
+            _lastStreamLength = 0;
             await InvokeVoidAsync("setUrl", Id, _url);
         }
         if (_currentPage != CurrentPage)
