@@ -139,10 +139,7 @@ const loadPdf = async pdf => {
 
         if (bar) {
             const val = loaded / total * 100;
-            if (val > 100) {
-                val = 100;
-            }
-            bar.style.setProperty('--bb-view-progress-val', `${val}%`);
+            bar.style.setProperty('--bb-view-progress-val', `${Math.min(val, 100)}%`);
 
             if (progressHandler === null) {
                 progressHandler = setTimeout(() => {
