@@ -36,6 +36,7 @@ export async function setUrl(id, url) {
 
     const { options } = pdf;
     options.url = url;
+    options.data = null;
     await loadPdf(pdf);
 }
 
@@ -48,8 +49,8 @@ export async function setData(id, data) {
     }
 
     const { options } = pdf;
-    options.url = objectUrl;
-    options.data = null;
+    options.url = null;
+    options.data = data;;
     await loadPdf(pdf);
 }
 
@@ -178,7 +179,10 @@ const disposePdf = pdf => {
         const viewContainer = el.querySelector(".bb-view-container");
         if (viewContainer) {
             [...viewContainer.children].forEach(i => {
-                if (!i.classList.contains("pdfViewer")) {
+                if (i.classList.contains("pdfViewer")) {
+                    i.innerHTML = "";
+                }
+                else {
                     i.remove();
                 }
             })
