@@ -198,7 +198,9 @@ const disposePdf = pdf => {
 const loadMetadata = (el, pdfViewer, metadata) => {
     const filename = el.querySelector('.bb-view-pdf-dialog-filename');
     const docTitle = el.querySelector('.bb-view-subject');
-    filename.textContent = docTitle.textContent;
+    if (docTitle) {
+        filename.textContent = docTitle.textContent;
+    }
 
     const filesize = el.querySelector('.bb-view-pdf-dialog-filesize');
     filesize.textContent = getFilesize(metadata);
@@ -594,10 +596,14 @@ const removeToolbarEventHandlers = el => {
 
 const resetToolbarView = (el, pdfViewer) => {
     const scaleEl = el.querySelector(".bb-view-scale-input");
-    updateScaleValue(el, pdfViewer.currentScale);
+    if (scaleEl) {
+        updateScaleValue(el, pdfViewer.currentScale);
+    }
 
     const pageEl = el.querySelector(".bb-view-num");
-    pageEl.value = pdfViewer.currentPageNumber;
+    if (pageEl) {
+        pageEl.value = pdfViewer.currentPageNumber;
+    }
 
     const group = el.querySelector('.bb-view-group-rotate');
     if (group) {
@@ -610,11 +616,13 @@ const resetToolbarView = (el, pdfViewer) => {
     }
 
     const twoPagesOneView = el.querySelector(".dropdown-item-pages");
-    if (pdfViewer.spreadMode === 1) {
-        twoPagesOneView.classList.add("active");
-    }
-    else {
-        twoPagesOneView.classList.remove("active");
+    if (twoPagesOneView) {
+        if (pdfViewer.spreadMode === 1) {
+            twoPagesOneView.classList.add("active");
+        }
+        else {
+            twoPagesOneView.classList.remove("active");
+        }
     }
 
     delete el.widths
