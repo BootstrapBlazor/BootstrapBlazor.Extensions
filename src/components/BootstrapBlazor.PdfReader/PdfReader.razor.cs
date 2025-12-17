@@ -134,10 +134,17 @@ public partial class PdfReader
     [Parameter]
     public Func<Task<Stream?>>? OnGetStreamAsync { get; set; }
 
+    /// <summary>
+    /// 获得/设置 是否显示组件 默认 true 显示
+    /// </summary>
+    [Parameter]
+    public bool IsShow { get; set; } = true;
+
     [Inject, NotNull]
     private IStringLocalizer<PdfReader>? Localizer { get; set; }
 
     private string? ClassString => CssBuilder.Default("bb-pdf-reader")
+        .AddClass("show", IsShow)
         .AddClassFromAttributes(AdditionalAttributes)
         .Build();
 

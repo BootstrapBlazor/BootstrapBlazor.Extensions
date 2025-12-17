@@ -8,6 +8,11 @@
     height: calc(var(--bb-pdf-view-height) + var(--bb-pdf-toolbar-height));
 }
 
+    .bb-pdf-reader:not(.show) {
+        overflow: hidden;
+        height: 0;
+    }
+
 .bb-view-progress {
     position: absolute;
     top: 0;
