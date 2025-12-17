@@ -202,7 +202,7 @@ const loadMetadata = (el, pdfViewer, metadata) => {
         filename.textContent = docTitle.textContent;
     }
 
-    const filesize = el.querySelector('.bb-view-pdf-dialog-filesize');
+    const filesize = el.querySelector('.bb-view-pdf-dialog-file-size');
     filesize.textContent = getFilesize(metadata);
 
     const title = el.querySelector('.bb-view-pdf-dialog-title');
@@ -232,7 +232,7 @@ const loadMetadata = (el, pdfViewer, metadata) => {
         size.textContent = `${(viewport.width / 72).toFixed(2)} * ${(viewport.height / 72).toFixed(2)} in (portrait)`;
     });
 
-    const webview = el.querySelector('.bb-view-pdf-dialog-webview');
+    const webview = el.querySelector('.bb-view-pdf-dialog-view');
 }
 
 function parsePdfDate(pdfDateString) {
