@@ -5,9 +5,6 @@
   </PropertyGroup>
 
   <PropertyGroup>
-    <Version>10.0.1-beta01</Version>
-  </PropertyGroup>
-  <PropertyGroup>
     <PackageTags>Bootstrap Blazor WebAssembly wasm UI Components Chart</PackageTags>
     <Description>Bootstrap UI components extensions of Chart.js</Description>
     <RootNamespace>BootstrapBlazor.Components</RootNamespace>
