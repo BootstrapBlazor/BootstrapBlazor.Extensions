@@ -1,4 +1,4 @@
-﻿import '../../js/chart.umd.js'
+import '../../js/chart.umd.js'
 import '../../js/chartjs-plugin-datalabels.js'
 import { deepMerge } from '../../../BootstrapBlazor/modules/utility.js'
 import Data from '../../../BootstrapBlazor/modules/data.js'
@@ -219,20 +219,15 @@ const getChartOption = function (option) {
             ...genericOptions
         }
 
-        config = chartOption
+        config = chartOption;
 
-        if (option.options.barColorSeparately) {
-            colorFunc = function (data) {
-                data.borderWidth = 1
+        colorFunc = function (data) {
+            let color = chartColors[colors.shift()];
+            if (Array.isArray(data.backgroundColor) && data.backgroundColor.length !== 0) {
+                color = data.backgroundColor.shift();
             }
-        }
-        else {
-            colorFunc = function (data) {
-                const color = chartColors[colors.shift()]
-
-                data.backgroundColor = color
-                data.borderColor = color
-            }
+            data.backgroundColor = color;
+            data.borderColor = data.backgroundColor;
         }
     }
     else if (option.type === 'bar') {
@@ -242,16 +237,24 @@ const getChartOption = function (option) {
 
         if (option.options.barColorSeparately) {
             colorFunc = function (data) {
-                data.borderWidth = 1
+                if (Array.isArray(data.backgroundColor) && data.backgroundColor.length !== 0) {
+
+                }
+                else {
+                    data.backgroundColor = colors.slice(0, data.data.length).map(function (name) {
+                        return chartColors[name]
+                    })
+                }
             }
         }
         else {
             colorFunc = function (data) {
-                const color = chartColors[colors.shift()]
-
-                data.backgroundColor = Chart.helpers.color(color).alpha(0.5).rgbString()
+                let color = chartColors[colors.shift()]
+                if (Array.isArray(data.backgroundColor) && data.backgroundColor.length !== 0) {
+                    color = data.backgroundColor.shift();
+                }
+                data.backgroundColor = Chart.helpers.color(color).alpha(0.5).rgbString();
                 data.borderColor = color
-                data.borderWidth = 1
             }
         }
     }
@@ -272,10 +275,18 @@ const getChartOption = function (option) {
             }
         }
         colorFunc = function (data) {
-            data.backgroundColor = colors.slice(0, data.data.length).map(function (name) {
-                return chartColors[name]
-            })
-            data.borderColor = 'white'
+            if (Array.isArray(data.backgroundColor) && data.backgroundColor.length !== 0) {
+
+            }
+            else {
+                data.backgroundColor = colors.slice(0, data.data.length).map(function (name) {
+                    return chartColors[name]
+                })
+            }
+
+            if (data.borderColor === null) {
+                data.borderColor = 'white';
+            }
         }
 
         if (option.type === 'doughnut') {
@@ -308,14 +319,25 @@ const getChartOption = function (option) {
             }
         }
         colorFunc = function (data) {
-            const color = chartColors[colors.shift()]
-            data.backgroundColor = Chart.helpers.color(color).alpha(0.5).rgbString()
-            data.borderWidth = 1
+            let color = chartColors[colors.shift()]
+            if (Array.isArray(data.backgroundColor) && data.backgroundColor.length !== 0) {
+                color = data.backgroundColor.shift();
+            }
+            data.backgroundColor = Chart.helpers.color(color).alpha(0.5).rgbString();
             data.borderColor = color
         }
     }
 
     option.data.forEach(function (v) {
+        if (v.borderWidth === -1) {
+            if (option.type === 'line') {
+                v.borderWidth = 3;
+            }
+            else {
+                v.borderWidth = 1;
+            }
+        }
+
         colorFunc(v)
     })
 
