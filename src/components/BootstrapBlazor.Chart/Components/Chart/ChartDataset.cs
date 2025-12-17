@@ -1,4 +1,4 @@
-﻿// Copyright (c) Argo Zhang (argo@163.com). All rights reserved.
+// Copyright (c) Argo Zhang (argo@163.com). All rights reserved.
 // Licensed under the Apache License, Version 2.0. See License.txt in the project root for license information.
 // Website: https://www.blazor.zone or https://argozhang.github.io/
 
@@ -11,6 +11,11 @@ namespace BootstrapBlazor.Components;
 /// </summary>
 public class ChartDataset
 {
+    /// <summary>
+    /// 获得/设置 是否不显示 默认 false
+    /// </summary>
+    public bool Hidden { get; set; }
+
     /// <summary>
     /// 获得/设置 数据集合名称
     /// </summary>
@@ -64,17 +69,17 @@ public class ChartDataset
     public int PointHoverRadius { get; set; } = 4;
 
     /// <summary>
-    /// 获得/设置 折线图(Line) 宽度 默认 3 个像素
+    /// 获得/设置 折线图(Line) 宽度 默认 3 个像素 (bar) 默认 1 个像素
     /// </summary>
-    public double BorderWidth { get; set; } = 3;
+    public double BorderWidth { get; set; } = -1;
 
     /// <summary>
-    /// 获得/设置 柱状图的颜色数组
+    /// 获得/设置 颜色数组 默认 null 使用 <see cref="ChartOptions.Colors"/> 值
     /// </summary>
-    public string[] BackgroundColor { get; set; } = { "rgb(255, 205, 86, 0)" };
+    public List<string>? BackgroundColor { get; set; }
 
     /// <summary>
-    /// 获得/设置 柱状图的边框颜色数组
+    /// 获得/设置 边框颜色数组 默认 null 使用 <see cref="ChartOptions.Colors"/> 值
     /// </summary>
-    public string[] BorderColor { get; set; } = { "rgb(255, 205, 86, 0)" };
+    public List<string>? BorderColor { get; set; }
 }

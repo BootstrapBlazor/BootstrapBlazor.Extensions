@@ -1,4 +1,4 @@
-﻿// Copyright (c) Argo Zhang (argo@163.com). All rights reserved.
+// Copyright (c) Argo Zhang (argo@163.com). All rights reserved.
 // Licensed under the Apache License, Version 2.0. See License.txt in the project root for license information.
 // Website: https://www.blazor.zone or https://argozhang.github.io/
 
@@ -131,6 +131,8 @@ public partial class Chart
 
     private bool UpdateDataSource { get; set; }
 
+    private ChartDataSource? _ds = null;
+
     /// <summary>
     /// OnInitialized 方法
     /// </summary>
@@ -156,20 +158,19 @@ public partial class Chart
                 throw new InvalidOperationException($"{nameof(OnInitAsync)} parameter must be set. {nameof(OnInitAsync)} 回调方法必须设置");
             }
 
-            ChartDataSource? ds = null;
             if (OnInitAsync != null)
             {
-                ds = await OnInitAsync();
-                UpdateOptions(ds);
+                _ds = await OnInitAsync();
+                UpdateOptions(_ds);
 
                 if (Height != null && Width != null)
                 {
                     //设置了高度和宽度,会自动禁用约束图表比例,图表充满容器
-                    ds.Options.MaintainAspectRatio = false;
+                    _ds.Options.MaintainAspectRatio = false;
                 }
             }
 
-            await InvokeVoidAsync("init", Id, Interop, nameof(Completed), ds);
+            await InvokeVoidAsync("init", Id, Interop, nameof(Completed), _ds);
         }
     }
 
@@ -201,6 +202,70 @@ public partial class Chart
     }
 
     /// <summary>
+    /// 增加数据集
+    /// </summary>
+    /// <param name="dataset"></param>
+    /// <param name="index"></param>
+    /// <returns></returns>
+    public async Task AddDataset(ChartDataset dataset, int? index = null)
+    {
+        if (_ds == null)
+        {
+            if (OnInitAsync != null)
+            {
+                _ds = await OnInitAsync();
+                UpdateOptions(_ds);
+            }
+        }
+
+        if (_ds != null)
+        {
+            if (index.HasValue)
+            {
+                _ds.Data.Insert(index.Value, dataset);
+            }
+            else
+            {
+                _ds.Data.Add(dataset);
+            }
+            await InvokeVoidAsync("update", Id, _ds, ChartAction.AddDataset.ToDescriptionString());
+
+            if (OnAfterUpdateAsync != null)
+            {
+                await OnAfterUpdateAsync(ChartAction.AddDataset);
+            }
+        }
+    }
+
+    /// <summary>
+    /// 删除数据集
+    /// </summary>
+    /// <param name="index"></param>
+    /// <returns></returns>
+    public async Task RemoveDatasetAt(int index)
+    {
+        if (_ds == null)
+        {
+            if (OnInitAsync != null)
+            {
+                _ds = await OnInitAsync();
+                UpdateOptions(_ds);
+            }
+        }
+
+        if (_ds != null)
+        {
+            _ds.Data.RemoveAt(index);
+        }
+        await InvokeVoidAsync("update", Id, _ds, ChartAction.RemoveDataset.ToDescriptionString());
+
+        if (OnAfterUpdateAsync != null)
+        {
+            await OnAfterUpdateAsync(ChartAction.RemoveDataset);
+        }
+    }
+
+    /// <summary>
     /// 更新图表方法
     /// </summary>
     public async Task Update(ChartAction action)
@@ -210,7 +275,7 @@ public partial class Chart
             var ds = await OnInitAsync();
             UpdateOptions(ds);
 
-            await InvokeVoidAsync("update", Id, Interop, ds, action.ToDescriptionString(), Angle);
+            await InvokeVoidAsync("update", Id, ds, action.ToDescriptionString(), Angle);
 
             if (OnAfterUpdateAsync != null)
             {
