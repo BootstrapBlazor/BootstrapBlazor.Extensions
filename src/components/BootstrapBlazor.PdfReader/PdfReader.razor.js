@@ -527,18 +527,19 @@ const addToolbarEventHandlers = (el, pdfViewer, invoke, options) => {
         }
     });
     EventHandler.on(toolbar, "click", ".bb-view-download", e => {
+        let fileName = el.getAttribute('data-bb-download');
         if (options.url) {
-            let fileName = "download.pdf";
-            const docTitle = el.querySelector('.bb-view-subject');
-            if (docTitle) {
-                fileName = docTitle.textContent;
+            if (fileName === null) {
+                const docTitle = el.querySelector('.bb-view-subject');
+                if (docTitle) {
+                    fileName = docTitle.textContent;
+                }
             }
             downloadPdf(options.url, fileName);
         }
         else if (options.data) {
             const blob = new Blob([options.data], { type: 'application/pdf' });
             const url = window.URL.createObjectURL(blob);
-            let fileName = "download.pdf";
             downloadPdf(url, fileName);
             window.URL.revokeObjectURL(url);
         }
@@ -570,13 +571,16 @@ const addToolbarEventHandlers = (el, pdfViewer, invoke, options) => {
     });
 }
 
-const downloadPdf = (url, filename) => {
+const downloadPdf = (url, fileName) => {
+    if (fileName === null) {
+        fileName = "download.pdf";
+    }
     const anchorElement = document.createElement('a');
     anchorElement.href = url;
-    anchorElement.download = filename;
+    anchorElement.download = fileName;
     document.body.appendChild(anchorElement);
     anchorElement.click();
-    anchorElement.remove();
+    document.body.removeChild(anchorElement);
 }
 
 const removeToolbarEventHandlers = el => {
