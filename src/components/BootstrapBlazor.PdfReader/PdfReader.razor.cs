@@ -242,11 +242,11 @@ public partial class PdfReader
                 stream = await OnGetStreamAsync();
             }
 
-            await SetPdfStream(stream);
+            await InvokeSetDataAsync(stream);
         }
     }
 
-    private async Task SetPdfStream(Stream? stream)
+    private async Task InvokeSetDataAsync(Stream? stream)
     {
         if (stream == null || stream == Stream.Null)
         {
