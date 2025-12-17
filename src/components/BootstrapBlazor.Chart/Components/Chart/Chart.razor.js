@@ -414,10 +414,10 @@ const getChartOption = function (option) {
 
 const updateChart = function (config, option) {
     if (option.updateMethod === "addDataset") {
-        config.data.datasets.push(option.data.datasets.pop())
+        config.data.datasets = option.data.datasets;
     }
     else if (option.updateMethod === "removeDataset") {
-        config.data.datasets.pop()
+        config.data.datasets = option.data.datasets;
     }
     else if (option.updateMethod === "addData") {
         if (config.data.datasets.length > 0) {
@@ -472,7 +472,7 @@ export function init(id, invoke, method, option) {
     }
     const el = document.getElementById(id);
     const chart = new Chart(el.getElementsByTagName('canvas'), op)
-    Data.set(id, chart)
+    Data.set(id, { invoke, chart })
 
     if (op.options.height !== null) {
         chart.canvas.parentNode.style.height = op.options.height
@@ -490,8 +490,8 @@ export function init(id, invoke, method, option) {
     EventHandler.on(window, 'resize', chart.resizeHandler)
 }
 
-export function update(id, invoke, option, method, angle) {
-    const chart = Data.get(id)
+export function update(id, option, method, angle) {
+    const { invoke, chart } = Data.get(id)
     let op = getChartOption(option);
     handlerClickData(invoke, op, option.options.onClickDataMethod);
     op.angle = angle

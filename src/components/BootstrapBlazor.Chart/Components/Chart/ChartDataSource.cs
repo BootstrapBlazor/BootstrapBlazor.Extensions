@@ -1,4 +1,4 @@
-﻿// Copyright (c) Argo Zhang (argo@163.com). All rights reserved.
+// Copyright (c) Argo Zhang (argo@163.com). All rights reserved.
 // Licensed under the Apache License, Version 2.0. See License.txt in the project root for license information.
 // Website: https://www.blazor.zone or https://argozhang.github.io/
 
@@ -26,7 +26,7 @@ public class ChartDataSource
     /// 传递给 JS 的配置装箱实例，内部使用，添加数据集请使用 <see cref="Data"/> 属性。
     /// </summary>
     [JsonPropertyName("data")]
-    public IEnumerable<object> DataJS { get => Data.Cast<object>().ToList(); }
+    public IEnumerable<object> DataJS => Data.Cast<object>().ToList();
 
     /// <summary>
     /// 获得 组件配置项 设置标题 轴坐标等
