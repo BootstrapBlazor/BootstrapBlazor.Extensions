@@ -50,7 +50,7 @@ export async function setData(id, data) {
 
     const { options } = pdf;
     options.url = null;
-    options.data = data;;
+    options.data = data;
     await loadPdf(pdf);
 }
 
