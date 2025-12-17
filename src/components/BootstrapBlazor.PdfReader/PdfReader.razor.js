@@ -50,7 +50,7 @@ export async function setData(id, data) {
 
     const { options } = pdf;
     options.url = null;
-    options.data = data;;
+    options.data = data;
     await loadPdf(pdf);
 }
 
@@ -202,7 +202,7 @@ const loadMetadata = (el, pdfViewer, metadata) => {
         filename.textContent = docTitle.textContent;
     }
 
-    const filesize = el.querySelector('.bb-view-pdf-dialog-filesize');
+    const filesize = el.querySelector('.bb-view-pdf-dialog-file-size');
     filesize.textContent = getFilesize(metadata);
 
     const title = el.querySelector('.bb-view-pdf-dialog-title');
@@ -232,7 +232,7 @@ const loadMetadata = (el, pdfViewer, metadata) => {
         size.textContent = `${(viewport.width / 72).toFixed(2)} * ${(viewport.height / 72).toFixed(2)} in (portrait)`;
     });
 
-    const webview = el.querySelector('.bb-view-pdf-dialog-webview');
+    const webview = el.querySelector('.bb-view-pdf-dialog-view');
 }
 
 function parsePdfDate(pdfDateString) {
@@ -528,12 +528,19 @@ const addToolbarEventHandlers = (el, pdfViewer, invoke, options) => {
     });
     EventHandler.on(toolbar, "click", ".bb-view-download", e => {
         if (options.url) {
+            let fileName = "download.pdf";
             const docTitle = el.querySelector('.bb-view-subject');
-            const anchorElement = document.createElement('a');
-            anchorElement.href = options.url;
-            anchorElement.download = docTitle.textContent;
-            anchorElement.click();
-            anchorElement.remove();
+            if (docTitle) {
+                fileName = docTitle.textContent;
+            }
+            downloadPdf(options.url, fileName);
+        }
+        else if (options.data) {
+            const blob = new Blob([options.data], { type: 'application/pdf' });
+            const url = window.URL.createObjectURL(blob);
+            let fileName = "download.pdf";
+            downloadPdf(url, fileName);
+            window.URL.revokeObjectURL(url);
         }
     });
 
@@ -561,6 +568,15 @@ const addToolbarEventHandlers = (el, pdfViewer, invoke, options) => {
             dialog.classList.remove("show");
         }
     });
+}
+
+const downloadPdf = (url, filename) => {
+    const anchorElement = document.createElement('a');
+    anchorElement.href = url;
+    anchorElement.download = filename;
+    document.body.appendChild(anchorElement);
+    anchorElement.click();
+    anchorElement.remove();
 }
 
 const removeToolbarEventHandlers = el => {

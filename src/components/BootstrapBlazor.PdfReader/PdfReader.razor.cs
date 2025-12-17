@@ -134,10 +134,17 @@ public partial class PdfReader
     [Parameter]
     public Func<Task<Stream?>>? OnGetStreamAsync { get; set; }
 
+    /// <summary>
+    /// 获得/设置 是否显示组件 默认 true 显示
+    /// </summary>
+    [Parameter]
+    public bool IsShow { get; set; } = true;
+
     [Inject, NotNull]
     private IStringLocalizer<PdfReader>? Localizer { get; set; }
 
     private string? ClassString => CssBuilder.Default("bb-pdf-reader")
+        .AddClass("show", IsShow)
         .AddClassFromAttributes(AdditionalAttributes)
         .Build();
 
@@ -242,11 +249,11 @@ public partial class PdfReader
                 stream = await OnGetStreamAsync();
             }
 
-            await SetPdfStream(stream);
+            await InvokeSetDataAsync(stream);
         }
     }
 
-    private async Task SetPdfStream(Stream? stream)
+    private async Task InvokeSetDataAsync(Stream? stream)
     {
         if (stream == null || stream == Stream.Null)
         {
