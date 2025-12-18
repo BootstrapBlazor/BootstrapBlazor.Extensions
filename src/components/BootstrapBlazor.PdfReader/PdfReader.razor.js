@@ -192,6 +192,11 @@ const disposePdf = pdf => {
         if (thumbnailsContainer) {
             thumbnailsContainer.innerHTML = "";
         }
+
+        const iframe = el.querySelector(".bb-view-print-iframe");
+        if (iframe) {
+            iframe.remove();
+        }
     }
 }
 
@@ -513,7 +518,7 @@ const addToolbarEventHandlers = (el, pdfViewer, invoke, options) => {
         rotateView(pdfViewer, 90);
     });
     EventHandler.on(toolbar, "click", ".bb-view-print", async e => {
-        printPdf(options.url);
+        await printPdf(el, options);
         await invoke.invokeMethodAsync("Printing");
     })
     EventHandler.on(toolbar, "click", ".dropdown-item-pages", async e => {
@@ -747,25 +752,39 @@ const makeThumb = async page => {
     return canvas;
 }
 
-const printPdf = url => {
-    let iframe = document.querySelector(".bb-view-print-iframe");
-    if (iframe) {
-        iframe.remove();
+const printPdf = async (el, options) => {
+    let iframe = el.querySelector(".bb-view-print-iframe");
+    if (iframe === null) {
+        iframe = document.createElement("iframe");
+        iframe.classList.add("bb-view-print-iframe");
+        iframe.style.position = "fixed";
+        iframe.style.right = "100%";
+        iframe.style.bottom = "100%";
+        el.appendChild(iframe);
     }
 
-    iframe = document.createElement("iframe");
-    iframe.classList.add("bb-view-print-iframe");
-    iframe.style.position = "fixed";
-    iframe.style.right = "100%";
-    iframe.style.bottom = "100%";
-    iframe.src = url;
+    await getPdfUrl(options, url => {
+        iframe.src = url;
+        iframe.onload = () => {
+            iframe.contentWindow.focus();
+            iframe.contentWindow.print();
+        };
+        return new Promise((resolve, reject) => {
+            resolve();
+        });
+    });
+}
 
-    iframe.onload = () => {
-        iframe.contentWindow.focus();
-        iframe.contentWindow.print();
-    };
-
-    document.body.appendChild(iframe);
+const getPdfUrl = async (options, callback) => {
+    if (options.url) {
+        callback(options.url);
+    }
+    else if (options.data) {
+        const blob = new Blob([options.data], { type: 'application/pdf' });
+        var url = window.URL.createObjectURL(blob);
+        await callback(url);
+        window.URL.revokeObjectURL(url);
+    }
 }
 
 export function dispose(id) {
