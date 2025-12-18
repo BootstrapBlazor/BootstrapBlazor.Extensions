@@ -566,6 +566,11 @@ const addToolbarEventHandlers = (el, pdfViewer, invoke, options) => {
         if (dialog) {
             dialog.classList.add("show");
         }
+
+        const backdrop = el.querySelector(".bb-view-pdf-backdrop");
+        if (backdrop) {
+            backdrop.classList.add("show");
+        }
     });
 
     const closeButton = el.querySelector(".btn-close-doc");
@@ -573,6 +578,11 @@ const addToolbarEventHandlers = (el, pdfViewer, invoke, options) => {
         const dialog = el.querySelector(".bb-view-pdf-info");
         if (dialog) {
             dialog.classList.remove("show");
+        }
+
+        const backdrop = el.querySelector(".bb-view-pdf-backdrop");
+        if (backdrop) {
+            backdrop.classList.remove("show");
         }
     });
 }
