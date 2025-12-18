@@ -526,23 +526,15 @@ const addToolbarEventHandlers = (el, pdfViewer, invoke, options) => {
             pdfViewer.spreadMode = 0;
         }
     });
-    EventHandler.on(toolbar, "click", ".bb-view-download", e => {
+    EventHandler.on(toolbar, "click", ".bb-view-download", async e => {
         let fileName = el.getAttribute('data-bb-download');
-        if (options.url) {
-            if (fileName === null) {
-                const docTitle = el.querySelector('.bb-view-subject');
-                if (docTitle) {
-                    fileName = docTitle.textContent;
-                }
+        if (fileName === null) {
+            const docTitle = el.querySelector('.bb-view-subject');
+            if (docTitle) {
+                fileName = docTitle.textContent;
             }
-            downloadPdf(options.url, fileName);
         }
-        else if (options.data) {
-            const blob = new Blob([options.data], { type: 'application/pdf' });
-            const url = window.URL.createObjectURL(blob);
-            downloadPdf(url, fileName);
-            window.URL.revokeObjectURL(url);
-        }
+        await downloadPdf(options, fileName);
     });
 
     EventHandler.on(toolbar, "click", ".dropdown-item-presentation", async e => {
@@ -571,16 +563,23 @@ const addToolbarEventHandlers = (el, pdfViewer, invoke, options) => {
     });
 }
 
-const downloadPdf = (url, fileName) => {
+const downloadPdf = async (options, fileName) => {
     if (fileName === null) {
         fileName = "download.pdf";
     }
-    const anchorElement = document.createElement('a');
-    anchorElement.href = url;
-    anchorElement.download = fileName;
-    document.body.appendChild(anchorElement);
-    anchorElement.click();
-    document.body.removeChild(anchorElement);
+
+    await getPdfUrl(options, url => {
+        const anchorElement = document.createElement('a');
+        anchorElement.href = url;
+        anchorElement.download = fileName;
+        document.body.appendChild(anchorElement);
+        anchorElement.click();
+        document.body.removeChild(anchorElement);
+
+        return new Promise((resolve, reject) => {
+            resolve();
+        });
+    });
 }
 
 const removeToolbarEventHandlers = el => {
