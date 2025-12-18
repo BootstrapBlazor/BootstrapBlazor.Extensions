@@ -237,6 +237,18 @@
     inset: 0;
 }
 
+.bb-view-pdf-backdrop {
+    position: absolute;
+    inset: 0;
+    background-color: #000;
+    opacity: 0.6;
+    z-index: 1;
+}
+
+    .bb-view-pdf-backdrop:not(.show) {
+        display: none;
+    }
+
 .bb-view-pdf-info {
     position: absolute;
     inset: 0;
@@ -249,14 +261,6 @@
     .bb-view-pdf-info:not(.show) {
         display: none;
     }
-
-.bb-view-pdf-backdrop {
-    position: absolute;
-    inset: 0;
-    background-color: #000;
-    opacity: 0.6;
-    z-index: 1;
-}
 
 .bb-view-pdf-dialog {
     background-color: #fff;
