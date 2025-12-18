@@ -10,12 +10,17 @@ const loadAssets = async lang => {
     await addScript('./_content/BootstrapBlazor.UniverSheet/univer/univerjs.preset-sheets-drawing/index.umd.min.js');
     await addScript('./_content/BootstrapBlazor.UniverSheet/univer/univerjs.sheets-zen-editor/index.umd.min.js');
     await addScript('./_content/BootstrapBlazor.UniverSheet/univer/univerjs.preset-sheets-data-validation/index.umd.min.js');
+    await addScript('./_content/BootstrapBlazor.UniverSheet/univer/univerjs.preset-sheets-thread-comment/index.umd.min.js');
+    await addScript('./_content/BootstrapBlazor.UniverSheet/univer/univerjs.preset-sheets-hyper-link/index.umd.min.js');
+    await addScript('./_content/BootstrapBlazor.UniverSheet/univer/univerjs.preset-sheets-filter/index.umd.min.js');
+    await addScript('./_content/BootstrapBlazor.UniverSheet/univer/univerjs.preset-sheets-conditional-formatting/index.umd.min.js');
     await addScript('./_content/BootstrapBlazor.UniverSheet/univer/univerjs.preset-sheets-advanced/index.umd.min.js');
 
     await addScript(`./_content/BootstrapBlazor.UniverSheet/univer/univerjs.preset-sheets-core/locales/${lang}.js`);
     await addScript(`./_content/BootstrapBlazor.UniverSheet/univer/univerjs.preset-sheets-drawing/locales/${lang}.js`);
     await addScript(`./_content/BootstrapBlazor.UniverSheet/univer/univerjs.sheets-zen-editor/locales/${lang}.js`);
     await addScript(`./_content/BootstrapBlazor.UniverSheet/univer/univerjs.preset-sheets-data-validation/locales/${lang}.js`);
+    await addScript(`./_content/BootstrapBlazor.UniverSheet/univer/univerjs.preset-sheets-thread-comment/locales/${lang}.js`);
     await addScript(`./_content/BootstrapBlazor.UniverSheet/univer/univerjs.preset-sheets-advanced/locales/${lang}.js`);
 
     await addLink('./_content/BootstrapBlazor.UniverSheet/univer/univer-sheet.bundle.css');
@@ -24,21 +29,21 @@ const loadAssets = async lang => {
 export async function createUniverSheetAsync(sheet) {
     sheet.lang = sheet.lang ?? 'en-US';
     await loadAssets(sheet.lang);
-
     const { el } = sheet;
     const { LocaleType, merge } = UniverCore;
     const { createUniver } = UniverPresets;
     const { UniverSheetsCorePreset } = UniverPresetSheetsCore;
     const { UniverSheetsDrawingPreset } = UniverPresetSheetsDrawing;
     const { UniverSheetsAdvancedPreset } = UniverPresetSheetsAdvanced;
-    const { UniverSheetsZenEditorPlugin } = UniverSheetsZenEditor
-    const { UniverSheetsDataValidationPlugin } = UniverSheetsDataValidation
-    const { UniverSheetsDataValidationUIPlugin } = UniverSheetsDataValidationUi
+    const { UniverSheetsZenEditorPlugin } = UniverSheetsZenEditor;
+    const { UniverSheetsThreadCommentPreset } = UniverPresetSheetsThreadComment;
+    const { UniverSheetsDataValidationPreset } = UniverPresetSheetsDataValidation;
 
     const lang = sheet.lang.replace('-', '')
     const langStr = lang.charAt(0).toUpperCase() + lang.slice(1)
     const options = {
         theme: UniverDesign[sheet.theme] ?? UniverDesign.defaultTheme, //'defaultTheme' | greenTheme
+        darkMode: sheet.darkMode ?? false, // false | true
         locale: lang,
         locales: {
             [lang]: merge(
@@ -46,14 +51,31 @@ export async function createUniverSheetAsync(sheet) {
                 window[`UniverPresetSheetsCore${langStr}`],
                 window[`UniverPresetSheetsDrawing${langStr}`],
                 window[`UniverSheetsZenEditor${langStr}`],
-                window[`UniverSheetsDataValidationUi${langStr}`],
+                window[`UniverPresetSheetsDataValidation${langStr}`],
+                window[`UniverPresetSheetsThreadComment${langStr}`],
                 window[`UniverPresetSheetsAdvanced${langStr}`],
             ),
         },
+        presets: [
+            UniverSheetsCorePreset({
+                container: el,
+                ribbonType: sheet.ribbonType ?? 'simple', // default | classic | simple
+                menu: {
+                    'sheet.menu.print': {
+                      hidden: true,
+                    },
+                    'sheets-exchange-client.operation.exchange': {
+                      hidden: true,
+                    },
+                  },
+            }),
+            UniverSheetsDrawingPreset(),
+            UniverSheetsThreadCommentPreset(),
+            UniverSheetsDataValidationPreset(),
+            UniverSheetsAdvancedPreset(),
+        ],
         plugins: [
             UniverSheetsZenEditorPlugin,
-            UniverSheetsDataValidationPlugin,
-            UniverSheetsDataValidationUIPlugin,
         ]
     };
     const plugins = sheet.plugins ?? {
@@ -65,16 +87,7 @@ export async function createUniverSheetAsync(sheet) {
         options.plugins.push(plugin);
     }
 
-    const { univer, univerAPI } = createUniver({
-        presets: [
-            UniverSheetsCorePreset({
-                container: el
-            }),
-            UniverSheetsDrawingPreset(),
-            UniverSheetsAdvancedPreset()
-        ],
-        ...options
-    });
+    const { univer, univerAPI } = createUniver(options);
 
     const { workbookData } = sheet.data || {};
     if (workbookData) {
