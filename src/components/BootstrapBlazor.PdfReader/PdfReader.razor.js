@@ -50,7 +50,7 @@ export async function setData(id, data) {
 
     const { options } = pdf;
     options.url = null;
-    options.data = data;;
+    options.data = data;
     await loadPdf(pdf);
 }
 
@@ -155,6 +155,9 @@ const loadPdf = async pdf => {
     pdfViewer.setDocument(pdfDocument);
 
     pdfDocument.getMetadata().then(metadata => {
+        if (metadata.contentLength === null) {
+            metadata.contentLength = options.data.length;
+        }
         loadMetadata(el, pdfViewer, metadata);
     });
 
@@ -192,6 +195,11 @@ const disposePdf = pdf => {
         if (thumbnailsContainer) {
             thumbnailsContainer.innerHTML = "";
         }
+
+        const iframe = el.querySelector(".bb-view-print-iframe");
+        if (iframe) {
+            iframe.remove();
+        }
     }
 }
 
@@ -202,8 +210,8 @@ const loadMetadata = (el, pdfViewer, metadata) => {
         filename.textContent = docTitle.textContent;
     }
 
-    const filesize = el.querySelector('.bb-view-pdf-dialog-filesize');
-    filesize.textContent = getFilesize(metadata);
+    const filesize = el.querySelector('.bb-view-pdf-dialog-file-size');
+    filesize.textContent = getFileSize(metadata);
 
     const title = el.querySelector('.bb-view-pdf-dialog-title');
     const author = el.querySelector('.bb-view-pdf-dialog-author');
@@ -232,7 +240,7 @@ const loadMetadata = (el, pdfViewer, metadata) => {
         size.textContent = `${(viewport.width / 72).toFixed(2)} * ${(viewport.height / 72).toFixed(2)} in (portrait)`;
     });
 
-    const webview = el.querySelector('.bb-view-pdf-dialog-webview');
+    const webview = el.querySelector('.bb-view-pdf-dialog-view');
 }
 
 function parsePdfDate(pdfDateString) {
@@ -286,20 +294,26 @@ function parsePdfDate(pdfDateString) {
     return date;
 }
 
-const getFilesize = metadata => {
+const getFileSize = metadata => {
     const length = metadata.contentLength;
+    let val = 0;
+    let unit = 'B';
     if (length < 1024) {
-        return `${Math.round(length)}B`;
+        val = length;
     }
     else if (length < 1024 * 1024) {
-        return `${Math.round(length / 1024)}KB`;
+        unit = 'KB';
+        val = length / 1024;
     }
     else if (length < 1024 * 1024 * 1024) {
-        return `${length / 1024 / 1024}MB`;
+        unit = 'MB';
+        val = length / 1024 / 1024;
     }
     else if (length < 1024 * 1024 * 1024 * 1024) {
-        return `${length / 1024 / 1024 / 1024}GB`;
+        unit = 'GB';
+        val = length / 1024 / 1024 / 1024;
     }
+    return `${Math.round(val * 100) / 100}${unit}`;
 }
 
 const setObserver = el => {
@@ -513,7 +527,7 @@ const addToolbarEventHandlers = (el, pdfViewer, invoke, options) => {
         rotateView(pdfViewer, 90);
     });
     EventHandler.on(toolbar, "click", ".bb-view-print", async e => {
-        printPdf(options.url);
+        printPdf(el, options);
         await invoke.invokeMethodAsync("Printing");
     })
     EventHandler.on(toolbar, "click", ".dropdown-item-pages", async e => {
@@ -527,14 +541,14 @@ const addToolbarEventHandlers = (el, pdfViewer, invoke, options) => {
         }
     });
     EventHandler.on(toolbar, "click", ".bb-view-download", e => {
-        if (options.url) {
+        let fileName = el.getAttribute('data-bb-download');
+        if (fileName === null) {
             const docTitle = el.querySelector('.bb-view-subject');
-            const anchorElement = document.createElement('a');
-            anchorElement.href = options.url;
-            anchorElement.download = docTitle.textContent;
-            anchorElement.click();
-            anchorElement.remove();
+            if (docTitle) {
+                fileName = docTitle.textContent;
+            }
         }
+        downloadPdf(options, fileName);
     });
 
     EventHandler.on(toolbar, "click", ".dropdown-item-presentation", async e => {
@@ -548,6 +562,8 @@ const addToolbarEventHandlers = (el, pdfViewer, invoke, options) => {
         //}
     });
     EventHandler.on(toolbar, "click", ".dropdown-item-doc", e => {
+        showBackdrop(el);
+
         const dialog = el.querySelector(".bb-view-pdf-info");
         if (dialog) {
             dialog.classList.add("show");
@@ -560,6 +576,23 @@ const addToolbarEventHandlers = (el, pdfViewer, invoke, options) => {
         if (dialog) {
             dialog.classList.remove("show");
         }
+
+        hideBackdrop(el);
+    });
+}
+
+const downloadPdf = (options, fileName) => {
+    if (fileName === null) {
+        fileName = "download.pdf";
+    }
+
+    getPdfUrl(options, url => {
+        const anchorElement = document.createElement('a');
+        anchorElement.href = url;
+        anchorElement.download = fileName;
+        document.body.appendChild(anchorElement);
+        anchorElement.click();
+        document.body.removeChild(anchorElement);
     });
 }
 
@@ -728,25 +761,50 @@ const makeThumb = async page => {
     return canvas;
 }
 
-const printPdf = url => {
-    let iframe = document.querySelector(".bb-view-print-iframe");
-    if (iframe) {
-        iframe.remove();
+const printPdf = (el, options) => {
+    let iframe = el.querySelector(".bb-view-print-iframe");
+    if (iframe === null) {
+        iframe = document.createElement("iframe");
+        iframe.classList.add("bb-view-print-iframe");
+        iframe.style.position = "fixed";
+        iframe.style.right = "100%";
+        iframe.style.bottom = "100%";
+        el.appendChild(iframe);
     }
 
-    iframe = document.createElement("iframe");
-    iframe.classList.add("bb-view-print-iframe");
-    iframe.style.position = "fixed";
-    iframe.style.right = "100%";
-    iframe.style.bottom = "100%";
-    iframe.src = url;
+    getPdfUrl(options, url => {
+        iframe.src = url;
+        iframe.onload = () => {
+            iframe.contentWindow.focus();
+            iframe.contentWindow.print();
+        };
+    });
+}
 
-    iframe.onload = () => {
-        iframe.contentWindow.focus();
-        iframe.contentWindow.print();
-    };
+const showBackdrop = el => {
+    const backdrop = el.querySelector('.bb-view-pdf-backdrop');
+    if (backdrop) {
+        backdrop.classList.add('show');
+    }
+}
 
-    document.body.appendChild(iframe);
+const hideBackdrop = el => {
+    const backdrop = el.querySelector('.bb-view-pdf-backdrop');
+    if (backdrop) {
+        backdrop.classList.remove('show');
+    }
+}
+
+const getPdfUrl = (options, callback) => {
+    if (options.url) {
+        callback(options.url);
+    }
+    else if (options.data) {
+        const blob = new Blob([options.data], { type: 'application/pdf' });
+        var url = window.URL.createObjectURL(blob);
+        callback(url);
+        window.URL.revokeObjectURL(url);
+    }
 }
 
 export function dispose(id) {

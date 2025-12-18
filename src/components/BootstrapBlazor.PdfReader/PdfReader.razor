@@ -2,7 +2,7 @@
 @namespace BootstrapBlazor.Components
 @inherits BootstrapModuleComponentBase
 
-<div @attributes="@AdditionalAttributes" id="@Id" class="@ClassString" style="@StyleString">
+<div @attributes="@AdditionalAttributes" id="@Id" class="@ClassString" style="@StyleString" data-bb-download="@DownloadFileName">
     <div class="bb-view-progress">
         <div class="bb-view-progress-bar"></div>
     </div>
@@ -101,8 +101,8 @@
             </div>
         </div>
     </div>
+    <div class="bb-view-pdf-backdrop invisible"></div>
     <div class="bb-view-pdf-info invisible">
-        <div class="bb-view-pdf-backdrop"></div>
         <div class="bb-view-pdf-dialog">
             <div class="bb-view-pdf-dialog-title mb-3">@Localizer["DocumentProperties"]</div>
             <div class="bb-view-pdf-dialog-item">
@@ -111,7 +111,7 @@
             </div>
             <div class="bb-view-pdf-dialog-item">
                 <div class="bb-view-pdf-dialog-label">@Localizer["DocumentFileSize"]</div>
-                <div class="bb-view-pdf-dialog-filesize"></div>
+                <div class="bb-view-pdf-dialog-file-size"></div>
             </div>
             <div class="divider">
                 <div class="divider-mask"></div>
@@ -168,7 +168,7 @@
             </div>
             <div class="bb-view-pdf-dialog-item">
                 <div class="bb-view-pdf-dialog-label">@Localizer["DocumentFastWebView"]</div>
-                <div class="bb-view-pdf-dialog-webview">No</div>
+                <div class="bb-view-pdf-dialog-view">No</div>
             </div>
             <div class="bb-view-pdf-dialog-close">
                 <button type="button" class="btn btn-primary btn-close-doc">

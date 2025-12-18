@@ -134,10 +134,23 @@ public partial class PdfReader
     [Parameter]
     public Func<Task<Stream?>>? OnGetStreamAsync { get; set; }
 
+    /// <summary>
+    /// 获得/设置 是否显示组件 默认 true 显示
+    /// </summary>
+    [Parameter]
+    public bool IsShow { get; set; } = true;
+
+    /// <summary>
+    /// 获得/设置 下载文件名 默认 null 未设置
+    /// </summary>
+    [Parameter]
+    public string? DownloadFileName { get; set; }
+
     [Inject, NotNull]
     private IStringLocalizer<PdfReader>? Localizer { get; set; }
 
     private string? ClassString => CssBuilder.Default("bb-pdf-reader")
+        .AddClass("show", IsShow)
         .AddClassFromAttributes(AdditionalAttributes)
         .Build();
 
@@ -242,11 +255,34 @@ public partial class PdfReader
                 stream = await OnGetStreamAsync();
             }
 
-            await SetPdfStream(stream);
+            await InvokeSetDataAsync(stream);
         }
     }
 
-    private async Task SetPdfStream(Stream? stream)
+    /// <summary>
+    /// <inheritdoc/>
+    /// </summary>
+    /// <returns></returns>
+    protected override async Task InvokeInitAsync()
+    {
+        var _data = await GetPdfStreamDataAsync();
+        await InvokeVoidAsync("init", Id, Interop, new
+        {
+            Url,
+            Data = _data,
+            FitMode,
+            EnableThumbnails,
+            CurrentPage,
+            TriggerPagesInit = OnPagesInitAsync != null,
+            TriggerPagesLoaded = OnPagesLoadedAsync != null,
+            TriggerPageChanged = OnPageChangedAsync != null,
+            TriggerTowPagesOnViewChanged = OnTwoPagesOneViewAsync != null,
+            TriggerScaleChanged = OnScaleChangedAsync != null,
+            TriggerRotationChanged = OnRotationChanged != null,
+        });
+    }
+
+    private async Task InvokeSetDataAsync(Stream? stream)
     {
         if (stream == null || stream == Stream.Null)
         {
@@ -351,29 +387,6 @@ public partial class PdfReader
         return Convert.ToBase64String(hashBytes);
     }
 #endif
-
-    /// <summary>
-    /// <inheritdoc/>
-    /// </summary>
-    /// <returns></returns>
-    protected override async Task InvokeInitAsync()
-    {
-        var _data = await GetPdfStreamDataAsync();
-        await InvokeVoidAsync("init", Id, Interop, new
-        {
-            Url,
-            Data = _data,
-            FitMode,
-            EnableThumbnails,
-            CurrentPage,
-            TriggerPagesInit = OnPagesInitAsync != null,
-            TriggerPagesLoaded = OnPagesLoadedAsync != null,
-            TriggerPageChanged = OnPageChangedAsync != null,
-            TriggerTowPagesOnViewChanged = OnTwoPagesOneViewAsync != null,
-            TriggerScaleChanged = OnScaleChangedAsync != null,
-            TriggerRotationChanged = OnRotationChanged != null,
-        });
-    }
 
     /// <summary>
     /// 跳转到指定页码方法
