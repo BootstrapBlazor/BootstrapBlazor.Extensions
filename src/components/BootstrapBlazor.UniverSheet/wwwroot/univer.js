@@ -1,4 +1,4 @@
-﻿import { addScript, addLink } from '../BootstrapBlazor/modules/utility.js'
+import { addScript, addLink } from '../BootstrapBlazor/modules/utility.js'
 import DataService from './data-service.js'
 
 const loadAssets = async lang => {

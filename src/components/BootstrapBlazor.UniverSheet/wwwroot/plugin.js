@@ -1,4 +1,4 @@
-﻿import DataService from './data-service.js'
+import DataService from './data-service.js'
 
 const { Plugin, Injector, setDependencies } = UniverCore;
 

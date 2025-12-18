@@ -1,4 +1,4 @@
-﻿import { isFunction } from '../BootstrapBlazor/modules/utility.js'
+import { isFunction } from '../BootstrapBlazor/modules/utility.js'
 
 export default class DataService {
     static name = 'DataService';

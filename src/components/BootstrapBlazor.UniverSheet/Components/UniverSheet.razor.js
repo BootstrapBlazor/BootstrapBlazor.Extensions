@@ -1,4 +1,4 @@
-﻿import Data from '../../BootstrapBlazor/modules/data.js'
+import Data from '../../BootstrapBlazor/modules/data.js'
 import { isFunction } from '../../BootstrapBlazor/modules/utility.js'
 import { createUniverSheetAsync } from '../univer.js'
 
