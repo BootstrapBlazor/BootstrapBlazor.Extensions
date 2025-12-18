@@ -211,7 +211,7 @@ const loadMetadata = (el, pdfViewer, metadata) => {
     }
 
     const filesize = el.querySelector('.bb-view-pdf-dialog-file-size');
-    filesize.textContent = getFilesize(metadata);
+    filesize.textContent = getFileSize(metadata);
 
     const title = el.querySelector('.bb-view-pdf-dialog-title');
     const author = el.querySelector('.bb-view-pdf-dialog-author');
@@ -294,7 +294,7 @@ function parsePdfDate(pdfDateString) {
     return date;
 }
 
-const getFilesize = metadata => {
+const getFileSize = metadata => {
     const length = metadata.contentLength;
     let val = 0;
     let unit = 'B';
