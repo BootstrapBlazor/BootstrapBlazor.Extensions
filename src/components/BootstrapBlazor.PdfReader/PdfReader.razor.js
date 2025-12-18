@@ -155,6 +155,9 @@ const loadPdf = async pdf => {
     pdfViewer.setDocument(pdfDocument);
 
     pdfDocument.getMetadata().then(metadata => {
+        if (metadata.contentLength === null) {
+            metadata.contentLength = options.data.length;
+        }
         loadMetadata(el, pdfViewer, metadata);
     });
 
@@ -293,18 +296,24 @@ function parsePdfDate(pdfDateString) {
 
 const getFilesize = metadata => {
     const length = metadata.contentLength;
+    let val = 0;
+    let unit = 'B';
     if (length < 1024) {
-        return `${Math.round(length)}B`;
+        val = length;
     }
     else if (length < 1024 * 1024) {
-        return `${Math.round(length / 1024)}KB`;
+        unit = 'KB';
+        val = length / 1024;
     }
     else if (length < 1024 * 1024 * 1024) {
-        return `${length / 1024 / 1024}MB`;
+        unit = 'MB';
+        val = length / 1024 / 1024;
     }
     else if (length < 1024 * 1024 * 1024 * 1024) {
-        return `${length / 1024 / 1024 / 1024}GB`;
+        unit = 'GB';
+        val = length / 1024 / 1024 / 1024;
     }
+    return `${Math.round(val * 100) / 100}${unit}`;
 }
 
 const setObserver = el => {
