@@ -192,6 +192,11 @@ const disposePdf = pdf => {
         if (thumbnailsContainer) {
             thumbnailsContainer.innerHTML = "";
         }
+
+        const iframe = el.querySelector(".bb-view-print-iframe");
+        if (iframe) {
+            iframe.remove();
+        }
     }
 }
 
@@ -513,7 +518,7 @@ const addToolbarEventHandlers = (el, pdfViewer, invoke, options) => {
         rotateView(pdfViewer, 90);
     });
     EventHandler.on(toolbar, "click", ".bb-view-print", async e => {
-        printPdf(options.url);
+        await printPdf(el, options);
         await invoke.invokeMethodAsync("Printing");
     })
     EventHandler.on(toolbar, "click", ".dropdown-item-pages", async e => {
@@ -526,23 +531,15 @@ const addToolbarEventHandlers = (el, pdfViewer, invoke, options) => {
             pdfViewer.spreadMode = 0;
         }
     });
-    EventHandler.on(toolbar, "click", ".bb-view-download", e => {
+    EventHandler.on(toolbar, "click", ".bb-view-download", async e => {
         let fileName = el.getAttribute('data-bb-download');
-        if (options.url) {
-            if (fileName === null) {
-                const docTitle = el.querySelector('.bb-view-subject');
-                if (docTitle) {
-                    fileName = docTitle.textContent;
-                }
+        if (fileName === null) {
+            const docTitle = el.querySelector('.bb-view-subject');
+            if (docTitle) {
+                fileName = docTitle.textContent;
             }
-            downloadPdf(options.url, fileName);
         }
-        else if (options.data) {
-            const blob = new Blob([options.data], { type: 'application/pdf' });
-            const url = window.URL.createObjectURL(blob);
-            downloadPdf(url, fileName);
-            window.URL.revokeObjectURL(url);
-        }
+        await downloadPdf(options, fileName);
     });
 
     EventHandler.on(toolbar, "click", ".dropdown-item-presentation", async e => {
@@ -571,16 +568,23 @@ const addToolbarEventHandlers = (el, pdfViewer, invoke, options) => {
     });
 }
 
-const downloadPdf = (url, fileName) => {
+const downloadPdf = async (options, fileName) => {
     if (fileName === null) {
         fileName = "download.pdf";
     }
-    const anchorElement = document.createElement('a');
-    anchorElement.href = url;
-    anchorElement.download = fileName;
-    document.body.appendChild(anchorElement);
-    anchorElement.click();
-    document.body.removeChild(anchorElement);
+
+    await getPdfUrl(options, url => {
+        const anchorElement = document.createElement('a');
+        anchorElement.href = url;
+        anchorElement.download = fileName;
+        document.body.appendChild(anchorElement);
+        anchorElement.click();
+        document.body.removeChild(anchorElement);
+
+        return new Promise((resolve, reject) => {
+            resolve();
+        });
+    });
 }
 
 const removeToolbarEventHandlers = el => {
@@ -748,25 +752,39 @@ const makeThumb = async page => {
     return canvas;
 }
 
-const printPdf = url => {
-    let iframe = document.querySelector(".bb-view-print-iframe");
-    if (iframe) {
-        iframe.remove();
+const printPdf = async (el, options) => {
+    let iframe = el.querySelector(".bb-view-print-iframe");
+    if (iframe === null) {
+        iframe = document.createElement("iframe");
+        iframe.classList.add("bb-view-print-iframe");
+        iframe.style.position = "fixed";
+        iframe.style.right = "100%";
+        iframe.style.bottom = "100%";
+        el.appendChild(iframe);
     }
 
-    iframe = document.createElement("iframe");
-    iframe.classList.add("bb-view-print-iframe");
-    iframe.style.position = "fixed";
-    iframe.style.right = "100%";
-    iframe.style.bottom = "100%";
-    iframe.src = url;
+    await getPdfUrl(options, url => {
+        iframe.src = url;
+        iframe.onload = () => {
+            iframe.contentWindow.focus();
+            iframe.contentWindow.print();
+        };
+        return new Promise((resolve, reject) => {
+            resolve();
+        });
+    });
+}
 
-    iframe.onload = () => {
-        iframe.contentWindow.focus();
-        iframe.contentWindow.print();
-    };
-
-    document.body.appendChild(iframe);
+const getPdfUrl = async (options, callback) => {
+    if (options.url) {
+        callback(options.url);
+    }
+    else if (options.data) {
+        const blob = new Blob([options.data], { type: 'application/pdf' });
+        var url = window.URL.createObjectURL(blob);
+        await callback(url);
+        window.URL.revokeObjectURL(url);
+    }
 }
 
 export function dispose(id) {
