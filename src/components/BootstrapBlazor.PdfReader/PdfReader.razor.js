@@ -527,7 +527,7 @@ const addToolbarEventHandlers = (el, pdfViewer, invoke, options) => {
         rotateView(pdfViewer, 90);
     });
     EventHandler.on(toolbar, "click", ".bb-view-print", async e => {
-        await printPdf(el, options);
+        printPdf(el, options);
         await invoke.invokeMethodAsync("Printing");
     })
     EventHandler.on(toolbar, "click", ".dropdown-item-pages", async e => {
@@ -540,7 +540,7 @@ const addToolbarEventHandlers = (el, pdfViewer, invoke, options) => {
             pdfViewer.spreadMode = 0;
         }
     });
-    EventHandler.on(toolbar, "click", ".bb-view-download", async e => {
+    EventHandler.on(toolbar, "click", ".bb-view-download", e => {
         let fileName = el.getAttribute('data-bb-download');
         if (fileName === null) {
             const docTitle = el.querySelector('.bb-view-subject');
@@ -548,7 +548,7 @@ const addToolbarEventHandlers = (el, pdfViewer, invoke, options) => {
                 fileName = docTitle.textContent;
             }
         }
-        await downloadPdf(options, fileName);
+        downloadPdf(options, fileName);
     });
 
     EventHandler.on(toolbar, "click", ".dropdown-item-presentation", async e => {
@@ -562,14 +562,11 @@ const addToolbarEventHandlers = (el, pdfViewer, invoke, options) => {
         //}
     });
     EventHandler.on(toolbar, "click", ".dropdown-item-doc", e => {
+        showBackdrop(el);
+
         const dialog = el.querySelector(".bb-view-pdf-info");
         if (dialog) {
             dialog.classList.add("show");
-        }
-
-        const backdrop = el.querySelector(".bb-view-pdf-backdrop");
-        if (backdrop) {
-            backdrop.classList.add("show");
         }
     });
 
@@ -580,29 +577,22 @@ const addToolbarEventHandlers = (el, pdfViewer, invoke, options) => {
             dialog.classList.remove("show");
         }
 
-        const backdrop = el.querySelector(".bb-view-pdf-backdrop");
-        if (backdrop) {
-            backdrop.classList.remove("show");
-        }
+        hideBackdrop(el);
     });
 }
 
-const downloadPdf = async (options, fileName) => {
+const downloadPdf = (options, fileName) => {
     if (fileName === null) {
         fileName = "download.pdf";
     }
 
-    await getPdfUrl(options, url => {
+    getPdfUrl(options, url => {
         const anchorElement = document.createElement('a');
         anchorElement.href = url;
         anchorElement.download = fileName;
         document.body.appendChild(anchorElement);
         anchorElement.click();
         document.body.removeChild(anchorElement);
-
-        return new Promise((resolve, reject) => {
-            resolve();
-        });
     });
 }
 
@@ -771,7 +761,7 @@ const makeThumb = async page => {
     return canvas;
 }
 
-const printPdf = async (el, options) => {
+const printPdf = (el, options) => {
     let iframe = el.querySelector(".bb-view-print-iframe");
     if (iframe === null) {
         iframe = document.createElement("iframe");
@@ -782,26 +772,37 @@ const printPdf = async (el, options) => {
         el.appendChild(iframe);
     }
 
-    await getPdfUrl(options, url => {
+    getPdfUrl(options, url => {
         iframe.src = url;
         iframe.onload = () => {
             iframe.contentWindow.focus();
             iframe.contentWindow.print();
         };
-        return new Promise((resolve, reject) => {
-            resolve();
-        });
     });
 }
 
-const getPdfUrl = async (options, callback) => {
+const showBackdrop = el => {
+    const backdrop = el.querySelector('.bb-view-pdf-backdrop');
+    if (backdrop) {
+        backdrop.classList.add('show');
+    }
+}
+
+const hideBackdrop = el => {
+    const backdrop = el.querySelector('.bb-view-pdf-backdrop');
+    if (backdrop) {
+        backdrop.classList.remove('show');
+    }
+}
+
+const getPdfUrl = (options, callback) => {
     if (options.url) {
         callback(options.url);
     }
     else if (options.data) {
         const blob = new Blob([options.data], { type: 'application/pdf' });
         var url = window.URL.createObjectURL(blob);
-        await callback(url);
+        callback(url);
         window.URL.revokeObjectURL(url);
     }
 }
