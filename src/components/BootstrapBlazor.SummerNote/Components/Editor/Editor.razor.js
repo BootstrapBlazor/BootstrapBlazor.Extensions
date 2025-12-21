@@ -145,13 +145,18 @@ export async function init(id, invoker, methodGetPluginAttrs, methodClickPluginI
 const reloadCallbacks = (id, option) => {
     const events = ['Blur', 'BlurCodeview', 'Change', 'ChangeCodeview', 'DialogShown', 'Enter', 'Focus', 'ImageUpload', 'ImageLinkInsert', 'ImageUploadError', 'Init', 'Keydown', 'Keyup', 'Mousedown', 'Mouseup', 'Paste', 'Scroll'];
 
-    events.forEach(event => {
-        option.callbacks[`on${event}`] = function () {
-            const callbacks = window.BootstrapBlazor?.SummerNote?.callbacks;
-            const cb = callbacks?.find(i => i.id === id);
-            cb?.[`on${event}`]?.apply(this, arguments);
-        };
-    });
+    const callbacks = window.BootstrapBlazor?.SummerNote?.callbacks;
+    const cb = callbacks?.find(i => i.id === id);
+    if (cb) {
+        events.forEach(event => {
+            const method = cb[`on${event}`];
+            if (method) {
+                option.callbacks[`on${event}`] = function () {
+                    method.apply(this, arguments);
+                };
+            }
+        });
+    }
 }
 
 export function update(id, val) {
