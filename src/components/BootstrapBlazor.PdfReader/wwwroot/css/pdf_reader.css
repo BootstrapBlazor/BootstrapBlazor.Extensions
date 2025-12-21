@@ -279,6 +279,12 @@
         margin-block-start: .5rem;
     }
 
+    .bb-view-pdf-dialog-item > div:last-child {
+        flex: 1;
+        width: 1%;
+        min-width: 0;
+    }
+
 .bb-view-pdf-dialog-label {
     width: 108px;
     white-space: nowrap;
