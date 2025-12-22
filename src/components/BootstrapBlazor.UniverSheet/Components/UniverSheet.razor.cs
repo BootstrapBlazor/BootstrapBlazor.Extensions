@@ -31,6 +31,12 @@ public partial class UniverSheet
     public string? Lang { get; set; }
 
     /// <summary>
+    /// 获得/设置 设置工具栏样式 默认 default 未设置
+    /// </summary>
+    [Parameter]
+    public UniverSheetRibbonType RibbonType { get; set; }
+
+    /// <summary>
     /// 获得/设置 需要传递的数据
     /// </summary>
     [Parameter]
@@ -87,7 +93,7 @@ public partial class UniverSheet
     /// <inheritdoc/>
     /// </summary>
     /// <returns></returns>
-    protected override Task InvokeInitAsync() => InvokeVoidAsync("init", Id, Interop, new { Theme, Lang, Plugins, Data });
+    protected override Task InvokeInitAsync() => InvokeVoidAsync("init", Id, Interop, new { Theme, Lang, Plugins, Data, RibbonType = RibbonType.ToDescriptionString() });
 
     /// <summary>
     /// 推送数据方法

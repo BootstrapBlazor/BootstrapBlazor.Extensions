@@ -8,14 +8,15 @@ export async function init(id, invoke, options) {
         return;
     }
 
-    const { theme, lang, plugins, data } = options;
+    const { theme, lang, plugins, data, ribbonType } = options;
     const univerSheet = {
         el,
         invoke,
         data,
         plugins,
         theme,
-        lang
+        lang,
+        ribbonType
     };
 
     await createUniverSheetAsync(univerSheet);
