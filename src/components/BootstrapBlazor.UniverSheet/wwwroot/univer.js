@@ -1,4 +1,4 @@
-import { addScript, addLink } from '../BootstrapBlazor/modules/utility.js'
+import { addScript, addLink, getTheme } from '../BootstrapBlazor/modules/utility.js'
 import DataService from './data-service.js'
 
 const loadAssets = async lang => {
@@ -42,8 +42,8 @@ export async function createUniverSheetAsync(sheet) {
     const lang = sheet.lang.replace('-', '')
     const langStr = lang.charAt(0).toUpperCase() + lang.slice(1)
     const options = {
-        theme: UniverDesign[sheet.theme] ?? UniverDesign.defaultTheme, //'defaultTheme' | greenTheme
-        darkMode: sheet.darkMode ?? false, // false | true
+        theme: sheet.theme, 
+        darkMode: sheet.darkMode,
         locale: lang,
         locales: {
             [lang]: merge(
@@ -85,6 +85,17 @@ export async function createUniverSheetAsync(sheet) {
         const module = await import(`../../${plugins[name]}`);
         const plugin = module[name];
         options.plugins.push(plugin);
+    }
+
+    if (options.theme === 'greenTheme') {
+        options.theme = UniverDesign.greenTheme;
+    }
+    else {
+        options.theme = UniverDesign.defaultTheme;
+    }
+
+    if (options.darkMode === null) {
+        options.darkMode = getTheme() === 'dark';
     }
 
     const { univer, univerAPI } = createUniver(options);
