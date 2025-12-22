@@ -8,7 +8,7 @@ export async function init(id, invoke, options) {
         return;
     }
 
-    const { theme, lang, plugins, data, ribbonType } = options;
+    const { theme, lang, plugins, data, ribbonType, darkMode } = options;
     const univerSheet = {
         el,
         invoke,
@@ -16,7 +16,8 @@ export async function init(id, invoke, options) {
         plugins,
         theme,
         lang,
-        ribbonType
+        ribbonType,
+        darkMode
     };
 
     await createUniverSheetAsync(univerSheet);
