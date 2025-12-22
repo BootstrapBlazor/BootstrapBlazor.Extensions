@@ -32,7 +32,7 @@ public partial class Editor
     public string? PlaceHolder { get; set; }
 
     /// <summary>
-    /// 获得/设置 是否直接显示为富文本编辑框
+    /// 获得/设置 是否直接显示为富文本编辑框 默认 false
     /// </summary>
     [Parameter]
     public bool IsEditor { get; set; }
