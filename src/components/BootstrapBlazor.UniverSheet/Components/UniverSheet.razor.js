@@ -1,6 +1,7 @@
-import Data from '../../BootstrapBlazor/modules/data.js'
-import { isFunction } from '../../BootstrapBlazor/modules/utility.js'
+import { isFunction, registerBootstrapBlazorModule } from '../../BootstrapBlazor/modules/utility.js'
 import { createUniverSheetAsync } from '../univer.js'
+import Data from '../../BootstrapBlazor/modules/data.js'
+import EventHandler from "../../BootstrapBlazor/modules/event-handler.js"
 
 export async function init(id, invoke, options) {
     const el = document.getElementById(id);
@@ -24,6 +25,10 @@ export async function init(id, invoke, options) {
     Data.set(id, univerSheet);
 
     invoke.invokeMethodAsync('TriggerReadyAsync');
+
+    registerBootstrapBlazorModule('UniverSheet', id, () => {
+        EventHandler.on(document, 'changed.bb.theme', updateTheme);
+    });
 }
 
 export function execute(id, data) {
@@ -39,4 +44,28 @@ export function dispose(id) {
     if (isFunction(univerSheet.dispose)) {
         univerSheet.dispose();
     }
+
+    const { UniverSheet } = window.BootstrapBlazor;
+    if (UniverSheet) {
+        UniverSheet.dispose(id, () => {
+            EventHandler.off(document, 'changed.bb.theme', updateTheme);
+        });
+    }
+}
+
+const updateTheme = e => {
+    const theme = e.theme;
+
+    [...document.querySelectorAll('.bb-univer-sheet')].forEach(s => {
+        const id = s.getAttribute('id');
+        if (id) {
+            const univerSheet = Data.get(id);
+            if (univerSheet && univerSheet.darkMode === null) {
+                const { univerAPI } = univerSheet;
+                if (univerAPI) {
+                    univerAPI.toggleDarkMode(theme === 'dark');
+                }
+            }
+        }
+    });
 }
