@@ -19,10 +19,16 @@ public partial class UniverSheet
     public Dictionary<string, string>? Plugins { get; set; }
 
     /// <summary>
-    /// 获得/设置 主题颜色 默认 null 未设置
+    /// 获得/设置 主题颜色 默认 null 未设置 可设置为 greenTheme
     /// </summary>
     [Parameter]
     public string? Theme { get; set; }
+
+    /// <summary>
+    /// 获得/设置 是否为暗黑模式 默认 null 未设置 自动
+    /// </summary>
+    [Parameter]
+    public bool? IsDarkMode { get; set; }
 
     /// <summary>
     /// 获得/设置 语言 默认 null 未设置
@@ -93,7 +99,15 @@ public partial class UniverSheet
     /// <inheritdoc/>
     /// </summary>
     /// <returns></returns>
-    protected override Task InvokeInitAsync() => InvokeVoidAsync("init", Id, Interop, new { Theme, Lang, Plugins, Data, RibbonType = RibbonType.ToDescriptionString() });
+    protected override Task InvokeInitAsync() => InvokeVoidAsync("init", Id, Interop, new
+    {
+        Theme,
+        Lang,
+        Plugins,
+        Data,
+        DarkMode = IsDarkMode,
+        RibbonType = RibbonType.ToDescriptionString()
+    });
 
     /// <summary>
     /// 推送数据方法
