@@ -269,4 +269,50 @@ public partial class HikVisionWebPlugin
             await OnGetChannelsAsync(channel);
         }
     }
+
+    /// <summary>
+    /// 打开声音方法
+    /// </summary>
+    /// <returns></returns>
+    public async Task<bool> OpenSound()
+    {
+        var ret = false;
+        if (IsLogin && IsRealPlaying)
+        {
+            var code = await InvokeAsync<int>("openSound", Id);
+            ret = code == 0;
+        }
+        return ret;
+    }
+
+    /// <summary>
+    /// 关闭声音方法
+    /// </summary>
+    /// <returns></returns>
+    public async Task<bool> CloseSound()
+    {
+        var ret = false;
+        if (IsLogin && IsRealPlaying)
+        {
+            var code = await InvokeAsync<int>("closeSound", Id);
+            ret = code == 0;
+        }
+        return ret;
+    }
+
+    /// <summary>
+    /// 设置声音方法
+    /// </summary>
+    /// <param name="value">音量大小值 0 - 100 之间</param>
+    /// <returns></returns>
+    public async Task<bool> SetVolume(int value)
+    {
+        var ret = false;
+        if (IsLogin && IsRealPlaying)
+        {
+            var code = await InvokeAsync<int>("setVolume", Id, Math.Max(0, Math.Min(100, value)));
+            ret = code == 0;
+        }
+        return ret;
+    }
 }
