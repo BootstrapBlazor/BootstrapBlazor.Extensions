@@ -347,6 +347,68 @@ export function stopRealPlay(id) {
     });
 }
 
+export async function openSound(id) {
+    const vision = Data.get(id);
+    const { iWndIndex, realPlaying } = vision;
+
+    if (realPlaying !== true) {
+        return 101;
+    }
+
+    let code = 0;
+    try {
+        await WebVideoCtrl.I_OpenSound(iWndIndex);
+    }
+    catch (ex) {
+        code = 102;
+        console.log(ex);
+    }
+    return code;
+}
+
+export async function closeSound(id) {
+    const vision = Data.get(id);
+    const { iWndIndex, realPlaying } = vision;
+
+    if (realPlaying !== true) {
+        return 101;
+    }
+
+    let code = 0;
+    try {
+        await WebVideoCtrl.I_CloseSound(iWndIndex);
+    }
+    catch (ex) {
+        code = 102;
+        console.log(ex);
+    }
+    return code;
+}
+
+export async function setVolume(id, value) {
+    const vision = Data.get(id);
+    const { iWndIndex, realPlaying } = vision;
+
+    if (realPlaying !== true) {
+        return 101;
+    }
+
+    let v = parseInt(value);
+    if (isNaN(v)) {
+        v = 50;
+    }
+
+    let code = 0;
+    try {
+        await WebVideoCtrl.I_SetVolume(Math.min(100, Math.max(0, v)));
+    }
+    catch (ex) {
+        code = 101;
+        console.log(ex);
+    }
+    return code;
+}
+
 export function dispose(id) {
     const vision = Data.get(id);
     const { realPlaying, logined, observer } = vision;
