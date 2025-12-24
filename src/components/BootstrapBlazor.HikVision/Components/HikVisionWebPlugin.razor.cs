@@ -324,7 +324,7 @@ public partial class HikVisionWebPlugin
     {
         if (IsLogin && IsRealPlaying)
         {
-            var stream = await InvokeAsync<IJSStreamReference?>("capturePictureAndDownload", Id);
+            await InvokeVoidAsync("capturePictureAndDownload", Id);
         }
     }
 
