@@ -403,7 +403,7 @@ export async function setVolume(id, value) {
         await WebVideoCtrl.I_SetVolume(Math.min(100, Math.max(0, v)));
     }
     catch (ex) {
-        code = 101;
+        code = 102;
         console.log(ex);
     }
     return code;
