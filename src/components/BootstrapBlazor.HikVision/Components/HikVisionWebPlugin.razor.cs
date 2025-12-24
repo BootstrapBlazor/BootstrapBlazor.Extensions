@@ -280,7 +280,7 @@ public partial class HikVisionWebPlugin
         if (IsLogin && IsRealPlaying)
         {
             var code = await InvokeAsync<int>("openSound", Id);
-            ret = code == 0;
+            ret = code == 100;
         }
         return ret;
     }
@@ -295,7 +295,7 @@ public partial class HikVisionWebPlugin
         if (IsLogin && IsRealPlaying)
         {
             var code = await InvokeAsync<int>("closeSound", Id);
-            ret = code == 0;
+            ret = code == 100;
         }
         return ret;
     }
@@ -311,7 +311,7 @@ public partial class HikVisionWebPlugin
         if (IsLogin && IsRealPlaying)
         {
             var code = await InvokeAsync<int>("setVolume", Id, Math.Max(0, Math.Min(100, value)));
-            ret = code == 0;
+            ret = code == 100;
         }
         return ret;
     }

@@ -355,7 +355,7 @@ export async function openSound(id) {
         return 101;
     }
 
-    let code = 0;
+    let code = 100;
     try {
         await WebVideoCtrl.I_OpenSound(iWndIndex);
     }
@@ -374,7 +374,7 @@ export async function closeSound(id) {
         return 101;
     }
 
-    let code = 0;
+    let code = 100;
     try {
         await WebVideoCtrl.I_CloseSound(iWndIndex);
     }
@@ -398,7 +398,7 @@ export async function setVolume(id, value) {
         v = 50;
     }
 
-    let code = 0;
+    let code = 100;
     try {
         await WebVideoCtrl.I_SetVolume(Math.min(100, Math.max(0, v)));
     }
