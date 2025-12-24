@@ -315,4 +315,44 @@ public partial class HikVisionWebPlugin
         }
         return ret;
     }
+
+    private TaskCompletionSource<IJSStreamReference?>? _captureTaskCompletionSource = null;
+
+    /// <summary>
+    /// 抓图方法返回 Url
+    /// </summary>
+    /// <returns></returns>
+    public async Task<IJSStreamReference?> CapturePicture(CancellationToken token = default)
+    {
+        IJSStreamReference? ret = null;
+        if (IsLogin && IsRealPlaying)
+        {
+            _captureTaskCompletionSource = new();
+
+            try
+            {
+                await InvokeVoidAsync("capturePicture", token, Id);
+                ret = await _captureTaskCompletionSource.Task;
+            }
+            catch (Exception ex)
+            {
+                _captureTaskCompletionSource.SetException(ex);
+            }
+        }
+        return ret;
+    }
+
+    /// <summary>
+    /// 抓图返回文件流方法 由 Javascript 调用
+    /// </summary>
+    /// <param name="stream"></param>
+    /// <returns></returns>
+    [JSInvokable]
+    public async Task TriggerReceivePictureStream(IJSStreamReference stream)
+    {
+        if (_captureTaskCompletionSource != null)
+        {
+            _captureTaskCompletionSource.SetResult(stream);
+        }
+    }
 }

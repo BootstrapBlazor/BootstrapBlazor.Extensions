@@ -409,6 +409,36 @@ export async function setVolume(id, value) {
     return code;
 }
 
+export async function capturePicture(id) {
+    const vision  = Data.get(id);
+    const { iWndIndex, realPlaying, invoke } = vision;
+
+    if (realPlaying !== true) {
+        return "";
+    }
+
+    try {
+        const base64 = await WebVideoCtrl.I_CapturePicData();
+        const bytes = base64ToArray(base64);
+        return DotNet.createJSStreamReference(bytes.buffer);
+    }
+    catch (ex) {
+        return null;
+    }
+}
+
+const base64ToArray = base64String => {
+    const base64Data = base64String.split(',')[1] || base64String;
+    const binaryString = atob(base64Data);
+    const length = binaryString.length;
+    const bytes = new Uint8Array(length);
+
+    for (let i = 0; i < length; i++) {
+        bytes[i] = binaryString.charCodeAt(i);
+    }
+
+    return bytes;
+}
 export function dispose(id) {
     const vision = Data.get(id);
     const { realPlaying, logined, observer } = vision;
