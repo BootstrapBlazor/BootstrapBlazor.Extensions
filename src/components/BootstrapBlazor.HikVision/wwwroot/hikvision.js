@@ -439,6 +439,25 @@ const base64ToArray = base64String => {
 
     return bytes;
 }
+
+export function capturePictureAndDownload(id) {
+    const vision = Data.get(id);
+    const { iWndIndex, realPlaying, invoke } = vision;
+
+    if (realPlaying !== true) {
+        return "";
+    }
+
+    try {
+        const base64 = await WebVideoCtrl.I_CapturePicData();
+        const bytes = base64ToArray(base64);
+        return DotNet.createJSStreamReference(bytes.buffer);
+    }
+    catch (ex) {
+        return null;
+    }
+}
+
 export function dispose(id) {
     const vision = Data.get(id);
     const { realPlaying, logined, observer } = vision;

@@ -316,6 +316,18 @@ public partial class HikVisionWebPlugin
         return ret;
     }
 
+    /// <summary>
+    /// 抓图方法返回 Url
+    /// </summary>
+    /// <returns></returns>
+    public async Task CapturePictureAndDownload()
+    {
+        if (IsLogin && IsRealPlaying)
+        {
+            var stream = await InvokeAsync<IJSStreamReference?>("capturePictureAndDownload", Id);
+        }
+    }
+
     private TaskCompletionSource<IJSStreamReference?>? _captureTaskCompletionSource = null;
 
     /// <summary>
