@@ -1,4 +1,4 @@
-import { init as initVision, login as loginVision, logout, startRealPlay, stopRealPlay, openSound, closeSound, setVolume, dispose as disposeVision } from '../hikvision.js';
+import { init as initVision, login as loginVision, logout, startRealPlay, stopRealPlay, openSound, closeSound, setVolume, capturePicture, capturePictureAndDownload, dispose as disposeVision } from '../hikvision.js';
 import Data from '../../BootstrapBlazor/modules/data.js';
 
 export async function init(id, invoke) {
@@ -29,7 +29,7 @@ export async function login(id, ip, port, userName, password, loginType) {
     return logined;
 }
 
-export { logout, startRealPlay, stopRealPlay, openSound, closeSound, setVolume }
+export { logout, startRealPlay, stopRealPlay, openSound, closeSound, setVolume, capturePicture, capturePictureAndDownload }
 
 export function dispose(id) {
     disposeVision(id);

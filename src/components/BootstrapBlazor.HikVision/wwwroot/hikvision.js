@@ -355,7 +355,7 @@ export async function openSound(id) {
         return 101;
     }
 
-    let code = 0;
+    let code = 100;
     try {
         await WebVideoCtrl.I_OpenSound(iWndIndex);
     }
@@ -374,7 +374,7 @@ export async function closeSound(id) {
         return 101;
     }
 
-    let code = 0;
+    let code = 100;
     try {
         await WebVideoCtrl.I_CloseSound(iWndIndex);
     }
@@ -398,7 +398,7 @@ export async function setVolume(id, value) {
         v = 50;
     }
 
-    let code = 0;
+    let code = 100;
     try {
         await WebVideoCtrl.I_SetVolume(Math.min(100, Math.max(0, v)));
     }
@@ -407,6 +407,63 @@ export async function setVolume(id, value) {
         console.log(ex);
     }
     return code;
+}
+
+export async function capturePicture(id) {
+    const vision = Data.get(id);
+    const { realPlaying } = vision;
+
+    if (realPlaying !== true) {
+        return "";
+    }
+
+    try {
+        const base64 = await WebVideoCtrl.I_CapturePicData();
+        if (base64) {
+            const bytes = base64ToArray(base64);
+            return DotNet.createJSStreamReference(bytes.buffer);
+        }
+    }
+    catch (ex) {
+        return null;
+    }
+}
+
+const base64ToArray = base64String => {
+    const base64Data = base64String.split(',')[1] || base64String;
+    const binaryString = atob(base64Data);
+    const length = binaryString.length;
+    const bytes = new Uint8Array(length);
+
+    for (let i = 0; i < length; i++) {
+        bytes[i] = binaryString.charCodeAt(i);
+    }
+
+    return bytes;
+}
+
+export async function capturePictureAndDownload(id) {
+    const vision = Data.get(id);
+    const { realPlaying } = vision;
+
+    if (realPlaying !== true) {
+        return;
+    }
+
+    try {
+        const base64 = await WebVideoCtrl.I_CapturePicData();
+        if (base64) {
+            const anchorElement = document.createElement('a');
+            anchorElement.href = `data:image/jpg;base64,${base64}`;
+            anchorElement.download = `capture_${new Date().getTime()}.jpg`;
+            document.body.appendChild(anchorElement);
+            anchorElement.click();
+            document.body.removeChild(anchorElement);
+        }
+    }
+    catch (ex) {
+
+    }
 }
 
 export function dispose(id) {
