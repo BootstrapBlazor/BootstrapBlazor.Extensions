@@ -425,6 +425,7 @@ export async function capturePicture(id) {
         }
     }
     catch (ex) {
+        console.log(ex);
         return null;
     }
 }
@@ -462,8 +463,88 @@ export async function capturePictureAndDownload(id) {
         }
     }
     catch (ex) {
+        console.log(ex);
+    }
+}
+
+export async function startRecord(id) {
+    const vision = Data.get(id);
+    const { realPlaying } = vision;
+
+    if (realPlaying !== true) {
+        return false;
+    }
+
+    let completed = false;
+    let error = null;
+    try {
+        WebVideoCtrl.I_StartRecord(`record_${new Date().getTime()}`, {
+            success: function () {
+                completed = true;
+            },
+            error: function (oError) {
+                completed = true;
+                error = oError;
+            }
+        });
+    }
+    catch (ex) {
+        console.log(ex);
+    }
+
+    return new Promise((resolve, reject) => {
+        const handler = setInterval(() => {
+            if (completed) {
+                clearTimeout(handler);
+                if (error === null) {
+                    resolve(true);
+                }
+                else {
+                    reject(error);
+                }
+            }
+        }, 16);
+    });
+}
+
+export async function stopRecord(id) {
+    const vision = Data.get(id);
+    const { realPlaying } = vision;
+
+    if (realPlaying !== true) {
+        return false;
+    }
+
+    let completed = false;
+    let error = null;
+    try {
+        WebVideoCtrl.I_StopRecord({
+            success: function () {
+                completed = true;
+            },
+            error: function (oError) {
+                completed = true;
+                error = oError;
+            }
+        });
+    }
+    catch (ex) {
 
     }
+
+    return new Promise((resolve, reject) => {
+        const handler = setInterval(() => {
+            if (completed) {
+                clearTimeout(handler);
+                if (error === null) {
+                    resolve(true);
+                }
+                else {
+                    reject(error);
+                }
+            }
+        }, 16);
+    });
 }
 
 export function dispose(id) {

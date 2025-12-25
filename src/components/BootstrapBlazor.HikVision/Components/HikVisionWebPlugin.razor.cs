@@ -317,7 +317,7 @@ public partial class HikVisionWebPlugin
     }
 
     /// <summary>
-    /// 抓图方法返回 Url
+    /// 抓图方法并且下载方法
     /// </summary>
     /// <returns></returns>
     public async Task CapturePictureAndDownload()
@@ -331,7 +331,7 @@ public partial class HikVisionWebPlugin
     private TaskCompletionSource<IJSStreamReference?>? _captureTaskCompletionSource = null;
 
     /// <summary>
-    /// 抓图方法返回 Url
+    /// 抓图方法返回 <see cref="IJSStreamReference"/> 实例
     /// </summary>
     /// <returns></returns>
     public async Task<IJSStreamReference?> CapturePicture(CancellationToken token = default)
@@ -366,5 +366,33 @@ public partial class HikVisionWebPlugin
         {
             _captureTaskCompletionSource.SetResult(stream);
         }
+    }
+
+    /// <summary>
+    /// 开始录像方法
+    /// </summary>
+    /// <returns></returns>
+    public async Task<bool> StartRecord()
+    {
+        var ret = false;
+        if (IsLogin && IsRealPlaying)
+        {
+            ret = await InvokeAsync<bool>("startRecord", Id);
+        }
+        return ret;
+    }
+
+    /// <summary>
+    /// 结束录像方法
+    /// </summary>
+    /// <returns></returns>
+    public async Task<bool> StopRecord()
+    {
+        var ret = false;
+        if (IsLogin && IsRealPlaying)
+        {
+            ret = await InvokeAsync<bool>("stopRecord", Id);
+        }
+        return ret;
     }
 }
