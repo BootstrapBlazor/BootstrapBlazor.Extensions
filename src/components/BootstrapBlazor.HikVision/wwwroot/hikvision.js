@@ -409,24 +409,24 @@ export async function setVolume(id, value) {
     return code;
 }
 
-export async function capturePicture(id) {
+export function capturePicture(id, szFileName) {
     const vision = Data.get(id);
     const { realPlaying } = vision;
 
     if (realPlaying !== true) {
-        return "";
+        return false;
     }
 
     try {
-        const base64 = await WebVideoCtrl.I_CapturePicData();
-        if (base64) {
-            const bytes = base64ToArray(base64);
-            return DotNet.createJSStreamReference(bytes.buffer);
+        if (!szFileName) {
+            szFileName = `capture_${new Date().getTime()}`;
         }
+        WebVideoCtrl.I_CapturePic(szFileName);
+        return true;
     }
     catch (ex) {
         console.log(ex);
-        return null;
+        return false;
     }
 }
 
@@ -443,28 +443,34 @@ const base64ToArray = base64String => {
     return bytes;
 }
 
-export async function capturePictureAndDownload(id) {
+export async function capturePictureAndDownload(id, szFileName) {
     const vision = Data.get(id);
     const { realPlaying } = vision;
 
     if (realPlaying !== true) {
-        return;
+        return false;
     }
 
+    let ret = false;
     try {
         const base64 = await WebVideoCtrl.I_CapturePicData();
         if (base64) {
+            if (!szFileName) {
+                szFileName = `capture_${new Date().getTime()}.jpg`
+            }
             const anchorElement = document.createElement('a');
             anchorElement.href = `data:image/jpg;base64,${base64}`;
-            anchorElement.download = `capture_${new Date().getTime()}.jpg`;
+            anchorElement.download = szFileName;
             document.body.appendChild(anchorElement);
             anchorElement.click();
             document.body.removeChild(anchorElement);
+            ret = true;
         }
     }
     catch (ex) {
         console.log(ex);
     }
+    return ret;
 }
 
 export async function startRecord(id) {

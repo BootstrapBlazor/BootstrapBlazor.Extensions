@@ -334,52 +334,28 @@ public partial class HikVisionWebPlugin
     /// 抓图方法并且下载方法
     /// </summary>
     /// <returns></returns>
-    public async Task CapturePictureAndDownload()
+    public async Task<bool> CapturePictureAndDownload(string? fileName = null, CancellationToken token = default)
     {
+        var ret = false;
         if (IsLogin && IsRealPlaying)
         {
-            await InvokeVoidAsync("capturePictureAndDownload", Id);
-        }
-    }
-
-    private TaskCompletionSource<IJSStreamReference?>? _captureTaskCompletionSource = null;
-
-    /// <summary>
-    /// 抓图方法返回 <see cref="IJSStreamReference"/> 实例
-    /// </summary>
-    /// <returns></returns>
-    public async Task<IJSStreamReference?> CapturePicture(CancellationToken token = default)
-    {
-        IJSStreamReference? ret = null;
-        if (IsLogin && IsRealPlaying)
-        {
-            _captureTaskCompletionSource = new();
-
-            try
-            {
-                await InvokeVoidAsync("capturePicture", token, Id);
-                ret = await _captureTaskCompletionSource.Task;
-            }
-            catch (Exception ex)
-            {
-                _captureTaskCompletionSource.SetException(ex);
-            }
+            ret = await InvokeAsync<bool>("capturePictureAndDownload", token, Id, fileName);
         }
         return ret;
     }
 
     /// <summary>
-    /// 抓图返回文件流方法 由 Javascript 调用
+    /// 抓图方法返回 <see cref="IJSStreamReference"/> 实例
     /// </summary>
-    /// <param name="stream"></param>
     /// <returns></returns>
-    [JSInvokable]
-    public async Task TriggerReceivePictureStream(IJSStreamReference stream)
+    public async Task<bool> CapturePicture(string? fileName = null, CancellationToken token = default)
     {
-        if (_captureTaskCompletionSource != null)
+        var ret = false;
+        if (IsLogin && IsRealPlaying)
         {
-            _captureTaskCompletionSource.SetResult(stream);
+            ret = await InvokeAsync<bool>("capturePicture", token, Id, fileName);
         }
+        return ret;
     }
 
     /// <summary>
