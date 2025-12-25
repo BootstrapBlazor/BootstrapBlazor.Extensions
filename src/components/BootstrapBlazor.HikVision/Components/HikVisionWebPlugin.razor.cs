@@ -116,6 +116,16 @@ public partial class HikVisionWebPlugin
     public bool IsRealPlaying { get; private set; }
 
     /// <summary>
+    /// 获得 是否已经打开声音
+    /// </summary>
+    public bool IsOpenSound { get; private set; }
+
+    /// <summary>
+    /// 获得 是否开始录像
+    /// </summary>
+    public bool IsStartRecord { get; private set; }
+
+    /// <summary>
     /// <inheritdoc/>
     /// </summary>
     protected override void OnParametersSet()
@@ -164,6 +174,7 @@ public partial class HikVisionWebPlugin
         {
             await InvokeVoidAsync("logout", Id);
         }
+        IsStartRecord = false;
         IsRealPlaying = false;
         IsLogin = false;
         await TriggerLogout();
@@ -221,6 +232,7 @@ public partial class HikVisionWebPlugin
         {
             await InvokeVoidAsync("stopRealPlay", Id);
             IsRealPlaying = false;
+            IsStartRecord = false;
             await TriggerStopRealPlay();
         }
     }
@@ -281,6 +293,7 @@ public partial class HikVisionWebPlugin
         {
             var code = await InvokeAsync<int>("openSound", Id);
             ret = code == 100;
+            IsOpenSound = true;
         }
         return ret;
     }
@@ -296,6 +309,7 @@ public partial class HikVisionWebPlugin
         {
             var code = await InvokeAsync<int>("closeSound", Id);
             ret = code == 100;
+            IsOpenSound = false;
         }
         return ret;
     }
@@ -378,6 +392,7 @@ public partial class HikVisionWebPlugin
         if (IsLogin && IsRealPlaying)
         {
             ret = await InvokeAsync<bool>("startRecord", Id);
+            IsStartRecord = ret;
         }
         return ret;
     }
@@ -392,6 +407,10 @@ public partial class HikVisionWebPlugin
         if (IsLogin && IsRealPlaying)
         {
             ret = await InvokeAsync<bool>("stopRecord", Id);
+            if (ret)
+            {
+                IsStartRecord = false;
+            }
         }
         return ret;
     }
