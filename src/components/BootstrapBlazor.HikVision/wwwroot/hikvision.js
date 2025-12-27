@@ -13,13 +13,11 @@ export async function init(id) {
         return false;
     }
 
-    const result = await initWindow(id);
+    const vision = Data.get(id);
+    const result = await initWindow(id, iWndIndex => vision.iWndIndex = iWndIndex);
     if (result.inited === false) {
         return false;
     }
-
-    const vision = Data.get(id);
-    vision.iWndIndex = result.iWndIndex;
     vision.inited = true;
 
     const observer = new IntersectionObserver(() => {
@@ -103,14 +101,14 @@ const removePlugin = () => {
     }
 }
 
-const initWindow = id => {
-    const result = { inited: null, iWndIndex: -1 };
+const initWindow = (id, cb) => {
+    const result = { inited: null };
     WebVideoCtrl.I_InitPlugin({
         szBasePath: './_content/BootstrapBlazor.HikVision',
         bWndFull: true,
         iWndowType: 1,
         cbSelWnd: function (xmlDoc) {
-            result.iWndIndex = parseInt(getTagNameFirstValue(xmlDoc, "SelectWnd"));
+            cb(parseInt(getTagNameFirstValue(xmlDoc, "SelectWnd")));
         },
         cbDoubleClickWnd: function (iWndIndex, bFullScreen) {
 
@@ -551,6 +549,29 @@ export async function stopRecord(id) {
             }
         }, 16);
     });
+}
+
+export async function changeWndNum(id, iWndType) {
+    const vision = Data.get(id);
+    if (!iWndType) {
+        iWndType = "1";
+    }
+
+    let ret = false;
+    try {
+        if ("1*2" === iWndType || "2*1" === iWndType) {
+            await WebVideoCtrl.I_ArrangeWindow(iWndType);
+        }
+        else {
+            const iType = parseInt(iWndType, 10);
+            await WebVideoCtrl.I_ChangeWndNum(iType);
+        }
+        ret = true;
+    }
+    catch (oError) {
+        console.log(oError);
+    }
+    return ret;
 }
 
 export function dispose(id) {
