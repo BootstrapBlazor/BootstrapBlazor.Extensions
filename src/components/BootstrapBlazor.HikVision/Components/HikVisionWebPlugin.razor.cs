@@ -126,6 +126,11 @@ public partial class HikVisionWebPlugin
     public bool IsStartRecord { get; private set; }
 
     /// <summary>
+    /// 获得 当前是否为分屏状态
+    /// </summary>
+    public bool IsMultipleWindowType { get; private set; }
+
+    /// <summary>
     /// <inheritdoc/>
     /// </summary>
     protected override void OnParametersSet()
@@ -204,7 +209,7 @@ public partial class HikVisionWebPlugin
     /// <returns></returns>
     public async Task StartRealPlay(int streamType, int channelId)
     {
-        if (IsLogin && !IsRealPlaying)
+        if (IsMultipleWindowType || (IsLogin && !IsRealPlaying))
         {
             IsRealPlaying = await InvokeAsync<bool?>("startRealPlay", Id, streamType, channelId) ?? false;
             if (IsRealPlaying)
@@ -228,7 +233,7 @@ public partial class HikVisionWebPlugin
     /// <returns></returns>
     public async Task StopRealPlay()
     {
-        if (IsRealPlaying)
+        if (IsMultipleWindowType || IsRealPlaying)
         {
             await InvokeVoidAsync("stopRealPlay", Id);
             IsRealPlaying = false;
@@ -289,7 +294,7 @@ public partial class HikVisionWebPlugin
     public async Task<bool> OpenSound()
     {
         var ret = false;
-        if (IsLogin && IsRealPlaying)
+        if (IsMultipleWindowType || (IsLogin && IsRealPlaying))
         {
             var code = await InvokeAsync<int>("openSound", Id);
             ret = code == 100;
@@ -305,7 +310,7 @@ public partial class HikVisionWebPlugin
     public async Task<bool> CloseSound()
     {
         var ret = false;
-        if (IsLogin && IsRealPlaying)
+        if (IsMultipleWindowType || (IsLogin && IsRealPlaying))
         {
             var code = await InvokeAsync<int>("closeSound", Id);
             ret = code == 100;
@@ -322,7 +327,7 @@ public partial class HikVisionWebPlugin
     public async Task<bool> SetVolume(int value)
     {
         var ret = false;
-        if (IsLogin && IsRealPlaying)
+        if (IsMultipleWindowType || (IsLogin && IsRealPlaying))
         {
             var code = await InvokeAsync<int>("setVolume", Id, Math.Max(0, Math.Min(100, value)));
             ret = code == 100;
@@ -337,7 +342,7 @@ public partial class HikVisionWebPlugin
     public async Task<bool> CapturePictureAndDownload(string? fileName = null, CancellationToken token = default)
     {
         var ret = false;
-        if (IsLogin && IsRealPlaying)
+        if (IsMultipleWindowType || (IsLogin && IsRealPlaying))
         {
             ret = await InvokeAsync<bool>("capturePictureAndDownload", token, Id, fileName);
         }
@@ -351,7 +356,7 @@ public partial class HikVisionWebPlugin
     public async Task<bool> CapturePicture(string? fileName = null, CancellationToken token = default)
     {
         var ret = false;
-        if (IsLogin && IsRealPlaying)
+        if (IsMultipleWindowType || (IsLogin && IsRealPlaying))
         {
             ret = await InvokeAsync<bool>("capturePicture", token, Id, fileName);
         }
@@ -365,7 +370,7 @@ public partial class HikVisionWebPlugin
     public async Task<bool> StartRecord()
     {
         var ret = false;
-        if (IsLogin && IsRealPlaying)
+        if (IsMultipleWindowType || (IsLogin && IsRealPlaying))
         {
             ret = await InvokeAsync<bool>("startRecord", Id);
             IsStartRecord = ret;
@@ -380,7 +385,7 @@ public partial class HikVisionWebPlugin
     public async Task<bool> StopRecord()
     {
         var ret = false;
-        if (IsLogin && IsRealPlaying)
+        if (IsMultipleWindowType || (IsLogin && IsRealPlaying))
         {
             ret = await InvokeAsync<bool>("stopRecord", Id);
             if (ret)
