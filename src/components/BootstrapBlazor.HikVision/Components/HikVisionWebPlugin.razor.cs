@@ -390,4 +390,15 @@ public partial class HikVisionWebPlugin
         }
         return ret;
     }
+
+    /// <summary>
+    /// 更改视口数量方法
+    /// </summary>
+    /// <param name="iWndType">画面分割类型 1- 1*1，2- 2*2，3- 3*3，4- 4*4 (最大显示数值为4*4分割，数字超过4返回16分割)</param>
+    /// <returns></returns>
+    public async Task<bool> ChangeWindowNum(string iWndType)
+    {
+        IsMultipleWindowType = iWndType != "1";
+        return await InvokeAsync<bool>("changeWndNum", Id, iWndType);
+    }
 }
