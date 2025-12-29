@@ -14,6 +14,12 @@ namespace BootstrapBlazor.Components;
 public partial class PdfReader
 {
     /// <summary>
+    /// 获得/设置 是否显示文件名 默认 true 显示
+    /// </summary>
+    [Parameter]
+    public bool ShowFileName { get; set; } = true;
+
+    /// <summary>
     /// 获得/设置 是否显示工具栏 默认 true 显示
     /// </summary>
     [Parameter]
@@ -187,7 +193,7 @@ public partial class PdfReader
         {
             CurrentPage = 1;
         }
-        _docTitle = Path.GetFileName(Url);
+        _docTitle = ShowFileName ? Path.GetFileName(Url) : null;
     }
 
     /// <summary>
