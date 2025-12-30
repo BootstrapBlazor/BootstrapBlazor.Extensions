@@ -1,11 +1,3 @@
-﻿/* 
-@import 'univerjs.preset-sheets-core/index.css';
-@import 'univerjs.preset-sheets-drawing/index.css';
-@import 'univerjs.sheets-zen-editor/index.css';
-@import 'univerjs.preset-sheets-data-validation/index.css';
-@import 'univerjs.preset-sheets-thread-comment/index.css';
-@import 'univerjs.preset-sheets-advanced/index.css';
-*/
 @import 'univer-bundle.css';
 
 .bb-univer-sheet {
@@ -13,10 +5,6 @@
     height: 100%;
     overflow: hidden;
 }
-
-/* .univer-fixed {
-    position: absolute;
-} */
 
 .univer-theme {
     position: relative;
