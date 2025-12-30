@@ -547,7 +547,7 @@ const createFloatingGroup = (group, rect, groupType) => {
         dockview.moveGroupOrPanel({
             from: { groupId: group.id, panelId: panel.id },
             to: { group: floatingGroup, position: 'center', index },
-            skipRemoveGroup: true,
+            keepEmptyGroups: true,
         })
     })
     dockview.setVisible(group, false)
