@@ -1,7 +1,7 @@
-import { addScript, addLink, getTheme } from '../BootstrapBlazor/modules/utility.js'
+﻿import { addScript, addLink, getTheme } from '../BootstrapBlazor/modules/utility.js'
 import DataService from './data-service.js'
 
-const loadAssets = async lang => {
+const loadAssets2 = async lang => {
     await addScript('./_content/BootstrapBlazor.UniverSheet/univer/react.production.min.js');
     await addScript('./_content/BootstrapBlazor.UniverSheet/univer/react-dom.production.min.js');
     await addScript('./_content/BootstrapBlazor.UniverSheet/univer/rxjs.umd.min.js');
@@ -26,6 +26,10 @@ const loadAssets = async lang => {
     await addLink('./_content/BootstrapBlazor.UniverSheet/univer/univer-sheet.bundle.css');
 }
 
+const loadAssets = async lang => {
+    await addScript('./_content/BootstrapBlazor.UniverSheet/univer/univer-bundle.js');
+    await addLink('./_content/BootstrapBlazor.UniverSheet/univer/univer-sheet.bundle.css');
+}
 export async function createUniverSheetAsync(sheet) {
     sheet.lang = sheet.lang ?? 'en-US';
     await loadAssets(sheet.lang);
