@@ -238,7 +238,7 @@ public partial class Chart
     }
 
     /// <summary>
-    /// 删除数据集
+    /// 根据索引删除数据集
     /// </summary>
     /// <param name="index"></param>
     /// <returns></returns>
@@ -256,8 +256,43 @@ public partial class Chart
         if (_ds != null)
         {
             _ds.Data.RemoveAt(index);
+
+            await UpdateDataset(_ds);
         }
-        await InvokeVoidAsync("update", Id, _ds, ChartAction.RemoveDataset.ToDescriptionString());
+    }
+
+    /// <summary>
+    /// 根据标签名称删除数据集
+    /// </summary>
+    /// <param name="name"></param>
+    /// <param name="comparison"></param>
+    /// <returns></returns>
+    public async Task RemoveDataset(string name, StringComparison comparison = StringComparison.OrdinalIgnoreCase)
+    {
+        if (_ds == null)
+        {
+            if (OnInitAsync != null)
+            {
+                _ds = await OnInitAsync();
+                UpdateOptions(_ds);
+            }
+        }
+
+        if (_ds != null)
+        {
+            var data = _ds.Data.Find(i => i.Label?.Equals(name, comparison) ?? false);
+            if (data != null)
+            {
+                _ds.Data.Remove(data);
+            }
+
+            await UpdateDataset(_ds);
+        }
+    }
+
+    private async Task UpdateDataset(ChartDataSource dataSource)
+    {
+        await InvokeVoidAsync("update", Id, dataSource, ChartAction.RemoveDataset.ToDescriptionString());
 
         if (OnAfterUpdateAsync != null)
         {
