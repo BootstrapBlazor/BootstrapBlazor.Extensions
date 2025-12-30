@@ -193,7 +193,7 @@ public partial class PdfReader
         {
             CurrentPage = 1;
         }
-        _docTitle = ShowFileName ? Path.GetFileName(Url) : null;
+        _docTitle = ShowFileName && !string.IsNullOrEmpty(Url) ? Path.GetFileName(Url) : null;
     }
 
     /// <summary>
