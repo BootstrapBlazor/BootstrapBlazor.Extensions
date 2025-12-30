@@ -356,7 +356,6 @@ const getChartOption = function (option) {
         }
     }
 
-    // pie 图除外默认显示 网格线与坐标系
     if (option.type !== 'pie' && option.type !== 'doughnut') {
         if (option.options.showXScales === null) {
             scale.x.display = true
@@ -491,7 +490,13 @@ export function init(id, invoke, method, option) {
 }
 
 export function update(id, option, method, angle) {
-    const { invoke, chart } = Data.get(id)
+    const { invoke, chart } = Data.get(id);
+    option.data.forEach(d => {
+        const l = chart.legend.legendItems.find(i => i.text === d.label);
+        if(l) {
+            d.hidden = l.hidden;
+        }
+    });
     let op = getChartOption(option);
     handlerClickData(invoke, op, option.options.onClickDataMethod);
     op.angle = angle
