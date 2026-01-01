@@ -1,4 +1,4 @@
-﻿@inherits DockViewComponentBase
+@inherits DockViewComponentBase
 
 <div id="@Id" class="bb-dockview-panel" data-bb-key="@Key" data-bb-title="@Title">
     @if (TitleTemplate != null)
@@ -11,5 +11,8 @@
     {
         <DockViewTitleBar BarIcon="@TitleBarIcon" BarIconUrl="@TitleBarIconUrl" OnClickBarCallback="OnClickBar"></DockViewTitleBar>
     }
-    @ChildContent
+    @if (Visible)
+    {
+        @ChildContent
+    }
 </div>
