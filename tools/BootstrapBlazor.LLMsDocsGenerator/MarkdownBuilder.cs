@@ -5,7 +5,7 @@
 
 using System.Text;
 
-namespace LlmsDocsGenerator;
+namespace BootstrapBlazorLLMsDocsGenerator;
 
 /// <summary>
 /// Builds Markdown documentation for components

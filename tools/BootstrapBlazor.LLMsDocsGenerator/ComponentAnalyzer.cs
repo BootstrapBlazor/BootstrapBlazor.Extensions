@@ -8,7 +8,7 @@ using Microsoft.CodeAnalysis.CSharp;
 using Microsoft.CodeAnalysis.CSharp.Syntax;
 using System.Text.RegularExpressions;
 
-namespace LlmsDocsGenerator;
+namespace BootstrapBlazorLLMsDocsGenerator;
 
 /// <summary>
 /// Analyzes Blazor component source files using Roslyn

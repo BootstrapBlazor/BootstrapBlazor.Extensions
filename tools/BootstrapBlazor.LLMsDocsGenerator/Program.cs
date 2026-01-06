@@ -3,8 +3,7 @@
 // See the LICENSE file in the project root for more information.
 // Maintainer: Argo Zhang(argo@live.ca) Website: https://www.blazor.zone
 
-using LlmsDocsGenerator;
-using System.CommandLine;
+using BootstrapBlazor.LLMsDocsGenerator;
 
 var componentOption = new Option<string?>("--component") { Description = "Generate documentation for a specific component only" };
 var indexOnlyOption = new Option<bool>("--index-only") { Description = "Generate only the index file (llms.txt)" };
