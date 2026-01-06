@@ -10,18 +10,13 @@ namespace BootstrapBlazorLLMsDocsGenerator;
 /// <summary>
 /// Builds Markdown documentation for components
 /// </summary>
-public class MarkdownBuilder
+internal static class MarkdownBuilder
 {
     private const string GitHubBaseUrl = "https://github.com/dotnetcore/BootstrapBlazor/blob/main/";
-    private readonly StringBuilder _sb = new();
 
-    /// <summary>
-    /// Build the main llms.txt index file
-    /// </summary>
-    public string BuildIndex(List<ComponentInfo> components)
+    public static string BuildIndexDoc(List<ComponentInfo> components)
     {
-        _sb.Clear();
-
+        var _sb = new StringBuilder();
         _sb.AppendLine("# BootstrapBlazor");
         _sb.AppendLine();
         _sb.AppendLine("> Enterprise-class Blazor UI component library based on Bootstrap 5");
@@ -212,13 +207,9 @@ public class MarkdownBuilder
         return summary.Length <= maxLength ? summary : summary[..(maxLength - 3)] + "...";
     }
 
-    /// <summary>
-    /// Build documentation for a single component
-    /// </summary>
-    public string BuildComponentDoc(ComponentInfo component)
+    public static string BuildComponentDoc(ComponentInfo component)
     {
-        _sb.Clear();
-
+        var _sb = new StringBuilder();
         _sb.AppendLine($"# BootstrapBlazor {component.Name}");
         _sb.AppendLine();
 
@@ -228,7 +219,7 @@ public class MarkdownBuilder
             _sb.AppendLine();
         }
 
-        BuildComponentSection(component, includeHeader: false);
+        BuildComponentSection(_sb, component, includeHeader: false);
 
         // Footer
         _sb.AppendLine("---");
@@ -237,7 +228,7 @@ public class MarkdownBuilder
         return _sb.ToString();
     }
 
-    private void BuildComponentSection(ComponentInfo component, bool includeHeader = true)
+    private static void BuildComponentSection(StringBuilder _sb, ComponentInfo component, bool includeHeader = true)
     {
         if (includeHeader)
         {
@@ -359,33 +350,33 @@ public class MarkdownBuilder
         }
     }
 
-    /// <summary>
-    /// Build a minimal parameter table for embedding in existing docs
-    /// </summary>
-    public string BuildParameterTable(List<ParameterInfo> parameters)
-    {
-        _sb.Clear();
+    ///// <summary>
+    ///// Build a minimal parameter table for embedding in existing docs
+    ///// </summary>
+    //public string BuildParameterTable(List<ParameterInfo> parameters)
+    //{
+    //    _sb.Clear();
 
-        _sb.AppendLine("| Parameter | Type | Default | Description |");
-        _sb.AppendLine("|-----------|------|---------|-------------|");
+    //    _sb.AppendLine("| Parameter | Type | Default | Description |");
+    //    _sb.AppendLine("|-----------|------|---------|-------------|");
 
-        var sortedParams = parameters
-            .OrderByDescending(p => p.IsRequired)
-            .ThenBy(p => p.IsEventCallback)
-            .ThenBy(p => p.Name);
+    //    var sortedParams = parameters
+    //        .OrderByDescending(p => p.IsRequired)
+    //        .ThenBy(p => p.IsEventCallback)
+    //        .ThenBy(p => p.Name);
 
-        foreach (var param in sortedParams)
-        {
-            var required = param.IsRequired ? " **[Required]**" : "";
-            var description = EscapeMarkdownCell(param.Description ?? "") + required;
-            var defaultVal = param.DefaultValue ?? "-";
-            var type = EscapeMarkdownCell(param.Type);
+    //    foreach (var param in sortedParams)
+    //    {
+    //        var required = param.IsRequired ? " **[Required]**" : "";
+    //        var description = EscapeMarkdownCell(param.Description ?? "") + required;
+    //        var defaultVal = param.DefaultValue ?? "-";
+    //        var type = EscapeMarkdownCell(param.Type);
 
-            _sb.AppendLine($"| {param.Name} | `{type}` | {defaultVal} | {description} |");
-        }
+    //        _sb.AppendLine($"| {param.Name} | `{type}` | {defaultVal} | {description} |");
+    //    }
 
-        return _sb.ToString();
-    }
+    //    return _sb.ToString();
+    //}
 
     private static string EscapeMarkdownCell(string text)
     {
