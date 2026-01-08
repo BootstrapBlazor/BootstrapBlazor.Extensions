@@ -12,10 +12,12 @@ internal static class ArgumentsHelper
     public static ParseResult Parse(string[] args)
     {
         var rootFolderOption = new Option<string?>("--root") { Description = "Set the root folder of project" };
+        var outputFolderOption = new Option<string?>("--output") { Description = "Set the publish folder of project" };
 
         var rootCommand = new RootCommand("BootstrapBlazor LLMs Documentation Generator")
         {
-            rootFolderOption
+            rootFolderOption,
+            outputFolderOption
         };
 
         rootCommand.SetAction(async result =>
@@ -26,7 +28,13 @@ internal static class ArgumentsHelper
                 return;
             }
 
-            await DocsGenerator.GenerateAllAsync(rootFolder);
+            var outputFolder = result.GetValue(outputFolderOption);
+            if (string.IsNullOrEmpty(outputFolder))
+            {
+                return;
+            }
+
+            await DocsGenerator.GenerateAllAsync(rootFolder, outputFolder);
         });
 
         return rootCommand.Parse(args);
