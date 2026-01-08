@@ -10,10 +10,10 @@ internal static class DocsGenerator
     /// <summary>
     /// Generate all documentation files
     /// </summary>
-    public static async Task GenerateAllAsync(string rootFolder)
+    public static async Task GenerateAllAsync(string rootFolder, string outputFolder)
     {
         var _sourcePath = Path.Combine(rootFolder, "..", "BootstrapBlazor");
-        var _outputPath = Path.Combine(rootFolder, "bin", "Release", "net10.0", "publish", "wwwroot", "llms");
+        var _outputPath = Path.Combine(outputFolder, "wwwroot", "llms");
         var _componentsOutputPath = Path.Combine(_outputPath, "components");
 
         Logger($"Source path: {_sourcePath}");
