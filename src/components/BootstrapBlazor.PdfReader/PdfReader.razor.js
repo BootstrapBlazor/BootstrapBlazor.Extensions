@@ -395,7 +395,7 @@ const relayoutToolbar = el => {
 const addEventBus = (el, pdfViewer, eventBus, invoke, options) => {
     eventBus.on("pagesinit", async () => {
         if (options.fitMode) {
-            pdfViewer.currentScaleValue = fitMode;
+            pdfViewer.currentScaleValue = options.fitMode;
         }
 
         const numPages = pdfViewer.pagesCount;
