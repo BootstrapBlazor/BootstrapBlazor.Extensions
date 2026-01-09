@@ -113,6 +113,19 @@ export async function createUniverSheetAsync(sheet) {
         univerAPI.createWorkbook();
     }
 
+    const disposable = univerAPI.addEvent(
+        univerAPI.Event.LifeCycleChanged,
+        ({ stage }) => {
+          if (stage === univerAPI.Enum.LifecycleStages.Rendered) {
+            console.log('界面渲染完成')
+            // 移除loading...
+            
+            // 移除监听器
+            disposable.dispose()
+          }
+        },
+      )
+
     sheet.univer = univer;
     sheet.univerAPI = univerAPI;
     sheet.dispose = () => {
