@@ -276,7 +276,7 @@ public partial class PdfReader
         {
             Url,
             Data = _data,
-            FitMode,
+            FitMode = FitMode.ToDescriptionString(),
             EnableThumbnails,
             CurrentPage,
             TriggerPagesInit = OnPagesInitAsync != null,
