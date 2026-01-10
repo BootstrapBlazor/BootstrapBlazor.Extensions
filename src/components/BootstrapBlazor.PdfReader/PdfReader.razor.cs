@@ -213,6 +213,7 @@ public partial class PdfReader
             _showToolbar = ShowToolbar;
             _enableThumbnails = EnableThumbnails;
             _fitMode = FitMode;
+            return;
         }
 
         if (_url != Url)
