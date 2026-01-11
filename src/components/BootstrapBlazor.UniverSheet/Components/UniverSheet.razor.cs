@@ -3,6 +3,7 @@
 // Website: https://www.blazor.zone or https://argozhang.github.io/
 
 using Microsoft.AspNetCore.Components;
+using Microsoft.Extensions.Localization;
 using System.Globalization;
 
 namespace BootstrapBlazor.Components;
@@ -49,10 +50,19 @@ public partial class UniverSheet
     public UniverSheetData? Data { get; set; }
 
     /// <summary>
+    /// 获得/设置 正在加载显示文本 默认 null 未设置读取资源文件
+    /// </summary>
+    [Parameter]
+    public string? LoadingText { get; set; }
+
+    /// <summary>
     /// 获得/设置 Frame 加载页面传递过来的数据
     /// </summary>
     [Parameter]
     public Func<UniverSheetData?, Task<UniverSheetData?>>? OnPostDataAsync { get; set; }
+
+    [Inject, NotNull]
+    private IStringLocalizer<UniverSheet>? Localizer { get; set; }
 
     private string? ClassString => CssBuilder.Default("bb-univer-sheet")
         .AddClassFromAttributes(AdditionalAttributes)
@@ -78,6 +88,7 @@ public partial class UniverSheet
         base.OnParametersSet();
 
         Lang ??= CultureInfo.CurrentUICulture.Name;
+        LoadingText ??= Localizer[nameof(LoadingText)];
     }
 
     /// <summary>

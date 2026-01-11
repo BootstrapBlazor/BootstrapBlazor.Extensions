@@ -11,14 +11,22 @@ export async function init(id, invoke, options) {
 
     const { theme, lang, plugins, data, ribbonType, darkMode } = options;
     const univerSheet = {
-        el,
+        el: el.querySelector('.bb-univer-sheet-wrap'),
         invoke,
         data,
         plugins,
         theme,
         lang,
         ribbonType,
-        darkMode
+        darkMode,
+        events: {
+            onRendered: () => {
+                const backdrop = el.querySelector('.bb-univer-sheet-backdrop');
+                if (backdrop) {
+                    backdrop.classList.add('d-none');
+                }
+            }
+        }
     };
 
     await createUniverSheetAsync(univerSheet);
