@@ -11,7 +11,7 @@ export async function init(id, invoke, options) {
 
     const { theme, lang, plugins, data, ribbonType, darkMode } = options;
     const univerSheet = {
-        el,
+        el: el.querySelector('.bb-univer-sheet-wrap'),
         invoke,
         data,
         plugins,
