@@ -1,4 +1,4 @@
-﻿import { addScript, addLink, getTheme } from '../BootstrapBlazor/modules/utility.js'
+import { addScript, addLink, getTheme } from '../BootstrapBlazor/modules/utility.js'
 import DataService from './data-service.js'
 
 const loadAssets2 = async lang => {
@@ -30,6 +30,7 @@ const loadAssets = async lang => {
     await addScript('./_content/BootstrapBlazor.UniverSheet/univer/univer-bundle.js');
     await addLink('./_content/BootstrapBlazor.UniverSheet/univer/univer-sheet.bundle.css');
 }
+
 export async function createUniverSheetAsync(sheet) {
     sheet.lang = sheet.lang ?? 'en-US';
     await loadAssets(sheet.lang);
@@ -46,7 +47,7 @@ export async function createUniverSheetAsync(sheet) {
     const lang = sheet.lang.replace('-', '')
     const langStr = lang.charAt(0).toUpperCase() + lang.slice(1)
     const options = {
-        theme: sheet.theme, 
+        theme: sheet.theme,
         darkMode: sheet.darkMode,
         locale: lang,
         locales: {
@@ -66,12 +67,12 @@ export async function createUniverSheetAsync(sheet) {
                 ribbonType: sheet.ribbonType ?? 'simple', // default | classic | simple
                 menu: {
                     'sheet.menu.print': {
-                      hidden: true,
+                        hidden: true,
                     },
                     'sheets-exchange-client.operation.exchange': {
-                      hidden: true,
+                        hidden: true,
                     },
-                  },
+                },
             }),
             UniverSheetsDrawingPreset(),
             UniverSheetsThreadCommentPreset(),
@@ -113,18 +114,16 @@ export async function createUniverSheetAsync(sheet) {
         univerAPI.createWorkbook();
     }
 
-    const disposable = univerAPI.addEvent(
-        univerAPI.Event.LifeCycleChanged,
-        ({ stage }) => {
-          if (stage === univerAPI.Enum.LifecycleStages.Rendered) {
-            console.log('界面渲染完成')
-            // 移除loading...
-            
-            // 移除监听器
-            disposable.dispose()
-          }
-        },
-      )
+    const { onRendered } = sheet.events;
+    if (onRendered) {
+        const disposable = univerAPI.addEvent(univerAPI.Event.LifeCycleChanged, e => {
+            const { stage } = e;
+            if (stage === univerAPI.Enum.LifecycleStages.Rendered) {
+                onRendered();
+                disposable.dispose()
+            }
+        });
+    }
 
     sheet.univer = univer;
     sheet.univerAPI = univerAPI;

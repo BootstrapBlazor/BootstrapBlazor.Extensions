@@ -18,7 +18,15 @@ export async function init(id, invoke, options) {
         theme,
         lang,
         ribbonType,
-        darkMode
+        darkMode,
+        events: {
+            onRendered: () => {
+                const backdrop = el.querySelector('.bb-univer-sheet-backdrop');
+                if (backdrop) {
+                    backdrop.classList.add('d-none');
+                }
+            }
+        }
     };
 
     await createUniverSheetAsync(univerSheet);
