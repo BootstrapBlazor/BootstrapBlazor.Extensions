@@ -1,5 +1,5 @@
-import { isFunction, registerBootstrapBlazorModule } from '../../BootstrapBlazor/modules/utility.js'
-import { createUniverSheetAsync } from '../js/univer.js'
+import { addLink, isFunction, registerBootstrapBlazorModule } from '../../BootstrapBlazor/modules/utility.js'
+import { createUniverSheetAsync } from '../univer.js'
 import Data from '../../BootstrapBlazor/modules/data.js'
 import EventHandler from "../../BootstrapBlazor/modules/event-handler.js"
 
@@ -9,6 +9,11 @@ export async function init(id, invoke, options) {
     const el = document.getElementById(id);
     if (el === null) {
         return;
+    }
+
+    const backdrop = el.querySelector('.bb-univer-sheet-backdrop');
+    if (backdrop) {
+        backdrop.style.removeProperty('display');
     }
 
     const { theme, lang, plugins, data, ribbonType, darkMode } = options;
@@ -23,7 +28,6 @@ export async function init(id, invoke, options) {
         darkMode,
         events: {
             onRendered: () => {
-                const backdrop = el.querySelector('.bb-univer-sheet-backdrop');
                 if (backdrop) {
                     backdrop.classList.add('d-none');
                 }
@@ -34,11 +38,11 @@ export async function init(id, invoke, options) {
     await createUniverSheetAsync(univerSheet);
     Data.set(id, univerSheet);
 
-    invoke.invokeMethodAsync('TriggerReadyAsync');
-
     registerBootstrapBlazorModule('UniverSheet', id, () => {
         EventHandler.on(document, 'changed.bb.theme', updateTheme);
     });
+
+    invoke.invokeMethodAsync('TriggerReadyAsync');
 }
 
 export function execute(id, data) {
