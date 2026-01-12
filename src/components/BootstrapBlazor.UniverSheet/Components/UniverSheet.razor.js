@@ -19,6 +19,7 @@ export async function init(id, invoke, options) {
     const { theme, lang, plugins, data, ribbonType, darkMode } = options;
     const univerSheet = {
         el: el.querySelector('.bb-univer-sheet-wrap'),
+        backdrop,
         invoke,
         data,
         plugins,
@@ -38,17 +39,25 @@ export async function init(id, invoke, options) {
     await createUniverSheetAsync(univerSheet);
     Data.set(id, univerSheet);
 
+    invoke.invokeMethodAsync('TriggerReadyAsync');
+
     registerBootstrapBlazorModule('UniverSheet', id, () => {
         EventHandler.on(document, 'changed.bb.theme', updateTheme);
     });
-
-    invoke.invokeMethodAsync('TriggerReadyAsync');
 }
 
 export function execute(id, data) {
     const univerSheet = Data.get(id);
 
-    return univerSheet.pushData(data);
+    const { firstPush, backdrop, pushData } = univerSheet;
+    if (pushData) {
+        pushData(data);
+    }
+    if (firstPush === true && backdrop) {
+        setTimeout(() => {
+            backdrop.classList.add('d-none');
+        }, 100);
+    }
 }
 
 export function dispose(id) {
