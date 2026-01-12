@@ -1,9 +1,11 @@
 import { isFunction, registerBootstrapBlazorModule } from '../../BootstrapBlazor/modules/utility.js'
-import { createUniverSheetAsync } from '../univer.js'
+import { createUniverSheetAsync } from '../js/univer.js'
 import Data from '../../BootstrapBlazor/modules/data.js'
 import EventHandler from "../../BootstrapBlazor/modules/event-handler.js"
 
 export async function init(id, invoke, options) {
+    await addLink('./_content/BootstrapBlazor.UniverSheet/css/univer-sheet.bundle.css');
+
     const el = document.getElementById(id);
     if (el === null) {
         return;

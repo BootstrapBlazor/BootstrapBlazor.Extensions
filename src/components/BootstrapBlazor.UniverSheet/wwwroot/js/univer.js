@@ -28,7 +28,6 @@ const loadAssets2 = async lang => {
 
 const loadAssets = async lang => {
     await addScript('./_content/BootstrapBlazor.UniverSheet/univer/univer-bundle.js');
-    await addLink('./_content/BootstrapBlazor.UniverSheet/univer/univer-sheet.bundle.css');
 }
 
 export async function createUniverSheetAsync(sheet) {
