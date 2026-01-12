@@ -78,5 +78,4 @@ export class DefaultPlugin extends Plugin {
     }
 }
 
-// 设置依赖
 setDependencies(DefaultPlugin, [Injector]);
