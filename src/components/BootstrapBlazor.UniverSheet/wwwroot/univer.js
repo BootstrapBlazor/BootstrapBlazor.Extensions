@@ -1,14 +1,10 @@
-import { addScript, addLink, getTheme } from '../BootstrapBlazor/modules/utility.js'
+import { addScript, getTheme } from '../BootstrapBlazor/modules/utility.js'
 import DataService from './data-service.js'
 
-const loadAssets = async lang => {
-    await addLink('./_content/BootstrapBlazor.UniverSheet/css/univer-sheet.bundle.css');
-    await addScript('./_content/BootstrapBlazor.UniverSheet/univer/univer-bundle.js');
-}
-
 export async function createUniverSheetAsync(sheet) {
+    await addScript('./_content/BootstrapBlazor.UniverSheet/univer/univer-bundle.js');
+
     sheet.lang = sheet.lang ?? 'en-US';
-    await loadAssets(sheet.lang);
     const { el } = sheet;
     const { LocaleType, merge } = UniverCore;
     const { createUniver } = UniverPresets;
