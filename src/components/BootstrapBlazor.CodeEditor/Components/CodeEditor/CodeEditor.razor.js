@@ -1,4 +1,4 @@
-﻿import { addLink, addScript } from '../../../BootstrapBlazor/modules/utility.js'
+import { addLink, addScript } from '../../../BootstrapBlazor/modules/utility.js'
 import Data from '../../../BootstrapBlazor/modules/data.js'
 import EventHandler from "../../../BootstrapBlazor/modules/event-handler.js"
 
@@ -75,6 +75,29 @@ export async function init(id, interop, options) {
         }, 50);
     });
 }
+
+export function insertText(id, insertData) {
+
+    const wrapper = Data.get(id);
+    if (!wrapper) return;
+
+    const editor = wrapper.editor;
+
+    const selection = editor.getSelection();
+
+    editor.executeEdits('insert-custom-text', [
+        {
+            range: selection,
+            text: insertData,
+            forceMoveMarkers: true
+        }
+    ]);
+    //bug: 插入文本后，虽然光标显示正常，但是再次插入文本，实际位置是第一行第一列
+
+    editor.focus();
+}
+
+
 
 // Update the editor options
 export function monacoSetOptions(id, options) {
