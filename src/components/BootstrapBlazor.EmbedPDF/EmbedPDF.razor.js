@@ -8,6 +8,7 @@ export function init(id, invoke) {
 
     const target = el.querySelector('.pdf-viewer');
     const src = './samples/sample.pdf';
+    const wasmUrl = `${location.origin}/_content/BootstrapBlazor.EmbedPDF/pdfium.wasm`;
     EmbedPDF.init({
         type: 'container',
         target: el,
@@ -16,6 +17,7 @@ export function init(id, invoke) {
         tabBar: 'always',
         theme: {
             preference: 'system'
-        }
+        },
+        wasmUrl
     });
 }
