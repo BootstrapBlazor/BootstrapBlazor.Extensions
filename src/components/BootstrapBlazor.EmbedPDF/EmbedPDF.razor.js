@@ -52,12 +52,14 @@ export async function init(id, invoke, options) {
     const registry = await viewer.registry;
     const scroll = registry.getPlugin('scroll').provides();
 
-    scroll.onLayoutReady((event) => {
-        scroll.scrollToPage({
-            pageNumber: 5,
-            behavior: 'instant'
+    if (currentPage !== 0) {
+        scroll.onLayoutReady((event) => {
+            scroll.scrollToPage({
+                pageNumber: currentPage,
+                behavior: 'instant'
+            });
         });
-    });
+    }
 }
 
 export async function setUrl(id, url) {
