@@ -1,4 +1,5 @@
 using Microsoft.AspNetCore.Components;
+using System.Globalization;
 
 namespace BootstrapBlazor.Components;
 
@@ -38,6 +39,12 @@ public partial class EmbedPDF
     [Parameter]
     public EmbedPDFTheme Theme { get; set; }
 
+    /// <summary>
+    /// 获得/设置 语言 默认 null 未设置
+    /// </summary>
+    [Parameter]
+    public string? Language { get; set; }
+
     private string? StyleString => CssBuilder.Default()
         .AddClass("border: 1px solid var(--bs-border-color); border-radius: var(--bs-border-radius); overflow: hidden;", ShowBorder)
         .AddClass($"height: {ViewHeight};", !string.IsNullOrEmpty(ViewHeight))
@@ -46,6 +53,7 @@ public partial class EmbedPDF
 
     private string? _url;
     private EmbedPDFTheme _theme;
+    private string? _language;
 
     /// <summary>
     /// <inheritdoc/>
@@ -59,6 +67,7 @@ public partial class EmbedPDF
         if (firstRender)
         {
             _url = Url;
+            _language = Language;
             _theme = Theme;
             return;
         }
@@ -83,6 +92,7 @@ public partial class EmbedPDF
     {
         TabBar = TabBarMode.ToDescriptionString(),
         Theme = Theme.ToDescriptionString(),
-        Src = Url
+        Src = Url,
+        Lang = Language ?? CultureInfo.CurrentUICulture.Name
     });
 }

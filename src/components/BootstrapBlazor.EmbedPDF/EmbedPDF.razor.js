@@ -10,7 +10,7 @@ export function init(id, invoke, options) {
     }
 
     const target = el.querySelector('.pdf-viewer');
-    const { src, tabBar, theme } = options;
+    const { src, tabBar, theme, lang } = options;
     const wasmUrl = `${location.origin}/_content/BootstrapBlazor.EmbedPDF/pdfium.wasm`;
 
     let preference = theme;
@@ -27,7 +27,11 @@ export function init(id, invoke, options) {
         theme: {
             preference: preference
         },
-        wasmUrl
+        wasmUrl,
+        i18n: {
+            defaultLocale: lang,
+            fallbackLocale: 'en'
+        }
     });
 
     registerBootstrapBlazorModule('EmbedPDF', id, () => {
