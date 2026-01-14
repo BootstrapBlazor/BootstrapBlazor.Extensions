@@ -21,14 +21,68 @@ public partial class EmbedPDF
     public string ViewHeight { get; set; } = "600px";
 
     /// <summary>
+    /// 获得/设置 标签显示模式 默认值 <see cref="EmbedPDFTabBarMode.Always"/>
+    /// </summary>
+    [Parameter]
+    public EmbedPDFTabBarMode TabBarMode { get; set; } = EmbedPDFTabBarMode.Always;
+
+    /// <summary>
     /// 获得/设置 是否显示外边框
     /// </summary>
     [Parameter]
     public bool ShowBorder { get; set; } = true;
+
+    /// <summary>
+    /// 获得/设置 主题样式 默认 <see cref="EmbedPDFTheme.System"/>
+    /// </summary>
+    [Parameter]
+    public EmbedPDFTheme Theme { get; set; }
 
     private string? StyleString => CssBuilder.Default()
         .AddClass("border: 1px solid var(--bs-border-color); border-radius: var(--bs-border-radius); overflow: hidden;", ShowBorder)
         .AddClass($"height: {ViewHeight};", !string.IsNullOrEmpty(ViewHeight))
         .AddStyleFromAttributes(AdditionalAttributes)
         .Build();
+
+    private string? _url;
+    private EmbedPDFTheme _theme;
+
+    /// <summary>
+    /// <inheritdoc/>
+    /// </summary>
+    /// <param name="firstRender"></param>
+    /// <returns></returns>
+    protected override async Task OnAfterRenderAsync(bool firstRender)
+    {
+        await base.OnAfterRenderAsync(firstRender);
+
+        if (firstRender)
+        {
+            _url = Url;
+            _theme = Theme;
+            return;
+        }
+
+        if (_url != Url)
+        {
+            _url = Url;
+            await InvokeVoidAsync("setUrl", Id, _url);
+        }
+        if (_theme != Theme)
+        {
+            _theme = Theme;
+            await InvokeVoidAsync("setTheme", Id, _theme.ToDescriptionString());
+        }
+    }
+
+    /// <summary>
+    /// <inheritdoc/>
+    /// </summary>
+    /// <returns></returns>
+    protected override Task InvokeInitAsync() => InvokeVoidAsync("init", Id, Interop, new
+    {
+        TabBar = TabBarMode.ToDescriptionString(),
+        Theme = Theme.ToDescriptionString(),
+        Src = Url
+    });
 }
