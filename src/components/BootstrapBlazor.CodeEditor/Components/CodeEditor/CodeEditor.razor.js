@@ -92,7 +92,6 @@ export function insertText(id, insertData) {
             forceMoveMarkers: true
         }
     ]);
-    //bug: 插入文本后，虽然光标显示正常，但是再次插入文本，实际位置是第一行第一列
 
     editor.focus();
 }

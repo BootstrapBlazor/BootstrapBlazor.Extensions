@@ -122,7 +122,7 @@ public partial class CodeEditor
     /// </summary>
     /// <param name="data"></param>
     /// <returns></returns>
-    public async Task InsertText(string data) => await InvokeVoidAsync("insertText",Id,data);
+    public async Task InsertTextAsync(string data) => await InvokeVoidAsync("insertText", Id, data);
     
     /// <summary>
     /// 
