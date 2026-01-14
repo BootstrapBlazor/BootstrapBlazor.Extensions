@@ -37,7 +37,7 @@ public partial class EmbedPDF
     /// 获得/设置 标签显示模式 默认值 <see cref="EmbedPDFTabBarMode.Always"/>
     /// </summary>
     [Parameter]
-    public EmbedPDFScrollDirection ScrollDirection { get; set; } = EmbedPDFScrollDirection.Vertical;
+    public EmbedPDFScrollStrategy ScrollStrategy { get; set; } = EmbedPDFScrollStrategy.Vertical;
 
     /// <summary>
     /// 获得/设置 主题样式 默认 <see cref="EmbedPDFTheme.System"/>
@@ -72,6 +72,7 @@ public partial class EmbedPDF
     private string? _url;
     private EmbedPDFTheme _theme;
     private string? _language;
+    private EmbedPDFScrollStrategy _strategy = EmbedPDFScrollStrategy.Vertical;
 
     /// <summary>
     /// <inheritdoc/>
@@ -100,6 +101,7 @@ public partial class EmbedPDF
             _url = Url;
             _language = Language;
             _theme = Theme;
+            _strategy = ScrollStrategy;
             return;
         }
 
@@ -118,6 +120,11 @@ public partial class EmbedPDF
             _language = Language;
             await InvokeVoidAsync("setLocale", Id, _language);
         }
+        if (_strategy != ScrollStrategy)
+        {
+            _strategy = ScrollStrategy;
+            await InvokeVoidAsync("setScrollStrategy", Id, _strategy.ToDescriptionString());
+        }
     }
 
     /// <summary>
@@ -131,7 +138,7 @@ public partial class EmbedPDF
         Src = Url,
         Lang = Language,
         CurrentPage,
-        ScrollDirection = ScrollDirection.ToDescriptionString(),
+        ScrollStrategy = ScrollStrategy.ToDescriptionString(),
         PageGap
     });
 }

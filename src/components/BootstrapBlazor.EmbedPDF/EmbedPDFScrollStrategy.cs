@@ -9,7 +9,7 @@ namespace BootstrapBlazor.Components;
 /// <summary>
 /// 滚动方向枚举
 /// </summary>
-public enum EmbedPDFScrollDirection
+public enum EmbedPDFScrollStrategy
 {
     /// <summary>
     /// 垂直方向
@@ -20,6 +20,6 @@ public enum EmbedPDFScrollDirection
     /// <summary>
     /// 水平方向
     /// </summary>
-    [Description("Horizontal")]
+    [Description("horizontal")]
     Horizontal
 }

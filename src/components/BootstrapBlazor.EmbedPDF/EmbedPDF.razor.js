@@ -1,6 +1,6 @@
 import Data from '../BootstrapBlazor/modules/data.js'
 import EventHandler from "../BootstrapBlazor/modules/event-handler.js"
-import { default as EmbedPDF, DocumentManagerPlugin } from './embedpdf.js'
+import EmbedPDF from './embedpdf.js'
 import { getTheme, registerBootstrapBlazorModule } from '../BootstrapBlazor/modules/utility.js'
 
 export async function init(id, invoke, options) {
@@ -10,7 +10,7 @@ export async function init(id, invoke, options) {
     }
 
     const target = el.querySelector('.pdf-viewer');
-    const { src, tabBar, theme, lang, currentPage, scrollDirection, pageGap } = options;
+    const { src, tabBar, theme, lang, currentPage, scrollStrategy, pageGap } = options;
     const wasmUrl = `${location.origin}/_content/BootstrapBlazor.EmbedPDF/pdfium.wasm`;
 
     let preference = theme;
@@ -38,7 +38,7 @@ export async function init(id, invoke, options) {
             fallbackLocale: 'en'
         },
         scroll: {
-            defaultStrategy: scrollDirection,
+            defaultStrategy: scrollStrategy,
             defaultPageGap: currentPageGap
         }
     });
@@ -94,6 +94,17 @@ export async function setLocale(id, locale) {
         const registry = await viewer.registry;
         const i18n = registry.getPlugin('i18n').provides();
         i18n.setLocale(locale);
+    }
+}
+
+export async function setScrollStrategy(id, strategy) {
+    const pdf = Data.get(id);
+    const { viewer } = pdf;
+
+    if (viewer) {
+        const registry = await viewer.registry;
+        const scroll = registry.getPlugin('scroll').provides();
+        scroll.setScrollStrategy(strategy);
     }
 }
 
