@@ -3,19 +3,24 @@ import EventHandler from "../BootstrapBlazor/modules/event-handler.js"
 import { default as EmbedPDF, DocumentManagerPlugin } from './embedpdf.js'
 import { getTheme, registerBootstrapBlazorModule } from '../BootstrapBlazor/modules/utility.js'
 
-export function init(id, invoke, options) {
+export async function init(id, invoke, options) {
     const el = document.getElementById(id);
     if (el === null) {
         return null;
     }
 
     const target = el.querySelector('.pdf-viewer');
-    const { src, tabBar, theme, lang } = options;
+    const { src, tabBar, theme, lang, currentPage, scrollDirection, pageGap } = options;
     const wasmUrl = `${location.origin}/_content/BootstrapBlazor.EmbedPDF/pdfium.wasm`;
 
     let preference = theme;
     if (preference === 'system') {
         preference = getTheme();
+    }
+
+    let currentPageGap = pageGap;
+    if (currentPageGap === 0) {
+        currentPageGap = 20;
     }
 
     const viewer = EmbedPDF.init({
@@ -31,6 +36,10 @@ export function init(id, invoke, options) {
         i18n: {
             defaultLocale: lang,
             fallbackLocale: 'en'
+        },
+        scroll: {
+            defaultStrategy: scrollDirection,
+            defaultPageGap: currentPageGap
         }
     });
 
@@ -39,30 +48,52 @@ export function init(id, invoke, options) {
     });
 
     Data.set(id, { el, invoke, options, viewer });
+
+    const registry = await viewer.registry;
+    const scroll = registry.getPlugin('scroll').provides();
+
+    scroll.onLayoutReady((event) => {
+        scroll.scrollToPage({
+            pageNumber: 5,
+            behavior: 'instant'
+        });
+    });
 }
 
 export async function setUrl(id, url) {
-    if (url) {
-        const pdf = Data.get(id);
-        const { viewer } = pdf;
+    const pdf = Data.get(id);
+    const { viewer } = pdf;
 
-        if (viewer) {
-            const registry = await viewer.registry;
-            const docManager = registry.getPlugin('document-manager').provides();
-            docManager.openDocumentUrl({
-                url,
-                documentId: getFileName(url),
-                autoActivate: true
-            });
-        }
+    if (viewer) {
+        const registry = await viewer.registry;
+        const docManager = registry.getPlugin('document-manager').provides();
+        const name = getFileName(url);
+        docManager.openDocumentUrl({
+            url,
+            name,
+            documentId: name,
+            autoActivate: true
+        });
     }
 }
 
 export function setTheme(id, theme) {
     const pdf = Data.get(id);
     const { viewer } = pdf;
+
     if (viewer) {
         viewer.setTheme(theme);
+    }
+}
+
+export async function setLocale(id, locale) {
+    const pdf = Data.get(id);
+    const { viewer } = pdf;
+
+    if (viewer) {
+        const registry = await viewer.registry;
+        const i18n = registry.getPlugin('i18n').provides();
+        i18n.setLocale(locale);
     }
 }
 

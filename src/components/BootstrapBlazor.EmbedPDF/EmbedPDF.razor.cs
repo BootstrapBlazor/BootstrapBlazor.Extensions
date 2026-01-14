@@ -22,16 +22,22 @@ public partial class EmbedPDF
     public string ViewHeight { get; set; } = "600px";
 
     /// <summary>
+    /// 获得/设置 是否显示外边框
+    /// </summary>
+    [Parameter]
+    public bool ShowBorder { get; set; } = true;
+
+    /// <summary>
     /// 获得/设置 标签显示模式 默认值 <see cref="EmbedPDFTabBarMode.Always"/>
     /// </summary>
     [Parameter]
     public EmbedPDFTabBarMode TabBarMode { get; set; } = EmbedPDFTabBarMode.Always;
 
     /// <summary>
-    /// 获得/设置 是否显示外边框
+    /// 获得/设置 标签显示模式 默认值 <see cref="EmbedPDFTabBarMode.Always"/>
     /// </summary>
     [Parameter]
-    public bool ShowBorder { get; set; } = true;
+    public EmbedPDFScrollDirection ScrollDirection { get; set; } = EmbedPDFScrollDirection.Vertical;
 
     /// <summary>
     /// 获得/设置 主题样式 默认 <see cref="EmbedPDFTheme.System"/>
@@ -45,6 +51,18 @@ public partial class EmbedPDF
     [Parameter]
     public string? Language { get; set; }
 
+    /// <summary>
+    /// 获得/设置 当前页码
+    /// </summary>
+    [Parameter]
+    public uint CurrentPage { get; set; }
+
+    /// <summary>
+    /// 获得/设置 页码之间的间隙 默认 null 未设置 使用默认值 20
+    /// </summary>
+    [Parameter]
+    public uint PageGap { get; set; }
+
     private string? StyleString => CssBuilder.Default()
         .AddClass("border: 1px solid var(--bs-border-color); border-radius: var(--bs-border-radius); overflow: hidden;", ShowBorder)
         .AddClass($"height: {ViewHeight};", !string.IsNullOrEmpty(ViewHeight))
@@ -54,6 +72,19 @@ public partial class EmbedPDF
     private string? _url;
     private EmbedPDFTheme _theme;
     private string? _language;
+
+    /// <summary>
+    /// <inheritdoc/>
+    /// </summary>
+    protected override void OnParametersSet()
+    {
+        base.OnParametersSet();
+
+        if (string.IsNullOrEmpty(Language))
+        {
+            Language = CultureInfo.CurrentUICulture.Name;
+        }
+    }
 
     /// <summary>
     /// <inheritdoc/>
@@ -82,6 +113,11 @@ public partial class EmbedPDF
             _theme = Theme;
             await InvokeVoidAsync("setTheme", Id, _theme.ToDescriptionString());
         }
+        if (_language != Language)
+        {
+            _language = Language;
+            await InvokeVoidAsync("setLocale", Id, _language);
+        }
     }
 
     /// <summary>
@@ -93,6 +129,9 @@ public partial class EmbedPDF
         TabBar = TabBarMode.ToDescriptionString(),
         Theme = Theme.ToDescriptionString(),
         Src = Url,
-        Lang = Language ?? CultureInfo.CurrentUICulture.Name
+        Lang = Language,
+        CurrentPage,
+        ScrollDirection = ScrollDirection.ToDescriptionString(),
+        PageGap
     });
 }
