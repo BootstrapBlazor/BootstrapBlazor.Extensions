@@ -1,6 +1,6 @@
-import Data from '../BootstrapBlazor/modules/data.js';
+import Data from '../BootstrapBlazor/modules/data.js'
 import EventHandler from "../BootstrapBlazor/modules/event-handler.js"
-import { default as EmbedPDF, UIPlugin } from './embedpdf.js';
+import { default as EmbedPDF, DocumentManagerPlugin } from './embedpdf.js'
 import { getTheme, registerBootstrapBlazorModule } from '../BootstrapBlazor/modules/utility.js'
 
 export function init(id, invoke, options) {
@@ -37,8 +37,21 @@ export function init(id, invoke, options) {
     Data.set(id, { el, invoke, options, viewer });
 }
 
-export function setUrl(id, url) {
+export async function setUrl(id, url) {
+    if (url) {
+        const pdf = Data.get(id);
+        const { viewer } = pdf;
 
+        if (viewer) {
+            const registry = await viewer.registry;
+            const docManager = registry.getPlugin('document-manager').provides();
+            docManager.openDocumentUrl({
+                url,
+                documentId: getFileName(url),
+                autoActivate: true
+            });
+        }
+    }
 }
 
 export function setTheme(id, theme) {
@@ -76,4 +89,12 @@ const updateTheme = e => {
             }
         }
     });
+}
+
+function getFileName(filePath) {
+    const lastSeparatorIndex = Math.max(
+        filePath.lastIndexOf('/'),
+        filePath.lastIndexOf('\\')
+    );
+    return filePath.substring(lastSeparatorIndex + 1);
 }
