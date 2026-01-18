@@ -93,9 +93,6 @@
     <Project Path="src/components/BootstrapBlazor.WebAPI/BootstrapBlazor.WebAPI.csproj" />
     <Project Path="src/components/BootstrapBlazor.WinBox/BootstrapBlazor.WinBox.csproj" />
   </Folder>
-  <Folder Name="/src/demo/">
-    <Project Path="BootstrapBlazorApp1/BootstrapBlazorApp1.Server/BootstrapBlazorApp1.Server.csproj" Id="916808f0-27e8-4558-bcf4-6d4a6621cd1c" />
-  </Folder>
   <Folder Name="/src/extensions/">
     <Project Path="src/extensions/BootstrapBlazor.DataAccess.EntityFrameworkCore/BootstrapBlazor.DataAccess.EntityFrameworkCore.csproj" />
     <Project Path="src/extensions/BootstrapBlazor.DataAccess.FreeSql/BootstrapBlazor.DataAccess.FreeSql.csproj" />
