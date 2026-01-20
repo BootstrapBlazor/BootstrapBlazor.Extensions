@@ -22,7 +22,8 @@ export function init(id, invoke, options) {
         fontSize: options.fontSize || 14,
         cursorBlink: options.cursorBlink,
         lineHeight: options.lineHeight || 1.0,
-        theme: options.theme || {}
+        theme: options.theme || {},
+        convertEol: options.convertEol
     });
 
     const fitAddon = new FitAddon.FitAddon();
@@ -31,8 +32,9 @@ export function init(id, invoke, options) {
     term.open(el);
     fitAddon.fit();
 
+    const encoder = new TextEncoder();
     term.onData(data => {
-        invoke.invokeMethodAsync("OnDataAsync", data);
+        invoke.invokeMethodAsync("OnDataAsync", encoder.encode(data));
     });
 
     term.onResize(size => {
@@ -50,7 +52,7 @@ export function init(id, invoke, options) {
             fitAddon.fit();
             const dims = fitAddon.proposeDimensions();
             if (dims) {
-               invoke.invokeMethodAsync("OnResizeAsync", dims.rows, dims.cols);
+                invoke.invokeMethodAsync("OnResizeAsync", dims.rows, dims.cols);
             }
         } catch (e) { }
     };

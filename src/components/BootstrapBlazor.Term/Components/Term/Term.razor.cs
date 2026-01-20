@@ -27,7 +27,7 @@ public partial class Term
     /// 获得/设置 收到数据回调
     /// </summary>
     [Parameter]
-    public Func<string, Task>? OnData { get; set; }
+    public Func<byte[], Task>? OnData { get; set; }
 
     /// <summary>
     /// 获得/设置 终端 Resize 回调
@@ -132,7 +132,8 @@ public partial class Term
             {
                 var read = await _stream.ReadAsync(buffer, _cancellationTokenSource.Token);
                 if (read == 0) break;
-                var data = System.Text.Encoding.UTF8.GetString(buffer, 0, read);
+                var data = new byte[read];
+                Array.Copy(buffer, data, read);
                 await Write(data);
             }
         }
@@ -148,17 +149,26 @@ public partial class Term
     }
 
     /// <summary>
+    /// 写入数据 (Byte[])
+    /// </summary>
+    /// <param name="data"></param>
+    /// <returns></returns>
+    public async Task Write(byte[] data)
+    {
+        await InvokeVoidAsync("write", Id, data);
+    }
+
+    /// <summary>
     /// 收到数据 JSInvoke
     /// </summary>
     /// <param name="data"></param>
     /// <returns></returns>
     [JSInvokable]
-    public async Task OnDataAsync(string data)
+    public async Task OnDataAsync(byte[] data)
     {
         if (_stream != null && _stream.CanWrite)
         {
-            var buffer = System.Text.Encoding.UTF8.GetBytes(data);
-            await _stream.WriteAsync(buffer);
+            await _stream.WriteAsync(data);
             await _stream.FlushAsync();
         }
 
@@ -180,12 +190,12 @@ public partial class Term
     }
 
     /// <summary>
-    /// 获得/设置 终端行数
+    /// 获得 终端行数
     /// </summary>
     public int Rows { get; private set; }
 
     /// <summary>
-    /// 获得/设置 终端列数
+    /// 获得 终端列数
     /// </summary>
     public int Columns { get; private set; }
 

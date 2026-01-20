@@ -33,6 +33,11 @@ public class TermOptions
     /// 获得/设置 行高 默认 1.0
     /// </summary>
     public double LineHeight { get; set; } = 1.0;
+
+    /// <summary>
+    /// 获得/设置 是否将 \n 转换为 \r\n 默认 false
+    /// </summary>
+    public bool ConvertEol { get; set; }
 }
 
 /// <summary>
