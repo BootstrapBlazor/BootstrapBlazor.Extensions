@@ -7,36 +7,42 @@ using Microsoft.AspNetCore.Components;
 namespace BootstrapBlazor.Components;
 
 /// <summary>
-/// Term 终端组件
+/// <para lang="zh">Term 终端组件</para>
+/// <para lang="en">Term Component</para>
 /// </summary>
 [JSModuleAutoLoader("./_content/BootstrapBlazor.Term/Components/Term/Term.razor.js", JSObjectReference = true)]
 public partial class Term
 {
     /// <summary>
-    /// 获得/设置 UI Element
+    /// <para lang="zh">获得/设置 UI Element</para>
+    /// <para lang="en">Gets or sets the UI Element.</para>
     /// </summary>
     private ElementReference Element { get; set; }
 
     /// <summary>
-    /// 获得/设置 Options
+    /// <para lang="zh">获得/设置 Options</para>
+    /// <para lang="en">Gets or sets the Options.</para>
     /// </summary>
     [Parameter]
     public TermOptions Options { get; set; } = new TermOptions();
 
     /// <summary>
-    /// 获得/设置 收到数据回调
+    /// <para lang="zh">获得/设置 收到数据回调</para>
+    /// <para lang="en">Gets or sets the callback when data is received.</para>
     /// </summary>
     [Parameter]
     public Func<byte[], Task>? OnData { get; set; }
 
     /// <summary>
-    /// 获得/设置 终端 Resize 回调
+    /// <para lang="zh">获得/设置 终端 Resize 回调</para>
+    /// <para lang="en">Gets or sets the callback when terminal is resized.</para>
     /// </summary>
     [Parameter]
     public Func<int, int, Task>? OnResize { get; set; }
 
     /// <summary>
-    /// 获得/设置 高度 默认 300px
+    /// <para lang="zh">获得/设置 高度 默认 300px</para>
+    /// <para lang="en">Gets or sets the height. Default is 300px.</para>
     /// </summary>
     [Parameter]
     public string Height { get; set; } = "300px";
@@ -76,7 +82,8 @@ public partial class Term
     }
 
     /// <summary>
-    /// 写入数据
+    /// <para lang="zh">写入数据</para>
+    /// <para lang="en">Writes data to the terminal.</para>
     /// </summary>
     /// <param name="data"></param>
     /// <returns></returns>
@@ -86,7 +93,8 @@ public partial class Term
     }
 
     /// <summary>
-    /// 写入一行数据
+    /// <para lang="zh">写入一行数据</para>
+    /// <para lang="en">Writes a line of data to the terminal.</para>
     /// </summary>
     /// <param name="data"></param>
     /// <returns></returns>
@@ -96,7 +104,8 @@ public partial class Term
     }
 
     /// <summary>
-    /// 清空终端
+    /// <para lang="zh">清空终端</para>
+    /// <para lang="en">Clears the terminal.</para>
     /// </summary>
     /// <returns></returns>
     public async Task Clear()
@@ -105,7 +114,8 @@ public partial class Term
     }
 
     /// <summary>
-    /// 连接流
+    /// <para lang="zh">连接流</para>
+    /// <para lang="en">Connects a stream.</para>
     /// </summary>
     /// <param name="stream"></param>
     /// <returns></returns>
@@ -149,7 +159,8 @@ public partial class Term
     }
 
     /// <summary>
-    /// 写入数据 (Byte[])
+    /// <para lang="zh">写入数据 (Byte[])</para>
+    /// <para lang="en">Writes byte array data to the terminal.</para>
     /// </summary>
     /// <param name="data"></param>
     /// <returns></returns>
@@ -159,7 +170,8 @@ public partial class Term
     }
 
     /// <summary>
-    /// 收到数据 JSInvoke
+    /// <para lang="zh">收到数据 JSInvoke</para>
+    /// <para lang="en">Callback when data is received from JS.</para>
     /// </summary>
     /// <param name="data"></param>
     /// <returns></returns>
@@ -190,17 +202,20 @@ public partial class Term
     }
 
     /// <summary>
-    /// 获得 终端行数
+    /// <para lang="zh">获得 终端行数</para>
+    /// <para lang="en">Gets the number of rows in the terminal.</para>
     /// </summary>
     public int Rows { get; private set; }
 
     /// <summary>
-    /// 获得 终端列数
+    /// <para lang="zh">获得 终端列数</para>
+    /// <para lang="en">Gets the number of columns in the terminal.</para>
     /// </summary>
     public int Columns { get; private set; }
 
     /// <summary>
-    /// Resize JSInvoke
+    /// <para lang="zh">Resize JSInvoke</para>
+    /// <para lang="en">Callback when terminal is resized from JS.</para>
     /// </summary>
     /// <param name="rows"></param>
     /// <param name="cols"></param>
