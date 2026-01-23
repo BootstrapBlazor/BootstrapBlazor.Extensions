@@ -85,6 +85,7 @@
     <Project Path="src/components/BootstrapBlazor.TableExport/BootstrapBlazor.TableExport.csproj" />
     <Project Path="src/components/BootstrapBlazor.TagHelper/BootstrapBlazor.TagHelper.csproj" />
     <Project Path="src/components/BootstrapBlazor.Tasks.Dashboard/BootstrapBlazor.Tasks.Dashboard.csproj" />
+    <Project Path="src/components/BootstrapBlazor.Term/BootstrapBlazor.Term.csproj" />
     <Project Path="src/components/BootstrapBlazor.Topology/BootstrapBlazor.Topology.csproj" />
     <Project Path="src/components/BootstrapBlazor.UniverIcon/BootstrapBlazor.UniverIcon.csproj" />
     <Project Path="src/components/BootstrapBlazor.UniverSheet/BootstrapBlazor.UniverSheet.csproj" />
