@@ -1,20 +1,14 @@
-import "../../lib/xterm/xterm.js";
-import "../../lib/xterm/xterm-addon-fit.js";
+import "../lib/xterm.js";
+import "../lib/xterm-addon-fit.js";
+import { addLink } from '../../BootstrapBlazor/modules/utility.js'
+import Data from '../../BootstrapBlazor/modules/data.js'
 
-export function init(id, invoke, options) {
+export async function init(id, invoke, options) {
+    await addLink('./_content/BootstrapBlazor.Term/lib/xterm.css');
+
     const el = document.getElementById(id);
     if (el === null) {
         return;
-    }
-
-    // Load CSS
-    const linkId = "bb-term-css";
-    if (!document.getElementById(linkId)) {
-        const link = document.createElement('link');
-        link.id = linkId;
-        link.rel = 'stylesheet';
-        link.href = './_content/BootstrapBlazor.Term/lib/xterm/xterm.css';
-        document.head.appendChild(link);
     }
 
     const term = new Terminal({
@@ -41,12 +35,10 @@ export function init(id, invoke, options) {
         invoke.invokeMethodAsync("OnResizeAsync", size.rows, size.cols);
     });
 
-    // Store instance
     el.term = term;
     el.fitAddon = fitAddon;
     el.invoke = invoke;
 
-    // Window resize handling
     const resizeHandler = () => {
         try {
             fitAddon.fit();
