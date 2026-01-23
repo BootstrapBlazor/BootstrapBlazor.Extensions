@@ -62,20 +62,25 @@ export async function init(id, invoke, options) {
     }
 }
 
-export async function setUrl(id, url) {
+export async function setUrl(id, url, keepCurrentDoc) {
     const pdf = Data.get(id);
     const { viewer } = pdf;
 
     if (viewer) {
         const registry = await viewer.registry;
         const docManager = registry.getPlugin('document-manager').provides();
+        if (!keepCurrentDoc) {
+            const doc = docManager.getActiveDocument();
+            if (doc) {
+                docManager.closeDocument(doc.id).toPromise();
+            }
+        }
         const name = getFileName(url);
         docManager.openDocumentUrl({
             url,
             name,
-            documentId: name,
             autoActivate: true
-        });
+        }).toPromise();
     }
 }
 
