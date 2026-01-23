@@ -28,11 +28,13 @@ export async function init(id, invoke, options) {
 
     const encoder = new TextEncoder();
     term.onData(data => {
-        invoke.invokeMethodAsync("OnDataAsync", encoder.encode(data));
+        el.term.write(data);
+        console.log(data);
+        //invoke.invokeMethodAsync("TriggerReceiveDataAsync", encoder.encode(data));
     });
 
     term.onResize(size => {
-        invoke.invokeMethodAsync("OnResizeAsync", size.rows, size.cols);
+        invoke.invokeMethodAsync("TriggerResizeAsync", size.rows, size.cols);
     });
 
     el.term = term;
@@ -44,7 +46,7 @@ export async function init(id, invoke, options) {
             fitAddon.fit();
             const dims = fitAddon.proposeDimensions();
             if (dims) {
-                invoke.invokeMethodAsync("OnResizeAsync", dims.rows, dims.cols);
+                invoke.invokeMethodAsync("TriggerResizeAsync", dims.rows, dims.cols);
             }
         } catch (e) { }
     };

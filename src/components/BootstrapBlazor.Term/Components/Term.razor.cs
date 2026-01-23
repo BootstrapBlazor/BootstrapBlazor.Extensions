@@ -155,12 +155,20 @@ public partial class Term
             var buffer = memoryOwner.Memory;
             while (_cancellationTokenSource is { IsCancellationRequested: false })
             {
-                var length = await stream.ReadAsync(buffer, _cancellationTokenSource.Token);
-                if (length == 0)
+                if (stream is { CanRead: true })
+                {
+                    var length = await stream.ReadAsync(buffer, _cancellationTokenSource.Token);
+                    if (length == 0)
+                    {
+                        await Task.Delay(50);
+                        continue;
+                    }
+                    await Write(buffer.Slice(0, length).ToArray());
+                }
+                else
                 {
                     break;
                 }
-                await Write(buffer.Slice(0, length));
             }
         }
         catch (OperationCanceledException)
@@ -179,7 +187,7 @@ public partial class Term
     /// </summary>
     /// <param name="data"></param>
     [JSInvokable]
-    public async Task OnDataAsync(byte[] data)
+    public async Task TriggerReceiveDataAsync(byte[] data)
     {
         if (_stream is { CanWrite: true })
         {
@@ -200,7 +208,7 @@ public partial class Term
     /// <param name="rows"></param>
     /// <param name="cols"></param>
     [JSInvokable]
-    public async Task OnResizeAsync(int rows, int cols)
+    public async Task TriggerResizeAsync(int rows, int cols)
     {
         Rows = rows;
         Columns = cols;
