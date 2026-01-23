@@ -15,11 +15,11 @@ namespace BootstrapBlazor.Components;
 public partial class Term
 {
     /// <summary>
-    /// <para lang="zh">获得/设置 <see cref="TermOptions"/> 实例</para>
-    /// <para lang="en">Gets or sets the <see cref="TermOptions"/></para>
+    /// <para lang="zh">获得/设置 <see cref="TermOptions"/> 实例 默认 null</para>
+    /// <para lang="en">Gets or sets the <see cref="TermOptions"/> instance Default value is null.</para>
     /// </summary>
     [Parameter]
-    public TermOptions Options { get; set; } = new TermOptions();
+    public TermOptions? Options { get; set; }
 
     /// <summary>
     /// <para lang="zh">获得/设置 收到数据回调</para>

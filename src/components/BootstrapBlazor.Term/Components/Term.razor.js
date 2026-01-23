@@ -11,15 +11,16 @@ export async function init(id, invoke, options) {
         return;
     }
 
-    const term = new Terminal({
-        fontFamily: options.fontFamily || "Consolas, 'Courier New', monospace",
-        fontSize: options.fontSize || 14,
-        cursorBlink: options.cursorBlink,
-        lineHeight: options.lineHeight || 1.0,
-        theme: options.theme || {},
-        convertEol: options.convertEol
-    });
+    options = {
+        ... {
+            fontFamily: "Consolas, 'Courier New', monospace",
+            fontSize: 14,
+            lineHeight: 1.0,
+        },
+        ...options
+    };
 
+    const term = new Terminal(options);
     const fitAddon = new FitAddon.FitAddon();
     term.loadAddon(fitAddon);
 
@@ -28,18 +29,12 @@ export async function init(id, invoke, options) {
 
     const encoder = new TextEncoder();
     term.onData(data => {
-        el.term.write(data);
-        console.log(data);
-        //invoke.invokeMethodAsync("TriggerReceiveDataAsync", encoder.encode(data));
+        invoke.invokeMethodAsync("TriggerReceiveDataAsync", encoder.encode(data));
     });
 
     term.onResize(size => {
         invoke.invokeMethodAsync("TriggerResizeAsync", size.rows, size.cols);
     });
-
-    el.term = term;
-    el.fitAddon = fitAddon;
-    el.invoke = invoke;
 
     const resizeHandler = () => {
         try {
@@ -48,45 +43,51 @@ export async function init(id, invoke, options) {
             if (dims) {
                 invoke.invokeMethodAsync("TriggerResizeAsync", dims.rows, dims.cols);
             }
-        } catch (e) { }
+        } catch (e) {
+            console.warn(e);
+        }
     };
     window.addEventListener('resize', resizeHandler);
-    el.resizeHandler = resizeHandler;
+
+    Data.set(id, {
+        term,
+        resizeHandler
+    });
 }
 
 export function write(id, data) {
-    const el = document.getElementById(id);
-    if (el && el.term) {
-        el.term.write(data);
+    const terminal = Data.get(id);
+    const { term } = terminal;
+    if (term) {
+        term.write(data);
     }
 }
 
 export function writeln(id, data) {
-    const el = document.getElementById(id);
-    if (el && el.term) {
-        el.term.writeln(data);
+    const terminal = Data.get(id);
+    const { term } = terminal;
+    if (term) {
+        term.writeln(data);
     }
 }
 
 export function clear(id) {
-    const el = document.getElementById(id);
-    if (el && el.term) {
-        el.term.clear();
+    const terminal = Data.get(id);
+    const { term } = terminal;
+    if (term) {
+        term.clear();
     }
 }
 
 export function dispose(id) {
-    const el = document.getElementById(id);
-    if (el) {
-        if (el.resizeHandler) {
-            window.removeEventListener('resize', el.resizeHandler);
-        }
-        if (el.term) {
-            el.term.dispose();
-            delete el.term;
-        }
-        if (el.fitAddon) {
-            delete el.fitAddon;
-        }
+    const terminal = Data.get(id);
+    Data.remove(id);
+
+    const { term, resizeHandler } = terminal;
+    if (resizeHandler) {
+        window.removeEventListener('resize', resizeHandler);
+    }
+    if (term) {
+        term.dispose();
     }
 }
