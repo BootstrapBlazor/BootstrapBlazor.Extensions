@@ -37,6 +37,7 @@
     <Project Path="src/components/BootstrapBlazor.Dom2Image/BootstrapBlazor.Dom2Image.csproj" />
     <Project Path="src/components/BootstrapBlazor.DriverJs/BootstrapBlazor.DriverJs.csproj" />
     <Project Path="src/components/BootstrapBlazor.ElementIcon/BootstrapBlazor.ElementIcon.csproj" />
+    <Project Path="src/components/BootstrapBlazor.EmbedPDF/BootstrapBlazor.EmbedPDF.csproj" Id="e69d9666-a406-499b-b5c0-3dab3a5a4fb3" />
     <Project Path="src/components/BootstrapBlazor.FileSystem/BootstrapBlazor.FileSystem.csproj" />
     <Project Path="src/components/BootstrapBlazor.FileViewer/BootstrapBlazor.FileViewer.csproj" />
     <Project Path="src/components/BootstrapBlazor.FloatingUI/BootstrapBlazor.FloatingUI.csproj" />
@@ -84,6 +85,7 @@
     <Project Path="src/components/BootstrapBlazor.TableExport/BootstrapBlazor.TableExport.csproj" />
     <Project Path="src/components/BootstrapBlazor.TagHelper/BootstrapBlazor.TagHelper.csproj" />
     <Project Path="src/components/BootstrapBlazor.Tasks.Dashboard/BootstrapBlazor.Tasks.Dashboard.csproj" />
+    <Project Path="src/components/BootstrapBlazor.Term/BootstrapBlazor.Term.csproj" />
     <Project Path="src/components/BootstrapBlazor.Topology/BootstrapBlazor.Topology.csproj" />
     <Project Path="src/components/BootstrapBlazor.UniverIcon/BootstrapBlazor.UniverIcon.csproj" />
     <Project Path="src/components/BootstrapBlazor.UniverSheet/BootstrapBlazor.UniverSheet.csproj" />
