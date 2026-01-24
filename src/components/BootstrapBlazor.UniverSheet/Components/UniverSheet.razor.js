@@ -50,14 +50,16 @@ export function execute(id, data) {
     const univerSheet = Data.get(id);
 
     const { firstPush, backdrop, pushData } = univerSheet;
+    let ret = null;
     if (pushData) {
-        pushData(data);
+        ret = pushData(data);
     }
     if (firstPush === true && backdrop) {
         setTimeout(() => {
             backdrop.classList.add('d-none');
         }, 100);
     }
+    return ret;
 }
 
 export function dispose(id) {
