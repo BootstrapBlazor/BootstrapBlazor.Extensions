@@ -50,6 +50,12 @@ public partial class UniverSheet
     public UniverSheetData? Data { get; set; }
 
     /// <summary>
+    /// 获得/设置 是否显示加载遮罩 默认 true 显示遮罩
+    /// </summary>
+    [Parameter]
+    public bool ShowLoading { get; set; } = true;
+
+    /// <summary>
     /// 获得/设置 正在加载显示文本 默认 null 未设置读取资源文件
     /// </summary>
     [Parameter]

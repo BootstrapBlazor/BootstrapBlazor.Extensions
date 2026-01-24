@@ -1,39 +1,10 @@
-import { addScript, addLink, getTheme } from '../BootstrapBlazor/modules/utility.js'
+import { addScript, getTheme } from '../BootstrapBlazor/modules/utility.js'
 import DataService from './data-service.js'
 
-const loadAssets2 = async lang => {
-    await addScript('./_content/BootstrapBlazor.UniverSheet/univer/react.production.min.js');
-    await addScript('./_content/BootstrapBlazor.UniverSheet/univer/react-dom.production.min.js');
-    await addScript('./_content/BootstrapBlazor.UniverSheet/univer/rxjs.umd.min.js');
-    await addScript('./_content/BootstrapBlazor.UniverSheet/univer/univerjs.presets.umd.min.js');
-    await addScript('./_content/BootstrapBlazor.UniverSheet/univer/univerjs.preset-sheets-core/index.umd.min.js');
-    await addScript('./_content/BootstrapBlazor.UniverSheet/univer/univerjs.preset-sheets-drawing/index.umd.min.js');
-    await addScript('./_content/BootstrapBlazor.UniverSheet/univer/univerjs.sheets-zen-editor/index.umd.min.js');
-    await addScript('./_content/BootstrapBlazor.UniverSheet/univer/univerjs.preset-sheets-data-validation/index.umd.min.js');
-    await addScript('./_content/BootstrapBlazor.UniverSheet/univer/univerjs.preset-sheets-thread-comment/index.umd.min.js');
-    await addScript('./_content/BootstrapBlazor.UniverSheet/univer/univerjs.preset-sheets-hyper-link/index.umd.min.js');
-    await addScript('./_content/BootstrapBlazor.UniverSheet/univer/univerjs.preset-sheets-filter/index.umd.min.js');
-    await addScript('./_content/BootstrapBlazor.UniverSheet/univer/univerjs.preset-sheets-conditional-formatting/index.umd.min.js');
-    await addScript('./_content/BootstrapBlazor.UniverSheet/univer/univerjs.preset-sheets-advanced/index.umd.min.js');
-
-    await addScript(`./_content/BootstrapBlazor.UniverSheet/univer/univerjs.preset-sheets-core/locales/${lang}.js`);
-    await addScript(`./_content/BootstrapBlazor.UniverSheet/univer/univerjs.preset-sheets-drawing/locales/${lang}.js`);
-    await addScript(`./_content/BootstrapBlazor.UniverSheet/univer/univerjs.sheets-zen-editor/locales/${lang}.js`);
-    await addScript(`./_content/BootstrapBlazor.UniverSheet/univer/univerjs.preset-sheets-data-validation/locales/${lang}.js`);
-    await addScript(`./_content/BootstrapBlazor.UniverSheet/univer/univerjs.preset-sheets-thread-comment/locales/${lang}.js`);
-    await addScript(`./_content/BootstrapBlazor.UniverSheet/univer/univerjs.preset-sheets-advanced/locales/${lang}.js`);
-
-    await addLink('./_content/BootstrapBlazor.UniverSheet/univer/univer-sheet.bundle.css');
-}
-
-const loadAssets = async lang => {
-    await addScript('./_content/BootstrapBlazor.UniverSheet/univer/univer-bundle.js');
-    await addLink('./_content/BootstrapBlazor.UniverSheet/univer/univer-sheet.bundle.css');
-}
-
 export async function createUniverSheetAsync(sheet) {
+    await addScript('./_content/BootstrapBlazor.UniverSheet/univer/univer-bundle.js');
+
     sheet.lang = sheet.lang ?? 'en-US';
-    await loadAssets(sheet.lang);
     const { el } = sheet;
     const { LocaleType, merge } = UniverCore;
     const { createUniver } = UniverPresets;

@@ -1,17 +1,25 @@
-import { isFunction, registerBootstrapBlazorModule } from '../../BootstrapBlazor/modules/utility.js'
+import { addLink, isFunction, registerBootstrapBlazorModule } from '../../BootstrapBlazor/modules/utility.js'
 import { createUniverSheetAsync } from '../univer.js'
 import Data from '../../BootstrapBlazor/modules/data.js'
 import EventHandler from "../../BootstrapBlazor/modules/event-handler.js"
 
 export async function init(id, invoke, options) {
+    await addLink('./_content/BootstrapBlazor.UniverSheet/css/univer-sheet.bundle.css');
+
     const el = document.getElementById(id);
     if (el === null) {
         return;
     }
 
+    const backdrop = el.querySelector('.bb-univer-sheet-backdrop');
+    if (backdrop) {
+        backdrop.style.removeProperty('display');
+    }
+
     const { theme, lang, plugins, data, ribbonType, darkMode } = options;
     const univerSheet = {
         el: el.querySelector('.bb-univer-sheet-wrap'),
+        backdrop,
         invoke,
         data,
         plugins,
@@ -21,7 +29,6 @@ export async function init(id, invoke, options) {
         darkMode,
         events: {
             onRendered: () => {
-                const backdrop = el.querySelector('.bb-univer-sheet-backdrop');
                 if (backdrop) {
                     backdrop.classList.add('d-none');
                 }
@@ -42,7 +49,17 @@ export async function init(id, invoke, options) {
 export function execute(id, data) {
     const univerSheet = Data.get(id);
 
-    return univerSheet.pushData(data);
+    const { firstPush, backdrop, pushData } = univerSheet;
+    let ret = null;
+    if (pushData) {
+        ret = pushData(data);
+    }
+    if (firstPush === true && backdrop) {
+        setTimeout(() => {
+            backdrop.classList.add('d-none');
+        }, 100);
+    }
+    return ret;
 }
 
 export function dispose(id) {

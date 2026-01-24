@@ -1,1 +1,0 @@
-(function(e,n){typeof exports=="object"&&typeof module<"u"?module.exports=n():typeof define=="function"&&define.amd?define(n):(e=typeof globalThis<"u"?globalThis:e||self,e.UniverSheetsZenEditorKoKR=n())})(this,(function(){"use strict";return{rightClick:{zenEditor:"젠 에디터"},shortcut:{sheet:{"zen-edit-cancel":"젠 편집 취소","zen-edit-confirm":"젠 편집 확인"}}}}));
