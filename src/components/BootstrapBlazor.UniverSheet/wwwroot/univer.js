@@ -10,9 +10,7 @@ export async function createUniverSheetAsync(sheet) {
     const { createUniver } = UniverPresets;
     const { UniverSheetsCorePreset } = UniverPresetSheetsCore;
     const { UniverSheetsDrawingPreset } = UniverPresetSheetsDrawing;
-    const { UniverSheetsAdvancedPreset } = UniverPresetSheetsAdvanced;
     const { UniverSheetsZenEditorPlugin } = UniverSheetsZenEditor;
-    const { UniverSheetsThreadCommentPreset } = UniverPresetSheetsThreadComment;
     const { UniverSheetsDataValidationPreset } = UniverPresetSheetsDataValidation;
 
     const lang = sheet.lang.replace('-', '')
@@ -28,8 +26,8 @@ export async function createUniverSheetAsync(sheet) {
                 window[`UniverPresetSheetsDrawing${langStr}`],
                 window[`UniverSheetsZenEditor${langStr}`],
                 window[`UniverPresetSheetsDataValidation${langStr}`],
-                window[`UniverPresetSheetsThreadComment${langStr}`],
-                window[`UniverPresetSheetsAdvanced${langStr}`],
+                window[`UniverProSheetsChart${langStr}`],
+                window[`UniverProSheetsChartUi${langStr}`],
             ),
         },
         presets: [
@@ -46,12 +44,12 @@ export async function createUniverSheetAsync(sheet) {
                 },
             }),
             UniverSheetsDrawingPreset(),
-            UniverSheetsThreadCommentPreset(),
             UniverSheetsDataValidationPreset(),
-            UniverSheetsAdvancedPreset(),
         ],
         plugins: [
             UniverSheetsZenEditorPlugin,
+            UniverProSheetsChart.UniverSheetsChartPlugin,
+            UniverProSheetsChartUi.UniverSheetsChartUIPlugin,
         ]
     };
     const plugins = sheet.plugins ?? {
