@@ -42,10 +42,6 @@ export async function createUniverSheetAsync(sheet) {
                         hidden: true,
                     },
                 },
-                sheets: {
-                    disableForceStringAlert: true,
-                    disableForceStringMark: true,
-                }
             }),
             UniverSheetsDrawingPreset(),
             UniverSheetsDataValidationPreset(),
