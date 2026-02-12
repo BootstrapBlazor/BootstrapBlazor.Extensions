@@ -1,4 +1,4 @@
-﻿// Copyright (c) BootstrapBlazor & Argo Zhang (argo@live.ca). All rights reserved.
+// Copyright (c) BootstrapBlazor & Argo Zhang (argo@live.ca). All rights reserved.
 // Licensed under the Apache License, Version 2.0. See License.txt in the project root for license information.
 // Website: https://www.blazor.zone or https://argozhang.github.io/
 
@@ -15,7 +15,8 @@ public static class ServiceCollectionExtensions
     /// 添加 IP2RegionService 服务
     /// </summary>
     /// <param name="services"></param>
-    public static IServiceCollection AddBootstrapBlazorIP2RegionService(this IServiceCollection services)
+    /// <param name="configureOptions"></param>
+    public static IServiceCollection AddBootstrapBlazorIP2RegionService(this IServiceCollection services, Action<IP2RegionOptions>? configureOptions = null)
     {
         services.AddSingleton<IIpLocatorProvider, IP2RegionService>();
 #if NET8_0_OR_GREATER
@@ -23,6 +24,10 @@ public static class ServiceCollectionExtensions
 #endif
 
         services.AddOptionsMonitor<IP2RegionOptions>();
+        services.Configure<IP2RegionOptions>(options =>
+        {
+            configureOptions?.Invoke(options);
+        });
         return services;
     }
 }
