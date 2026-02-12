@@ -1,7 +1,7 @@
 <Project>
 
   <ItemGroup>
-    <IP2RegionFiles Include="$(MSBuildThisFileDirectory)/../contentFiles/ip2region.xdb"/>
+    <IP2RegionFiles Include="$(MSBuildThisFileDirectory)/../contentFiles/ip2region_v*.xdb"/>
   </ItemGroup>
 
   <Target Name="IP2RegionCopyFilesAfterBuild" AfterTargets="Build">
