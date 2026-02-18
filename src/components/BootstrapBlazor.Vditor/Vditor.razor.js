@@ -60,7 +60,7 @@ export function insertValue(id, value, render) {
     }
 }
 
-export function getResult(id, method) {
+export function execute(id, method) {
     const md = Data.get(id);
     const { vditor } = md;
     let ret = '';
@@ -71,17 +71,6 @@ export function getResult(id, method) {
         }
     }
     return ret;
-}
-
-export function execute(id, method) {
-    const md = Data.get(id);
-    const { vditor } = md;
-    if (vditor) {
-        var cb = vditor[method];
-        if (cb) {
-            cb.call(vditor);
-        }
-    }
 }
 
 export function dispose(id) {
