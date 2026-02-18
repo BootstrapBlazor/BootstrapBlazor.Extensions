@@ -92,7 +92,7 @@ public partial class Vditor
         if (_lastValue != Value)
         {
             _lastValue = Value;
-            await InvokeVoidAsync(Id, "setValue", Value);
+            await InvokeVoidAsync("setValue", Id, Value);
         }
     }
 
@@ -132,19 +132,19 @@ public partial class Vditor
     /// <para lang="zh">获取编辑器的 Markdown 内容</para>
     /// <para lang="en">Gets the markdown content of the editor.</para>
     /// </summary>
-    public Task<string?> GetValueAsync() => InvokeAsync<string?>("execute", Id, "getValue");
+    public Task<string?> GetValueAsync() => InvokeAsync<string?>("getResult", Id, "getValue");
 
     /// <summary>
     /// <para lang="zh">获取 Markdown 渲染后的 HTML</para>
     /// <para lang="en">Gets the HTML rendered from markdown.</para>
     /// </summary>
-    public Task<string?> GetHtmlAsync() => InvokeAsync<string?>("execute", Id, "getHTML");
+    public Task<string?> GetHtmlAsync() => InvokeAsync<string?>("getResult", Id, "getHTML");
 
     /// <summary>
-    /// <para lang="zh">返回选中的字符串</para>
+    /// <para lang="zh">获取 返回选中的字符串</para>
     /// <para lang="en">Returns the selected string.</para>
     /// </summary>
-    public Task<string?> GetSelectionAsync() => InvokeAsync<string?>("execute", Id, "getSelection");
+    public Task<string?> GetSelectionAsync() => InvokeAsync<string?>("getResult", Id, "getSelection");
 
     /// <summary>
     /// <para lang="zh">解除编辑器禁用</para>
