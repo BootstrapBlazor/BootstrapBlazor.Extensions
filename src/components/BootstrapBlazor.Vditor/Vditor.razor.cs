@@ -92,7 +92,7 @@ public partial class Vditor
         if (_lastValue != Value)
         {
             _lastValue = Value;
-            await InvokeVoidAsync("setValue", Id, Value);
+            await InvokeVoidAsync("execute", Id, "setValue", new object?[] { Value, true });
         }
     }
 
@@ -126,7 +126,7 @@ public partial class Vditor
     /// </summary>
     /// <param name="value"></param>
     /// <param name="render"></param>
-    public Task InsertValueAsync(string? value, bool render = true) => InvokeVoidAsync("insertValue", Id, value, render);
+    public Task InsertValueAsync(string? value, bool render = true) => InvokeVoidAsync("execute", Id, "insertValue", new object?[] { value, render });
 
     /// <summary>
     /// <para lang="zh">获取编辑器的 Markdown 内容</para>

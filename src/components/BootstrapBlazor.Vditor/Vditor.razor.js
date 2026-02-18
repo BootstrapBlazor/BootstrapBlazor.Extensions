@@ -44,30 +44,15 @@ export async function reset(id, value, options) {
     }
 }
 
-export function setValue(id, value) {
-    const md = Data.get(id);
-    const { vditor } = md;
-    if (vditor) {
-        vditor.setValue(value, true);
-    }
-}
-
-export function insertValue(id, value, render) {
-    const md = Data.get(id);
-    const { vditor } = md;
-    if (vditor) {
-        vditor.insertValue(value, render);
-    }
-}
-
-export function execute(id, method) {
+export function execute(id, method, args) {
+    console.log(method, args);
     const md = Data.get(id);
     const { vditor } = md;
     let ret = '';
     if (vditor) {
         var cb = vditor[method];
         if (cb) {
-            ret = cb.call(vditor);
+            ret = cb.call(vditor, ...(args || []));
         }
     }
     return ret;
