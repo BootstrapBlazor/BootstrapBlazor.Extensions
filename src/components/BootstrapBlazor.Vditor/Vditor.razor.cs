@@ -132,43 +132,43 @@ public partial class Vditor
     /// <para lang="zh">获取编辑器的 Markdown 内容</para>
     /// <para lang="en">Gets the markdown content of the editor.</para>
     /// </summary>
-    public Task<string?> GetValueAsync() => InvokeAsync<string?>("execute", "getValue");
+    public Task<string?> GetValueAsync() => InvokeAsync<string?>("execute", Id, "getValue");
 
     /// <summary>
     /// <para lang="zh">获取 Markdown 渲染后的 HTML</para>
     /// <para lang="en">Gets the HTML rendered from markdown.</para>
     /// </summary>
-    public Task<string?> GetHtmlAsync() => InvokeAsync<string?>("execute", "getHTML");
+    public Task<string?> GetHtmlAsync() => InvokeAsync<string?>("execute", Id, "getHTML");
 
     /// <summary>
     /// <para lang="zh">返回选中的字符串</para>
     /// <para lang="en">Returns the selected string.</para>
     /// </summary>
-    public Task<string?> GetSelectionAsync() => InvokeAsync<string?>("execute", "getSelection");
+    public Task<string?> GetSelectionAsync() => InvokeAsync<string?>("execute", Id, "getSelection");
 
     /// <summary>
     /// <para lang="zh">解除编辑器禁用</para>
     /// <para lang="en">Enables the editor.</para>
     /// </summary>
-    public Task EnableAsync() => InvokeVoidAsync("execute", "enable");
+    public Task EnableAsync() => InvokeVoidAsync("execute", Id, "enable");
 
     /// <summary>
     /// <para lang="zh">禁用编辑器</para>
     /// <para lang="en">Disables the editor.</para>
     /// </summary>
-    public Task DisableAsync() => InvokeVoidAsync("execute", "disabled");
+    public Task DisableAsync() => InvokeVoidAsync("execute", Id, "disabled");
 
     /// <summary>
     /// <para lang="zh">聚焦编辑器</para>
     /// <para lang="en">Focuses the editor.</para>
     /// </summary>
-    public Task FocusAsync() => InvokeVoidAsync("execute", "focus");
+    public Task FocusAsync() => InvokeVoidAsync("execute", Id, "focus");
 
     /// <summary>
     /// <para lang="zh">让编辑器失去焦点</para>
     /// <para lang="en">Blurs the editor.</para>
     /// </summary>
-    public Task BlurAsync() => InvokeVoidAsync("execute", "blur");
+    public Task BlurAsync() => InvokeVoidAsync("execute", Id, "blur");
 
     /// <summary>
     /// <para lang="zh">客户端渲染完毕回调方法 由 JavaScript 调用</para>
