@@ -60,17 +60,28 @@ export function insertValue(id, value, render) {
     }
 }
 
-export function execute(id, method) {
+export function getResult(id, method) {
     const md = Data.get(id);
     const { vditor } = md;
     let ret = '';
     if (vditor) {
         var cb = vditor[method];
         if (cb) {
-            ret = cb();
+            ret = cb.call(vditor);
         }
     }
     return ret;
+}
+
+export function execute(id, method) {
+    const md = Data.get(id);
+    const { vditor } = md;
+    if (vditor) {
+        var cb = vditor[method];
+        if (cb) {
+            cb.call(vditor);
+        }
+    }
 }
 
 export function dispose(id) {
