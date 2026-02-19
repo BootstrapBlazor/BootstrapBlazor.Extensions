@@ -53,20 +53,15 @@ class JuHeIpLocatorProvider(IHttpClientFactory httpClientFactory,
     {
         var options = juHeIpLocatorOptions.Value;
 
-        try
+        if (string.IsNullOrEmpty(options.Key))
         {
-            if (string.IsNullOrEmpty(options.Key))
-            {
-                throw new InvalidOperationException($"{nameof(JuHeIpLocatorOptions)}:Key not value in appsettings configuration file. 未配置 {nameof(JuHeIpLocatorOptions)}:Key 请在 appsettings.json 中配置 {nameof(JuHeIpLocatorOptions)}:Key");
-            }
-            if (string.IsNullOrEmpty(options.Url))
-            {
-                options.Url = Url;
-            }
+            LastError = $"{nameof(JuHeIpLocatorOptions)}:Key not value in appsettings configuration file. 未配置 {nameof(JuHeIpLocatorOptions)}:Key 请在 appsettings.json 中配置 {nameof(JuHeIpLocatorOptions)}:Key";
+            Log(LastError);
+
         }
-        catch (Exception ex)
+        if (string.IsNullOrEmpty(options.Url))
         {
-            logger.LogError(ex, "{GetOptions} failed", nameof(GetOptions));
+            options.Url = Url;
         }
         return options;
     }
@@ -83,8 +78,17 @@ class JuHeIpLocatorProvider(IHttpClientFactory httpClientFactory,
         var result = await client.GetFromJsonAsync<JuHeLocationResult>(url, token);
         if (result != null && result.ErrorCode != 0)
         {
-            logger.LogError("ErrorCode: {ErrorCode} Reason: {Reason}", result.ErrorCode, result.Reason);
+            LastError = $"ErrorCode: {result.ErrorCode} Reason: {result.Reason}";
+            Log(LastError);
         }
         return result?.ToString();
+    }
+
+    private void Log(string? message)
+    {
+        if (logger.IsEnabled(LogLevel.Error))
+        {
+            logger.LogError("{message}", message);
+        }
     }
 }
