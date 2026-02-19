@@ -7,54 +7,63 @@ using Microsoft.AspNetCore.Components;
 namespace BootstrapBlazor.Components;
 
 /// <summary>
-/// Vditor markdown component
+/// <para lang="zh">Vditor Markdown 组件</para>
+/// <para lang="en">Vditor markdown component</para>
 /// </summary>
 public partial class Vditor
 {
     /// <summary>
-    /// 获得/设置 组件 <see cref="VditorOptions"/> 实例 默认 null
+    /// <para lang="zh">获得/设置 组件 <see cref="VditorOptions"/> 实例 默认 null</para>
+    /// <para lang="en">Gets or sets the <see cref="VditorOptions"/> instance. Default is null.</para>
     /// </summary>
     [Parameter]
     public VditorOptions? Options { get; set; }
 
     /// <summary>
-    /// 获得/设置 组件渲染完毕回调方法 默认 null
+    /// <para lang="zh">获得/设置 组件渲染完毕回调方法 默认 null</para>
+    /// <para lang="en">Gets or sets the callback method when component rendering is complete. Default is null.</para>
     /// </summary>
     [Parameter]
     public Func<Task>? OnRenderedAsync { get; set; }
 
     /// <summary>
-    /// 获得/设置 组件输入时回调方法 高频触发 默认 null
+    /// <para lang="zh">获得/设置 组件输入时回调方法 高频触发 默认 null</para>
+    /// <para lang="en">Gets or sets the callback method on input. High frequency trigger. Default is null.</para>
     /// </summary>
     [Parameter]
     public Func<string, Task>? OnInputAsync { get; set; }
 
     /// <summary>
-    /// 获得/设置 组件获得焦点时回调方法 默认 null
+    /// <para lang="zh">获得/设置 组件获得焦点时回调方法 默认 null</para>
+    /// <para lang="en">Gets or sets the callback method when the component gains focus. Default is null.</para>
     /// </summary>
     [Parameter]
     public Func<string, Task>? OnFocusAsync { get; set; }
 
     /// <summary>
-    /// 获得/设置 组件失去焦点时回调方法 默认 null
+    /// <para lang="zh">获得/设置 组件失去焦点时回调方法 默认 null</para>
+    /// <para lang="en">Gets or sets the callback method when the component loses focus. Default is null.</para>
     /// </summary>
     [Parameter]
     public Func<string, Task>? OnBlurAsync { get; set; }
 
     /// <summary>
-    /// 获得/设置 组件选择内容时回调方法 默认 null
+    /// <para lang="zh">获得/设置 组件选择内容时回调方法 默认 null</para>
+    /// <para lang="en">Gets or sets the callback method when content is selected. Default is null.</para>
     /// </summary>
     [Parameter]
     public Func<string, Task>? OnSelectAsync { get; set; }
 
     /// <summary>
-    /// 获得/设置 组件按 ESC 案件时回调方法 默认 null
+    /// <para lang="zh">获得/设置 组件按 ESC 按键时回调方法 默认 null</para>
+    /// <para lang="en">Gets or sets the callback method when ESC key is pressed. Default is null.</para>
     /// </summary>
     [Parameter]
     public Func<string, Task>? OnEscapeAsync { get; set; }
 
     /// <summary>
-    /// 获得/设置 组件按 Ctrl + Enter 组合案件时回调方法 默认 null
+    /// <para lang="zh">获得/设置 组件按 Ctrl + Enter 组合按键时回调方法 默认 null</para>
+    /// <para lang="en">Gets or sets the callback method when Ctrl + Enter is pressed. Default is null.</para>
     /// </summary>
     [Parameter]
     public Func<string, Task>? OnCtrlEnterAsync { get; set; }
@@ -66,13 +75,11 @@ public partial class Vditor
         .Build();
 
     private string? _lastValue;
-    private IJSObjectReference? _vditor;
 
     /// <summary>
     /// <inheritdoc/>
     /// </summary>
     /// <param name="firstRender"></param>
-    /// <returns></returns>
     protected override async Task OnAfterRenderAsync(bool firstRender)
     {
         await base.OnAfterRenderAsync(firstRender);
@@ -85,141 +92,88 @@ public partial class Vditor
         if (_lastValue != Value)
         {
             _lastValue = Value;
-            if (_vditor != null)
-            {
-                await _vditor.InvokeVoidAsync("setValue", Value, true);
-            }
+            await InvokeVoidAsync("execute", Id, "setValue", new object?[] { Value, true });
         }
     }
 
     /// <summary>
     /// <inheritdoc/>
     /// </summary>
-    /// <returns></returns>
-    protected override async Task InvokeInitAsync()
+    protected override Task InvokeInitAsync() => InvokeAsync<IJSObjectReference>("init", Id, Interop, new
     {
-        _vditor = await InvokeAsync<IJSObjectReference>("init", Id, Interop, new
-        {
-            Options,
-            Value
-        });
-    }
+        Options,
+        Value
+    });
 
     /// <summary>
-    /// 重新设置编辑器方法
+    /// <para lang="zh">重新设置编辑器方法</para>
+    /// <para lang="en">Resets the editor.</para>
     /// </summary>
     /// <param name="value"></param>
     /// <param name="options"></param>
-    /// <returns></returns>
     public async Task Reset(string value, VditorOptions options)
     {
         if (!string.IsNullOrEmpty(value))
         {
             Value = value;
         }
-        _vditor = await InvokeAsync<IJSObjectReference>("reset", Id, Value, Options);
+        await InvokeVoidAsync("reset", Id, Value, Options);
     }
 
     /// <summary>
-    /// 在焦点处插入内容，并默认进行 Markdown 渲染
+    /// <para lang="zh">在焦点处插入内容 并默认进行 Markdown 渲染</para>
+    /// <para lang="en">Inserts content at the cursor position and renders Markdown by default.</para>
     /// </summary>
-    /// <param name="value">要插入的 markdown 值</param>
-    /// <param name="render">是否渲染</param>
-    public async ValueTask InsertValueAsync(string? value, bool render = true)
-    {
-        if (_vditor != null)
-        {
-            await _vditor.InvokeVoidAsync("insertValue", value, render);
-        }
-    }
+    /// <param name="value"></param>
+    /// <param name="render"></param>
+    public Task InsertValueAsync(string? value, bool render = true) => InvokeVoidAsync("execute", Id, "insertValue", new object?[] { value, render });
 
     /// <summary>
-    /// 获取编辑器的 markdown 内容
+    /// <para lang="zh">获取编辑器的 Markdown 内容</para>
+    /// <para lang="en">Gets the markdown content of the editor.</para>
     /// </summary>
-    public async ValueTask<string?> GetValueAsync()
-    {
-        string? ret = null;
-        if (_vditor != null)
-        {
-            ret = await _vditor.InvokeAsync<string?>("getValue");
-        }
-        return ret;
-    }
+    public Task<string?> GetValueAsync() => InvokeAsync<string?>("execute", Id, "getValue");
 
     /// <summary>
-    /// 获取 markdown 渲染后的 HTML
+    /// <para lang="zh">获取 Markdown 渲染后的 HTML</para>
+    /// <para lang="en">Gets the HTML rendered from markdown.</para>
     /// </summary>
-    public async ValueTask<string?> GetHtmlAsync()
-    {
-        string? ret = null;
-        if (_vditor != null)
-        {
-            ret = await _vditor.InvokeAsync<string?>("getHTML");
-        }
-        return ret;
-    }
+    public Task<string?> GetHtmlAsync() => InvokeAsync<string?>("execute", Id, "getHTML");
 
     /// <summary>
-    /// 返回选中的字符串
+    /// <para lang="zh">获取 返回选中的字符串</para>
+    /// <para lang="en">Returns the selected string.</para>
     /// </summary>
-    public async ValueTask<string?> GetSelectionAsync()
-    {
-        string? ret = null;
-        if (_vditor != null)
-        {
-            ret = await _vditor.InvokeAsync<string?>("getSelection");
-        }
-        return ret;
-    }
+    public Task<string?> GetSelectionAsync() => InvokeAsync<string?>("execute", Id, "getSelection");
 
     /// <summary>
-    /// 解除编辑器禁用
+    /// <para lang="zh">解除编辑器禁用</para>
+    /// <para lang="en">Enables the editor.</para>
     /// </summary>
-    public async ValueTask EnableAsync()
-    {
-        if (_vditor != null)
-        {
-            await _vditor.InvokeVoidAsync("enable");
-        }
-    }
+    public Task EnableAsync() => InvokeVoidAsync("execute", Id, "enable");
 
     /// <summary>
-    /// 禁用编辑器
+    /// <para lang="zh">禁用编辑器</para>
+    /// <para lang="en">Disables the editor.</para>
     /// </summary>
-    public async ValueTask DisableAsync()
-    {
-        if (_vditor != null)
-        {
-            await _vditor.InvokeVoidAsync("disabled");
-        }
-    }
+    public Task DisableAsync() => InvokeVoidAsync("execute", Id, "disabled");
 
     /// <summary>
-    /// 聚焦编辑器
+    /// <para lang="zh">聚焦编辑器</para>
+    /// <para lang="en">Focuses the editor.</para>
     /// </summary>
-    public async ValueTask FocusAsync()
-    {
-        if (_vditor != null)
-        {
-            await _vditor.InvokeVoidAsync("focus");
-        }
-    }
+    public Task FocusAsync() => InvokeVoidAsync("execute", Id, "focus");
 
     /// <summary>
-    /// 让编辑器失去焦点
+    /// <para lang="zh">让编辑器失去焦点</para>
+    /// <para lang="en">Blurs the editor.</para>
     /// </summary>
-    public async ValueTask BlurAsync()
-    {
-        if (_vditor != null)
-        {
-            await _vditor.InvokeAsync<string?>("blur");
-        }
-    }
+    public Task BlurAsync() => InvokeVoidAsync("execute", Id, "blur");
 
     /// <summary>
-    /// 客户端渲染完毕回调方法由 JavaScript 调用
+    /// <para lang="zh">客户端渲染完毕回调方法 由 JavaScript 调用</para>
+    /// <para lang="en">Callback when client rendering is complete. Called by JavaScript.</para>
     /// </summary>
-    /// <returns></returns>
     [JSInvokable]
     public async Task TriggerRenderedAsync()
     {
@@ -230,10 +184,10 @@ public partial class Vditor
     }
 
     /// <summary>
-    /// 组件录入时回调方法由 JavaScript 调用
+    /// <para lang="zh">组件录入时回调方法 由 JavaScript 调用</para>
+    /// <para lang="en">Callback when input occurs. Called by JavaScript.</para>
     /// </summary>
     /// <param name="value"></param>
-    /// <returns></returns>
     [JSInvokable]
     public async Task TriggerInputAsync(string value)
     {
@@ -247,10 +201,10 @@ public partial class Vditor
     }
 
     /// <summary>
-    /// 触发 Value 值改变回调方法由 JavaScript 调用
+    /// <para lang="zh">触发焦点回调方法 由 JavaScript 调用</para>
+    /// <para lang="en">Callback when focus is triggered. Called by JavaScript.</para>
     /// </summary>
     /// <param name="value"></param>
-    /// <returns></returns>
     [JSInvokable]
     public async Task TriggerFocusAsync(string value)
     {
@@ -261,10 +215,10 @@ public partial class Vditor
     }
 
     /// <summary>
-    /// 触发 Value 值改变回调方法由 JavaScript 调用
+    /// <para lang="zh">触发失焦回调方法 由 JavaScript 调用</para>
+    /// <para lang="en">Callback when blur is triggered. Called by JavaScript.</para>
     /// </summary>
     /// <param name="value"></param>
-    /// <returns></returns>
     [JSInvokable]
     public async Task TriggerBlurAsync(string value)
     {
@@ -277,10 +231,10 @@ public partial class Vditor
     }
 
     /// <summary>
-    /// 触发 Value 值改变回调方法由 JavaScript 调用
+    /// <para lang="zh">触发选择回调方法 由 JavaScript 调用</para>
+    /// <para lang="en">Callback when selection is triggered. Called by JavaScript.</para>
     /// </summary>
     /// <param name="value"></param>
-    /// <returns></returns>
     [JSInvokable]
     public async Task TriggerSelectAsync(string value)
     {
@@ -291,10 +245,10 @@ public partial class Vditor
     }
 
     /// <summary>
-    /// 触发 Value 值改变回调方法由 JavaScript 调用
+    /// <para lang="zh">触发 ESC 按键回调方法 由 JavaScript 调用</para>
+    /// <para lang="en">Callback when ESC key is pressed. Called by JavaScript.</para>
     /// </summary>
     /// <param name="value"></param>
-    /// <returns></returns>
     [JSInvokable]
     public async Task TriggerEscapeAsync(string value)
     {
@@ -307,10 +261,10 @@ public partial class Vditor
     }
 
     /// <summary>
-    /// 触发 Value 值改变回调方法由 JavaScript 调用
+    /// <para lang="zh">触发 Ctrl+Enter 组合按键回调方法 由 JavaScript 调用</para>
+    /// <para lang="en">Callback when Ctrl+Enter is pressed. Called by JavaScript.</para>
     /// </summary>
     /// <param name="value"></param>
-    /// <returns></returns>
     [JSInvokable]
     public async Task TriggerCtrlEnterAsync(string value)
     {
@@ -319,25 +273,6 @@ public partial class Vditor
             _lastValue = value;
             CurrentValue = value;
             await OnCtrlEnterAsync(value);
-        }
-    }
-
-    /// <summary>
-    /// <inheritdoc/>
-    /// </summary>
-    /// <param name="disposing"></param>
-    /// <returns></returns>
-    protected override async ValueTask DisposeAsync(bool disposing)
-    {
-        if (disposing)
-        {
-            if (_vditor != null)
-            {
-                await _vditor.DisposeAsync();
-                _vditor = null;
-            }
-
-            await base.DisposeAsync(disposing);
         }
     }
 }

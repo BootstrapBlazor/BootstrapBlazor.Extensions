@@ -15,7 +15,6 @@ export async function init(id, invoke, options) {
     const vditor = new Vditor(root, getOptions(invoke, { ...op, value }));
 
     Data.set(id, { el, invoke, vditor });
-    return vditor;
 }
 
 const getOptions = (invoke, options) => {
@@ -43,7 +42,20 @@ export async function reset(id, value, options) {
         const root = el.querySelector('.bb-vditor-container');
         md.vditor = new Vditor(root, getOptions(invoke, { ...options, value }));
     }
-    return md.vditor;
+}
+
+export function execute(id, method, args) {
+    console.log(method, args);
+    const md = Data.get(id);
+    const { vditor } = md;
+    let ret = '';
+    if (vditor) {
+        var cb = vditor[method];
+        if (cb) {
+            ret = cb.call(vditor, ...(args || []));
+        }
+    }
+    return ret;
 }
 
 export function dispose(id) {
