@@ -7,24 +7,28 @@ using System.ComponentModel;
 namespace BootstrapBlazor.Components;
 
 /// <summary>
-/// 主题枚举
+/// <para lang="zh">主题枚举</para>
+/// <para lang="en">Theme enumeration</para>
 /// </summary>
 public enum EmbedPDFTheme
 {
     /// <summary>
-    /// 跟随系统
+    /// <para lang="zh">跟随系统</para>
+    /// <para lang="en">Follow system</para>
     /// </summary>
     [Description("system")]
     System,
 
     /// <summary>
-    /// 明亮模式
+    /// <para lang="zh">明亮模式</para>
+    /// <para lang="en">Light mode</para>
     /// </summary>
     [Description("light")]
     Light,
 
     /// <summary>
-    /// 暗黑模式
+    /// <para lang="zh">暗黑模式</para>
+    /// <para lang="en">Dark mode</para>
     /// </summary>
     [Description("dark")]
     Dark
