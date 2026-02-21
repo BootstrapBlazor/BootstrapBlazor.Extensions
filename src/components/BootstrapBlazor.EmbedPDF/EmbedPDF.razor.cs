@@ -78,7 +78,7 @@ public partial class EmbedPDF
     /// <para lang="en">Gets or sets a value indicating whether to keep the current opened document when resetting the URL, default is false</para>
     /// </summary>
     [Parameter]
-    public uint IsKeepCurrentDocument { get; set; }
+    public bool IsKeepCurrentDocument { get; set; }
 
     private string? StyleString => CssBuilder.Default()
         .AddClass("border: 1px solid var(--bs-border-color); border-radius: var(--bs-border-radius); overflow: hidden;", ShowBorder)
