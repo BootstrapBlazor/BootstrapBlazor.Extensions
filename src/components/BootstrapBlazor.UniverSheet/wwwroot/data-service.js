@@ -1,10 +1,12 @@
-﻿import { isFunction } from '../BootstrapBlazor/modules/utility.js'
+import { isFunction } from '../BootstrapBlazor/modules/utility.js'
 
 export default class DataService {
     static name = 'DataService';
 
     registerUniverSheet(sheet) {
+        sheet.firstPush = true;
         sheet.pushData = data => {
+            sheet.firstPush = false;
             this._checkReceiveDataCallback();
             return this._callback(data);
         };

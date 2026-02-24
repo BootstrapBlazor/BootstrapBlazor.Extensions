@@ -1,5 +1,4 @@
-﻿import { addLink } from '../BootstrapBlazor/modules/utility.js'
-import MindMap from "./simpleMindMap.esm.min.js"
+﻿import MindMap from "./simpleMindMap.esm.min.js"
 import Themes from "./themes.esm.min.js"
 import Data from '../BootstrapBlazor/modules/data.js'
 
@@ -12,7 +11,6 @@ export async function init(id, invoke, data, options) {
     if (el === null) {
         return;
     }
-    await addLink('./_content/BootstrapBlazor.MindMap/mindmap.css');
 
     Themes.init(MindMap);
 
@@ -27,7 +25,7 @@ export async function init(id, invoke, data, options) {
         mindMap.setFullData(d)
     }
 
-    const observer = new ResizeObserver(e => {
+    const observer = new ResizeObserver(() => {
         mindMap.resize();
     });
     observer.observe(el);

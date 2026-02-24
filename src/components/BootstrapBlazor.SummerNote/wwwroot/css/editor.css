@@ -1,4 +1,4 @@
-﻿.editor .editor-body {
+.editor .editor-body {
     cursor: pointer;
     min-height: 50px;
     height: auto;
@@ -56,6 +56,16 @@
 .editor .note-toolbar {
     flex-wrap: wrap;
     display: block;
+}
+
+.editor.is-invalid .note-frame,
+.editor.is-invalid > .form-control {
+    border: 1px solid var(--bs-danger) !important;
+}
+
+.editor.is-valid .note-frame,
+.editor.is-valid > .form-control {
+    border: 1px solid var(--bs-success) !important;
 }
 
 .modal-body .note-form-group:not(:last-child) {

@@ -342,7 +342,9 @@ const saveConfig = dockview => {
     }
 }
 const saveParamsIsActive = dockview => {
-    dockview.panels.forEach(panel => panel.params.isActive = panel.api.isActive)
+    dockview.panels.forEach(panel => {
+        panel.params.isActive = panel.api.isActive || panel.group.activePanel === panel
+    })
 }
 
 export { getConfigFromStorage, getConfig, reloadFromConfig, saveConfig, loadPanelsFromLocalstorage };

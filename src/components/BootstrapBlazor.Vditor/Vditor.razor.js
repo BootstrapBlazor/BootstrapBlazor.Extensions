@@ -1,4 +1,4 @@
-﻿import { addLink, addScript } from '../BootstrapBlazor/modules/utility.js';
+import { addLink, addScript } from '../BootstrapBlazor/modules/utility.js';
 import Data from '../BootstrapBlazor/modules/data.js';
 
 export async function init(id, invoke, options) {
@@ -10,11 +10,11 @@ export async function init(id, invoke, options) {
     await addLink('./_content/BootstrapBlazor.Vditor/css/vditor.css');
     await addScript('./_content/BootstrapBlazor.Vditor/js/vditor.js');
 
+    const root = el.querySelector('.bb-vditor-container');
     const { options: op, value } = options;
-    const vditor = new Vditor(id, getOptions(invoke, { ...op, value }));
+    const vditor = new Vditor(root, getOptions(invoke, { ...op, value }));
 
     Data.set(id, { el, invoke, vditor });
-    return vditor;
 }
 
 const getOptions = (invoke, options) => {
@@ -35,13 +35,27 @@ const getOptions = (invoke, options) => {
 
 export async function reset(id, value, options) {
     const md = Data.get(id);
-    const { invoke, vditor } = md;
+    const { el, invoke, vditor } = md;
     if (vditor) {
         vditor.destroy();
 
-        md.vditor = new Vditor(id, getOptions(invoke, { ...options, value }));
+        const root = el.querySelector('.bb-vditor-container');
+        md.vditor = new Vditor(root, getOptions(invoke, { ...options, value }));
     }
-    return md.vditor;
+}
+
+export function execute(id, method, args) {
+    console.log(method, args);
+    const md = Data.get(id);
+    const { vditor } = md;
+    let ret = '';
+    if (vditor) {
+        var cb = vditor[method];
+        if (cb) {
+            ret = cb.call(vditor, ...(args || []));
+        }
+    }
+    return ret;
 }
 
 export function dispose(id) {

@@ -1,4 +1,4 @@
-﻿import '../../js/cherry-markdown.core.js'
+import '../../js/cherry-markdown.core.js'
 import { addLink, addScript } from '../../../BootstrapBlazor/modules/utility.js'
 import Data from '../../../BootstrapBlazor/modules/data.js'
 
@@ -8,7 +8,7 @@ export async function init(id, invoke, options, callback) {
         return;
     }
 
-    await addLink('./_content/BootstrapBlazor.CherryMarkdown/css/cherry-markdown.min.css')
+    await addLink('./_content/BootstrapBlazor.CherryMarkdown/css/cherry-markdown.css')
     if (options.isSupportMath) {
         await addScript('./_content/BootstrapBlazor.CherryMarkdown/js/katex.min.js')
         await addLink('./_content/BootstrapBlazor.CherryMarkdown/css/katex.min.css')
@@ -42,7 +42,7 @@ export async function init(id, invoke, options, callback) {
 
     options.editor = {
         theme: 'Default',
-        height: '100%',
+        height: "200px",
         defaultModel: 'edit&preview',
         convertWhenPaste: true,
         ...options.editor

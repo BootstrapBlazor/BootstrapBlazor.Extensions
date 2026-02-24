@@ -1,4 +1,4 @@
-﻿// Copyright (c) Argo Zhang (argo@163.com). All rights reserved.
+// Copyright (c) Argo Zhang (argo@163.com). All rights reserved.
 // Licensed under the Apache License, Version 2.0. See License.txt in the project root for license information.
 // Website: https://www.blazor.zone or https://argozhang.github.io/
 
@@ -117,19 +117,19 @@ public partial class Markdown : IAsyncDisposable
     /// <summary>
     /// 更新组件值方法
     /// </summary>
-    /// <param name="vals"></param>
+    /// <param name="values"></param>
     /// <returns></returns>
     [JSInvokable]
-    public async Task Update(string[] vals)
+    public async Task Update(string[] values)
     {
-        if (vals.Length == 2)
+        if (values.Length == 2)
         {
-            CurrentValueAsString = vals[0];
+            CurrentValueAsString = values[0];
 
-            var hasChanged = !EqualityComparer<string>.Default.Equals(vals[1], Html);
+            var hasChanged = !EqualityComparer<string>.Default.Equals(values[1], Html);
             if (hasChanged)
             {
-                Html = vals[1];
+                Html = values[1];
                 if (HtmlChanged.HasDelegate)
                 {
                     await HtmlChanged.InvokeAsync(Html);

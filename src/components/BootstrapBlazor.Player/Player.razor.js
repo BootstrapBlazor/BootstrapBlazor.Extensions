@@ -1,4 +1,4 @@
-﻿import './plyr.js';
+import './plyr.js';
 import './hls.js';
 import { addLink, addScript } from '../BootstrapBlazor/modules/utility.js';
 import Data from '../BootstrapBlazor/modules/data.js';
@@ -106,7 +106,7 @@ export function dispose(id) {
         const { player } = p;
         if (player) {
             player.destroy();
-            player = null;
+            delete p.player;
         }
     }
 }

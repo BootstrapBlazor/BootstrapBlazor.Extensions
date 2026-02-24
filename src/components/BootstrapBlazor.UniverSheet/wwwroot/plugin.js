@@ -1,4 +1,4 @@
-﻿import DataService from './data-service.js'
+import DataService from './data-service.js'
 
 const { Plugin, Injector, setDependencies } = UniverCore;
 
@@ -78,5 +78,4 @@ export class DefaultPlugin extends Plugin {
     }
 }
 
-// 设置依赖
 setDependencies(DefaultPlugin, [Injector]);

@@ -16,17 +16,16 @@
 - Supports WebAssembly-based client-side and SignalR-based server-side UI event interaction.
 - Supports Progressive Web Applications (PWA).
 - Build with C#, a multi-paradigm static language for an efficient development experience.
-- .NET Standard 2.1 based, with direct reference to the rich .NET ecosystem.
-- Supports NET5. (Server-Side, WASM)
+- .NET 6.0, with direct reference to the rich .NET ecosystem.
 - Seamless integration with existing ASP.NET Core MVC and Razor Pages projects.
 
 ## Online Examples
-[![website](https://img.shields.io/badge/China-https://www.blazor.zone-success.svg?color=red&logo=buzzfeed&logoColor=green)](https://www.blazor.zone)
+[![website](https://img.shields.io/badge/China-https://www.blazor.zone-success.svg?logo=buzzfeed&logoColor=green)](https://www.blazor.zone)
 
 ## Installation Guide
 
 - Install .net core sdk [Official website](https://dotnet.microsoft.com/download)
-- Install Visual Studio 2019 lastest [Official website](https://visualstudio.microsoft.com/vs/getting-started/)
+- Install Visual Studio lastest [Official website](https://visualstudio.microsoft.com/vs/getting-started/)
 
 ```shell
 git clone https://github.com/dotnetcore/BootstrapBlazor.git
@@ -34,85 +33,62 @@ cd BootstrapBlazor/src/BootstrapBlazor.Server
 dotnet run
 ```
 
-## Create a new project from the dotnet new template
+## Quick Installation Guide
 
-1. Install the template
-
-`dotnet new install Bootstrap.Blazor.Templates::*`
-
-2. Create the Boilerplate project with the template
-
-`dotnet new bbapp`
-
-## Install Bootstrap Blazor Project Template
-
-1. Download Project Template
-
-Microsoft Market [link](https://marketplace.visualstudio.com/items?itemName=Longbow.BootstrapBlazorUITemplate)
-
-2. Double Click **BootstrapBlazor.UITemplate.vsix**
-
-## Import Bootstrap Blazor into an existing project
-
-1. Go to the project folder of the application and install the Nuget package reference
-
-`dotnet add package BootstrapBlazor`
-
-2.  **Add** the `stylesheet` `javascripts` file to your main index file - `Pages/_Host.cshtml (Server)` or `wwwroot/index.html (WebAssembly)`
-
- **HTML**
-
+### Install Package
 ```
-<!DOCTYPE html>
-<html lang="en">
-<head>
-    . . .
-    <link rel="stylesheet" href="_content/BootstrapBlazor/css/bootstrap.blazor.bundle.min.css">
-</head>
-<body>
-    . . .
-    <script src="_framework/blazor.server.js"></script>
-    <script src="_content/BootstrapBlazor/js/bootstrap.blazor.bundle.min.js"></script>
-</body>
-</html>
+dotnet add package BootstrapBlazor
 ```
 
-3. Open the `~/Startup.cs` file in the and register the `Bootstrap Blazor` service:
-
- **C#**
-
+### Add the following to `_Imports.razor`
 ```
-namespace BootstrapBlazorAppName
-{
-    public class Startup
+@using BootstrapBlazor.Components
+```
+
+### Add the following to the `MainLayout.razor`
+```html
+<BootstrapBlazorRoot>
+    @Body
+</BootstrapBlazorRoot>
+```
+
+### Add the following to your HTML head section
+it's either **index.html** or **_Layout.cshtml/_Host.cshtml/App.razor** depending on whether you're running WebAssembly or Server
+```html
+<link rel="stylesheet" href="_content/BootstrapBlazor/css/bootstrap.blazor.bundle.min.css" />
+```
+
+### Add the following script at the end of the body
+```html
+<script src="_content/BootstrapBlazor/js/bootstrap.blazor.bundle.min.js"></script>
+```
+
+### Add the following to the relevant sections of `Program.cs`
+```csharp
+builder.Services.AddBootstrapBlazor();
+```
+
+## Usage
+```razor
+<Display Value="@_text"></Display>
+<Button Text="Button" OnClick="@ClickButton"></Button>
+
+@code {
+    private string? _text;
+    private void ClickButton(MouseEventArgs e)
     {
-        public void ConfigureServices(IServiceCollection services)
-        {
-            //more code may be present here
-            services.AddBootstrapBlazor();
-        }
-
-        //more code may be present here
+        _text = DateTime.Now.ToString();
     }
 }
 ```
 
-## Visual Studio Integration
+## Install CLI Template
+1. Install the template
+```
+dotnet new install Bootstrap.Blazor.Templates::*
+```
 
-To create a new `Bootstrap Blazor` UI for Blazor application, use the Create New Project Wizard. The wizard detects all installed versions of `Bootstrap Blazor` for Blazor and lists them in the Version combobox—this enables you to start your project with the desired version. You can also get the latest version to make sure you are up to date.
-
-1. Get the Wizard
-
-To use the Create New Project Wizard, install the `Bootstrap Blazor` UI for Blazor Visual Studio Extensions. You can get it from the:
-
-- Visual Studio Marketplace (for Windows)
-
-2. Start the Wizard
-
-To start the wizard, use either of the following approaches
-
-### Using the Project menu:
-
-- Click File > New > Project.
-- Find and click the C# Blazor Application option (you can use the search, or filter by Blazor templates).
-- Follow the wizard.
+2. Create the Boilerplate project with the template
+```
+dotnet new bbapp
+```

@@ -1,181 +1,200 @@
-﻿// Copyright (c) Argo Zhang (argo@163.com). All rights reserved.
+// Copyright (c) BootstrapBlazor & Argo Zhang (argo@live.ca). All rights reserved.
 // Licensed under the Apache License, Version 2.0. See License.txt in the project root for license information.
 // Website: https://www.blazor.zone or https://argozhang.github.io/
 
 using Microsoft.AspNetCore.Components;
-using System.Web;
-using UAParser;
+using Microsoft.Extensions.Localization;
 
 namespace BootstrapBlazor.Components;
 
 /// <summary>
-/// Blazor Pdf Reader PDF阅读器 组件 
+/// Blazor Pdf Reader PDF 阅读器 组件
 /// </summary>
-public partial class PdfReader : IAsyncDisposable
+[JSModuleAutoLoader("./_content/BootstrapBlazor.PdfReader/PdfReader.razor.js", JSObjectReference = true)]
+public partial class PdfReader
 {
-    [Inject]
-    [NotNull]
-    private IJSRuntime? JSRuntime { get; set; }
-
-    [NotNull]
-    private IJSObjectReference? Module { get; set; }
-
     /// <summary>
-    /// UI界面元素的引用对象
-    /// </summary>
-    private ElementReference Element { get; set; }
-
-    /// <summary>
-    /// 获得/设置 用于渲染的文件流,为空则用 FileName 参数读取文件
+    /// 获得/设置 是否显示文件名 默认 true 显示
     /// </summary>
     [Parameter]
-    public Stream? Stream { get; set; }
-
-    private byte[]? streamCache { get; set; }
+    public bool ShowFileName { get; set; } = true;
 
     /// <summary>
-    /// 获得/设置 PDF文件URL, 默认 http 开头自动使用流模式读取
+    /// 获得/设置 是否显示工具栏 默认 true 显示
     /// </summary>
     [Parameter]
-    public string? FileName { get; set; }
-    string? fileNameCache { get; set; }
+    public bool ShowToolbar { get; set; } = true;
 
     /// <summary>
-    /// 获得/设置 使用流化模式,可跨域读取文件. 默认为 false
+    /// 获得/设置 是否显示下载按钮 默认 true 显示
     /// </summary>
     [Parameter]
-    public bool StreamMode { get; set; }
+    public bool ShowDownload { get; set; } = true;
 
     /// <summary>
-    /// 获得/设置 宽 单位(px|%) 默认 100%
+    /// 获得/设置 是否显示打印按钮 默认 true 显示
     /// </summary>
     [Parameter]
-    public string Width { get; set; } = "100%";
+    public bool ShowPrint { get; set; } = true;
 
     /// <summary>
-    /// 获得/设置 高 单位(px|%) 默认 500px
+    /// 获得/设置 是否显示缩略图 默认 true 显示
     /// </summary>
     [Parameter]
-    public string Height { get; set; } = "700px";
+    public bool EnableThumbnails { get; set; } = true;
 
     /// <summary>
-    /// 获得/设置 组件外观 Css Style
+    /// 获得/设置 PDF 文档路径
     /// </summary>
     [Parameter]
-    public string? StyleString { get; set; }
+    public string? Url { get; set; }
 
     /// <summary>
-    /// 获得/设置 页码
-    /// </summary> 
-    [Parameter]
-    public int Page { get; set; } = 1;
-
-    /// <summary>
-    /// 获得/设置 显示导航窗格
-    /// </summary> 
-    [Parameter]
-    public bool Navpanes { get; set; } = true;
-
-    /// <summary>
-    /// 获得/设置 显示工具栏
-    /// </summary> 
-    [Parameter]
-    public bool Toolbar { get; set; } = true;
-
-    /// <summary>
-    /// 获得/设置 显示状态栏
-    /// </summary> 
-    [Parameter]
-    public bool Statusbar { get; set; } = true;
-
-    /// <summary>
-    /// [已过时,使用 Zoom 代替] 获得/设置 视图模式, 
+    /// 获得/设置 PDF 组件高度 默认 600px
     /// </summary>
     [Parameter]
-    [Obsolete]
-    public string? View { get; set; }
+    public string? ViewHeight { get; set; }
 
     /// <summary>
-    /// 获得/设置 页面模式
+    /// 获得/设置 当前页码
     /// </summary>
     [Parameter]
-    public EnumPageMode? Pagemode { get; set; } = EnumPageMode.Thumbs;
+    public uint CurrentPage { get; set; }
 
     /// <summary>
-    /// 获得/设置 查询关键字
+    /// 获得/设置 当前旋转角度 默认 0 数值范围 0 90 180 270
     /// </summary>
     [Parameter]
-    public string? Search { get; set; }
+    public int CurrentRotation { get; set; }
 
     /// <summary>
-    /// 获得/设置 缩放模式 默认为 自动
+    /// 获得/设置 是否适配当前页面宽度 默认 false
     /// </summary>
     [Parameter]
-    public EnumZoomMode? Zoom { get; set; } = EnumZoomMode.Auto;
+    public PdfReaderFitMode FitMode { get; set; }
 
     /// <summary>
-    /// 获得/设置 浏览器路径
-    /// </summary> 
-    [Parameter]
-    public string ViewerBase { get; set; } = "/_content/BootstrapBlazor.PdfReader/web/viewer.html";
-
-    /// <summary>
-    /// 获得/设置 禁用复制/打印/下载
-    /// </summary> 
-    [Parameter]
-    public bool ReadOnly { get; set; }
-
-    /// <summary>
-    /// 获得/设置 水印内容
-    /// </summary> 
-    [Parameter]
-    public string? Watermark { get; set; }
-
-    /// <summary>
-    /// 获得/设置 水印内容仅在全屏演示状态显示
-    /// </summary> 
-    [Parameter]
-    public bool WatermarkDemoModeOnly { get; set; }
-
-    /// <summary>
-    /// Debug
+    /// 获得/设置 是否显示双页单视图按钮 默认 true 显示
     /// </summary>
     [Parameter]
-    public bool Debug { get; set; }
+    public bool ShowTwoPagesOneView { get; set; } = true;
 
     /// <summary>
-    /// 获得/设置 'http' 开头自动使用流模式读取
-    /// </summary> 
+    /// 获得/设置 是否显示按钮 默认 true 显示
+    /// </summary>
     [Parameter]
-    public bool AutoStreamMode { get; set; } = true;
+    public bool ShowPresentationMode { get; set; } = false;
 
     /// <summary>
-    /// 获得/设置 读取本地文件路径
-    /// </summary> 
+    /// 页面初始化回调方法
+    /// </summary>
     [Parameter]
-    public string? LocalFileName { get; set; }
-    string? localFileNameCache { get; set; }
+    public Func<int, Task>? OnPagesInitAsync { get; set; }
 
     /// <summary>
-    /// 获得/设置 兼容模式,兼容旧版浏览器 默认为 false
-    /// </summary> 
+    /// 页面加载完毕回调方法
+    /// </summary>
     [Parameter]
-    public bool CompatibilityMode { get; set; }
+    public Func<int, Task>? OnPagesLoadedAsync { get; set; }
 
     /// <summary>
-    /// 获得/设置 兼容模式,兼容旧版不支持es5的浏览器 默认为 false
-    /// <para>Compatible with older browsers that do not support ES5</para>
-    /// </summary> 
+    /// 页码变化时回调方法
+    /// </summary>
     [Parameter]
-    public bool CompatibilityNoneES5 { get; set; }
+    public Func<uint, Task>? OnPageChangedAsync { get; set; }
 
-    string? ErrorMessage { get; set; }
+    /// <summary>
+    /// 设置双页单视图模式回调方法
+    /// </summary>
+    [Parameter]
+    public Func<bool, Task>? OnTwoPagesOneViewAsync { get; set; }
 
-    private string? Url { get; set; }
+    /// <summary>
+    /// 设置缩放倍率回调方法
+    /// </summary>
+    [Parameter]
+    public Func<float, Task>? OnScaleChangedAsync { get; set; }
 
-    private string? UrlDebug { get; set; }
+    /// <summary>
+    /// 页面旋转回调方法
+    /// </summary>
+    [Parameter]
+    public Func<int, Task>? OnRotationChanged { get; set; }
 
-    private UAParser.ClientInfo? ClientInfo { get; set; }
+    /// <summary>
+    /// 获得/设置 更多按钮图标 默认为 null 使用内置图标
+    /// </summary>
+    [Parameter]
+    public string? MoreButtonIcon { get; set; }
+
+    /// <summary>
+    /// 正在打印回调方法 默认 null
+    /// </summary>
+    [Parameter]
+    public Func<Task>? OnPrintingAsync { get; set; }
+
+    /// <summary>
+    /// 通过流加载 PDF 文档回调方法 默认 null
+    /// </summary>
+    /// <remarks>优先使用 <see cref="Url"/> 未提供 <see cref="Url"/> 时会尝试调用此回调获得流进行渲染</remarks>
+    [Parameter]
+    public Func<Task<Stream?>>? OnGetStreamAsync { get; set; }
+
+    /// <summary>
+    /// 获得/设置 是否显示组件 默认 true 显示
+    /// </summary>
+    [Parameter]
+    public bool IsShow { get; set; } = true;
+
+    /// <summary>
+    /// 获得/设置 下载文件名 默认 null 未设置
+    /// </summary>
+    [Parameter]
+    public string? DownloadFileName { get; set; }
+
+    [Inject, NotNull]
+    private IStringLocalizer<PdfReader>? Localizer { get; set; }
+
+    private string? ClassString => CssBuilder.Default("bb-pdf-reader")
+        .AddClass("show", IsShow)
+        .AddClassFromAttributes(AdditionalAttributes)
+        .Build();
+
+    private string? StyleString => CssBuilder.Default()
+        .AddClass($"--bb-pdf-view-height: {ViewHeight};", !string.IsNullOrEmpty(ViewHeight))
+        .AddClass($"--bb-pdf-toolbar-height: 0;", !ShowToolbar)
+        .AddClassFromAttributes(AdditionalAttributes)
+        .Build();
+
+    private string? _docTitle;
+    private uint _currentPage;
+    private float _currentRotation;
+    private string? _url;
+    private string? _dropdownItemCheckIcon;
+    private string? _dropdownItemDefaultIcon;
+    private bool _enableThumbnails = true;
+    private bool _showToolbar = true;
+    private PdfReaderFitMode _fitMode;
+    private string _lastStreamHash = string.Empty;
+    private long _lastStreamLength = 0;
+
+    /// <summary>
+    /// <inheritdoc/>
+    /// </summary>
+    protected override void OnParametersSet()
+    {
+        base.OnParametersSet();
+
+        MoreButtonIcon ??= "fa-solid fa-fw fa-ellipsis-vertical";
+        _dropdownItemCheckIcon ??= "dropdown-item-check fa-solid fa-fw fa-check";
+        _dropdownItemDefaultIcon ??= "dropdown-item-icon fa-solid fa-fw";
+
+        if (CurrentPage == 0)
+        {
+            CurrentPage = 1;
+        }
+        _docTitle = ShowFileName && !string.IsNullOrEmpty(Url) ? Path.GetFileName(Url) : null;
+    }
 
     /// <summary>
     /// <inheritdoc/>
@@ -184,179 +203,66 @@ public partial class PdfReader : IAsyncDisposable
     /// <returns></returns>
     protected override async Task OnAfterRenderAsync(bool firstRender)
     {
+        await base.OnAfterRenderAsync(firstRender);
+
         if (firstRender)
         {
-            Module = await JSRuntime.InvokeAsync<IJSObjectReference>("import", "./_content/BootstrapBlazor.PdfReader/app.js" + "?v=" + System.Reflection.Assembly.GetExecutingAssembly().GetName().Version);
-            var userAgent = await Module!.InvokeAsync<string>("getUserAgent");
-            var parser = Parser.GetDefault();
-            ClientInfo = parser.Parse(userAgent);
-            if (!WatermarkDemoModeOnly)
-            { 
-                WatermarkDemoModeOnly = await Module.InvokeAsync<bool>("getGlobalWatermark");
-            }
-            await Refresh();
+            _url = Url;
+            _currentPage = CurrentPage;
+            _currentRotation = CurrentRotation;
+            _showToolbar = ShowToolbar;
+            _enableThumbnails = EnableThumbnails;
+            _fitMode = FitMode;
+            return;
         }
-    }
 
-    /// <summary>
-    /// 刷新组件
-    /// </summary>
-    /// <returns></returns>
-    public virtual async Task Refresh() => await Refresh(null, null, null, null);
-
-    /// <summary>
-    /// 跳转页码
-    /// </summary>
-    /// <param name="page">页码</param>
-    /// <returns></returns>
-    public virtual async Task NavigateToPage(int page) => await Refresh(page: page);
-
-    /// <summary>
-    /// 刷新组件
-    /// </summary>
-    /// <param name="page">页码</param>
-    /// <returns></returns>
-    public virtual async Task Refresh(int page) => await Refresh(page: page);
-
-    /// <summary>
-    /// 刷新组件
-    /// </summary>
-    /// <param name="search">查询关键字</param>
-    /// <param name="page">页码</param>
-    /// <param name="pagemode">页面模式</param>
-    /// <param name="zoom">缩放模式</param>
-    /// <param name="readOnly">禁用复制/打印/下载</param>
-    /// <param name="watermark">水印内容</param>
-    /// <param name="compatibilityMode">兼容模式,兼容旧版浏览器</param>
-    /// <returns></returns>
-    public virtual async Task Refresh(string? search = null, int? page = null, EnumPageMode? pagemode = null, EnumZoomMode? zoom = null, bool? readOnly = null, string? watermark = null, bool? compatibilityMode = null)
-    {
-        ErrorMessage = null;
-        try
+        if (_url != Url)
         {
-            Search = search ?? Search;
-            Page = page ?? Page;
-            Pagemode = pagemode ?? Pagemode;
-            Zoom = zoom ?? Zoom;
-            ReadOnly = readOnly ?? ReadOnly;
-            Watermark = watermark ?? Watermark;
-            CompatibilityMode = compatibilityMode ?? CompatibilityMode;
-
-            if (CompatibilityNoneES5 || (ClientInfo != null && ClientInfo.UA.Family.StartsWith("Chrome") == true && Convert.ToInt32(ClientInfo.UA.Major) < 97))
-            {
-                CompatibilityMode = true;
-                ViewerBase = "/_content/BootstrapBlazor.PdfReader/compat/web/viewer.html";
-            }
-            else if (CompatibilityMode || (ClientInfo != null && ClientInfo.UA.Family.StartsWith("Chrome") == true && Convert.ToInt32(ClientInfo.UA.Major) < 109))
-            {
-                ViewerBase = "/_content/BootstrapBlazor.PdfReader/2.6.347/web/viewer.html";
-            }
-            else if (ReadOnly || readOnly != null)
-            {
-                ViewerBase = ReadOnly ? "/_content/BootstrapBlazor.PdfReader/web/viewerlimit.html" : "/_content/BootstrapBlazor.PdfReader/web/viewer.html";
-            }
-
-            if (Stream != null)
-            {
-                await ShowPdf(Stream);
-            }
-            else if (!string.IsNullOrEmpty(LocalFileName) && File.Exists(LocalFileName))
-            {
-                var streamLocal = new FileStream(LocalFileName, FileMode.Open, FileAccess.Read);
-                if (streamLocal != null)
-                {
-                    await ShowPdf(streamLocal, fileNameCache != localFileNameCache, true);
-                    localFileNameCache = LocalFileName;
-                }
-                else
-                {
-                    ErrorMessage = "No data";
-                }
-            }
-            else if (!string.IsNullOrEmpty(FileName) && (StreamMode || (AutoStreamMode && FileName.StartsWith("http"))))
-            {
-                var client = new HttpClient();
-                var stream = await client.GetStreamAsync(FileName);
-                if (stream != null)
-                {
-                    await ShowPdf(stream, fileNameCache != FileName);
-                    fileNameCache = FileName;
-                }
-                else
-                {
-                    ErrorMessage = "No data";
-                }
-            }
-            else
-            {
-                Url = GenUrl();
-            }
-
+            _url = Url;
+            _lastStreamHash = string.Empty;
+            _lastStreamLength = 0;
+            await InvokeVoidAsync("setUrl", Id, _url);
         }
-        catch (Exception e)
+        if (_currentPage != CurrentPage)
         {
-            ErrorMessage = e.Message;
+            _currentPage = CurrentPage;
+            await NavigateToPageAsync(_currentPage);
         }
-        StateHasChanged();
-
-    }
-
-    private string GenUrl(bool filemode = true) => $"{ViewerBase}?file={(filemode ? HttpUtility.UrlEncode(FileName) : "(1)")}#page={Page}&navpanes={(Navpanes ? 0 : 1)}&toolbar={(Toolbar ? 0 : 1)}&statusbar={(Statusbar ? 0 : 1)}&pagemode={(Pagemode ?? EnumPageMode.Thumbs).ToString().ToLower()}&search={Search}" + (Zoom != null ? $"&zoom={Zoom.GetEnumName()}" : "") + (Watermark != null ? $"&wm={Watermark}" : "") + (WatermarkDemoModeOnly ? $"&wmonlydemo=true" : "");
-
-
-    /// <summary>
-    /// 打开 LocalFileName
-    /// </summary>
-    /// <param name="localFileName"></param> 
-    /// <returns></returns>
-    public virtual async Task ShowPdf(string localFileName)
-    {
-        LocalFileName = localFileName;
-        await Refresh();
-    }
-
-
-    /// <summary>
-    /// 打开 stream
-    /// </summary>
-    /// <param name="stream"></param>
-    /// <param name="forceLoad">default true</param>
-    /// <param name="isLocalFile"></param>
-    /// <returns></returns>
-    public virtual async Task ShowPdf(Stream stream, bool forceLoad = true, bool isLocalFile = false)
-    {
-        if (Module == null)
+        if (_currentRotation != CurrentRotation)
         {
-            Stream = stream;
+            _currentRotation = CurrentRotation;
+            await InvokeVoidAsync("rotate", Id, _currentRotation);
         }
-        else if (isLocalFile)
+        if (_showToolbar != ShowToolbar)
         {
-            if (forceLoad)
+            _showToolbar = ShowToolbar;
+            if (_showToolbar)
             {
-                streamCache = new byte[stream.Length];
-                _ = stream.Read(streamCache, 0, (int)stream.Length);
-            }
-            if (streamCache == null)
-            {
-                streamCache = new byte[stream.Length];
-                _ = stream.Read(streamCache, 0, (int)stream.Length);
-            }
-            if (streamCache != null)
-            {
-                Url = null;
-                var url = GenUrl(false);
-                UrlDebug = url;
-                using var streamRef = new DotNetStreamReference(new MemoryStream(streamCache));
-                await Module!.InvokeVoidAsync("showPdf", url, Element, streamRef);
+                await InvokeVoidAsync("resetToolbar", Id);
             }
         }
-        else
+        if (_enableThumbnails != EnableThumbnails)
         {
-            Url = null;
-            var url = GenUrl(false);
-            UrlDebug = url;
-            using var streamRef = new DotNetStreamReference(stream);
-            await Module!.InvokeVoidAsync("showPdf", url, Element, streamRef);
+            _enableThumbnails = EnableThumbnails;
+            if (_enableThumbnails)
+            {
+                await InvokeVoidAsync("resetThumbnails", Id);
+            }
+        }
+        if (_fitMode != FitMode)
+        {
+            _fitMode = FitMode;
+            await SetFitMode(_fitMode);
+        }
+        if (string.IsNullOrEmpty(Url))
+        {
+            Stream? stream = null;
+            if (OnGetStreamAsync != null)
+            {
+                stream = await OnGetStreamAsync();
+            }
+
+            await InvokeSetDataAsync(stream);
         }
     }
 
@@ -364,22 +270,234 @@ public partial class PdfReader : IAsyncDisposable
     /// <inheritdoc/>
     /// </summary>
     /// <returns></returns>
-    public async ValueTask DisposeAsync()
+    protected override async Task InvokeInitAsync()
     {
-        if (Module is not null)
+        var _data = await GetPdfStreamDataAsync();
+        await InvokeVoidAsync("init", Id, Interop, new
         {
-            try
-            {
-                await Module.DisposeAsync();
-            }
-            catch { }
-        }
-        GC.SuppressFinalize(this);
+            Url,
+            Data = _data,
+            FitMode = FitMode.ToDescriptionString(),
+            EnableThumbnails,
+            CurrentPage,
+            TriggerPagesInit = OnPagesInitAsync != null,
+            TriggerPagesLoaded = OnPagesLoadedAsync != null,
+            TriggerPageChanged = OnPageChangedAsync != null,
+            TriggerTowPagesOnViewChanged = OnTwoPagesOneViewAsync != null,
+            TriggerScaleChanged = OnScaleChangedAsync != null,
+            TriggerRotationChanged = OnRotationChanged != null,
+        });
     }
 
+    private async Task InvokeSetDataAsync(Stream? stream)
+    {
+        if (stream == null || stream == Stream.Null)
+        {
+            _lastStreamHash = string.Empty;
+            _lastStreamLength = 0;
+            await InvokeVoidAsync("setData", Id, null);
+            return;
+        }
 
+        byte[] pdfBytes = await GetBytes(stream);
+
+        var currentLength = pdfBytes.Length;
+        if (_lastStreamLength != currentLength)
+        {
+            _lastStreamLength = currentLength;
+            await InvokeVoidAsync("setData", Id, pdfBytes);
+            return;
+        }
+
+#if NET6_0
+        var currentHash = ComputerHash(pdfBytes);
+#else
+        var currentHash = await ComputerHash(stream);
+#endif
+        if (_lastStreamHash != currentHash)
+        {
+            _lastStreamHash = currentHash;
+            await InvokeVoidAsync("setData", Id, pdfBytes);
+        }
+    }
+
+    private async Task<byte[]?> GetPdfStreamDataAsync()
+    {
+        byte[]? pdfBytes = null;
+        if (OnGetStreamAsync != null)
+        {
+            var stream = await OnGetStreamAsync();
+            if (stream == null || stream == Stream.Null)
+            {
+                _lastStreamHash = string.Empty;
+                _lastStreamLength = 0;
+            }
+            else
+            {
+                pdfBytes = await GetBytes(stream);
+            }
+        }
+        return pdfBytes;
+    }
+
+    private static async Task<byte[]> GetBytes(Stream stream)
+    {
+        using var memoryStream = new MemoryStream();
+        await stream.CopyToAsync(memoryStream);
+        return memoryStream.ToArray();
+    }
+
+    /// <summary>
+    /// 设置 PDF 流数据方法
+    /// </summary>
+    /// <param name="stream"></param>
+    /// <returns></returns>
+    public async Task SetPdfStreamAsync(Stream stream)
+    {
+        using var memoryStream = new MemoryStream();
+        await stream.CopyToAsync(memoryStream);
+        var pdfBytes = memoryStream.ToArray();
+        _lastStreamLength = pdfBytes.Length;
+#if NET6_0
+        _lastStreamHash = ComputerHash(pdfBytes);
+#else
+        _lastStreamHash = await ComputerHash(stream);
+#endif
+        await InvokeVoidAsync("setData", Id, pdfBytes);
+    }
+
+    /// <summary>
+    /// 设置 Pdf Base64 数据方法
+    /// </summary>
+    /// <param name="base64Data"></param>
+    /// <returns></returns>
+    public async Task SetPdfBase64DataAsync(string base64Data)
+    {
+        var pdfBytes = Convert.FromBase64String(base64Data);
+        await InvokeVoidAsync("setData", Id, pdfBytes);
+    }
+
+#if NET6_0
+    private static string ComputerHash(byte[] data)
+    {
+        var hashBytes = System.Security.Cryptography.SHA256.HashData(data);
+        return Convert.ToBase64String(hashBytes);
+    }
+#else
+    private static async Task<string> ComputerHash(Stream stream)
+    {
+        if (stream.CanSeek)
+        {
+            stream.Seek(0, SeekOrigin.Begin);
+        }
+        var hashBytes = await System.Security.Cryptography.SHA256.HashDataAsync(stream);
+        return Convert.ToBase64String(hashBytes);
+    }
+#endif
+
+    /// <summary>
+    /// 跳转到指定页码方法
+    /// </summary>
+    /// <param name="pageNumber"></param>
+    /// <returns></returns>
+    public Task NavigateToPageAsync(uint pageNumber) => InvokeVoidAsync("navigateToPage", Id, pageNumber);
+
+    /// <summary>
+    /// 设置页面适配模式方法
+    /// </summary>
+    public Task SetFitMode(PdfReaderFitMode mode) => InvokeVoidAsync("setScaleValue", Id, mode.ToDescriptionString());
+
+    /// <summary>
+    /// 旋转页面方法
+    /// </summary>
+    /// <returns></returns>
+    public Task RotateLeft() => InvokeVoidAsync("rotate", Id, -90);
+
+    /// <summary>
+    /// 旋转页面方法
+    /// </summary>
+    /// <returns></returns>
+    public Task RotateRight() => InvokeVoidAsync("rotate", Id, 90);
+
+    /// <summary>
+    /// 页面开始初始化时回调方法
+    /// </summary>
+    /// <returns></returns>
+    [JSInvokable]
+    public async Task PagesInit(int pagesCount)
+    {
+        if (OnPagesInitAsync != null)
+        {
+            await OnPagesInitAsync(pagesCount);
+        }
+    }
+
+    /// <summary>
+    /// 页面加载完毕时回调方法
+    /// </summary>
+    /// <returns></returns>
+    [JSInvokable]
+    public async Task PagesLoaded(int pagesCount)
+    {
+        if (OnPagesLoadedAsync != null)
+        {
+            await OnPagesLoadedAsync(pagesCount);
+        }
+    }
+
+    /// <summary>
+    /// 改变页码时回调方法
+    /// </summary>
+    /// <returns></returns>
+    [JSInvokable]
+    public async Task PageChanged(uint pageIndex)
+    {
+        _currentPage = pageIndex;
+        CurrentPage = pageIndex;
+
+        if (OnPageChangedAsync != null)
+        {
+            await OnPageChangedAsync(pageIndex);
+        }
+    }
+
+    /// <summary>
+    /// 缩放倍率更改回调方法
+    /// </summary>
+    /// <returns></returns>
+    [JSInvokable]
+    public async Task ScaleChanged(float val)
+    {
+        if (OnScaleChangedAsync != null)
+        {
+            await OnScaleChangedAsync(val);
+        }
+    }
+
+    /// <summary>
+    /// 正在打印回调方法
+    /// </summary>
+    /// <returns></returns>
+    [JSInvokable]
+    public async Task Printing()
+    {
+        if (OnPrintingAsync != null)
+        {
+            await OnPrintingAsync();
+        }
+    }
+
+    /// <summary>
+    /// 页面旋转回调方法
+    /// </summary>
+    /// <param name="angle"></param>
+    /// <returns></returns>
+    [JSInvokable]
+    public async Task RotationChanged(int angle)
+    {
+        if (OnRotationChanged != null)
+        {
+            await OnRotationChanged(angle);
+        }
+    }
 }
-
-
-
-

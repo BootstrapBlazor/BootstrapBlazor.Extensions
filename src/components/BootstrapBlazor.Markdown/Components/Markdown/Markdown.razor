@@ -1,4 +1,8 @@
-﻿@namespace BootstrapBlazor.Components
+@namespace BootstrapBlazor.Components
 @inherits ValidateBase<string>
 
+@if (IsShowLabel)
+{
+    <BootstrapLabel required="@Required" for="@Id" ShowLabelTooltip="ShowLabelTooltip" Value="@DisplayText" />
+}
 <div @attributes="@AdditionalAttributes" id="@Id" class="@GetClassString()" />

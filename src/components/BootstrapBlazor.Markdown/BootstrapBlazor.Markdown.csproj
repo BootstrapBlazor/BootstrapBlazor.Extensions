@@ -1,10 +1,6 @@
 <Project Sdk="Microsoft.NET.Sdk.Razor">
 
   <PropertyGroup>
-    <Version>9.0.2</Version>
-  </PropertyGroup>
-
-  <PropertyGroup>
     <PackageTags>Bootstrap Blazor WebAssembly wasm UI Components Markdown</PackageTags>
     <Description>Bootstrap UI components extensions of Markdown</Description>
   </PropertyGroup>

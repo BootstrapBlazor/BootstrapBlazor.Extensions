@@ -1,4 +1,4 @@
-﻿// Copyright (c) Argo Zhang (argo@163.com). All rights reserved.
+// Copyright (c) Argo Zhang (argo@163.com). All rights reserved.
 // Licensed under the Apache License, Version 2.0. See License.txt in the project root for license information.
 // Website: https://www.blazor.zone or https://argozhang.github.io/
 
@@ -119,7 +119,29 @@ public class ChartOptions
         { "yellow", "rgb(255, 205, 86)" },
         { "tomato", "rgb(255, 99, 71)" },
         { "pink", "rgb(255, 192, 203)" },
-        { "violet", "rgb(238, 130, 238)" }
+        { "violet", "rgb(238, 130, 238)" },
+        { "indigo", "rgb(75, 0, 130)" },
+        { "cyan", "rgb(0, 255, 255)" },
+        { "magenta", "rgb(255, 0, 255)" },
+        { "lime", "rgb(50, 205, 50)" },
+        { "teal", "rgb(0, 128, 128)" },
+        { "lavender", "rgb(230, 230, 250)" },
+        { "maroon", "rgb(128, 0, 0)" },
+        { "olive", "rgb(128, 128, 0)" },
+        { "navy", "rgb(0, 0, 128)" },
+        { "coral", "rgb(255, 127, 80)" },
+        { "salmon", "rgb(250, 128, 114)" },
+        { "gold", "rgb(255, 215, 0)" },
+        { "khaki", "rgb(240, 230, 140)" },
+        { "plum", "rgb(221, 160, 221)" },
+        { "turquoise", "rgb(64, 224, 208)" },
+        { "orchid", "rgb(218, 112, 214)" },
+        { "crimson", "rgb(220, 20, 60)" },
+        { "sienna", "rgb(160, 82, 45)" },
+        { "steelblue", "rgb(70, 130, 180)" },
+        { "chocolate", "rgb(210, 105, 30)" },
+        { "forestgreen", "rgb(34, 139, 34)" },
+        { "slateblue", "rgb(106, 90, 205)" }
     };
 
     /// <summary>

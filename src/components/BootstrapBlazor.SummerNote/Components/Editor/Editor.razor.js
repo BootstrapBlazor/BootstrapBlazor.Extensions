@@ -1,11 +1,7 @@
-﻿import '../../js/summernote-bs5.min.js'
+import '../../js/summernote-bs5.min.js'
 import { addLink, addScript } from '../../../BootstrapBlazor/modules/utility.js'
 import Data from '../../../BootstrapBlazor/modules/data.js'
 import EventHandler from '../../../BootstrapBlazor/modules/event-handler.js'
-
-if (window.BootstrapBlazor === void 0) {
-    window.BootstrapBlazor = {};
-}
 
 export async function init(id, invoker, methodGetPluginAttrs, methodClickPluginItem, height, value, lang, langUrl, hasUpload) {
     const el = document.getElementById(id)
@@ -45,7 +41,6 @@ export async function init(id, invoker, methodGetPluginAttrs, methodClickPluginI
 
             const showSubmit = el.getAttribute("data-bb-submit") === "true"
             option.toolbar = toolbar;
-            reloadCallbacks(id, option);
             if (hasUpload) {
                 option.callbacks.onImageUpload = async files => {
                     editor.files = files
@@ -142,18 +137,6 @@ export async function init(id, invoker, methodGetPluginAttrs, methodClickPluginI
     await initEditor();
 }
 
-const reloadCallbacks = (id, option) => {
-    const events = ['Blur', 'BlurCodeview', 'Change', 'ChangeCodeview', 'DialogShown', 'Enter', 'Focus', 'ImageUpload', 'ImageLinkInsert', 'ImageUploadError', 'Init', 'Keydown', 'Keyup', 'Mousedown', 'Mouseup', 'Paste', 'Scroll'];
-
-    events.forEach(event => {
-        option.callbacks[`on${event}`] = function () {
-            const callbacks = window.BootstrapBlazor?.SummerNote?.callbacks;
-            const cb = callbacks?.find(i => i.id === id);
-            cb?.[`on${event}`]?.apply(this, arguments);
-        };
-    });
-}
-
 export function update(id, val) {
     const editor = Data.get(id)
     if (editor.$editor) {
@@ -175,7 +158,11 @@ export function getCode(id) {
 }
 
 export function reset(id) {
-    const editor = Data.get(id)
+    const editor = Data.get(id);
+    if (!editor.$editor) {
+        return;
+    }
+
     const context = editor.$editor.data('summernote')
 
     const showSubmit = editor.el.getAttribute("data-bb-submit") === "true"

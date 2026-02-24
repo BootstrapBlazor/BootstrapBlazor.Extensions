@@ -13,7 +13,7 @@ export async function init(id, options) {
         canvasName: id,
         lang: "en",
         allowInitialUserOverride: false,
-        imgPath: "./_content/BootstrapBlazor.SvgEditor/editor/images/",
+        imgPath: "./_content/BootstrapBlazor.SvgEditor/editor/images",
         showGrid: true,
         extPath: "/_content/BootstrapBlazor.SvgEditor/editor/extensions/",
         noDefaultExtensions: false

@@ -1,4 +1,40 @@
-﻿.search-dialog-mask {
+﻿.bb-g-search {
+    --bb-global-search-padding: 0.25rem 0.75rem;
+    --bb-global-search-width: 168px;
+    --bb-global-search-input-color: rgba(var(--bs-body-color-rgb), 0.5);
+    display: flex;
+    align-items: center;
+    border: var(--bs-border-width) solid var(--bs-border-color);
+    border-radius: var(--bs-border-radius);
+    padding: var(--bb-global-search-padding);
+    width: var(--bb-global-search-width);
+    transition: border-color .3s linear;
+    color: var(--bb-global-search-input-color);
+}
+
+    .bb-g-search:hover {
+        border: var(--bs-border-width) solid var(--bb-border-hover-color);
+    }
+
+    .bb-g-search > input {
+        width: 100%;
+        background-color: transparent;
+        border: none;
+        line-height: 1.5;
+        padding: 0;
+        cursor: pointer;
+    }
+
+        .bb-g-search > input::placeholder {
+            color: var(--bb-global-search-input-color);
+        }
+
+.search-dialog-icon {
+    cursor: pointer;
+    margin-inline-end: .5rem;
+}
+
+.search-dialog-mask {
     --bb-global-search-item-active-bg: rgba(var(--bs-emphasis-color-rgb), 0.2);
     --bb-global-search-item-hover-bg: rgba(var(--bs-emphasis-color-rgb), 0.1);
     --bb-global-search-dialog-input-focus-border-color: rgba(var(--bs-emphasis-color-rgb), 0.4);
@@ -8,6 +44,15 @@
     --bb-global-search-main-max-height: calc(100vh - 260px);
     --bb-global-search-footer-kbd-bg: var(--bs-body-color);
     --bb-global-search-footer-kbd-color: var(--bs-body-bg);
+    position: fixed;
+    top: 0;
+    right: 0;
+    bottom: 0;
+    left: 0;
+    z-index: var(--bb-global-search-dialog-mask-z-index);
+    background-color: rgba(var(--bs-emphasis-color-rgb), 0.3);
+    justify-content: center;
+    display: none;
 }
 
     .search-dialog-mask .search-dialog-item ol {
@@ -25,17 +70,6 @@
     .search-dialog-mask kbd {
         color: var(--bb-global-search-footer-kbd-color);
     }
-
-.search-dialog-mask {
-    position: fixed;
-    top: 0;
-    right: 0;
-    bottom: 0;
-    left: 0;
-    z-index: var(--bb-global-search-dialog-mask-z-index);
-    background-color: rgba(var(--bs-emphasis-color-rgb), 0.3);
-    justify-content: center;
-}
 
 [data-bs-theme='dark'] .search-dialog-mask {
     --bb-global-search-footer-kbd-color: var(--bs-body-color);
@@ -87,7 +121,6 @@
 
     .search-dialog-input .search-dialog-clear {
         cursor: pointer;
-        font-size: 18px;
     }
 
 .search-dialog-status {
@@ -118,7 +151,7 @@
     }
 
         .search-dialog-menu .search-dialog-menu-item:not(:last-child) {
-            margin-bottom: .125rem;
+            margin-block-end: .125rem;
         }
 
         .search-dialog-menu .search-dialog-menu-item:hover {
@@ -148,7 +181,7 @@
     }
 
         .search-dialog-list .search-dialog-item:not(:first-child) {
-            margin-top: .5rem;
+            margin-block-start: .5rem;
         }
 
         .search-dialog-list .search-dialog-item a {
@@ -164,7 +197,7 @@
 
         .search-dialog-list .search-dialog-item .search-dialog-item-sub {
             font-size: .75rem;
-            margin-top: .25rem;
+            margin-block-start: .25rem;
             opacity: .8;
         }
 
@@ -175,7 +208,7 @@
         }
 
             .search-dialog-list .search-dialog-item li:not(:first-child) {
-                margin-top: .125rem;
+                margin-block-start: .125rem;
             }
 
             .search-dialog-list .search-dialog-item li > a {

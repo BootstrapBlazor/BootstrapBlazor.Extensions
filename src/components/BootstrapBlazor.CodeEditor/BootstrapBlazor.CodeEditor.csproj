@@ -1,10 +1,6 @@
 ﻿<Project Sdk="Microsoft.NET.Sdk.Razor">
 
   <PropertyGroup>
-    <Version>9.0.3</Version>
-  </PropertyGroup>
-
-  <PropertyGroup>
     <PackageTags>Bootstrap Blazor WebAssembly wasm UI Components</PackageTags>
     <Description>Bootstrap UI components extensions of monaco-editor</Description>
   </PropertyGroup>

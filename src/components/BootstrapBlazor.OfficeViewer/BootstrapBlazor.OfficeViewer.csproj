@@ -1,10 +1,6 @@
 <Project Sdk="Microsoft.NET.Sdk.Razor">
 
   <PropertyGroup>
-    <Version>9.0.0</Version>
-  </PropertyGroup>
-
-  <PropertyGroup>
     <PackageTags>Bootstrap Blazor WebAssembly wasm UI Components Office Viewer</PackageTags>
     <Description>Bootstrap UI components extensions of Microsoft Office Documentation Viewer</Description>
   </PropertyGroup>

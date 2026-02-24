@@ -1,10 +1,6 @@
 <Project Sdk="Microsoft.NET.Sdk">
 
   <PropertyGroup>
-    <Version>9.0.1</Version>
-  </PropertyGroup>
-
-  <PropertyGroup>
     <PackageTags>Bootstrap Blazor WebAssembly wasm UI Components SqlSugar</PackageTags>
     <Description>Bootstrap UI components extensions of SqlSugar</Description>
   </PropertyGroup>

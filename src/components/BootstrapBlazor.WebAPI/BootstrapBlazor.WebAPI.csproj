@@ -1,13 +1,8 @@
 <Project Sdk="Microsoft.NET.Sdk.Razor">
 
   <PropertyGroup>
-    <Version>9.0.0</Version>
-  </PropertyGroup>
-
-  <PropertyGroup>
     <PackageTags>Bootstrap Blazor WebAPI 组件 (浏览器信息/电池信息/网络信息/截屏/录像/上传/Cookie/LocalStorage/WebSerial/语音识别和合成)</PackageTags>
     <Description>Bootstrap UI WebAPI components experience (Battery info/Network info)</Description>
-    <NoWarn>1591</NoWarn>
   </PropertyGroup>
 
   <ItemGroup>
@@ -15,11 +10,11 @@
   </ItemGroup>
 
   <ItemGroup>
-    <Using Include="BootstrapBlazor.Components" />
+    <PackageReference Include="BootstrapBlazor" Version="$(BBVersion)" />
   </ItemGroup>
 
   <ItemGroup>
-    <PackageReference Include="BootstrapBlazor" Version="$(BBVersion)" />
+    <Using Include="BootstrapBlazor.Components" />
   </ItemGroup>
 
 </Project>
