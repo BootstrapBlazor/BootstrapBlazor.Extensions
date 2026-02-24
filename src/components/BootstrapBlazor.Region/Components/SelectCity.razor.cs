@@ -34,8 +34,8 @@ public partial class SelectCity
     public string? SearchIcon { get; set; }
 
     /// <summary>
-    /// <para lang="zh">获得/设置 单选时选择后是否自动关闭，默认 true</para>
-    /// <para lang="en">Gets or sets whether to auto close after selection in single mode. Default is true</para>
+    /// <para lang="zh">获得/设置 单选时选择后是否自动关闭，默认 true <see cref="IsMultiple"/> 值为 true 时，这个参数不生效</para>
+    /// <para lang="en">Gets or sets whether to automatically close after selection when single selection is enabled. Default is true. This parameter does not take effect when <see cref="IsMultiple"/> is true</para>
     /// </summary>
     [Parameter]
     public bool AutoClose { get; set; } = true;
