@@ -1,7 +1,1 @@
-﻿<Project Sdk="Microsoft.NET.Sdk">
-
-  <ItemGroup>
-    <ProjectReference Include="..\..\src\components\BootstrapBlazor.OpcUa\BootstrapBlazor.OpcUa.csproj" />
-  </ItemGroup>
-
-</Project>
+﻿<Project Sdk="Microsoft.NET.Sdk" />

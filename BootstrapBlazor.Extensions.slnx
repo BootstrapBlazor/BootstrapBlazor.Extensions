@@ -69,7 +69,6 @@
     <Project Path="src/components/BootstrapBlazor.OfdReader/BootstrapBlazor.OfdReader.csproj" />
     <Project Path="src/components/BootstrapBlazor.OfficeViewer/BootstrapBlazor.OfficeViewer.csproj" />
     <Project Path="src/components/BootstrapBlazor.OnScreenKeyboard/BootstrapBlazor.OnScreenKeyboard.csproj" />
-    <Project Path="src/components/BootstrapBlazor.OpcUa/BootstrapBlazor.OpcUa.csproj" />
     <Project Path="src/components/BootstrapBlazor.OpenAI.GPT3/BootstrapBlazor.OpenAI.csproj" />
     <Project Path="src/components/BootstrapBlazor.PdfReader/BootstrapBlazor.PdfReader.csproj" />
     <Project Path="src/components/BootstrapBlazor.PdfViewer/BootstrapBlazor.PdfViewer.csproj" />
@@ -101,6 +100,7 @@
     <Project Path="src/extensions/BootstrapBlazor.DataAccess.PetaPoco/BootstrapBlazor.DataAccess.PetaPoco.csproj" />
     <Project Path="src/extensions/BootstrapBlazor.DataAccess.SqlSugar/BootstrapBlazor.DataAccess.SqlSugar.csproj" />
     <Project Path="src/extensions/BootstrapBlazor.OpcDa/BootstrapBlazor.OpcDa.csproj" />
+    <Project Path="src/extensions/BootstrapBlazor.OpcUa/BootstrapBlazor.OpcUa.csproj" />
   </Folder>
   <Folder Name="/src/middelware/">
     <Project Path="src/middleware/BootstrapBlazor.Middleware/BootstrapBlazor.Middleware.csproj" />
