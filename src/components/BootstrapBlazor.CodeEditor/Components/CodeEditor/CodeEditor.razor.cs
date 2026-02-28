@@ -1,4 +1,4 @@
-﻿// Copyright (c) Argo Zhang (argo@163.com). All rights reserved.
+// Copyright (c) Argo Zhang (argo@163.com). All rights reserved.
 // Licensed under the Apache License, Version 2.0. See License.txt in the project root for license information.
 // Website: https://www.blazor.zone or https://argozhang.github.io/
 
@@ -117,6 +117,13 @@ public partial class CodeEditor
     /// <returns></returns>
     public async Task Resize() => await InvokeVoidAsync("resize");
 
+    /// <summary>
+    /// 
+    /// </summary>
+    /// <param name="data"></param>
+    /// <returns></returns>
+    public async Task InsertTextAsync(string data) => await InvokeVoidAsync("insertText", Id, data);
+    
     /// <summary>
     /// 
     /// </summary>
