@@ -4,7 +4,6 @@
  * @link https://github.com/mathuo/dockview
  * @license MIT
  */
-console.log('333');
 class TransferObject {
 }
 class PanelTransfer extends TransferObject {
