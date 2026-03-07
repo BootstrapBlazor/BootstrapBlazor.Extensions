@@ -7,18 +7,21 @@ using System.ComponentModel;
 namespace BootstrapBlazor.Components;
 
 /// <summary>
-/// 滚动方向枚举
+/// <para lang="zh">滚动方向枚举</para>
+/// <para lang="en">Scroll strategy enumeration</para>
 /// </summary>
 public enum EmbedPDFScrollStrategy
 {
     /// <summary>
-    /// 垂直方向
+    /// <para lang="zh">垂直方向</para>
+    /// <para lang="en">Vertical</para>
     /// </summary>
     [Description("vertical")]
     Vertical,
 
     /// <summary>
-    /// 水平方向
+    /// <para lang="zh">水平方向</para>
+    /// <para lang="en">Horizontal</para>
     /// </summary>
     [Description("horizontal")]
     Horizontal
