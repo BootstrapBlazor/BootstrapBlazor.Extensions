@@ -201,7 +201,9 @@ public partial class DockViewV2 : IDisposable
         PanelVisibleChangedCallback = nameof(PanelVisibleChangedCallbackAsync),
         LockChangedCallback = nameof(LockChangedCallbackAsync),
         SplitterCallback = nameof(SplitterCallbackAsync),
-        Contents = _components
+        Contents = _components,
+        LoadActiveTabs = nameof(LoadActiveTabs),
+        LoadInactiveTabs = nameof(LoadInactiveTabs)
     };
 
     private string GetVersion() => Version ?? _options.Version ?? "v1";
@@ -257,6 +259,41 @@ public partial class DockViewV2 : IDisposable
             await OnVisibleStateChangedAsync(title, status);
         }
     }
+
+    private HashSet<string> _activeTabs = new();
+    private Task LoadActiveTabs(List<string> tabs)
+    {
+        // 客户端请求渲染当前激活的标签
+        _activeTabs.Clear();
+        foreach (var tab in tabs)
+        {
+            _activeTabs.Add(tab);
+        }
+
+        StateHasChanged();
+        return Task.CompletedTask;
+    }
+
+    private HashSet<string> _inactiveTabs = new();
+    private Task LoadInactiveTabs(List<string> tabs)
+    {
+        // 客户端请求渲染当前未激活的标签
+        _activeTabs.Clear();
+        foreach (var tab in tabs)
+        {
+            _activeTabs.Add(tab);
+        }
+
+        StateHasChanged();
+        return Task.CompletedTask;
+    }
+
+    /// <summary>
+    /// 检查指定 Key 值 DockviewComponent 是否处于激活状态
+    /// </summary>
+    /// <param name="key"></param>
+    /// <returns></returns>
+    public bool IsActiveTab(string? key) => string.IsNullOrEmpty(key) ? false : _activeTabs.Contains(key);
 
     /// <summary>
     /// 锁定回调方法 由 JavaScript 调用

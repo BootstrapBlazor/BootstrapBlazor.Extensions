@@ -134,6 +134,10 @@ public class DockViewComponent : DockViewComponentBase
     [JsonIgnore]
     public Func<Task>? OnClickTitleBarCallback { get; set; }
 
+    [CascadingParameter]
+    [NotNull]
+    private DockViewV2? DockView { get; set; }
+
     /// <summary>
     /// <inheritdoc/>
     /// </summary>
@@ -172,9 +176,9 @@ public class DockViewComponent : DockViewComponentBase
             builder.CloseComponent();
         }
 
-        if (Visible)
+        if (DockView.IsActiveTab(Key))
         {
-            //builder.AddContent(70, ChildContent);
+            builder.AddContent(70, ChildContent);
         }
         builder.CloseElement();
     }

@@ -1,4 +1,4 @@
-﻿// Copyright (c) Argo Zhang (argo@163.com). All rights reserved.
+// Copyright (c) Argo Zhang (argo@163.com). All rights reserved.
 // Licensed under the Apache License, Version 2.0. See License.txt in the project root for license information.
 // Website: https://www.blazor.zone or https://argozhang.github.io/
 
@@ -76,6 +76,16 @@ class DockViewConfig
     /// 获得/设置 分割栏调整事件回调
     /// </summary>
     public string? SplitterCallback { get; set; }
+
+    /// <summary>
+    /// 获得/设置 加载当前激活标签页事件回调
+    /// </summary>
+    public string? LoadActiveTabs { get; set; }
+
+    /// <summary>
+    /// 获得/设置 加载当前未激活标签页事件回调
+    /// </summary>
+    public string? LoadInactiveTabs { get; set; }
 
     /// <summary>
     /// 获得/设置 客户端缓存键值
