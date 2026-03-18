@@ -24,8 +24,8 @@ public enum DockViewRenderMode
     Always,
 
     /// <summary>
-    /// <para lang="zh">可见版面渲染 不可见版面异步渲染</para>
-    /// <para lang="en">Render visible layout, asynchronously render invisible layout</para>
+    /// <para lang="zh">部分渲染 可见版面渲染 不可见版面异步渲染</para>
+    /// <para lang="en"></para>
     /// </summary>
     Partial
 }

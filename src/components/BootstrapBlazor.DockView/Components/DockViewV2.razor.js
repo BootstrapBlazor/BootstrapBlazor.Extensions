@@ -1,4 +1,4 @@
-﻿import { addLink, getTheme } from '../../BootstrapBlazor/modules/utility.js'
+import { addLink, getTheme } from '../../BootstrapBlazor/modules/utility.js'
 import { cerateDockview } from '../js/dockview-utils.js'
 import Data from '../../BootstrapBlazor/modules/data.js'
 import EventHandler from "../../BootstrapBlazor/modules/event-handler.js"
@@ -32,8 +32,30 @@ export async function init(id, invoke, options) {
     dockview.on('groupSizeChanged', () => {
         invoke.invokeMethodAsync(options.splitterCallback);
     });
+    dockview.on('loadActiveTabs', tabs => {
+        invoke.invokeMethodAsync(options.loadActiveTabs, tabs);
+    });
+    dockview.on('loadInactiveTabs', tabs => {
+        invoke.invokeMethodAsync(options.loadInactiveTabs, tabs);
+    });
 
     EventHandler.on(document, 'changed.bb.theme', updateTheme);
+}
+
+export function reloadActiveTab() {
+    const dock = Data.get(id)
+    if (dock) {
+        const { dockview } = dock;
+        dockview.reloadActiveTab();
+    }
+}
+
+export function reloadInactiveTab() {
+    const dock = Data.get(id)
+    if (dock) {
+        const { dockview } = dock;
+        dockview.reloadInactiveTab();
+    }
 }
 
 export function update(id, options) {

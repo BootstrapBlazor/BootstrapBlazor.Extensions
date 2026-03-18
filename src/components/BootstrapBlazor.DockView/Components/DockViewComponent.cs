@@ -1,8 +1,9 @@
-﻿// Copyright (c) Argo Zhang (argo@163.com). All rights reserved.
+// Copyright (c) Argo Zhang (argo@163.com). All rights reserved.
 // Licensed under the Apache License, Version 2.0. See License.txt in the project root for license information.
 // Website: https://www.blazor.zone or https://argozhang.github.io/
 
 using Microsoft.AspNetCore.Components;
+using Microsoft.AspNetCore.Components.Rendering;
 using System.Text.Json.Serialization;
 
 namespace BootstrapBlazor.Components;
@@ -10,7 +11,7 @@ namespace BootstrapBlazor.Components;
 /// <summary>
 /// DockContentItem 配置项子项对标 content 配置项内部 content 配置
 /// </summary>
-public partial class DockViewComponent
+public class DockViewComponent : DockViewComponentBase
 {
     /// <summary>
     /// 获得/设置 组件是否显示 Header 默认 true 显示
@@ -141,6 +142,41 @@ public partial class DockViewComponent
         base.OnInitialized();
 
         Type = DockViewContentType.Component;
+    }
+
+    /// <summary>
+    /// <inheritdoc/>
+    /// </summary>
+    /// <param name="builder"></param>
+    protected override void BuildRenderTree(RenderTreeBuilder builder)
+    {
+        builder.OpenElement(0, "div");
+        builder.AddAttribute(10, "id", Id);
+        builder.AddAttribute(20, "class", "bb-dockview-panel");
+        builder.AddAttribute(30, "data-bb-key", Key);
+        builder.AddAttribute(40, "data-bb-title", Title);
+
+        if (TitleTemplate != null)
+        {
+            builder.OpenElement(50, "div");
+            builder.AddAttribute(51, "class", "bb-dockview-item-title");
+            builder.AddContent(53, TitleTemplate);
+            builder.CloseElement();
+        }
+        else if (ShowTitleBar)
+        {
+            builder.OpenComponent<DockViewTitleBar>(60);
+            builder.AddAttribute(61, nameof(DockViewTitleBar.BarIcon), TitleBarIcon);
+            builder.AddAttribute(62, nameof(DockViewTitleBar.BarIconUrl), TitleBarIconUrl);
+            builder.AddAttribute(63, nameof(DockViewTitleBar.OnClickBarCallback), OnClickBar);
+            builder.CloseComponent();
+        }
+
+        if (Visible)
+        {
+            //builder.AddContent(70, ChildContent);
+        }
+        builder.CloseElement();
     }
 
     private async Task OnClickBar()
