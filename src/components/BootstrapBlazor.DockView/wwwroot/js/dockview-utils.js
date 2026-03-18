@@ -229,7 +229,7 @@ const toggleComponent = (dockview, options) => {
             let indexOfOptions = groupPanels.findIndex(p => p.params.key == panel?.params.key)
             indexOfOptions = indexOfOptions == -1 ? 0 : indexOfOptions
             const index = panel && panel.params.index
-            addGroupWithPanel(dockview, panel || p, panels, index ?? indexOfOptions);
+            addGroupWithPanel(dockview, p || panel, panels, index ?? indexOfOptions);
         }
     })
 
