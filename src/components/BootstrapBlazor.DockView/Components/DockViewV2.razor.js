@@ -42,7 +42,7 @@ export async function init(id, invoke, options) {
     EventHandler.on(document, 'changed.bb.theme', updateTheme);
 }
 
-export function reloadActiveTab() {
+export function reloadActiveTab(id) {
     const dock = Data.get(id)
     if (dock) {
         const { dockview } = dock;
@@ -50,7 +50,7 @@ export function reloadActiveTab() {
     }
 }
 
-export function reloadInactiveTab() {
+export function reloadInactiveTab(id) {
     const dock = Data.get(id)
     if (dock) {
         const { dockview } = dock;
