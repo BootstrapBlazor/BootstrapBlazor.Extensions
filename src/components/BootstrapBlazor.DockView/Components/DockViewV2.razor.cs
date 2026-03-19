@@ -261,7 +261,8 @@ public partial class DockViewV2 : IDisposable
     }
 
     private HashSet<string> _activeTabs = new();
-    private Task LoadActiveTabs(List<string> tabs)
+    [JSInvokable]
+    public Task LoadActiveTabs(List<string> tabs)
     {
         // 客户端请求渲染当前激活的标签
         _activeTabs.Clear();
@@ -278,10 +279,10 @@ public partial class DockViewV2 : IDisposable
     private Task LoadInactiveTabs(List<string> tabs)
     {
         // 客户端请求渲染当前未激活的标签
-        _activeTabs.Clear();
+        _inactiveTabs.Clear();
         foreach (var tab in tabs)
         {
-            _activeTabs.Add(tab);
+            _inactiveTabs.Add(tab);
         }
 
         StateHasChanged();

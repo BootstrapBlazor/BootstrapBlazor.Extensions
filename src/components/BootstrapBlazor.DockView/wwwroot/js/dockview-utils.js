@@ -86,10 +86,12 @@ const initDockview = (dockview, options, template) => {
     dockview.onDidLayoutFromJSON(() => {
         const handler = setTimeout(() => {
             clearTimeout(handler);
-
-            const panels = dockview.panels
+            const panels = dockview.panels;
+            const groups = dockview.groups;
             const delPanelsStr = localStorage.getItem(dockview.params.options.localStorageKey + '-panels')
             const delPanels = delPanelsStr && JSON.parse(delPanelsStr) || []
+            const visiblePanels = groups.map(g => g.panels.find(p => p.params.isActive) || g.panels.find(p => p.api.isVisible))
+            dockview._loadActiveTabs?.fire(visiblePanels.filter(p => Boolean(p)).map(p => p.params.key));
             panels.forEach(panel => {
                 const visible = panel.params.visible
                 if (!visible) {
