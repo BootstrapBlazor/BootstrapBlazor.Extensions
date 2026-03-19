@@ -65,6 +65,13 @@ const initDockview = (dockview, options, template) => {
         reloadFromConfig(dockview, options)
     }
 
+    dockview.reloadActiveTab = (options) => {
+        console.log('Dockview reloadActiveTab: ', options);
+    }
+    dockview.reloadInactiveTab = (options) => {
+        console.log('Dockview reloadInactiveTab: ', options);
+    }
+
     dockview.onDidRemovePanel(onRemovePanel);
 
     dockview.onDidAddPanel(onAddPanel);

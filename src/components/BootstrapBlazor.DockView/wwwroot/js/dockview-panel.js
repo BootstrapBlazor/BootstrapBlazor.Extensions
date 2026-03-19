@@ -23,6 +23,13 @@ const observePanelActiveChange = panel => {
             moveAlwaysRenderPanel(panel)
         }, 0)
     })
+    panel.api.onDidVisibilityChange(({ isVisible }) => {
+        const dockview = panel.accessor;
+        if (dockview._inited && isVisible) {
+            console.log(isVisible, 'isVisible');
+            dockview._loadActiveTabs?.fire([panel.params.key]);
+        }
+    })
 }
 
 const moveAlwaysRenderPanel = panel => {
