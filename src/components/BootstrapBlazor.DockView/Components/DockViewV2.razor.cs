@@ -179,7 +179,7 @@ public partial class DockViewV2 : IDisposable
             return;
         }
 
-        if (_renderActiveTabs)
+        if (_renderInactiveTabs)
         {
             _renderInactiveTabs = false;
             await InvokeVoidAsync("reloadInactiveTab", Id);
@@ -323,7 +323,15 @@ public partial class DockViewV2 : IDisposable
     /// </summary>
     /// <param name="key"></param>
     /// <returns></returns>
-    public bool IsActiveTab(string? key) => string.IsNullOrEmpty(key) ? false : _activeTabs.Contains(key);
+    public bool IsActiveTab(string? key)
+    {
+        if (Renderer == DockViewRenderMode.Always)
+        {
+            return true;
+        }
+
+        return _activeTabs.Contains(key ?? string.Empty);
+    }
 
     /// <summary>
     /// 锁定回调方法 由 JavaScript 调用
