@@ -1,4 +1,4 @@
-﻿import { DockviewComponent } from "./dockview-core.esm.js"
+import { DockviewComponent } from "./dockview-core.esm.js"
 import { DockviewPanelContent } from "./dockview-content.js"
 import { onAddGroup, addGroupWithPanel, toggleLock, observeFloatingGroupLocationChange, observeOverlayChange, createDrawerHandle } from "./dockview-group.js"
 import { onAddPanel, onRemovePanel, getPanelsFromOptions, findContentFromPanels } from "./dockview-panel.js"
@@ -8,7 +8,7 @@ import './dockview-extensions.js'
 const cerateDockview = (el, options) => {
     const theme = options.theme || "dockview-theme-light";
     const template = el.querySelector('template');
-    options.renderer ??= 'partial'; // onlyWhenVisible | partial | always
+    options.renderer ??= 'onlyWhenVisible'; // onlyWhenVisible | partial | always
     const dockview = new DockviewComponent(el, {
         parentElement: el,
         theme: {
@@ -66,13 +66,6 @@ const initDockview = (dockview, options, template) => {
         reloadFromConfig(dockview, options)
     }
 
-    dockview.reloadActiveTab = (options) => {
-        console.log('Dockview reloadActiveTab: ', options);
-    }
-    dockview.reloadInactiveTab = (options) => {
-        console.log('Dockview reloadInactiveTab: ', options);
-    }
-
     dockview.onDidRemovePanel(onRemovePanel);
 
     dockview.onDidAddPanel(onAddPanel);
@@ -99,16 +92,15 @@ const initDockview = (dockview, options, template) => {
             const delPanelsStr = localStorage.getItem(dockview.params.options.localStorageKey + '-panels');
             const delPanels = delPanelsStr && JSON.parse(delPanelsStr) || [];
             if (options.renderer === 'always') {
-                dockview._loadActiveTabs?.fire(panels.map(p => p.params.key));
+                
             }
             else if (options.renderer === 'partial' || options.renderer === 'onlyWhenVisible') {
                 const visiblePanels = groups.filter(g => g.isVisible).map(g => g.panels.find(p => p.params.isActive) || g.panels.find(p => p.api.isVisible))
-                dockview._loadActiveTabs?.fire(visiblePanels.filter(p => Boolean(p)).map(p => p.params.key));
+                dockview._loadTabs?.fire(visiblePanels.filter(p => Boolean(p)).map(p => p.params.key));
             }
             if (options.renderer === 'partial') {
-                const inVisiblePanels = groups.flatMap(g => g.panels.filter(p => !p.api.isVisible));
-                if (inVisiblePanels.length > 0) {
-                    dockview._loadInactiveTabs?.fire(inVisiblePanels.map(p => p.params.key));
+                if (dockview.panels.length > 0) {
+                    dockview._loadTabs?.fire(dockview.panels.map(p => p.params.key));
                 }
             }
             panels.forEach(panel => {
@@ -148,7 +140,7 @@ const initDockview = (dockview, options, template) => {
             dockview.groups.forEach(group => {
                 observeGroup(group)
             })
-            dockview.element.querySelector('&>.dv-dockview>.dv-branch-node').addEventListener('click', function (e) {
+            dockview.element.querySelector('&>.dv-dockview>.dv-branch-node').addEventListener('click', function(e) {
                 this.parentElement.querySelectorAll('&>.dv-resize-container-drawer, &>.dv-render-overlay-float-drawer').forEach(item => {
                     item.classList.remove('active')
                 })

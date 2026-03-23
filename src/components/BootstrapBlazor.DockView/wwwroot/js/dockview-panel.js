@@ -1,4 +1,4 @@
-﻿import { saveConfig } from "./dockview-config.js";
+import { saveConfig } from "./dockview-config.js";
 import { getIcon } from "./dockview-icon.js"
 import { setDrawerTitle } from "./dockview-group.js"
 
@@ -27,7 +27,7 @@ const observePanelActiveChange = panel => {
         const dockview = panel.accessor;
         if (dockview.params.options.renderer === 'onlyWhenVisible' && dockview._inited && isVisible) {
             const visiblePanels = dockview.groups.map(g => g.panels.find(p => p.params.isActive) || g.panels.find(p => p.api.isVisible))
-            dockview._loadActiveTabs?.fire(visiblePanels.filter(p => Boolean(p)).map(p => p.params.key));
+            dockview._loadTabs?.fire(visiblePanels.filter(p => Boolean(p)).map(p => p.params.key));
         }
     })
 }
