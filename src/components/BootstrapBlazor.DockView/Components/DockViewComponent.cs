@@ -176,7 +176,7 @@ public class DockViewComponent : DockViewComponentBase
             builder.CloseComponent();
         }
 
-        if (DockView.IsActiveTab(Key))
+        if (DockView.ShowTab(Key))
         {
             builder.AddContent(70, ChildContent);
         }

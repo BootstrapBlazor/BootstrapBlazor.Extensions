@@ -172,20 +172,6 @@ public partial class DockViewV2 : IDisposable
     {
         await base.OnAfterRenderAsync(firstRender);
 
-        if (_renderActiveTabs)
-        {
-            _renderActiveTabs = false;
-            await InvokeVoidAsync("reloadActiveTab", Id);
-            return;
-        }
-
-        if (_renderInactiveTabs)
-        {
-            _renderInactiveTabs = false;
-            await InvokeVoidAsync("reloadInactiveTab", Id);
-            return;
-        }
-
         if (!firstRender)
         {
             await InvokeVoidAsync("update", Id, GetOptions());
@@ -216,8 +202,7 @@ public partial class DockViewV2 : IDisposable
         LockChangedCallback = nameof(LockChangedCallbackAsync),
         SplitterCallback = nameof(SplitterCallbackAsync),
         Contents = _components,
-        LoadActiveTabs = nameof(LoadActiveTabs),
-        LoadInactiveTabs = nameof(LoadInactiveTabs)
+        LoadTabs = nameof(LoadTabs)
     };
 
     private string GetVersion() => Version ?? _options.Version ?? "v1";
@@ -274,46 +259,22 @@ public partial class DockViewV2 : IDisposable
         }
     }
 
-    private HashSet<string> _activeTabs = new();
-    private bool _renderActiveTabs = false;
+    private HashSet<string> _loadTabs = new();
 
     /// <summary>
     /// 
     /// </summary>
     /// <param name="tabs"></param>
     [JSInvokable]
-    public Task LoadActiveTabs(List<string> tabs)
+    public Task LoadTabs(List<string> tabs)
     {
         // 客户端请求渲染当前激活的标签
-        _activeTabs.Clear();
+        _loadTabs.Clear();
         foreach (var tab in tabs)
         {
-            _activeTabs.Add(tab);
+            _loadTabs.Add(tab);
         }
 
-        _renderActiveTabs = true;
-        StateHasChanged();
-        return Task.CompletedTask;
-    }
-
-    private HashSet<string> _inactiveTabs = new();
-    private bool _renderInactiveTabs = false;
-
-    /// <summary>
-    /// 
-    /// </summary>
-    /// <param name="tabs"></param>
-    [JSInvokable]
-    public Task LoadInactiveTabs(List<string> tabs)
-    {
-        // 客户端请求渲染当前未激活的标签
-        _inactiveTabs.Clear();
-        foreach (var tab in tabs)
-        {
-            _inactiveTabs.Add(tab);
-        }
-
-        _renderInactiveTabs = true;
         StateHasChanged();
         return Task.CompletedTask;
     }
@@ -323,14 +284,14 @@ public partial class DockViewV2 : IDisposable
     /// </summary>
     /// <param name="key"></param>
     /// <returns></returns>
-    public bool IsActiveTab(string? key)
+    public bool ShowTab(string? key)
     {
         if (Renderer == DockViewRenderMode.Always)
         {
             return true;
         }
 
-        return _activeTabs.Contains(key ?? string.Empty);
+        return _loadTabs.Contains(key ?? string.Empty);
     }
 
     /// <summary>

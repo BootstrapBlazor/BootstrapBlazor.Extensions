@@ -80,12 +80,7 @@ class DockViewConfig
     /// <summary>
     /// 获得/设置 加载当前激活标签页事件回调
     /// </summary>
-    public string? LoadActiveTabs { get; set; }
-
-    /// <summary>
-    /// 获得/设置 加载当前未激活标签页事件回调
-    /// </summary>
-    public string? LoadInactiveTabs { get; set; }
+    public string? LoadTabs { get; set; }
 
     /// <summary>
     /// 获得/设置 客户端缓存键值
