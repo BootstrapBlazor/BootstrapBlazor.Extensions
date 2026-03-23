@@ -278,7 +278,7 @@ const getGroupNode = (contentItem, size, boxSize, parent, panels, getGroupId, op
                     title: item.title,
                     tabComponent: item.componentName,
                     contentComponent: item.componentName,
-                    renderer: item.renderer || options.renderer,
+                    // renderer: item.renderer || options.renderer,
                     params: { ...item, parentId: parent.id }
                 }
                 return item.id
@@ -303,7 +303,7 @@ const getLeafNode = (contentItem, size, boxSize, parent, panels, getGroupId, opt
     panels[contentItem.id] = {
         id: contentItem.id,
         title: contentItem.title,
-        renderer: contentItem.renderer || options.renderer,
+        // renderer: contentItem.renderer || options.renderer,
         tabComponent: contentItem.componentName,
         contentComponent: contentItem.componentName,
         params: { ...contentItem, parentId: parent.id }

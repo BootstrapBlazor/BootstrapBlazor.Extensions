@@ -304,7 +304,7 @@ public partial class DockViewV2 : IDisposable
     /// </summary>
     /// <param name="tabs"></param>
     [JSInvokable]
-    private Task LoadInactiveTabs(List<string> tabs)
+    public Task LoadInactiveTabs(List<string> tabs)
     {
         // 客户端请求渲染当前未激活的标签
         _inactiveTabs.Clear();

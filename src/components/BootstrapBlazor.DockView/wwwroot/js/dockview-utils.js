@@ -8,6 +8,7 @@ import './dockview-extensions.js'
 const cerateDockview = (el, options) => {
     const theme = options.theme || "dockview-theme-light";
     const template = el.querySelector('template');
+    options.renderer ??= 'partial'; // onlyWhenVisible | partial | always
     const dockview = new DockviewComponent(el, {
         parentElement: el,
         theme: {
@@ -95,10 +96,21 @@ const initDockview = (dockview, options, template) => {
             clearTimeout(handler);
             const panels = dockview.panels;
             const groups = dockview.groups;
-            const delPanelsStr = localStorage.getItem(dockview.params.options.localStorageKey + '-panels')
-            const delPanels = delPanelsStr && JSON.parse(delPanelsStr) || []
-            const visiblePanels = groups.map(g => g.panels.find(p => p.params.isActive) || g.panels.find(p => p.api.isVisible))
-            dockview._loadActiveTabs?.fire(visiblePanels.filter(p => Boolean(p)).map(p => p.params.key));
+            const delPanelsStr = localStorage.getItem(dockview.params.options.localStorageKey + '-panels');
+            const delPanels = delPanelsStr && JSON.parse(delPanelsStr) || [];
+            if (options.renderer === 'always') {
+                dockview._loadActiveTabs?.fire(panels.map(p => p.params.key));
+            }
+            else if (options.renderer === 'partial' || options.renderer === 'onlyWhenVisible') {
+                const visiblePanels = groups.filter(g => g.isVisible).map(g => g.panels.find(p => p.params.isActive) || g.panels.find(p => p.api.isVisible))
+                dockview._loadActiveTabs?.fire(visiblePanels.filter(p => Boolean(p)).map(p => p.params.key));
+            }
+            if (options.renderer === 'partial') {
+                const inVisiblePanels = groups.flatMap(g => g.panels.filter(p => !p.api.isVisible));
+                if (inVisiblePanels.length > 0) {
+                    dockview._loadInactiveTabs?.fire(inVisiblePanels.map(p => p.params.key));
+                }
+            }
             panels.forEach(panel => {
                 const visible = panel.params.visible
                 if (!visible) {
