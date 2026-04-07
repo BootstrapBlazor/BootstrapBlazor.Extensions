@@ -27,7 +27,9 @@ const observePanelActiveChange = panel => {
         const dockview = panel.accessor;
         if (dockview.params.options.renderer === 'onlyWhenVisible' && dockview._inited && isVisible) {
             const visiblePanels = dockview.groups.map(g => g.panels.find(p => p.params.isActive) || g.panels.find(p => p.api.isVisible))
-            dockview._loadTabs?.fire(visiblePanels.filter(p => Boolean(p)).map(p => p.params.key));
+            setTimeout(function() {
+                dockview._loadTabs?.fire(visiblePanels.filter(p => Boolean(p)).map(p => p.params.key));
+            }, 0)
         }
     })
 }
@@ -82,7 +84,7 @@ const onRemovePanel = event => {
             event.view.content.element.append(event.titleMenuEle)
         }
         if (dockview.params.template) {
-            dockview.params.template.append(event.view.content.element)
+            // dockview.params.template.append(event.view.content.element)
         }
     }
 }
