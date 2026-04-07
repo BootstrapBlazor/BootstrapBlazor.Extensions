@@ -34,7 +34,7 @@ const initDockview = (dockview, options, template) => {
         const config = getConfig(options);
         dockview.params.floatingGroups = config.floatingGroups || []
         dockview.fromJSON(config);
-        window.dockview = dockview;
+        // window.dockview = dockview;
     }
 
     dockview.switchTheme = theme => {
@@ -246,8 +246,11 @@ const toggleComponent = (dockview, options) => {
             addGroupWithPanel(dockview, p || panel, panel, panels, index ?? indexOfOptions);
         }
     })
-
     localPanels.forEach(item => {
+        const title = panels.find(p => p.params.key == item.params.key)?.title;
+        if ( title && item.title !== title ) {
+            item.setTitle(title)
+        }
         let pan = findContentFromPanels(panels, item);
         if (pan === void 0) {
             item.group.delPanelIndex = item.group.panels.findIndex(p => p.params.key == item.params.key)
