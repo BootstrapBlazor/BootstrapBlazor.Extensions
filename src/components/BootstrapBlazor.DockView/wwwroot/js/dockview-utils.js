@@ -9,8 +9,6 @@ const cerateDockview = (el, options) => {
     const theme = options.theme || "dockview-theme-light";
     const template = el.querySelector('template');
     options.renderer ??= 'onlyWhenVisible'; // onlyWhenVisible | partial | always
-    console.log(options);
-    console.log(options.renderer);
     const dockview = new DockviewComponent(el, {
         parentElement: el,
         theme: {
@@ -93,7 +91,7 @@ const initDockview = (dockview, options, template) => {
             const groups = dockview.groups;
             const delPanelsStr = localStorage.getItem(dockview.params.options.localStorageKey + '-panels');
             const delPanels = delPanelsStr && JSON.parse(delPanelsStr) || [];
-            
+
             panels.forEach(panel => {
                 const visible = panel.params.visible
                 if (!visible) {
@@ -105,7 +103,7 @@ const initDockview = (dockview, options, template) => {
                 dockview._panelVisibleChanged?.fire({ title: panel.title, status: false });
             })
             if (options.renderer === 'always') {
-                
+
             }
             else if (options.renderer === 'partial' || options.renderer === 'onlyWhenVisible') {
                 const visiblePanels = groups.filter(g => g.isVisible).map(g => g.panels.find(p => p.params.isActive) || g.panels.find(p => p.api.isVisible))
@@ -143,7 +141,7 @@ const initDockview = (dockview, options, template) => {
             dockview.groups.forEach(group => {
                 observeGroup(group)
             })
-            dockview.element.querySelector('&>.dv-dockview>.dv-branch-node').addEventListener('click', function(e) {
+            dockview.element.querySelector('&>.dv-dockview>.dv-branch-node').addEventListener('click', function (e) {
                 this.parentElement.querySelectorAll('&>.dv-resize-container-drawer, &>.dv-render-overlay-float-drawer').forEach(item => {
                     item.classList.remove('active')
                 })
