@@ -9,6 +9,8 @@ const cerateDockview = (el, options) => {
     const theme = options.theme || "dockview-theme-light";
     const template = el.querySelector('template');
     options.renderer ??= 'onlyWhenVisible'; // onlyWhenVisible | partial | always
+    console.log(options);
+    console.log(options.renderer);
     const dockview = new DockviewComponent(el, {
         parentElement: el,
         theme: {
@@ -91,6 +93,17 @@ const initDockview = (dockview, options, template) => {
             const groups = dockview.groups;
             const delPanelsStr = localStorage.getItem(dockview.params.options.localStorageKey + '-panels');
             const delPanels = delPanelsStr && JSON.parse(delPanelsStr) || [];
+            
+            panels.forEach(panel => {
+                const visible = panel.params.visible
+                if (!visible) {
+                    dockview.removePanel(panel)
+                }
+                dockview._panelVisibleChanged?.fire({ title: panel.title, status: visible });
+            })
+            delPanels.forEach(panel => {
+                dockview._panelVisibleChanged?.fire({ title: panel.title, status: false });
+            })
             if (options.renderer === 'always') {
                 
             }
@@ -103,16 +116,6 @@ const initDockview = (dockview, options, template) => {
                     dockview._loadTabs?.fire(dockview.panels.map(p => p.params.key));
                 }
             }
-            panels.forEach(panel => {
-                const visible = panel.params.visible
-                if (!visible) {
-                    dockview.removePanel(panel)
-                }
-                dockview._panelVisibleChanged?.fire({ title: panel.title, status: visible });
-            })
-            delPanels.forEach(panel => {
-                dockview._panelVisibleChanged?.fire({ title: panel.title, status: false });
-            })
             const { floatingGroups } = dockview.params
             dockview.floatingGroups.forEach(fg => {
                 const { top, right, bottom, left } = floatingGroups.find(g => g.data.id == fg.group.id).position
