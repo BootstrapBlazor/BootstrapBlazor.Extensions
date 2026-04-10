@@ -4,6 +4,7 @@
 
 using Microsoft.AspNetCore.Components;
 using Microsoft.Extensions.Configuration;
+using System.Collections.Concurrent;
 
 namespace BootstrapBlazor.Components;
 
@@ -170,6 +171,11 @@ public partial class DockViewV2 : IDisposable
     private DockViewOptions? _options = null;
 
     /// <summary>
+    /// <para lang="zh">组件状态集合</para>
+    /// </summary>
+    internal ConcurrentDictionary<string, DockViewComponentState> ComponentStates { get; set; } = [];
+
+    /// <summary>
     /// <inheritdoc/>
     /// </summary>
     protected override void OnInitialized()
@@ -274,11 +280,57 @@ public partial class DockViewV2 : IDisposable
     /// <para lang="en">Tab close callback method called by JavaScript</para>
     /// </summary>
     [JSInvokable]
-    public async Task PanelVisibleChangedCallbackAsync(string title, bool status)
+    public async Task PanelVisibleChangedCallbackAsync(string key, bool status)
     {
+        // 同步更新组件可见状态
+        ComponentStates.AddOrUpdate(key, key =>
+        {
+            return new DockViewComponentState()
+            {
+                Key = key,
+                Visible = status
+            };
+        }, (key, v) =>
+        {
+            v.Visible = status;
+            return v;
+        });
+
+        // 通知订阅者
         if (OnVisibleStateChangedAsync != null)
         {
-            await OnVisibleStateChangedAsync(title, status);
+            await OnVisibleStateChangedAsync(key, status);
+        }
+    }
+
+    /// <summary>
+    /// <para lang="zh">锁定回调方法 由 JavaScript 调用</para>
+    /// <para lang="en">Lock callback method called by JavaScript</para>
+    /// </summary>
+    [JSInvokable]
+    public async Task LockChangedCallbackAsync(string[] panels, bool state)
+    {
+        // 同步更新组件锁定状态
+        foreach (var panel in panels)
+        {
+            ComponentStates.AddOrUpdate(panel, key =>
+            {
+                return new DockViewComponentState()
+                {
+                    Key = key,
+                    IsLock = state
+                };
+            }, (key, v) =>
+            {
+                v.IsLock = state;
+                return v;
+            });
+        }
+
+        // 通知订阅者
+        if (OnLockChangedCallbackAsync != null)
+        {
+            await OnLockChangedCallbackAsync(panels, state);
         }
     }
 
@@ -293,11 +345,7 @@ public partial class DockViewV2 : IDisposable
     public Task LoadTabs(List<string> tabs)
     {
         // 客户端请求渲染当前激活的标签
-        _loadTabs.Clear();
-        foreach (var tab in tabs)
-        {
-            _loadTabs.Add(tab);
-        }
+        _loadTabs = tabs.ToHashSet();
 
         StateHasChanged();
         return Task.CompletedTask;
@@ -310,26 +358,12 @@ public partial class DockViewV2 : IDisposable
     /// <param name="key"></param>
     public bool ShowTab(string? key)
     {
-        // TODO: Partial 模式下使用临时回滚稍后完善
         if (Renderer == DockViewRenderMode.Always)
         {
             return true;
         }
 
         return _loadTabs.Contains(key ?? string.Empty);
-    }
-
-    /// <summary>
-    /// <para lang="zh">锁定回调方法 由 JavaScript 调用</para>
-    /// <para lang="en">Lock callback method called by JavaScript</para>
-    /// </summary>
-    [JSInvokable]
-    public async Task LockChangedCallbackAsync(string[] panels, bool state)
-    {
-        if (OnLockChangedCallbackAsync != null)
-        {
-            await OnLockChangedCallbackAsync(panels, state);
-        }
     }
 
     /// <summary>

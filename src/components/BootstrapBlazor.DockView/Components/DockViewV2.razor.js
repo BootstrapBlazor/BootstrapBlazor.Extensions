@@ -33,7 +33,7 @@ export async function init(id, invoke, options) {
         invoke.invokeMethodAsync(options.splitterCallback);
     });
     dockview.on('loadTabs', tabs => {
-
+        invoke.invokeMethodAsync(options.loadTabs, tabs);
     });
 
     EventHandler.on(document, 'changed.bb.theme', updateTheme);
