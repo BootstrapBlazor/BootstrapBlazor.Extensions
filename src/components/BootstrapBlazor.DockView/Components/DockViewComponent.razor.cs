@@ -1,4 +1,4 @@
-﻿// Copyright (c) Argo Zhang (argo@163.com). All rights reserved.
+// Copyright (c) Argo Zhang (argo@163.com). All rights reserved.
 // Licensed under the Apache License, Version 2.0. See License.txt in the project root for license information.
 // Website: https://www.blazor.zone or https://argozhang.github.io/
 
@@ -134,6 +134,15 @@ public partial class DockViewComponent
     public Func<Task>? OnClickTitleBarCallback { get; set; }
 
     /// <summary>
+    /// <para lang="zh">获得/设置 DockContent 实例</para>
+    /// <para lang="en">Gets or sets the DockContent instance.</para>
+    /// </summary>
+    [CascadingParameter]
+    [NotNull]
+    [JsonIgnore]
+    private DockViewV2? DockView { get; set; }
+
+    /// <summary>
     /// <inheritdoc/>
     /// </summary>
     protected override void OnInitialized()
@@ -141,6 +150,21 @@ public partial class DockViewComponent
         base.OnInitialized();
 
         Type = DockViewContentType.Component;
+    }
+
+    /// <summary>
+    /// <inheritdoc/>
+    /// </summary>
+    protected override void OnParametersSet()
+    {
+        base.OnParametersSet();
+
+        // 根据容器状态同步组件状态
+        if (!string.IsNullOrEmpty(Key) && DockView.ComponentStates.TryGetValue(Key, out var state))
+        {
+            IsLock = state.IsLock;
+            Visible = state.Visible;
+        }
     }
 
     private async Task OnClickBar()
