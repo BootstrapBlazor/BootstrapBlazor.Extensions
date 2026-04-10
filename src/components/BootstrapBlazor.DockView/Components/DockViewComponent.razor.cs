@@ -186,15 +186,11 @@ public partial class DockViewComponent
                 Render = _rendered
             });
 
-            if (state.Visible != Visible)
-            {
-                state.Visible = Visible;
-            }
-            if (state.IsLock != IsLock)
-            {
-                state.IsLock = IsLock;
-            }
+            // 同步组件状态到容器状态
+            state.Visible = Visible;
+            state.IsLock = IsLock;
 
+            // 同步组件渲染状态
             _rendered = state.Render;
         }
     }
@@ -205,14 +201,5 @@ public partial class DockViewComponent
         {
             await OnClickTitleBarCallback();
         }
-    }
-
-    /// <summary>
-    /// <para lang="zh">设置组件可见状态</para>
-    /// <para lang="en">Sets the component visibility</para>
-    /// </summary>
-    public void SetVisible(bool visible)
-    {
-        Visible = visible;
     }
 }
