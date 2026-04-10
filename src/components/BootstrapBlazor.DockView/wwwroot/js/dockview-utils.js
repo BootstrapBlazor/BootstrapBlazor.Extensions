@@ -6,6 +6,7 @@ import { getConfig, reloadFromConfig, loadPanelsFromLocalstorage, saveConfig } f
 import './dockview-extensions.js'
 
 const cerateDockview = (el, options) => {
+    options.enableLocalStorage = true;
     const theme = options.theme || "dockview-theme-light";
     const template = el.querySelector('template');
     options.renderer ??= 'onlyWhenVisible'; // onlyWhenVisible | partial | always
@@ -92,16 +93,19 @@ const initDockview = (dockview, options, template) => {
             const delPanelsStr = localStorage.getItem(dockview.params.options.localStorageKey + '-panels');
             const delPanels = delPanelsStr && JSON.parse(delPanelsStr) || [];
 
-            panels.forEach(panel => {
-                const visible = panel.params.visible
-                if (!visible) {
-                    dockview.removePanel(panel)
-                }
-                dockview._panelVisibleChanged?.fire({ key: panel.params.key, status: visible });
-            })
-            delPanels.forEach(panel => {
-                dockview._panelVisibleChanged?.fire({ key: panel.params.key, status: false });
-            })
+            if (options.enableLocalStorage) {
+                panels.forEach(panel => {
+                    const visible = panel.params.visible
+                    if (!visible) {
+                        dockview.removePanel(panel)
+                    }
+                    dockview._panelVisibleChanged?.fire({ key: panel.params.key, status: visible });
+                })
+                delPanels.forEach(panel => {
+                    dockview._panelVisibleChanged?.fire({ key: panel.params.key, status: false });
+                })
+            }
+
             if (options.renderer === 'onlyWhenVisible') {
                 const visiblePanels = groups.filter(g => g.isVisible).map(g => g.panels.find(p => p.params.isActive) || g.panels.find(p => p.api.isVisible))
                 dockview._loadTabs?.fire(visiblePanels.filter(p => Boolean(p)).map(p => p.params.key));
