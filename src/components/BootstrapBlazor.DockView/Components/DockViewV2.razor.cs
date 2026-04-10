@@ -310,6 +310,7 @@ public partial class DockViewV2 : IDisposable
     /// <param name="key"></param>
     public bool ShowTab(string? key)
     {
+        // TODO: Partial 模式下使用临时回滚稍后完善
         if (Renderer == DockViewRenderMode.Always)
         {
             return true;
