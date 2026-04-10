@@ -160,8 +160,13 @@ public partial class DockViewComponent
         base.OnParametersSet();
 
         // 根据容器状态同步组件状态
-        if (!string.IsNullOrEmpty(Key) && DockView.ComponentStates.TryGetValue(Key, out var state))
+        if (!string.IsNullOrEmpty(Key))
         {
+            var state = DockView.ComponentStates.GetOrAdd(Key, key => new DockViewComponentState
+            {
+                IsLock = IsLock,
+                Visible = Visible
+            });
             IsLock = state.IsLock;
             Visible = state.Visible;
         }

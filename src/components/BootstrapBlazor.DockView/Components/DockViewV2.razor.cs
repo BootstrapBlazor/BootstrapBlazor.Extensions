@@ -344,26 +344,20 @@ public partial class DockViewV2 : IDisposable
     [JSInvokable]
     public Task LoadTabs(List<string> tabs)
     {
-        // 客户端请求渲染当前激活的标签
         _loadTabs = tabs.ToHashSet();
 
-        StateHasChanged();
-        return Task.CompletedTask;
-    }
-
-    /// <summary>
-    /// <para lang="zh">检查指定 Key 值 DockviewComponent 是否处于激活状态</para>
-    /// <para lang="en">Checks whether the DockviewComponent with the specified key is active.</para>
-    /// </summary>
-    /// <param name="key"></param>
-    public bool ShowTab(string? key)
-    {
-        if (Renderer == DockViewRenderMode.Always)
+        bool rendered = false;
+        foreach (var key in ComponentStates.Keys)
         {
-            return true;
+            var state = ComponentStates[key];
+            state.Visible = _loadTabs.Contains(key);
         }
 
-        return _loadTabs.Contains(key ?? string.Empty);
+        if (rendered)
+        {
+            StateHasChanged();
+        }
+        return Task.CompletedTask;
     }
 
     /// <summary>

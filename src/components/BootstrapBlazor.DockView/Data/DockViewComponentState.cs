@@ -17,7 +17,7 @@ record struct DockViewComponentState
     /// <summary>
     /// <para lang="zh">获得/设置 组件是否锁定 默认 false</para>
     /// </summary>
-    public bool IsLock { get; set; }
+    public bool? IsLock { get; set; }
 
     /// <summary>
     /// <para lang="zh">获得/设置 组件是否可见 默认 false</para>
