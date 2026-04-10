@@ -5,27 +5,32 @@
 namespace BootstrapBlazor.Components;
 
 /// <summary>
-/// <para lang="zh">DockView 组件状态持久化类</para>
+/// <para lang="zh">DockView 组件状态</para>
+/// <para lang="en">DockView component state</para>
 /// </summary>
 class DockViewComponentState
 {
     /// <summary>
-    /// <para lang="zh">获得/设置 组件唯一标识值 默认 null 未设置</para>
+    /// <para lang="zh">获得/设置 组件唯一标识，默认为 null</para>
+    /// <para lang="en">Gets or sets the unique component identifier. Default is null</para>
     /// </summary>
     public string? Key { get; set; }
 
     /// <summary>
-    /// <para lang="zh">获得/设置 组件是否锁定 默认 false</para>
+    /// <para lang="zh">获得/设置 组件是否锁定，默认为 false</para>
+    /// <para lang="en">Gets or sets whether the component is locked. Default is false</para>
     /// </summary>
     public bool? IsLock { get; set; }
 
     /// <summary>
-    /// <para lang="zh">获得/设置 组件是否可见 默认 false</para>
+    /// <para lang="zh">获得/设置 组件是否可见，默认为 false</para>
+    /// <para lang="en">Gets or sets whether the component is visible. Default is false</para>
     /// </summary>
     public bool Visible { get; set; }
 
     /// <summary>
-    /// <para lang="zh">获得/设置 组件是否渲染 默认 false</para>
+    /// <para lang="zh">获得/设置 组件是否已渲染，默认为 false</para>
+    /// <para lang="en">Gets or sets whether the component is rendered. Default is false</para>
     /// </summary>
     public bool Render { get; set; }
 }

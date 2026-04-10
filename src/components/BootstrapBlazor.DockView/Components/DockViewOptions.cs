@@ -5,22 +5,26 @@
 namespace BootstrapBlazor.Components;
 
 /// <summary>
-/// DockView 组件配置类
+/// <para lang="zh">DockView 组件配置项</para>
+/// <para lang="en">DockView component options</para>
 /// </summary>
 class DockViewOptions
 {
     /// <summary>
-    /// 获得/设置 组件本地化版本信息
+    /// <para lang="zh">获得/设置 组件版本信息</para>
+    /// <para lang="en">Gets or sets the component version information</para>
     /// </summary>
     public string? Version { get; set; }
 
     /// <summary>
-    /// 获得/设置 是否开启本地存储 默认 null 未设置
+    /// <para lang="zh">获得/设置 是否启用本地存储，默认为 null</para>
+    /// <para lang="en">Gets or sets whether local storage is enabled. Default is null</para>
     /// </summary>
     public bool? EnableLocalStorage { get; set; }
 
     /// <summary>
-    /// 获得/设置 本地存储前缀 默认 bb-dock
+    /// <para lang="zh">获得/设置 本地存储前缀，默认为 bb-dock</para>
+    /// <para lang="en">Gets or sets the local storage prefix. Default is bb-dock</para>
     /// </summary>
     public string? LocalStoragePrefix { get; set; }
 }
