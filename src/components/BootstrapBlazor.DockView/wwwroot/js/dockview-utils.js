@@ -97,22 +97,14 @@ const initDockview = (dockview, options, template) => {
                 if (!visible) {
                     dockview.removePanel(panel)
                 }
-                dockview._panelVisibleChanged?.fire({ title: panel.title, status: visible });
+                dockview._panelVisibleChanged?.fire({ key: panel.params.key, status: visible });
             })
             delPanels.forEach(panel => {
-                dockview._panelVisibleChanged?.fire({ title: panel.title, status: false });
+                dockview._panelVisibleChanged?.fire({ key: panel.params.key, status: false });
             })
-            if (options.renderer === 'always') {
-
-            }
-            else if (options.renderer === 'partial' || options.renderer === 'onlyWhenVisible') {
+            if (options.renderer === 'onlyWhenVisible') {
                 const visiblePanels = groups.filter(g => g.isVisible).map(g => g.panels.find(p => p.params.isActive) || g.panels.find(p => p.api.isVisible))
                 dockview._loadTabs?.fire(visiblePanels.filter(p => Boolean(p)).map(p => p.params.key));
-            }
-            if (options.renderer === 'partial') {
-                if (dockview.panels.length > 0) {
-                    dockview._loadTabs?.fire(dockview.panels.map(p => p.params.key));
-                }
             }
             const { floatingGroups } = dockview.params
             dockview.floatingGroups.forEach(fg => {

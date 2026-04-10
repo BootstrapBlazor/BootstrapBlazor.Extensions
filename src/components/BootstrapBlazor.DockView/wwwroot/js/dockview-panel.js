@@ -84,7 +84,7 @@ const onRemovePanel = event => {
             event.view.content.element.append(event.titleMenuEle)
         }
         if (dockview.params.template) {
-            // dockview.params.template.append(event.view.content.element)
+            dockview.params.template.append(event.view.content.element)
         }
     }
 }

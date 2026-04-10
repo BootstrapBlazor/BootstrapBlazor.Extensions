@@ -76,7 +76,7 @@ DockviewComponent.prototype.removePanel = function (...args) {
     if (!panel.group.locked) {
         removePanel.apply(this, args)
         if (!this.isClearing) {
-            this._panelVisibleChanged?.fire({ title: panel.title, status: false });
+            this._panelVisibleChanged?.fire({ key: panel.params.key, status: false });
         }
     }
 }
