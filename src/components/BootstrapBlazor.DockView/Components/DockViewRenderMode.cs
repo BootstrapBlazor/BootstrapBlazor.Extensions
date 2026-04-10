@@ -12,14 +12,14 @@ namespace BootstrapBlazor.Components;
 public enum DockViewRenderMode
 {
     /// <summary>
-    /// <para lang="zh">始终渲染</para>
-    /// <para lang="en">Always render</para>
-    /// </summary>
-    Always,
-
-    /// <summary>
     /// <para lang="zh">可见时渲染</para>
     /// <para lang="en">Render when visible</para>
     /// </summary>
-    OnlyWhenVisible
+    OnlyWhenVisible,
+
+    /// <summary>
+    /// <para lang="zh">始终渲染</para>
+    /// <para lang="en">Always render</para>
+    /// </summary>
+    Always
 }
