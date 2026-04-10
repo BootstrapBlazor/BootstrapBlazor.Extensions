@@ -171,8 +171,16 @@ public partial class DockViewComponent
                 Visible = Visible,
                 Render = _rendered
             });
-            IsLock = state.IsLock;
-            Visible = state.Visible;
+
+            if (state.Visible != Visible)
+            {
+                state.Visible = Visible;
+            }
+            if (state.IsLock != IsLock)
+            {
+                state.IsLock = IsLock;
+            }
+
             _rendered = state.Render;
         }
     }
