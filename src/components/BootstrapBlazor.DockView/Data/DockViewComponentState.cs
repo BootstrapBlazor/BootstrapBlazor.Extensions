@@ -7,7 +7,7 @@ namespace BootstrapBlazor.Components;
 /// <summary>
 /// <para lang="zh">DockView 组件状态持久化类</para>
 /// </summary>
-record struct DockViewComponentState
+class DockViewComponentState
 {
     /// <summary>
     /// <para lang="zh">获得/设置 组件唯一标识值 默认 null 未设置</para>
@@ -23,4 +23,9 @@ record struct DockViewComponentState
     /// <para lang="zh">获得/设置 组件是否可见 默认 false</para>
     /// </summary>
     public bool Visible { get; set; }
+
+    /// <summary>
+    /// <para lang="zh">获得/设置 组件是否渲染 默认 false</para>
+    /// </summary>
+    public bool Render { get; set; }
 }

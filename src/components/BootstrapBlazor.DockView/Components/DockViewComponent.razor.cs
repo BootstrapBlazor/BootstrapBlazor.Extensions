@@ -142,6 +142,8 @@ public partial class DockViewComponent
     [JsonIgnore]
     private DockViewV2? DockView { get; set; }
 
+    private bool _rendered = false;
+
     /// <summary>
     /// <inheritdoc/>
     /// </summary>
@@ -164,11 +166,14 @@ public partial class DockViewComponent
         {
             var state = DockView.ComponentStates.GetOrAdd(Key, key => new DockViewComponentState
             {
+                Key = key,
                 IsLock = IsLock,
-                Visible = Visible
+                Visible = Visible,
+                Render = _rendered
             });
             IsLock = state.IsLock;
             Visible = state.Visible;
+            _rendered = state.Render;
         }
     }
 

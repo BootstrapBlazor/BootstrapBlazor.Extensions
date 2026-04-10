@@ -350,7 +350,13 @@ public partial class DockViewV2 : IDisposable
         foreach (var key in ComponentStates.Keys)
         {
             var state = ComponentStates[key];
-            state.Visible = _loadTabs.Contains(key);
+
+            var render = _loadTabs.Contains(key);
+            if (render != state.Render)
+            {
+                state.Render = render;
+                rendered = true;
+            }
         }
 
         if (rendered)
