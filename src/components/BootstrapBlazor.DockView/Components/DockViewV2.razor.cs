@@ -149,6 +149,9 @@ public partial class DockViewV2 : IDisposable
     [Parameter]
     public DockViewTheme Theme { get; set; } = DockViewTheme.Light;
 
+    /// <summary>
+    /// 嵌套 DockView 时生效防止生成冗余的 DOM 结构
+    /// </summary>
     [CascadingParameter]
     private DockViewV2? DockView { get; set; }
 
@@ -331,6 +334,19 @@ public partial class DockViewV2 : IDisposable
         }
     }
 
+    /// <summary>
+    /// <para lang="zh">分割器回调方法，由 JavaScript 调用</para>
+    /// <para lang="en">Splitter callback method called by JavaScript</para>
+    /// </summary>
+    [JSInvokable]
+    public async Task SplitterCallbackAsync()
+    {
+        if (OnSplitterCallbackAsync != null)
+        {
+            await OnSplitterCallbackAsync();
+        }
+    }
+
     private HashSet<string> _loadTabs = new();
 
     /// <summary>
@@ -360,19 +376,6 @@ public partial class DockViewV2 : IDisposable
             StateHasChanged();
         }
         return Task.CompletedTask;
-    }
-
-    /// <summary>
-    /// <para lang="zh">分割器回调方法，由 JavaScript 调用</para>
-    /// <para lang="en">Splitter callback method called by JavaScript</para>
-    /// </summary>
-    [JSInvokable]
-    public async Task SplitterCallbackAsync()
-    {
-        if (OnSplitterCallbackAsync != null)
-        {
-            await OnSplitterCallbackAsync();
-        }
     }
 
     private void Dispose(bool disposing)
