@@ -26,14 +26,14 @@ const onAddGroup = group => {
     dockview._inited && observeGroup(group)
 }
 
-const addGroupWithPanel = (dockview, panel, localPanel, panels, index) => {
+const addGroupWithPanel = (dockview, panel, panels, index) => {
     if (panel.groupId) {
         addPanelWidthGroupId(dockview, panel, index)
     }
     else {
         addPanelWidthCreatGroup(dockview, panel, panels)
     }
-    deletePanel(dockview, localPanel)
+    deletePanel(dockview, panel)
 }
 
 const addPanelWidthGroupId = (dockview, panel, index) => {
