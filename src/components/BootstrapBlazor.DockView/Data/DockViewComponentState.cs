@@ -23,13 +23,13 @@ class DockViewComponentState
     public bool? IsLock { get; set; }
 
     /// <summary>
-    /// <para lang="zh">获得/设置 组件是否可见，默认为 false</para>
-    /// <para lang="en">Gets or sets whether the component is visible. Default is false</para>
+    /// <para lang="zh">获得/设置 组件是否可见，默认为 true</para>
+    /// <para lang="en">Gets or sets whether the component is visible. Default is true</para>
     /// </summary>
-    public bool Visible { get; set; }
+    public bool Visible { get; set; } = true;
 
     /// <summary>
-    /// <para lang="zh">获得/设置 组件是否已渲染，默认为 false</para>
+    /// <para lang="zh">获得/设置 组件内容是否渲染，默认为 false</para>
     /// <para lang="en">Gets or sets whether the component is rendered. Default is false</para>
     /// </summary>
     public bool Render { get; set; }

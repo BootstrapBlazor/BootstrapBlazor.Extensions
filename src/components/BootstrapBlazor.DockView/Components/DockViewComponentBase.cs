@@ -41,6 +41,7 @@ public abstract class DockViewComponentBase : IdComponentBase, IDisposable
     [Parameter]
     [JsonIgnore]
     public RenderFragment? ChildContent { get; set; }
+
     [CascadingParameter]
     private List<DockViewComponentBase>? Parent { get; set; }
 

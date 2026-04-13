@@ -171,12 +171,7 @@ public partial class DockViewV2 : IDisposable
 
     [NotNull]
     private DockViewOptions? _options = null;
-
-    /// <summary>
-    /// <para lang="zh">获得/设置 组件状态集合</para>
-    /// <para lang="en">Gets or sets the component state collection</para>
-    /// </summary>
-    internal ConcurrentDictionary<string, DockViewComponentState> ComponentStates { get; set; } = [];
+    private ConcurrentDictionary<string, DockViewComponentState> _componentStates = new();
 
     /// <summary>
     /// <inheritdoc/>
@@ -283,7 +278,7 @@ public partial class DockViewV2 : IDisposable
     public async Task PanelVisibleChangedCallbackAsync(string key, bool status)
     {
         // 同步更新组件可见状态
-        ComponentStates.AddOrUpdate(key, key =>
+        _componentStates.AddOrUpdate(key, key =>
         {
             return new DockViewComponentState()
             {
@@ -313,7 +308,7 @@ public partial class DockViewV2 : IDisposable
         // 同步更新组件锁定状态
         foreach (var panel in panels)
         {
-            ComponentStates.AddOrUpdate(panel, key =>
+            _componentStates.AddOrUpdate(panel, key =>
             {
                 return new DockViewComponentState()
                 {
@@ -357,25 +352,40 @@ public partial class DockViewV2 : IDisposable
     public Task LoadTabs(List<string> tabs)
     {
         _loadTabs = tabs.ToHashSet();
-
-        bool rendered = false;
-        foreach (var key in ComponentStates.Keys)
+        foreach (var componnet in _componentStates)
         {
-            var state = ComponentStates[key];
-
-            var render = _loadTabs.Contains(key);
-            if (render != state.Render)
-            {
-                state.Render = render;
-                rendered = true;
-            }
+            // 标记是否渲染
+            componnet.Value.Render = tabs.Contains(componnet.Key);
         }
+        StateHasChanged();
 
-        if (rendered)
-        {
-            StateHasChanged();
-        }
         return Task.CompletedTask;
+    }
+
+    internal void AddComponentState(DockViewComponentState state)
+    {
+        if (!string.IsNullOrEmpty(state.Key))
+        {
+            _componentStates.TryAdd(state.Key, state);
+        }
+    }
+
+    internal void RemoveComponentState(string? key)
+    {
+        if (!string.IsNullOrEmpty(key))
+        {
+            _componentStates.TryRemove(key, out _);
+        }
+    }
+
+    internal DockViewComponentState? GetComponentState(string? key)
+    {
+        DockViewComponentState? state = null;
+        if (!string.IsNullOrEmpty(key) && _componentStates.TryGetValue(key, out var _state))
+        {
+            state = _state;
+        }
+        return state;
     }
 
     private void Dispose(bool disposing)

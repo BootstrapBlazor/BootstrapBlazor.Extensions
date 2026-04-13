@@ -11,7 +11,7 @@
     {
         <DockViewTitleBar BarIcon="@TitleBarIcon" BarIconUrl="@TitleBarIconUrl" OnClickBarCallback="OnClickBar"></DockViewTitleBar>
     }
-    @if (_rendered)
+    @if (IsRender())
     {
         @ChildContent
     }

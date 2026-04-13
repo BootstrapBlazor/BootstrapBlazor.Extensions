@@ -61,6 +61,7 @@ public partial class DockViewComponent
     /// <para lang="en">Gets or sets whether the component is visible. Default is true</para>
     /// </summary>
     [Parameter]
+    [JsonIgnore]
     public bool Visible { get; set; } = true;
 
     /// <summary>
@@ -82,6 +83,7 @@ public partial class DockViewComponent
     /// <para lang="en">Gets or sets whether the component is locked. Default is null. When not set, the DockView configuration is used</para>
     /// </summary>
     [Parameter]
+    [JsonIgnore]
     public bool? IsLock { get; set; }
 
     /// <summary>
@@ -151,12 +153,18 @@ public partial class DockViewComponent
     [Parameter]
     [JsonIgnore]
     public Func<Task>? OnClickTitleBarCallback { get; set; }
+
+    [JsonInclude]
+    [JsonPropertyName("visible")]
+    private bool JsonVisible => DockView.GetComponentState(Key)?.Visible ?? false;
+
+    [JsonInclude]
+    [JsonPropertyName("isLock")]
+    private bool JsonIsLock => DockView.GetComponentState(Key)?.IsLock ?? false;
+
     [CascadingParameter]
     [NotNull]
-    [JsonIgnore]
     private DockViewV2? DockView { get; set; }
-
-    private bool _rendered = false;
 
     /// <summary>
     /// <inheritdoc/>
@@ -166,33 +174,14 @@ public partial class DockViewComponent
         base.OnInitialized();
 
         Type = DockViewContentType.Component;
-    }
 
-    /// <summary>
-    /// <inheritdoc/>
-    /// </summary>
-    protected override void OnParametersSet()
-    {
-        base.OnParametersSet();
-
-        // 根据容器状态同步组件状态
-        if (!string.IsNullOrEmpty(Key))
+        // 增加组件状态
+        DockView?.AddComponentState(new DockViewComponentState()
         {
-            var state = DockView.ComponentStates.GetOrAdd(Key, key => new DockViewComponentState
-            {
-                Key = key,
-                IsLock = IsLock,
-                Visible = Visible,
-                Render = _rendered
-            });
-
-            // 同步组件状态到容器状态
-            state.Visible = Visible;
-            state.IsLock = IsLock;
-
-            // 同步组件渲染状态
-            _rendered = state.Render;
-        }
+            Key = Key,
+            Visible = Visible,
+            IsLock = IsLock
+        });
     }
 
     private async Task OnClickBar()
@@ -201,5 +190,27 @@ public partial class DockViewComponent
         {
             await OnClickTitleBarCallback();
         }
+    }
+
+    private bool IsRender()
+    {
+        var render = false;
+        var state = DockView.GetComponentState(Key);
+        if (state != null)
+        {
+            render = state.Render && state.Visible;
+        }
+        return render;
+    }
+
+    /// <summary>
+    /// <inheritdoc/>
+    /// </summary>
+    /// <param name="disposing"></param>
+    protected override void Dispose(bool disposing)
+    {
+        base.Dispose(disposing);
+
+        DockView.RemoveComponentState(Key);
     }
 }
