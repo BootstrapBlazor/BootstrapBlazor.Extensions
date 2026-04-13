@@ -46,7 +46,6 @@ public partial class DockViewComponent
     /// <para lang="en">Gets or sets the title template. Default is null</para>
     /// </summary>
     [Parameter]
-    [JsonIgnore]
     public RenderFragment? TitleTemplate { get; set; }
 
     /// <summary>
@@ -61,7 +60,6 @@ public partial class DockViewComponent
     /// <para lang="en">Gets or sets whether the component is visible. Default is true</para>
     /// </summary>
     [Parameter]
-    [JsonIgnore]
     public bool Visible { get; set; } = true;
 
     /// <summary>
@@ -83,7 +81,6 @@ public partial class DockViewComponent
     /// <para lang="en">Gets or sets whether the component is locked. Default is null. When not set, the DockView configuration is used</para>
     /// </summary>
     [Parameter]
-    [JsonIgnore]
     public bool? IsLock { get; set; }
 
     /// <summary>
@@ -119,7 +116,6 @@ public partial class DockViewComponent
     /// <para lang="en">Gets or sets the component render mode. Default is null. When not set, the DockView configuration is used</para>
     /// </summary>
     [Parameter]
-    [JsonIgnore(Condition = JsonIgnoreCondition.WhenWritingNull)]
     public string? Renderer { get; set; }
 
     /// <summary>
@@ -151,16 +147,7 @@ public partial class DockViewComponent
     /// <para lang="en">Gets or sets the click callback for the leading title icon. Default is null</para>
     /// </summary>
     [Parameter]
-    [JsonIgnore]
     public Func<Task>? OnClickTitleBarCallback { get; set; }
-
-    [JsonInclude]
-    [JsonPropertyName("visible")]
-    private bool JsonVisible => DockView.GetComponentState(Key)?.Visible ?? false;
-
-    [JsonInclude]
-    [JsonPropertyName("isLock")]
-    private bool JsonIsLock => DockView.GetComponentState(Key)?.IsLock ?? false;
 
     [CascadingParameter]
     [NotNull]
@@ -194,13 +181,14 @@ public partial class DockViewComponent
 
     private bool IsRender()
     {
-        var render = false;
         var state = DockView.GetComponentState(Key);
-        if (state != null)
-        {
-            render = state.Render && state.Visible;
-        }
-        return render;
+        return state.IsRender();
+    }
+
+    internal object? GetState()
+    {
+        var state = DockView.GetComponentState(Key);
+        return state.GetComponentState(this);
     }
 
     /// <summary>

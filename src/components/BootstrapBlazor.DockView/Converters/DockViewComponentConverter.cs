@@ -42,7 +42,7 @@ class DockViewComponentConverter : JsonConverter<List<DockViewComponentBase>>
             }
             else if (item is DockViewComponent contentItem)
             {
-                writer.WriteRawValue(JsonSerializer.Serialize(contentItem, options));
+                writer.WriteRawValue(JsonSerializer.Serialize(contentItem.GetState(), options));
             }
         }
         writer.WriteEndArray();
