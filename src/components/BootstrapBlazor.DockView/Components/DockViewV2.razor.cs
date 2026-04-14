@@ -379,7 +379,27 @@ public partial class DockViewV2 : IDisposable
         }
     }
 
-    internal DockViewComponentState? GetComponentState(string? key)
+    internal void UpdateComponentState(string? key, bool visible, bool? isLock)
+    {
+        if (Renderer == DockViewRenderMode.Always)
+        {
+            return;
+        }
+
+        if (!string.IsNullOrEmpty(key) && _componentStates.TryGetValue(key, out var state))
+        {
+            state.Visible = visible;
+            state.IsLock = isLock;
+        }
+    }
+
+    internal bool IsRender(string? key) => Renderer switch
+    {
+        DockViewRenderMode.OnlyWhenVisible => GetComponentState(key)?.IsRender() ?? false,
+        _ => true
+    };
+
+    private DockViewComponentState? GetComponentState(string? key)
     {
         DockViewComponentState? state = null;
         if (Renderer == DockViewRenderMode.OnlyWhenVisible)
@@ -392,12 +412,6 @@ public partial class DockViewV2 : IDisposable
 
         return state;
     }
-
-    internal bool IsRender(string? key) => Renderer switch
-    {
-        DockViewRenderMode.OnlyWhenVisible => GetComponentState(key)?.IsRender() ?? false,
-        _ => true
-    };
 
     private void Dispose(bool disposing)
     {

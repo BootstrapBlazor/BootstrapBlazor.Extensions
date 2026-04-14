@@ -174,12 +174,7 @@ public partial class DockViewComponent
         base.OnParametersSet();
 
         // 同步组件状态到缓存
-        var state = DockView.GetComponentState(Key);
-        if (state != null)
-        {
-            state.Visible = Visible;
-            state.IsLock = IsLock;
-        }
+        DockView.UpdateComponentState(Key, Visible, IsLock);
     }
 
     private async Task OnClickBar()
