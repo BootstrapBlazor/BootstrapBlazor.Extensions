@@ -6,7 +6,6 @@ import { getConfig, reloadFromConfig, loadPanelsFromLocalstorage, saveConfig } f
 import './dockview-extensions.js'
 
 const cerateDockview = (el, options) => {
-    options.enableLocalStorage = true;
     const theme = options.theme || "dockview-theme-light";
     const template = el.querySelector('template');
     options.renderer ??= 'onlyWhenVisible'; // onlyWhenVisible | partial | always
@@ -250,7 +249,11 @@ const toggleComponent = (dockview, options) => {
         let pan = findContentFromPanels(panels, item);
         if (pan === void 0) {
             item.group.delPanelIndex = item.group.panels.findIndex(p => p.params.key == item.params.key)
+            const group = item.group
             dockview.removePanel(item, true)
+            if (group.panels.length === 0) {
+                dockview.setVisible(group, false)
+            }
         }
     })
 }
