@@ -1,4 +1,4 @@
-﻿@import './dockview.css';
+@import './dockview.css';
 
 .bb-dockview {
     --bb-dockview-padding: .25rem;
@@ -127,6 +127,7 @@
             }
 
         .bb-dockview .dv-tab-on > .dv-default-tab-content + .dv-default-tab-action,
+        .bb-dockview .dv-tab-on > .bb-dockview-item-title + .dv-default-tab-action,
         .bb-dockview .dv-tabs-and-actions-container:has(.dv-tab-on) > .dv-right-actions-container > .bb-dockview-control-icon-close,
         .bb-dockview .dv-right-actions-container:not(.bb-show-pin) .bb-dockview-control-icon-pin,
         .bb-dockview .dv-right-actions-container:not(.bb-show-pin) .bb-dockview-control-icon-pushpin,
