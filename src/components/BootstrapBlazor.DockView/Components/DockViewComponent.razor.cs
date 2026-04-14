@@ -177,6 +177,13 @@ public partial class DockViewComponent
     protected override void OnParametersSet()
     {
         base.OnParametersSet();
+
+        var state = DockView.GetComponentState(Key);
+        if (state != null)
+        {
+            state.Visible = Visible;
+            state.IsLock = IsLock;
+        }
     }
 
     private async Task OnClickBar()
