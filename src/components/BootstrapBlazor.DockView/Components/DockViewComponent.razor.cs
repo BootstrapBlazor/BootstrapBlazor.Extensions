@@ -147,6 +147,7 @@ public partial class DockViewComponent
     /// <para lang="en">Gets or sets the click callback for the leading title icon. Default is null</para>
     /// </summary>
     [Parameter]
+    [JsonIgnore]
     public Func<Task>? OnClickTitleBarCallback { get; set; }
 
     [CascadingParameter]
