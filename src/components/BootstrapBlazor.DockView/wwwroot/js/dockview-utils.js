@@ -250,7 +250,7 @@ const toggleComponent = (dockview, options) => {
         let pan = findContentFromPanels(panels, item);
         if (pan === void 0) {
             item.group.delPanelIndex = item.group.panels.findIndex(p => p.params.key == item.params.key)
-            dockview.removePanel(item)
+            dockview.removePanel(item, true)
         }
     })
 }
