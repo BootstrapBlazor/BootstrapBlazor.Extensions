@@ -3,12 +3,6 @@
 
 <div @attributes="@AdditionalAttributes" id="@Id" class="@ClassString">
     <template>
-        <CascadingValue Value="this" IsFixed="true">
-            <CascadingValue Value="_components" IsFixed="true">
-                @ChildContent
-            </CascadingValue>
-        </CascadingValue>
-
         @if (DockView == null)
         {
             <DockViewIcon IconName="bar"></DockViewIcon>
@@ -24,5 +18,11 @@
             <DockViewIcon IconName="pushpin"></DockViewIcon>
             <DockViewDropdownIcon IconName="dropdown"></DockViewDropdownIcon>
         }
+
+        <CascadingValue Value="this" IsFixed="true">
+            <CascadingValue Value="_components" IsFixed="true">
+                @ChildContent
+            </CascadingValue>
+        </CascadingValue>
     </template>
 </div>
