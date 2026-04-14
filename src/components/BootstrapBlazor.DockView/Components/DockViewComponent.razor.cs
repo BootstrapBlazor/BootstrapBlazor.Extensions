@@ -163,12 +163,20 @@ public partial class DockViewComponent
         Type = DockViewContentType.Component;
 
         // 增加组件状态
-        DockView?.AddComponentState(new DockViewComponentState()
+        DockView?.AddComponentState(new DockViewComponentState(this)
         {
             Key = Key,
             Visible = Visible,
             IsLock = IsLock
         });
+    }
+
+    /// <summary>
+    /// <inheritdoc/>
+    /// </summary>
+    protected override void OnParametersSet()
+    {
+        base.OnParametersSet();
     }
 
     private async Task OnClickBar()
@@ -179,17 +187,13 @@ public partial class DockViewComponent
         }
     }
 
-    private bool IsRender()
-    {
-        var state = DockView.GetComponentState(Key);
-        return state.IsRender();
-    }
+    private bool IsRender() => DockView.GetComponentState(Key).IsRender();
 
-    internal object? GetState()
-    {
-        var state = DockView.GetComponentState(Key);
-        return state.GetComponentState(this);
-    }
+    internal object? GetState() => DockView.GetComponentState(Key).GetComponentState(this);
+
+    internal void SetVisible(bool visible) => Visible = visible;
+
+    internal void SetLock(bool isLock) => IsLock = isLock;
 
     /// <summary>
     /// <inheritdoc/>

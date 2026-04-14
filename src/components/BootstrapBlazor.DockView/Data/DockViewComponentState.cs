@@ -8,7 +8,7 @@ namespace BootstrapBlazor.Components;
 /// <para lang="zh">DockView 组件状态</para>
 /// <para lang="en">DockView component state</para>
 /// </summary>
-class DockViewComponentState
+class DockViewComponentState(DockViewComponent component)
 {
     /// <summary>
     /// <para lang="zh">获得/设置 组件唯一标识，默认为 null</para>
@@ -33,4 +33,10 @@ class DockViewComponentState
     /// <para lang="en">Gets or sets whether the component is rendered. Default is false</para>
     /// </summary>
     public bool Render { get; set; }
+
+    /// <summary>
+    /// <para lang="zh">获得/设置 组件实例，默认为 null</para>
+    /// <para lang="en">Gets or sets the component instance. Default is null</para>
+    /// </summary>
+    public DockViewComponent? Component => component;
 }

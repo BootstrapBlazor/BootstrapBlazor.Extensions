@@ -278,18 +278,13 @@ public partial class DockViewV2 : IDisposable
     public async Task PanelVisibleChangedCallbackAsync(string key, bool status)
     {
         // 同步更新组件可见状态
-        _componentStates.AddOrUpdate(key, key =>
+        if (_componentStates.TryGetValue(key, out var state))
         {
-            return new DockViewComponentState()
-            {
-                Key = key,
-                Visible = status
-            };
-        }, (key, v) =>
-        {
-            v.Visible = status;
-            return v;
-        });
+            state.Visible = status;
+
+            // 同步可见状态到组件实例
+            state.Component.SetVisible(status);
+        }
 
         // 通知订阅者
         if (OnVisibleStateChangedAsync != null)
@@ -303,29 +298,24 @@ public partial class DockViewV2 : IDisposable
     /// <para lang="en">Lock state change callback method called by JavaScript</para>
     /// </summary>
     [JSInvokable]
-    public async Task LockChangedCallbackAsync(string[] panels, bool state)
+    public async Task LockChangedCallbackAsync(string[] panels, bool locked)
     {
         // 同步更新组件锁定状态
         foreach (var panel in panels)
         {
-            _componentStates.AddOrUpdate(panel, key =>
+            if (_componentStates.TryGetValue(panel, out var state))
             {
-                return new DockViewComponentState()
-                {
-                    Key = key,
-                    IsLock = state
-                };
-            }, (key, v) =>
-            {
-                v.IsLock = state;
-                return v;
-            });
+                state.IsLock = locked;
+
+                // 同步可见状态到组件实例
+                state.Component.SetLock(locked);
+            }
         }
 
         // 通知订阅者
         if (OnLockChangedCallbackAsync != null)
         {
-            await OnLockChangedCallbackAsync(panels, state);
+            await OnLockChangedCallbackAsync(panels, locked);
         }
     }
 
