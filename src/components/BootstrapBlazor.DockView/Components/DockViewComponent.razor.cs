@@ -173,6 +173,7 @@ public partial class DockViewComponent
     {
         base.OnParametersSet();
 
+        // 同步组件状态到缓存
         var state = DockView.GetComponentState(Key);
         if (state != null)
         {
@@ -189,9 +190,7 @@ public partial class DockViewComponent
         }
     }
 
-    private bool IsRender() => DockView.GetComponentState(Key).IsRender();
-
-    internal object? GetState() => DockView.GetComponentState(Key).GetComponentState(this);
+    private bool IsRender() => DockView.IsRender(Key);
 
     internal void SetVisible(bool visible) => Visible = visible;
 

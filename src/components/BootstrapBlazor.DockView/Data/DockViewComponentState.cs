@@ -32,11 +32,15 @@ class DockViewComponentState(DockViewComponent component)
     /// <para lang="zh">获得/设置 组件内容是否渲染，默认为 false</para>
     /// <para lang="en">Gets or sets whether the component is rendered. Default is false</para>
     /// </summary>
+    /// <remarks>
+    ///   <para lang="zh">组件内容是否渲染，默认为 false，只有当组件可见时并且当前状态为 Active 时才会渲染组件内容</para>
+    ///   <para lang="en">Whether the component content is rendered. Default is false. The content is only rendered when the component is visible and the current state is Active.</para>
+    /// </remarks>
     public bool Render { get; set; }
 
     /// <summary>
     /// <para lang="zh">获得/设置 组件实例，默认为 null</para>
     /// <para lang="en">Gets or sets the component instance. Default is null</para>
     /// </summary>
-    public DockViewComponent? Component => component;
+    public DockViewComponent Component => component;
 }

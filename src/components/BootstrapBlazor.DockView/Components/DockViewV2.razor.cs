@@ -249,7 +249,7 @@ public partial class DockViewV2 : IDisposable
     /// <para lang="zh">获得 当前布局 JSON 字符串</para>
     /// <para lang="en">Gets the current layout JSON string</para>
     /// </summary>
-    public Task<string?> SaveLayout() => InvokeAsync<string?>("save", Id);
+    public Task<string?> SaveLayout() => InvokeAsync<string>("save", Id);
 
     private Task OnThemeChangedAsync(string themeName)
     {
@@ -341,6 +341,7 @@ public partial class DockViewV2 : IDisposable
     [JSInvokable]
     public Task LoadTabs(List<string> tabs)
     {
+        // 注意渲染方式 DockViewRenderMode 为 DockViewRenderMode.OnlyWhenVisible 时此逻辑生效
         _loadTabs = tabs.ToHashSet();
         foreach (var componnet in _componentStates)
         {
@@ -354,6 +355,11 @@ public partial class DockViewV2 : IDisposable
 
     internal void AddComponentState(DockViewComponentState state)
     {
+        if (Renderer == DockViewRenderMode.Always)
+        {
+            return;
+        }
+
         if (!string.IsNullOrEmpty(state.Key))
         {
             _componentStates.TryAdd(state.Key, state);
@@ -362,6 +368,11 @@ public partial class DockViewV2 : IDisposable
 
     internal void RemoveComponentState(string? key)
     {
+        if (Renderer == DockViewRenderMode.Always)
+        {
+            return;
+        }
+
         if (!string.IsNullOrEmpty(key))
         {
             _componentStates.TryRemove(key, out _);
@@ -371,12 +382,22 @@ public partial class DockViewV2 : IDisposable
     internal DockViewComponentState? GetComponentState(string? key)
     {
         DockViewComponentState? state = null;
-        if (!string.IsNullOrEmpty(key) && _componentStates.TryGetValue(key, out var _state))
+        if (Renderer == DockViewRenderMode.OnlyWhenVisible)
         {
-            state = _state;
+            if (!string.IsNullOrEmpty(key) && _componentStates.TryGetValue(key, out var _state))
+            {
+                state = _state;
+            }
         }
+
         return state;
     }
+
+    internal bool IsRender(string? key) => Renderer switch
+    {
+        DockViewRenderMode.OnlyWhenVisible => GetComponentState(key)?.IsRender() ?? false,
+        _ => true
+    };
 
     private void Dispose(bool disposing)
     {
