@@ -8,42 +8,20 @@ static class DockViewComponentStateExtensions
 {
     extension(DockViewComponentState? state)
     {
+        /// <summary>
+        /// <para lang="zh">判断组件是否需要渲染</para>
+        /// <para lang="en">Determine whether the component needs to be rendered</para>
+        /// </summary>
         public bool IsRender()
         {
+            // 如果组件 Visible false 表示组件不可见，此时 Render 也不需要渲染
             var render = false;
             if (state != null)
             {
+                // 组件必须可见并且 Active 时才需要渲染
                 render = state.Render && state.Visible;
             }
             return render;
-        }
-
-        public object? GetComponentState(DockViewComponent component)
-        {
-            if (state == null)
-            {
-                return null;
-            }
-
-            return new
-            {
-                component.Class,
-                component.Height,
-                component.Id,
-                component.IsFloating,
-                IsLock = state.IsLock,
-                component.Key,
-                component.ShowClose,
-                component.ShowFloat,
-                component.ShowLock,
-                component.ShowMaximize,
-                component.Title,
-                component.TitleClass,
-                component.TitleWidth,
-                component.Type,
-                Visible = state.Visible,
-                component.Width
-            };
         }
     }
 }
