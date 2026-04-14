@@ -162,13 +162,8 @@ public partial class DockViewComponent
 
         Type = DockViewContentType.Component;
 
-        // 增加组件状态
-        DockView?.AddComponentState(new DockViewComponentState(this)
-        {
-            Key = Key,
-            Visible = Visible,
-            IsLock = IsLock
-        });
+        // 增加组件状态用于序列化
+        DockView?.AddComponentState(new DockViewComponentState(this) { Key = Key });
     }
 
     /// <summary>
