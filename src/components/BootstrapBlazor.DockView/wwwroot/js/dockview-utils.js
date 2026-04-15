@@ -260,7 +260,8 @@ const toggleComponent = (dockview, options) => {
         if (pan === void 0) {
             item.group.delPanelIndex = item.group.panels.findIndex(p => p.params.key == item.params.key);
             const group = item.group;
-            const noFiring = !optionsPanels.some(p => p.params.key == item.params.key || p.id == item.id || p.title == item.title);
+            const localKeys = [...localPanels.map(p => p.params.key), ...dockview.params.panels.map(p => p.params.key)]
+            const noFiring = !(optionsPanels.length === localKeys.length && localKeys.every(key => optionsPanels.some(optionsPanel => optionsPanel.params.key === key) ));
             dockview.removePanel(item, noFiring)
             if (group.panels.length === 0) {
                 dockview.setVisible(group, false)
