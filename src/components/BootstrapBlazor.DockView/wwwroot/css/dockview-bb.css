@@ -300,6 +300,6 @@
     z-index: -1 !important;
 }
 
-.bb-dockview .dv-view-container > .dv-view:first-child:not(.visible) + .dv-view.visible::before {
+/* .bb-dockview .dv-view-container > .dv-view:first-child:not(.visible) + .dv-view.visible::before {
     height: 0;
-}
+} */

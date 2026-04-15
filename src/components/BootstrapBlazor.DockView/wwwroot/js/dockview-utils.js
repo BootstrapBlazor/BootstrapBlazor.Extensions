@@ -109,6 +109,9 @@ const initDockview = (dockview, options, template) => {
                 const visiblePanels = groups.filter(g => g.isVisible).map(g => g.panels.find(p => p.params.isActive) || g.panels.find(p => p.api.isVisible))
                 dockview._loadTabs?.fire(visiblePanels.filter(p => Boolean(p)).map(p => p.params.key));
             }
+            if (options.renderer === 'always') {
+                dockview._loadTabs?.fire(dockview.panels.map(p => p.params.key));
+            }
             const { floatingGroups } = dockview.params
             dockview.floatingGroups.forEach(fg => {
                 const { top, right, bottom, left } = floatingGroups.find(g => g.data.id == fg.group.id).position
@@ -228,29 +231,37 @@ const setWidth = (target, dockview) => {
 }
 
 const toggleComponent = (dockview, options) => {
-    const panels = getPanelsFromOptions(options).filter(p => p.params.visible)
-    const localPanels = dockview.panels
+    const optionsPanels = getPanelsFromOptions(options);
+    const panels = optionsPanels.filter(p => p.params.visible);
+    const localPanels = dockview.panels;
     panels.forEach(p => {
         const pan = findContentFromPanels(localPanels, p);
         if (pan === void 0) {
-            const panel = findContentFromPanels(dockview.params.panels, p);
-            const groupPanels = panels.filter(p1 => p1.params.parentId == p.params.parentId)
-            let indexOfOptions = groupPanels.findIndex(p => p.params.key == panel?.params.key)
-            indexOfOptions = indexOfOptions == -1 ? 0 : indexOfOptions
-            const index = panel && panel.params.index
-            addGroupWithPanel(dockview, panel || p, panels, index ?? indexOfOptions);
+            const panel = findContentFromPanels(dockview.params.panels, p) || p;
+            panel.params = { ...panel.params, ...p.params };
+            const groupPanels = panels.filter(p1 => p1.params.parentId == p.params.parentId);
+            let indexOfOptions = groupPanels.findIndex(p => p.params.key == panel?.params.key);
+            indexOfOptions = indexOfOptions == -1 ? 0 : indexOfOptions;
+            // const index = panel && panel.params.index
+            addGroupWithPanel(dockview, panel, panels, indexOfOptions);
+        }
+        else {
+            if ( pan.title !== p.title ) {
+                pan.setTitle(p.title)
+            }
+            pan._params = {
+                ...pan.params,
+                ...p.params
+            }
         }
     })
     localPanels.forEach(item => {
-        const title = panels.find(p => p.params.key == item.params.key)?.title;
-        if ( title && item.title !== title ) {
-            item.setTitle(title)
-        }
         let pan = findContentFromPanels(panels, item);
         if (pan === void 0) {
-            item.group.delPanelIndex = item.group.panels.findIndex(p => p.params.key == item.params.key)
-            const group = item.group
-            dockview.removePanel(item, true)
+            item.group.delPanelIndex = item.group.panels.findIndex(p => p.params.key == item.params.key);
+            const group = item.group;
+            const noFiring = !optionsPanels.some(p => p.params.key == item.params.key || p.id == item.id || p.title == item.title);
+            dockview.removePanel(item, noFiring)
             if (group.panels.length === 0) {
                 dockview.setVisible(group, false)
             }

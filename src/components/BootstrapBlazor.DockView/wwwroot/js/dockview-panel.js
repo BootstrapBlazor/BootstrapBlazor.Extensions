@@ -11,10 +11,11 @@ const observePanelActiveChange = panel => {
     panel.api.onDidActiveChange(({ isActive }) => {
         if (isActive && !panel.group.api.isMaximized()) {
             saveConfig(panel.accessor)
-            if (panel.group.panels.length < 2) return
-            panel.group.panels.filter(p => p != panel.group.activePanel && p.renderer == 'onlyWhenVisible').forEach(p => {
-                appendTemplatePanelEle(p)
-            })
+            if (panel.group.panels.length >= 2){
+                panel.group.panels.filter(p => p != panel.group.activePanel && p.renderer == 'onlyWhenVisible').forEach(p => {
+                    appendTemplatePanelEle(p)
+                })
+            }
         }
         if (isActive && panel.group.getParams().floatType == 'drawer') {
             setDrawerTitle(panel.group)
@@ -79,14 +80,14 @@ const onRemovePanel = event => {
         })
     }
 
-    if (event.view.content.element) {
-        if (event.titleMenuEle) {
-            event.view.content.element.append(event.titleMenuEle)
-        }
-        if (dockview.params.template) {
-            dockview.params.template.append(event.view.content.element)
-        }
-    }
+    // if (event.view.content.element) {
+    //     if (event.titleMenuEle) {
+    //         event.view.content.element.append(event.titleMenuEle)
+    //     }
+    //     if (dockview.params.template) {
+    //         dockview.params.template.append(event.view.content.element)
+    //     }
+    // }
 }
 
 const appendTemplatePanelEle = (panel) => {
