@@ -60,6 +60,7 @@ const initDockview = (dockview, options, template) => {
         else {
             toggleComponent(dockview, options);
         }
+        dockview.firstLoad = false;
     }
 
     dockview.reset = options => {
