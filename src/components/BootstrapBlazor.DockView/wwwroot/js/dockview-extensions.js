@@ -1,4 +1,4 @@
-﻿import { DockviewComponent, DockviewGroupPanel, getGridLocation, getRelativeLocation, DockviewEmitter } from "./dockview-core.esm.js"
+import { DockviewComponent, DockviewGroupPanel, getGridLocation, getRelativeLocation, DockviewEmitter } from "./dockview-core.esm.js"
 import { getConfigFromStorage, saveConfig } from "./dockview-config.js"
 import { disposeGroup, removeDrawerBtn } from "./dockview-group.js"
 
@@ -72,14 +72,14 @@ DockviewComponent.prototype.removeGroup = function (...args) {
 
 const removePanel = DockviewComponent.prototype.removePanel
 DockviewComponent.prototype.removePanel = function (...args) {
-    const panel = args[0], noFiring = args[1]
+    const panel = args[0], moveToTemplate = args[1]
     if (!panel.group.locked) {
         removePanel.apply(this, args)
         if (!this.isClearing) {
             this._panelVisibleChanged?.fire({ key: panel.params.key, status: false });
         }
     }
-    if (noFiring !== true) {
+    if (moveToTemplate) {
         if (panel.view.content.element) {
             if (panel.titleMenuEle) {
                 panel.view.content.element.append(panel.titleMenuEle)

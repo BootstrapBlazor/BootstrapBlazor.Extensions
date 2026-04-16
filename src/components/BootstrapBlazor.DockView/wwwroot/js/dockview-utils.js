@@ -21,7 +21,7 @@ const cerateDockview = (el, options) => {
         createComponent: option => new DockviewPanelContent(option)
     });
     initDockview(dockview, options, template);
-
+    dockview.firstLoad = true;
     dockview.init();
     return dockview;
 }
@@ -260,9 +260,8 @@ const toggleComponent = (dockview, options) => {
         if (pan === void 0) {
             item.group.delPanelIndex = item.group.panels.findIndex(p => p.params.key == item.params.key);
             const group = item.group;
-            const localKeys = [...localPanels.map(p => p.params.key), ...dockview.params.panels.map(p => p.params.key)]
-            const noFiring = !(optionsPanels.length === localKeys.length && localKeys.every(key => optionsPanels.some(optionsPanel => optionsPanel.params.key === key) ));
-            dockview.removePanel(item, noFiring)
+            const moveToTemplate = !dockview.firstLoad;
+            dockview.removePanel(item, moveToTemplate)
             if (group.panels.length === 0) {
                 dockview.setVisible(group, false)
             }
