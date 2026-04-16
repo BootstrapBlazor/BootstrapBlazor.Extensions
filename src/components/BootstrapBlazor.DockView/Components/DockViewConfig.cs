@@ -13,12 +13,6 @@ namespace BootstrapBlazor.Components;
 class DockViewConfig
 {
     /// <summary>
-    /// <para lang="zh">获得/设置 是否首次加载，默认为 false</para>
-    /// <para lang="en">Gets or sets whether it is the first render. Default is false</para>
-    /// </summary>
-    public bool FirstRender { get; set; }
-
-    /// <summary>
     /// <para lang="zh">获得/设置 是否启用本地布局持久化，默认为 true</para>
     /// <para lang="en">Gets or sets whether local layout persistence is enabled. Default is true</para>
     /// </summary>

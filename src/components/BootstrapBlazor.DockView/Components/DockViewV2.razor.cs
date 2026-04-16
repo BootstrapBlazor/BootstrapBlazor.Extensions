@@ -203,9 +203,9 @@ public partial class DockViewV2 : IDisposable
     /// <summary>
     /// <inheritdoc />
     /// </summary>
-    protected override Task InvokeInitAsync() => InvokeVoidAsync("init", Id, Interop, GetOptions(true));
+    protected override Task InvokeInitAsync() => InvokeVoidAsync("init", Id, Interop, GetOptions());
 
-    private DockViewConfig GetOptions(bool firstRender = false) => new()
+    private DockViewConfig GetOptions() => new()
     {
         EnableLocalStorage = EnableLocalStorage ?? _options.EnableLocalStorage ?? false,
         LocalStorageKey = $"{GetPrefixKey()}-{Name}-{GetVersion()}",
@@ -224,8 +224,7 @@ public partial class DockViewV2 : IDisposable
         LockChangedCallback = nameof(LockChangedCallbackAsync),
         SplitterCallback = nameof(SplitterCallbackAsync),
         Contents = _components,
-        LoadTabs = nameof(LoadTabs),
-        FirstRender = firstRender
+        LoadTabs = nameof(LoadTabs)
     };
 
     private string GetVersion() => Version ?? _options.Version ?? "v1";
