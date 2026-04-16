@@ -172,7 +172,6 @@ public partial class DockViewV2 : IDisposable
     [NotNull]
     private DockViewOptions? _options = null;
     private ConcurrentDictionary<string, DockViewComponentState> _componentStates = new();
-    private bool _firstLoad = true;
 
     /// <summary>
     /// <inheritdoc/>
@@ -204,9 +203,9 @@ public partial class DockViewV2 : IDisposable
     /// <summary>
     /// <inheritdoc />
     /// </summary>
-    protected override Task InvokeInitAsync() => InvokeVoidAsync("init", Id, Interop, GetOptions());
+    protected override Task InvokeInitAsync() => InvokeVoidAsync("init", Id, Interop, GetOptions(true));
 
-    private DockViewConfig GetOptions() => new()
+    private DockViewConfig GetOptions(bool firstRender = false) => new()
     {
         EnableLocalStorage = EnableLocalStorage ?? _options.EnableLocalStorage ?? false,
         LocalStorageKey = $"{GetPrefixKey()}-{Name}-{GetVersion()}",
@@ -226,7 +225,7 @@ public partial class DockViewV2 : IDisposable
         SplitterCallback = nameof(SplitterCallbackAsync),
         Contents = _components,
         LoadTabs = nameof(LoadTabs),
-        FirstRender = _firstLoad
+        FirstRender = firstRender
     };
 
     private string GetVersion() => Version ?? _options.Version ?? "v1";
@@ -266,7 +265,6 @@ public partial class DockViewV2 : IDisposable
     [JSInvokable]
     public async Task InitializedCallbackAsync()
     {
-        _firstLoad = false;
         if (OnInitializedCallbackAsync != null)
         {
             await OnInitializedCallbackAsync();
