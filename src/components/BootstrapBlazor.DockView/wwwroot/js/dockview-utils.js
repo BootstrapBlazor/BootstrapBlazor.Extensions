@@ -97,7 +97,7 @@ const initDockview = (dockview, options, template) => {
                 panels.forEach(panel => {
                     const visible = panel.params.visible
                     if (!visible) {
-                        dockview.removePanel(panel)
+                        panel.group.model.closePanel(panel)
                     }
                     dockview._panelVisibleChanged?.fire({ key: panel.params.key, status: visible });
                 })
@@ -261,8 +261,7 @@ const toggleComponent = (dockview, options) => {
         if (pan === void 0) {
             item.group.delPanelIndex = item.group.panels.findIndex(p => p.params.key == item.params.key);
             const group = item.group;
-            const moveToTemplate = !dockview.firstLoad;
-            dockview.removePanel(item, moveToTemplate)
+            group.model.closePanel(item)
             if (group.panels.length === 0) {
                 dockview.setVisible(group, false)
             }
