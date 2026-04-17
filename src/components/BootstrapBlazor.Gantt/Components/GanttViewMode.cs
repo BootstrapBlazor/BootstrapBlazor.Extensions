@@ -1,49 +1,25 @@
-﻿// Copyright (c) Argo Zhang (argo@163.com). All rights reserved.
-// Licensed under the Apache License, Version 2.0. See License.txt in the project root for license information.
-// Website: https://www.blazor.zone or https://argozhang.github.io/
-
-using System.ComponentModel;
-
-namespace BootstrapBlazor.Components;
+namespace BootstrapBlazor.Gantt;
 
 /// <summary>
-/// GanttViewMode 枚举
+/// 表示甘特图的时间轴视图模式
 /// </summary>
 public enum GanttViewMode
 {
     /// <summary>
-    /// 
+    /// <para lang="zh">日视图</para>
+    /// <para lang="en">Day view</para>
     /// </summary>
-    [Description("Quarter Day")]
-    QUARTER_DAY,
+    Day = 0,
 
     /// <summary>
-    /// 
+    /// <para lang="zh">周视图</para>
+    /// <para lang="en">Week view</para>
     /// </summary>
-    [Description("Half Day")]
-    HALF_DAY,
+    Week = 1,
 
     /// <summary>
-    /// 
+    /// <para lang="zh">月视图</para>
+    /// <para lang="en">Month view</para>
     /// </summary>
-    [Description("Day")]
-    DAY,
-
-    /// <summary>
-    /// 
-    /// </summary>
-    [Description("Week")]
-    WEEK,
-
-    /// <summary>
-    /// 
-    /// </summary>
-    [Description("Month")]
-    MONTH,
-
-    /// <summary>
-    /// 
-    /// </summary>
-    [Description("Year")]
-    YEAR,
+    Month = 2
 }

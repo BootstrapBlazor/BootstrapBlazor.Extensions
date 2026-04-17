@@ -1,0 +1,251 @@
+@namespace BootstrapBlazor.Gantt
+@inherits BootstrapModuleComponentBase
+
+@attribute [JSModuleAutoLoader("./_content/GanttChartLib/GanttChart.razor.js", AutoInvokeDispose = true, AutoInvokeInit = false, JSObjectReference = true)]
+
+<div class="gantt-chart @ClassName" style="@RootStyle">
+    <div class="gantt-chart__header">
+        <div class="gantt-chart__title-group">
+            @if (!string.IsNullOrWhiteSpace(Title))
+            {
+                <p class="gantt-chart__eyebrow">@Title</p>
+            }
+
+            @if (!string.IsNullOrWhiteSpace(Subtitle))
+            {
+                <h2 class="gantt-chart__title">@Subtitle</h2>
+            }
+
+            @if (ShowViewModeSwitch)
+            {
+                <div class="gantt-chart__view-switch" role="tablist" aria-label="视图切换">
+                    @foreach (var option in ViewModeOptions)
+                    {
+                        var isActive = ResolvedViewMode == option.Mode;
+
+                        <button type="button"
+                                class="@(isActive ? "gantt-chart__view-switch-button gantt-chart__view-switch-button--active" : "gantt-chart__view-switch-button")"
+                                role="tab" aria-selected="@isActive" @onclick="@(() => SetViewModeAsync(option.Mode))">
+                            @option.Label
+                        </button>
+                    }
+                </div>
+            }
+        </div>
+
+        @if (ShowSummary && VisibleItems.Count > 0)
+        {
+            <div class="gantt-chart__summary">
+                <span>可见任务 @VisibleItems.Count 个</span>
+                <span>@($"{RangeStart:yyyy-MM-dd} 至 {RangeEnd:yyyy-MM-dd}")</span>
+                @if (ResourceConflicts.ItemIds.Count > 0)
+                {
+                    <span class="gantt-chart__conflict-status">@BuildConflictStatus(ResourceConflicts)</span>
+                }
+                @if (ScheduleIssues.ItemIds.Count > 0)
+                {
+                    <span class="gantt-chart__schedule-issue-status">@BuildScheduleIssueStatus(ScheduleIssues)</span>
+                }
+            </div>
+        }
+    </div>
+
+    @if (VisibleRows.Count == 0)
+    {
+        <div class="gantt-chart__empty">当前没有可显示的任务。</div>
+    }
+    else
+    {
+        <div class="gantt-chart__viewport">
+            <div class="gantt-chart__timeline-shell" @ref="timelineShellRef">
+                <div class="gantt-chart__axis-row">
+                    <div class="gantt-chart__sidebar-header">@SidebarTitle</div>
+                    <div class="gantt-chart__axis-track" style="@TrackSurfaceStyle">
+                        <div class="gantt-chart__axis" style="@ColumnsStyle">
+                            @foreach (var slot in TimelineSlots)
+                            {
+                                <div class="gantt-chart__axis-cell @(slot.IsToday ? "gantt-chart__axis-cell--today" : null)">
+                                    <span class="gantt-chart__axis-label">@slot.Label</span>
+                                    <span class="gantt-chart__axis-caption">@slot.Caption</span>
+                                </div>
+                            }
+                        </div>
+
+                        @if (TodayMarkerOffset.HasValue)
+                        {
+                            <div class="gantt-chart__today-line" style="@BuildMarkerStyle(TodayMarkerOffset.Value)"></div>
+                        }
+                    </div>
+                </div>
+
+                @if (ShowDependencies || ShowHierarchyLines)
+                {
+                    <svg class="gantt-chart__links" style="@DependencyCanvasStyle" preserveAspectRatio="none"
+                         aria-hidden="true">
+                    </svg>
+                }
+
+                @foreach (var row in VisibleRows)
+                {
+                    @if (row.Kind is GanttRowKind.Group && row.Group is not null)
+                    {
+                        <div class="gantt-chart__group-row">
+                            <button type="button" class="gantt-chart__group-toggle" @onclick="@(() => ToggleGroup(row.Group.Id))">
+                                <span
+                                class="gantt-chart__group-chevron @(IsGroupCollapsed(row.Group.Id) ? "gantt-chart__group-chevron--collapsed" : null)">▾</span>
+                                <span class="gantt-chart__group-title">@row.Group.Title</span>
+                                <span class="gantt-chart__group-count">任务 @GetGroupVisibleItemCount(row.Group) 个</span>
+                            </button>
+
+                            <div class="gantt-chart__group-track" style="@TrackSurfaceStyle">
+                                <div class="gantt-chart__track-grid" style="@ColumnsStyle">
+                                    @foreach (var slot in TimelineSlots)
+                                    {
+                                        <div
+                                            class="gantt-chart__cell gantt-chart__cell--group @(slot.IsToday ? "gantt-chart__cell--today" : null)">
+                                        </div>
+                                    }
+                                </div>
+
+                                @if (TodayMarkerOffset.HasValue)
+                                {
+                                    <div class="gantt-chart__today-line" style="@BuildMarkerStyle(TodayMarkerOffset.Value)"></div>
+                                }
+                            </div>
+                        </div>
+                    }
+                    else if (row.Kind is GanttRowKind.Item && row.Item is not null)
+                    {
+                        var item = row.Item;
+                        var displayItem = GetRenderedItem(item);
+                        var taskBar = BuildTaskBarState(displayItem);
+                        var itemIndentStyle = $"--gantt-item-level:{row.Level};";
+
+                        <div class="gantt-chart__data-row">
+                            <div class="gantt-chart__sidebar @(row.Group is not null ? "gantt-chart__sidebar--nested" : null)"
+                                 style="@itemIndentStyle">
+                                <div class="gantt-chart__task-meta">
+                                    <span class="gantt-chart__task-title">
+                                        @if (row.HasChildren)
+                                        {
+                                            <button type="button" class="gantt-chart__item-toggle" title="展开或收起子任务"
+                                                    @onclick="@(() => ToggleItem(GetResolvedItemId(displayItem)))">
+                                                <span
+                                                class="gantt-chart__item-chevron @(IsItemCollapsed(displayItem) ? "gantt-chart__item-chevron--collapsed" : null)">▾</span>
+                                            </button>
+                                        }
+                                        else
+                                        {
+                                            <span class="gantt-chart__item-toggle-placeholder"></span>
+                                        }
+
+                                        <span class="gantt-chart__task-name">@displayItem.Name</span>
+                                    </span>
+
+                                    @if (!string.IsNullOrWhiteSpace(displayItem.Owner))
+                                    {
+                                        <span
+                                        class="@(HasResourceConflict(displayItem) ? "gantt-chart__task-owner gantt-chart__task-owner--conflict" : "gantt-chart__task-owner")">@displayItem.Owner</span>
+                                    }
+                                </div>
+
+                                @if (displayItem.Progress is not null && !displayItem.IsMilestone)
+                                {
+                                    <span class="gantt-chart__task-progress">@Math.Round(displayItem.Progress.Value)%</span>
+                                }
+                            </div>
+
+                            <div class="gantt-chart__track @(IsEditable ? "gantt-chart__track--editable" : null)"
+                                 style="@TrackSurfaceStyle">
+                                <div class="gantt-chart__track-grid" style="@ColumnsStyle">
+                                    @foreach (var slot in TimelineSlots)
+                                    {
+                                        <div class="gantt-chart__cell @(slot.IsToday ? "gantt-chart__cell--today" : null)"></div>
+                                    }
+                                </div>
+
+                                @if (TodayMarkerOffset.HasValue)
+                                {
+                                    <div class="gantt-chart__today-line" style="@BuildMarkerStyle(TodayMarkerOffset.Value)"></div>
+                                }
+
+                                <div class="@taskBar.ClassName" style="@taskBar.Style" title="@taskBar.Tooltip"
+                                     data-drag-kind="schedule" data-gantt-drag="true" data-item-id="@taskBar.MoveHandle.ItemId"
+                                     data-dependencies="@BuildDependencyIdsText(displayItem)"
+                                     data-child-item-ids="@BuildChildItemIdsText(displayItem)"
+                                     data-has-children="@(displayItem.Children is { Count: > 0 } ? "true" : "false")"
+                                     data-descendant-item-ids="@taskBar.DescendantItemIdsText"
+                                     data-is-milestone="@taskBar.MoveHandle.IsMilestoneText"
+                                     data-view-mode="@taskBar.MoveHandle.ViewModeValue"
+                                     data-start-index="@taskBar.MoveHandle.StartIndex" data-end-index="@taskBar.MoveHandle.EndIndex"
+                                     data-min-start-index="@taskBar.MoveHandle.MinStartIndex"
+                                     data-max-end-index="@taskBar.MoveHandle.MaxEndIndex"
+                                     data-slot-count="@taskBar.MoveHandle.SlotCount"
+                                     data-drag-operation="@taskBar.MoveHandle.OperationValue"
+                                     data-min-delta-slots="@taskBar.MoveHandle.MinDeltaSlots"
+                                     data-max-delta-slots="@taskBar.MoveHandle.MaxDeltaSlots">
+                                    <div class="gantt-chart__bar-body">
+                                        @if (displayItem.IsMilestone)
+                                        {
+                                            <span class="gantt-chart__milestone-dot"></span>
+                                            <span class="@taskBar.LabelClassName">@taskBar.Label</span>
+                                        }
+                                        else
+                                        {
+                                            @if (displayItem.Progress is not null)
+                                            {
+                                                <div class="gantt-chart__bar-progress"
+                                                     style="@BuildProgressStyle(displayItem.Progress.Value)"></div>
+                                            }
+
+                                            <span class="@taskBar.LabelClassName">@taskBar.Label</span>
+                                        }
+                                    </div>
+
+                                    @if (!displayItem.IsMilestone && IsEditable && displayItem.Children is not { Count: > 0 })
+                                    {
+                                        @if (taskBar.ProgressHandle is not null)
+                                        {
+                                            <button type="button" class="gantt-chart__progress-handle" title="调整完成度"
+                                                    style="@taskBar.ProgressHandle.Style" data-gantt-drag="true" data-drag-kind="progress"
+                                                    data-item-id="@taskBar.ProgressHandle.ItemId"
+                                                    data-progress-value="@taskBar.ProgressHandle.ProgressText"></button>
+                                        }
+
+                                        <button type="button" class="gantt-chart__resize-handle gantt-chart__resize-handle--start"
+                                                title="调整开始时间" data-drag-kind="schedule" data-gantt-drag="true"
+                                                data-item-id="@taskBar.ResizeStartHandle.ItemId"
+                                                data-is-milestone="@taskBar.ResizeStartHandle.IsMilestoneText"
+                                                data-view-mode="@taskBar.ResizeStartHandle.ViewModeValue"
+                                                data-start-index="@taskBar.ResizeStartHandle.StartIndex"
+                                                data-end-index="@taskBar.ResizeStartHandle.EndIndex"
+                                                data-min-start-index="@taskBar.ResizeStartHandle.MinStartIndex"
+                                                data-max-end-index="@taskBar.ResizeStartHandle.MaxEndIndex"
+                                                data-slot-count="@taskBar.ResizeStartHandle.SlotCount"
+                                                data-drag-operation="@taskBar.ResizeStartHandle.OperationValue"
+                                                data-min-delta-slots="@taskBar.ResizeStartHandle.MinDeltaSlots"
+                                                data-max-delta-slots="@taskBar.ResizeStartHandle.MaxDeltaSlots"></button>
+
+                                        <button type="button" class="gantt-chart__resize-handle gantt-chart__resize-handle--end"
+                                                title="调整结束时间" data-drag-kind="schedule" data-gantt-drag="true"
+                                                data-item-id="@taskBar.ResizeEndHandle.ItemId"
+                                                data-is-milestone="@taskBar.ResizeEndHandle.IsMilestoneText"
+                                                data-view-mode="@taskBar.ResizeEndHandle.ViewModeValue"
+                                                data-start-index="@taskBar.ResizeEndHandle.StartIndex"
+                                                data-end-index="@taskBar.ResizeEndHandle.EndIndex"
+                                                data-min-start-index="@taskBar.ResizeEndHandle.MinStartIndex"
+                                                data-max-end-index="@taskBar.ResizeEndHandle.MaxEndIndex"
+                                                data-slot-count="@taskBar.ResizeEndHandle.SlotCount"
+                                                data-drag-operation="@taskBar.ResizeEndHandle.OperationValue"
+                                                data-min-delta-slots="@taskBar.ResizeEndHandle.MinDeltaSlots"
+                                                data-max-delta-slots="@taskBar.ResizeEndHandle.MaxDeltaSlots"></button>
+                                    }
+                                </div>
+                            </div>
+                        </div>
+                    }
+                }
+            </div>
+        </div>
+    }
+</div>
