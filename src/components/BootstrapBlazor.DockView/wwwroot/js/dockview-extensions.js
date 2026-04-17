@@ -1,6 +1,7 @@
 import { DockviewComponent, DockviewGroupPanel, DockviewGroupPanelModel, getGridLocation, getRelativeLocation, DockviewEmitter } from "./dockview-core.esm.js"
 import { getConfigFromStorage, saveConfig } from "./dockview-config.js"
 import { disposeGroup, removeDrawerBtn } from "./dockview-group.js"
+import { markFirstVisibleElement } from "./dockview-utils.js"
 
 DockviewComponent.prototype.on = function(eventType, callback) {
     this['_' + eventType] = new DockviewEmitter();
@@ -84,7 +85,7 @@ DockviewGroupPanelModel.prototype.closePanel = function(panel, triggerVisibleCha
 
 const setVisible = DockviewComponent.prototype.setVisible
 DockviewComponent.prototype.setVisible = function(...args) {
-    setVisible.apply(this, args)
+    setVisible.apply(this, args);
     const branch = getBranchByGroup(args[0])
     const { orientation, splitview: { sashes } } = branch
 
@@ -110,6 +111,7 @@ DockviewComponent.prototype.setVisible = function(...args) {
             }
         });
     }
+    markFirstVisibleElement(args[0])
 }
 function getBranchByGroup(group) {
     const groupEle = group.element

@@ -83,6 +83,9 @@ const initDockview = (dockview, options, template) => {
     })
 
     dockview.onDidLayoutFromJSON(() => {
+        dockview.groups.forEach(group => {
+            markFirstVisibleElement(group);
+        })
         const handler = setTimeout(() => {
             clearTimeout(handler);
             const panels = dockview.panels;
@@ -266,6 +269,17 @@ const toggleGroupLock = (dockview, options) => {
     dockview.groups.forEach(group => {
         toggleLock(group, group.header.rightActionsContainer, options.lock)
     })
+}
+export const markFirstVisibleElement = group => {
+    if (!group) return
+    const viewContainerEle = group.element.parentElement.parentElement;
+    const className = 'first-visible';
+    [...viewContainerEle.children].forEach(ele => {
+        if (ele.classList.contains(className)) {
+            ele.classList.remove(className)
+        }
+    })
+    viewContainerEle.querySelector('.visible')?.classList.add(className);
 }
 
 export { cerateDockview };

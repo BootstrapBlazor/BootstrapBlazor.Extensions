@@ -300,6 +300,12 @@
     z-index: -1 !important;
 }
 
-.dv-split-view-container.dv-vertical .dv-view:not(.visible) + .dv-view:before {
+/* .dv-split-view-container.dv-vertical .dv-view:not(.visible) + .dv-view:before {
+    height: 0;
+} */
+
+.bb-dockview .dv-split-view-container.dv-vertical > .dv-view-container > .dv-view:not(:first-child):not(.visible):before,
+.bb-dockview .dv-split-view-container.dv-vertical > .dv-view-container > .dv-view:first-child:not(.visible) + .dv-view.visible:before,
+.bb-dockview .dv-split-view-container.dv-vertical > .dv-view-container > .dv-view.first-visible::before {
     height: 0;
 }
