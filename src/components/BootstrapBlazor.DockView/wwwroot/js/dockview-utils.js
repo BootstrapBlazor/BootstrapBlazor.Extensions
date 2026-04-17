@@ -122,19 +122,10 @@ const initDockview = (dockview, options, template) => {
                 fg.group.element.parentElement.style.inset = [top, right, bottom, left]
                     .map(item => typeof item == 'number' ? (item + 'px') : 'auto').join(' ')
 
-                // fg.overlay.onDidChangeEnd(e => {
-                //     saveConfig(dockview);
-                // })
                 observeOverlayChange(fg.overlay, fg.group)
                 const { floatType, direction } = fg.group.getParams();
                 if (floatType == 'drawer') {
                     createDrawerHandle(fg.group, direction == 'right')
-                }
-                else {
-                    const autoHideBtn = fg.group.header.rightActionsContainer.querySelector('.bb-dockview-control-icon-autohide')
-                    if (autoHideBtn) {
-                        // autoHideBtn.style.display = 'none'
-                    }
                 }
                 observeFloatingGroupLocationChange(fg.group)
             })
@@ -245,7 +236,6 @@ const toggleComponent = (dockview, options) => {
             const groupPanels = panels.filter(p1 => p1.params.parentId == p.params.parentId);
             let indexOfOptions = groupPanels.findIndex(p => p.params.key == panel?.params.key);
             indexOfOptions = indexOfOptions == -1 ? 0 : indexOfOptions;
-            // const index = panel && panel.params.index
             addGroupWithPanel(dockview, panel, panels, indexOfOptions);
         }
         else {
@@ -263,7 +253,7 @@ const toggleComponent = (dockview, options) => {
         if (pan === void 0) {
             item.group.delPanelIndex = item.group.panels.findIndex(p => p.params.key == item.params.key);
             const group = item.group;
-            group.model.closePanel(item)
+            group.model.closePanel(item, false)
             if (group.panels.length === 0) {
                 dockview.setVisible(group, false)
             }
