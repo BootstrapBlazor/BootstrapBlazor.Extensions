@@ -10,13 +10,13 @@ namespace BootstrapBlazor.Components;
 
 /// <summary>
 /// <para lang="zh">DockContent 类对标 content 配置项</para>
-/// <para lang="en">DockContent class corresponds to the content configuration item.</para>
+/// <para lang="en">DockContent class corresponds to the content configuration item</para>
 /// </summary>
 public class DockViewContent : DockViewComponentBase
 {
     /// <summary>
     /// <para lang="zh">获得/设置 子项集合</para>
-    /// <para lang="en">Gets or sets the collection of child items.</para>
+    /// <para lang="en">Gets or sets the collection of child items</para>
     /// </summary>
     [JsonConverter(typeof(DockViewComponentConverter))]
     [JsonPropertyName("content")]

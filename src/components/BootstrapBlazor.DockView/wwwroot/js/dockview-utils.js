@@ -21,7 +21,6 @@ const cerateDockview = (el, options) => {
         createComponent: option => new DockviewPanelContent(option)
     });
     initDockview(dockview, options, template);
-
     dockview.init();
     return dockview;
 }
@@ -34,7 +33,6 @@ const initDockview = (dockview, options, template) => {
         const config = getConfig(options);
         dockview.params.floatingGroups = config.floatingGroups || []
         dockview.fromJSON(config);
-        // window.dockview = dockview;
     }
 
     dockview.switchTheme = theme => {
@@ -85,6 +83,9 @@ const initDockview = (dockview, options, template) => {
     })
 
     dockview.onDidLayoutFromJSON(() => {
+        dockview.groups.forEach(group => {
+            markFirstVisibleElement(group);
+        })
         const handler = setTimeout(() => {
             clearTimeout(handler);
             const panels = dockview.panels;
@@ -92,27 +93,27 @@ const initDockview = (dockview, options, template) => {
             const delPanelsStr = localStorage.getItem(dockview.params.options.localStorageKey + '-panels');
             const delPanels = delPanelsStr && JSON.parse(delPanelsStr) || [];
 
-            panels.forEach(panel => {
-                const visible = panel.params.visible
-                if (!visible) {
-                    dockview.removePanel(panel)
-                }
-                dockview._panelVisibleChanged?.fire({ title: panel.title, status: visible });
-            })
-            delPanels.forEach(panel => {
-                dockview._panelVisibleChanged?.fire({ title: panel.title, status: false });
-            })
-            if (options.renderer === 'always') {
-
+            if (options.enableLocalStorage) {
+                panels.forEach(panel => {
+                    const visible = panel.params.visible
+                    if (visible) {
+                        dockview._panelVisibleChanged?.fire({ key: panel.params.key, status: true });
+                    }
+                    else {
+                        panel.group.model.closePanel(panel)
+                    }
+                })
+                delPanels.forEach(panel => {
+                    dockview._panelVisibleChanged?.fire({ key: panel.params.key, status: false });
+                })
             }
-            else if (options.renderer === 'partial' || options.renderer === 'onlyWhenVisible') {
+
+            if (options.renderer === 'onlyWhenVisible') {
                 const visiblePanels = groups.filter(g => g.isVisible).map(g => g.panels.find(p => p.params.isActive) || g.panels.find(p => p.api.isVisible))
                 dockview._loadTabs?.fire(visiblePanels.filter(p => Boolean(p)).map(p => p.params.key));
             }
-            if (options.renderer === 'partial') {
-                if (dockview.panels.length > 0) {
-                    dockview._loadTabs?.fire(dockview.panels.map(p => p.params.key));
-                }
+            if (options.renderer === 'always') {
+                dockview._loadTabs?.fire(dockview.panels.map(p => p.params.key));
             }
             const { floatingGroups } = dockview.params
             dockview.floatingGroups.forEach(fg => {
@@ -121,19 +122,10 @@ const initDockview = (dockview, options, template) => {
                 fg.group.element.parentElement.style.inset = [top, right, bottom, left]
                     .map(item => typeof item == 'number' ? (item + 'px') : 'auto').join(' ')
 
-                // fg.overlay.onDidChangeEnd(e => {
-                //     saveConfig(dockview);
-                // })
                 observeOverlayChange(fg.overlay, fg.group)
                 const { floatType, direction } = fg.group.getParams();
                 if (floatType == 'drawer') {
                     createDrawerHandle(fg.group, direction == 'right')
-                }
-                else {
-                    const autoHideBtn = fg.group.header.rightActionsContainer.querySelector('.bb-dockview-control-icon-autohide')
-                    if (autoHideBtn) {
-                        // autoHideBtn.style.display = 'none'
-                    }
                 }
                 observeFloatingGroupLocationChange(fg.group)
             })
@@ -141,7 +133,7 @@ const initDockview = (dockview, options, template) => {
             dockview.groups.forEach(group => {
                 observeGroup(group)
             })
-            dockview.element.querySelector('&>.dv-dockview>.dv-branch-node').addEventListener('click', function (e) {
+            dockview.element.querySelector('&>.dv-dockview>.dv-branch-node').addEventListener('click', function(e) {
                 this.parentElement.querySelectorAll('&>.dv-resize-container-drawer, &>.dv-render-overlay-float-drawer').forEach(item => {
                     item.classList.remove('active')
                 })
@@ -233,28 +225,42 @@ const setWidth = (target, dockview) => {
 }
 
 const toggleComponent = (dockview, options) => {
-    const panels = getPanelsFromOptions(options).filter(p => p.params.visible)
-    const localPanels = dockview.panels
+    const optionsPanels = getPanelsFromOptions(options);
+    const panels = optionsPanels.filter(p => p.params.visible);
+    const localPanels = dockview.panels;
     panels.forEach(p => {
         const pan = findContentFromPanels(localPanels, p);
         if (pan === void 0) {
-            const panel = findContentFromPanels(dockview.params.panels, p);
-            const groupPanels = panels.filter(p1 => p1.params.parentId == p.params.parentId)
-            let indexOfOptions = groupPanels.findIndex(p => p.params.key == panel?.params.key)
-            indexOfOptions = indexOfOptions == -1 ? 0 : indexOfOptions
-            const index = panel && panel.params.index
-            addGroupWithPanel(dockview, p || panel, panel, panels, index ?? indexOfOptions);
+            const panel = findContentFromPanels(dockview.params.panels, p) || p;
+            panel.params = { ...panel.params, ...p.params };
+            const groupPanels = panels.filter(p1 => p1.params.parentId == p.params.parentId);
+            let indexOfOptions = groupPanels.findIndex(p => p.params.key == panel?.params.key);
+            indexOfOptions = indexOfOptions == -1 ? 0 : indexOfOptions;
+            addGroupWithPanel(dockview, panel, panels, indexOfOptions);
+        }
+        else {
+            if (pan.title !== p.title) {
+                pan.setTitle(p.title)
+            }
+            pan._params = {
+                ...pan.params,
+                ...p.params
+            }
         }
     })
+    
     localPanels.forEach(item => {
-        const title = panels.find(p => p.params.key == item.params.key)?.title;
-        if ( title && item.title !== title ) {
-            item.setTitle(title)
-        }
         let pan = findContentFromPanels(panels, item);
         if (pan === void 0) {
-            item.group.delPanelIndex = item.group.panels.findIndex(p => p.params.key == item.params.key)
-            dockview.removePanel(item)
+            item.group.delPanelIndex = item.group.panels.findIndex(p => p.params.key == item.params.key);
+            const group = item.group;
+
+            const moveToTemplate = optionsPanels.some(p => p.params.key == item.params.key);
+            group.model.closePanel(item, false, moveToTemplate);
+
+            if (group.panels.length === 0) {
+                dockview.setVisible(group, false)
+            }
         }
     })
 }
@@ -262,6 +268,17 @@ const toggleGroupLock = (dockview, options) => {
     dockview.groups.forEach(group => {
         toggleLock(group, group.header.rightActionsContainer, options.lock)
     })
+}
+export const markFirstVisibleElement = group => {
+    if (!group) return
+    const viewContainerEle = group.element.parentElement.parentElement;
+    const className = 'first-visible';
+    [...viewContainerEle.children].forEach(ele => {
+        if (ele.classList.contains(className)) {
+            ele.classList.remove(className)
+        }
+    })
+    viewContainerEle.querySelector('.visible')?.classList.add(className);
 }
 
 export { cerateDockview };

@@ -26,14 +26,14 @@ export async function init(id, invoke, options) {
     dockview.on('lockChanged', ({ title, isLock }) => {
         invoke.invokeMethodAsync(options.lockChangedCallback, title, isLock);
     });
-    dockview.on('panelVisibleChanged', ({ title, status }) => {
-        invoke.invokeMethodAsync(options.panelVisibleChangedCallback, title, status);
+    dockview.on('panelVisibleChanged', ({ key, status }) => {
+        invoke.invokeMethodAsync(options.panelVisibleChangedCallback, key, status);
     });
     dockview.on('groupSizeChanged', () => {
         invoke.invokeMethodAsync(options.splitterCallback);
     });
     dockview.on('loadTabs', tabs => {
-
+        invoke.invokeMethodAsync(options.loadTabs, tabs);
     });
 
     EventHandler.on(document, 'changed.bb.theme', updateTheme);

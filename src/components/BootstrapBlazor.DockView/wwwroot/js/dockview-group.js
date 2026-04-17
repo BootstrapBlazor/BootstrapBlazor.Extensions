@@ -1,7 +1,7 @@
 ﻿import { getIcons, getIcon } from "./dockview-icon.js"
 import { deletePanel, findContentFromPanels, moveAlwaysRenderPanel } from "./dockview-panel.js"
 import { saveConfig } from "./dockview-config.js"
-import { observeGroup } from "./dockview-utils.js"
+import { observeGroup, markFirstVisibleElement } from "./dockview-utils.js"
 import EventHandler from '../../BootstrapBlazor/modules/event-handler.js'
 
 const onAddGroup = group => {
@@ -20,20 +20,21 @@ const onAddGroup = group => {
         saveConfig(dockview)
     })
     group.model.contentContainer.dropTarget.onDrop(() => {
-        saveConfig(dockview)
+        saveConfig(dockview);
+        markFirstVisibleElement(group)
     })
     createGroupActions(group);
     dockview._inited && observeGroup(group)
 }
 
-const addGroupWithPanel = (dockview, panel, localPanel, panels, index) => {
+const addGroupWithPanel = (dockview, panel, panels, index) => {
     if (panel.groupId) {
         addPanelWidthGroupId(dockview, panel, index)
     }
     else {
         addPanelWidthCreatGroup(dockview, panel, panels)
     }
-    deletePanel(dockview, localPanel)
+    deletePanel(dockview, panel)
 }
 
 const addPanelWidthGroupId = (dockview, panel, index) => {
@@ -41,18 +42,6 @@ const addPanelWidthGroupId = (dockview, panel, index) => {
     let { rect = {}, packup, floatType, drawer, direction = 'left' } = panel.params || {}
     if (!group) {
         group = dockview.createGroup({ id: panel.groupId })
-        // const floatingGroupPosition = isMaximized ? {
-        //     x: 0, y: 0,
-        //     width: dockview.width,
-        //     height: dockview.height
-        // } : {
-        //     x: currentPosition?.left || 0,
-        //     y: currentPosition?.top || 0,
-        //     width: currentPosition?.width,
-        //     height: currentPosition?.height
-        // }
-        // dockview.addFloatingGroup(group, floatingGroupPosition, { skipRemoveGroup: true })
-        // createGroupActions(group);
         const width = dockview.width > 500 ? 500 : (dockview.width - 10)
         const height = dockview.height > 460 ? 460 : (dockview.height - 10)
         const left = (dockview.width - width) / 2
@@ -74,23 +63,16 @@ const addPanelWidthGroupId = (dockview, panel, index) => {
         if (floatType == 'drawer') {
             setTimeout(() => createDrawerHandle(group, direction == 'right'), 0);
         }
-        // const floatingGroup = createFloatingGroup(group, floatingGroupRect)
-        const autoHideBtn = group.header.rightActionsContainer.querySelector('.bb-dockview-control-icon-autohide')
-        if (autoHideBtn) {
-            // autoHideBtn.style.display = 'none'
-        }
-
-        // saveConfig(dockview)
     }
     else {
         if (group.api.location.type === 'grid') {
             let isVisible = dockview.isVisible(group)
             if (isVisible === false) {
                 dockview.setVisible(group, true)
-                // isMaximized && group.api.maximize();
             }
         }
     }
+
     dockview.addPanel({
         id: panel.id,
         title: panel.title,
@@ -99,11 +81,10 @@ const addPanelWidthGroupId = (dockview, panel, index) => {
         position: { referenceGroup: group, index: index || 0 },
         params: { ...panel.params, rect, packup, visible: true }
     })
-    dockview._panelVisibleChanged?.fire({ title: panel.title, status: true });
 }
 
 const addPanelWidthCreatGroup = (dockview, panel, panels) => {
-    let { position = {}, currentPosition, packupHeight, isPackup, isMaximized } = panel.params || {}
+    let { position = {}, packupHeight, isPackup, isMaximized } = panel.params || {}
     let brothers = panels.filter(p => p.params.parentId == panel.params.parentId && p.id != panel.id)
     let group, direction
     if (brothers.length > 0 && brothers[0].params.parentType == 'group') {
@@ -138,7 +119,6 @@ const addPanelWidthCreatGroup = (dockview, panel, panels) => {
     }
     if (direction) option.position.direction = direction
     dockview.addPanel(option);
-    dockview._panelVisibleChanged?.fire({ title: panel.title, status: true });
 }
 
 const getOrientation = function (child, group) {
@@ -177,37 +157,6 @@ const createGroupActions = (group, groupType) => {
         }
     }, 0)
     addActionEvent(group, actionContainer);
-}
-const observeDisplayChange = (icon, group) => {
-    const dockview = group.api.accessor
-    const element = icon.querySelector('.dropdown-menu')
-    const mutationObserver = new MutationObserver((mutations) => {
-        mutations.forEach(mutation => {
-            if (mutation.attributeName == 'class') {
-                if(mutation.target.classList.contains('show')) {
-                    const currentPanelEle = group.activePanel.view.content.element.parentElement
-                    const childEle = currentPanelEle.children[0]
-                    group.element.querySelector('&>.dv-content-container').append(childEle)
-                    currentPanelEle.style.zIndex = -1
-                    childEle.wrapperEle = currentPanelEle
-                }
-                else {
-                    const panelEleList = [...group.element.querySelector('&>.dv-content-container').children].map(item => {
-                        const wrapperEle = item.wrapperEle
-                        delete item.wrapperEle
-                        wrapperEle.append(item)
-                        return wrapperEle
-                    })
-                    group.element.parentElement.parentElement.append(...panelEleList)
-                }
-            }
-        })
-    });
-    group.mutationObserver = mutationObserver
-    mutationObserver.observe(element, {
-        attributes: true,
-        attributeFilter: ["class"],
-    });
 }
 
 const disposeGroup = group => {

@@ -299,3 +299,9 @@
 .bb-dockview .dv-render-overlay-float {
     z-index: -1 !important;
 }
+
+.bb-dockview .dv-split-view-container.dv-vertical > .dv-view-container > .dv-view:not(:first-child):not(.visible):before,
+.bb-dockview .dv-split-view-container.dv-vertical > .dv-view-container > .dv-view:first-child:not(.visible) + .dv-view.visible:before,
+.bb-dockview .dv-split-view-container.dv-vertical > .dv-view-container > .dv-view.first-visible::before {
+    height: 0;
+}
