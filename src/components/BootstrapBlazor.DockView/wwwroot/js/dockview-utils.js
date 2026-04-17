@@ -255,9 +255,8 @@ const toggleComponent = (dockview, options) => {
             item.group.delPanelIndex = item.group.panels.findIndex(p => p.params.key == item.params.key);
             const group = item.group;
 
-            const moveToTemplate = dockview.firstLoad ?? false;
+            const moveToTemplate = optionsPanels.some(p => p.params.key == item.params.key);
             group.model.closePanel(item, false, moveToTemplate);
-            dockview.firstLoad = true;
 
             if (group.panels.length === 0) {
                 dockview.setVisible(group, false)
