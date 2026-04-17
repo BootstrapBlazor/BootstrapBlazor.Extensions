@@ -76,7 +76,7 @@ DockviewGroupPanelModel.prototype.closePanel = function(panel) {
     console.log(panel);
     if (!panel.group.locked) {
         closePanel.call(this, panel);
-        if (!this.accessor.isClearing) {
+        if (!this.accessor.isClearing && this.accessor.isUpdating !== true) {
             this.accessor._panelVisibleChanged?.fire({ key: panel.params.key, status: false });
         }
     }

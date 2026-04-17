@@ -46,6 +46,7 @@ const initDockview = (dockview, options, template) => {
     }
 
     dockview.update = options => {
+        dockview.isUpdating = true;
         if (dockview.params.options.lock !== options.lock) {
             dockview.params.options.lock = options.lock;
             toggleGroupLock(dockview, options);
@@ -61,6 +62,7 @@ const initDockview = (dockview, options, template) => {
             toggleComponent(dockview, options);
         }
         dockview.firstLoad = false;
+        dockview.isUpdating = false;
     }
 
     dockview.reset = options => {

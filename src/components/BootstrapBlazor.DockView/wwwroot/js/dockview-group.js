@@ -99,7 +99,7 @@ const addPanelWidthGroupId = (dockview, panel, index) => {
         position: { referenceGroup: group, index: index || 0 },
         params: { ...panel.params, rect, packup, visible: true }
     })
-    dockview._panelVisibleChanged?.fire({ key: panel.params.key, status: true });
+    dockview.isUpdating !== true && dockview._panelVisibleChanged?.fire({ key: panel.params.key, status: true });
 }
 
 const addPanelWidthCreatGroup = (dockview, panel, panels) => {
@@ -138,7 +138,7 @@ const addPanelWidthCreatGroup = (dockview, panel, panels) => {
     }
     if (direction) option.position.direction = direction
     dockview.addPanel(option);
-    dockview._panelVisibleChanged?.fire({ key: panel.params.key, status: true });
+    dockview.isUpdating !== true && dockview._panelVisibleChanged?.fire({ key: panel.params.key, status: true });
 }
 
 const getOrientation = function (child, group) {
