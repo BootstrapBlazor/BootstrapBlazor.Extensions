@@ -300,6 +300,6 @@
     z-index: -1 !important;
 }
 
-.bb-dockview .dv-split-view-container.dv-vertical > .dv-view-container > .dv-view:not(:first-child):not(.visible):before {
+.dv-split-view-container.dv-vertical .dv-view:not(.visible) + .dv-view:before {
     height: 0;
 }
