@@ -62,7 +62,7 @@ DockviewComponent.prototype.removeGroup = function(...args) {
 }
 
 const closePanel = DockviewGroupPanelModel.prototype.closePanel;
-DockviewGroupPanelModel.prototype.closePanel = function(panel, triggerVisibleChangedCallback = true) {
+DockviewGroupPanelModel.prototype.closePanel = function(panel, triggerVisibleChangedCallback = true, moveToTemplate = true) {
     if (!panel.group.locked) {
         closePanel.call(this, panel);
         if (triggerVisibleChangedCallback) {
@@ -70,7 +70,6 @@ DockviewGroupPanelModel.prototype.closePanel = function(panel, triggerVisibleCha
         }
     }
 
-    const moveToTemplate = !this.accessor.firstLoad;
     if (moveToTemplate) {
         if (panel.view.content.element) {
             if (panel.titleMenuEle) {

@@ -21,7 +21,6 @@ const cerateDockview = (el, options) => {
         createComponent: option => new DockviewPanelContent(option)
     });
     initDockview(dockview, options, template);
-    dockview.firstLoad = true;
     dockview.init();
     return dockview;
 }
@@ -34,7 +33,6 @@ const initDockview = (dockview, options, template) => {
         const config = getConfig(options);
         dockview.params.floatingGroups = config.floatingGroups || []
         dockview.fromJSON(config);
-        // window.dockview = dockview;
     }
 
     dockview.switchTheme = theme => {
@@ -46,7 +44,6 @@ const initDockview = (dockview, options, template) => {
     }
 
     dockview.update = options => {
-        dockview.isUpdating = true;
         if (dockview.params.options.lock !== options.lock) {
             dockview.params.options.lock = options.lock;
             toggleGroupLock(dockview, options);
@@ -61,8 +58,6 @@ const initDockview = (dockview, options, template) => {
         else {
             toggleComponent(dockview, options);
         }
-        dockview.firstLoad = false;
-        dockview.isUpdating = false;
     }
 
     dockview.reset = options => {
@@ -98,10 +93,12 @@ const initDockview = (dockview, options, template) => {
             if (options.enableLocalStorage) {
                 panels.forEach(panel => {
                     const visible = panel.params.visible
-                    if (!visible) {
+                    if (visible) {
+                        dockview._panelVisibleChanged?.fire({ key: panel.params.key, status: true });
+                    }
+                    else {
                         panel.group.model.closePanel(panel)
                     }
-                    dockview._panelVisibleChanged?.fire({ key: panel.params.key, status: visible });
                 })
                 delPanels.forEach(panel => {
                     dockview._panelVisibleChanged?.fire({ key: panel.params.key, status: false });
@@ -133,7 +130,7 @@ const initDockview = (dockview, options, template) => {
             dockview.groups.forEach(group => {
                 observeGroup(group)
             })
-            dockview.element.querySelector('&>.dv-dockview>.dv-branch-node').addEventListener('click', function (e) {
+            dockview.element.querySelector('&>.dv-dockview>.dv-branch-node').addEventListener('click', function(e) {
                 this.parentElement.querySelectorAll('&>.dv-resize-container-drawer, &>.dv-render-overlay-float-drawer').forEach(item => {
                     item.classList.remove('active')
                 })
@@ -239,7 +236,7 @@ const toggleComponent = (dockview, options) => {
             addGroupWithPanel(dockview, panel, panels, indexOfOptions);
         }
         else {
-            if ( pan.title !== p.title ) {
+            if (pan.title !== p.title) {
                 pan.setTitle(p.title)
             }
             pan._params = {
@@ -248,12 +245,17 @@ const toggleComponent = (dockview, options) => {
             }
         }
     })
+    
     localPanels.forEach(item => {
         let pan = findContentFromPanels(panels, item);
         if (pan === void 0) {
             item.group.delPanelIndex = item.group.panels.findIndex(p => p.params.key == item.params.key);
             const group = item.group;
-            group.model.closePanel(item, false)
+
+            const moveToTemplate = dockview.firstLoad ?? false;
+            group.model.closePanel(item, false, moveToTemplate);
+            dockview.firstLoad = true;
+
             if (group.panels.length === 0) {
                 dockview.setVisible(group, false)
             }
