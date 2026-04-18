@@ -96,6 +96,12 @@ public partial class GanttChart
         if (disposing)
         {
             await DisposeJsDragAsync();
+
+            if (jSObjectReference != null)
+            {
+                await jSObjectReference.DisposeAsync();
+                jSObjectReference = null;
+            }
         }
         await base.DisposeAsync(disposing);
     }
