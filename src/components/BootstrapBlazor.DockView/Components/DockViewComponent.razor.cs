@@ -200,6 +200,11 @@ public partial class DockViewComponent
     {
         base.Dispose(disposing);
 
+        if (OnClickTitleBarCallback != null)
+        {
+            OnClickTitleBarCallback = null;
+        }
+
         DockView.RemoveComponentState(Key);
     }
 }
