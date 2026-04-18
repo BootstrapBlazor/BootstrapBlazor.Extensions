@@ -10,7 +10,7 @@ namespace BootstrapBlazor.Components;
 /// <para lang="zh">DockView 标题栏组件</para>
 /// <para lang="en">DockView title bar component</para>
 /// </summary>
-public partial class DockViewTitleBar
+public partial class DockViewTitleBar : IAsyncDisposable
 {
     /// <summary>
     /// <para lang="zh">获得/设置 标题前置图标点击回调方法，默认为 null</para>
@@ -39,5 +39,30 @@ public partial class DockViewTitleBar
         {
             await OnClickBarCallback();
         }
+    }
+
+    /// <summary>
+    /// <inheritdoc/>
+    /// </summary>
+    /// <param name="disposing"></param>
+    /// <returns></returns>
+    protected virtual ValueTask DisposeAsync(bool disposing)
+    {
+        if (disposing)
+        {
+            OnClickBarCallback = null;
+        }
+
+        return ValueTask.CompletedTask;
+    }
+
+    /// <summary>
+    /// <inheritdoc/>
+    /// </summary>
+    /// <returns></returns>
+    public async ValueTask DisposeAsync()
+    {
+        await DisposeAsync(true);
+        GC.SuppressFinalize(this);
     }
 }
