@@ -1,6 +1,8 @@
 using BootstrapBlazor.Components;
 using Microsoft.AspNetCore.Components;
 using Microsoft.JSInterop;
+using Microsoft.JSInterop.Implementation;
+using System.Runtime.Serialization;
 
 namespace BootstrapBlazor.Gantt;
 
@@ -8,8 +10,15 @@ public partial class GanttChart
 {
     private ElementReference timelineShellRef;
 
+    private IJSObjectReference? jSObjectReference;
+
     private ViewportState? pendingViewportState;
 
+    /// <summary>
+    /// 
+    /// </summary>
+    /// <param name="firstRender"></param>
+    /// <returns></returns>
     protected override async Task OnAfterRenderAsync(bool firstRender)
     {
         await base.OnAfterRenderAsync(firstRender);
@@ -19,21 +28,27 @@ public partial class GanttChart
             return;
         }
 
+        if (Module == null)
+        {
+            throw new Exception("JS module is not initialized.");
+        }
+
         if (firstRender)
         {
-            await InvokeVoidAsync( "initGanttDrag",
+            jSObjectReference = await Module.InvokeAsync<IJSObjectReference>("initGanttDrag",
                 timelineShellRef,
                 Interop,
                 BuildJsDragOptions());
         }
         else
         {
-            await InvokeVoidAsync("updateOptions", BuildJsDragOptions());
+            EnsureJSObjectReference();
+            await jSObjectReference!.InvokeVoidAsync("updateOptions", BuildJsDragOptions());
         }
 
         if (pendingViewportState is not null)
         {
-            await InvokeVoidAsync("restoreViewportState", timelineShellRef, pendingViewportState);
+            await Module.InvokeVoidAsync("restoreViewportState", timelineShellRef, pendingViewportState);
             pendingViewportState = null;
         }
     }
@@ -45,7 +60,7 @@ public partial class GanttChart
             return;
         }
 
-        pendingViewportState = await JSRuntime.InvokeAsync<ViewportState?>("captureViewportState", timelineShellRef);
+        pendingViewportState = await Module!.InvokeAsync<ViewportState?>("captureViewportState", timelineShellRef);
 
         internalViewMode = viewMode;
         InvalidateComputedState();
@@ -71,17 +86,26 @@ public partial class GanttChart
         }).ToArray()
     };
 
+    /// <summary>
+    /// /
+    /// </summary>
+    /// <param name="disposing"></param>
+    /// <returns></returns>
     protected override async ValueTask DisposeAsync(bool disposing)
     {
+        if (disposing)
+        {
+            await DisposeJsDragAsync();
+        }
         await base.DisposeAsync(disposing);
-        await DisposeJsDragAsync();
     }
 
     private async Task DisposeJsDragAsync()
     {
         try
         {
-            await InvokeVoidAsync("dispose");
+            EnsureJSObjectReference();
+            await jSObjectReference!.InvokeVoidAsync("dispose");
         }
         catch (JSDisconnectedException)
         {
@@ -94,5 +118,14 @@ public partial class GanttChart
         public double ScrollLeftRatio { get; } = scrollLeftRatio;
 
         public double ScrollTopRatio { get; } = scrollTopRatio;
+    }
+
+
+    private void EnsureJSObjectReference()
+    {
+        if (jSObjectReference == null)
+        {
+            throw new Exception("JSObjectReference is null.");
+        }
     }
 }

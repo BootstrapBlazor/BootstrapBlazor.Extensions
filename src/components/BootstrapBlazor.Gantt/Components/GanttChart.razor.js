@@ -1,5 +1,5 @@
 import { createDragController } from "../js/ganttChart.drag.js";
-import { createDependencyRenderer } from "./js/ganttChart.links.js";
+import { createDependencyRenderer } from "../js/ganttChart.links.js";
 
 export function initGanttDrag(root, dotNetRef, options) {
     const dependencyRenderer = createDependencyRenderer(root, options);

@@ -2,7 +2,9 @@ using Microsoft.AspNetCore.Components;
 
 namespace BootstrapBlazor.Gantt;
 
-
+/// <summary>
+/// 
+/// </summary>
 public partial class GanttChart
 {
     /// <summary>
@@ -315,6 +317,9 @@ public partial class GanttChart
     /// </summary>
     private GanttViewMode ResolvedViewMode => internalViewMode ?? ViewMode;
 
+    /// <summary>
+    /// 
+    /// </summary>
     protected override void OnParametersSet()
     {
         var validIds = Groups
