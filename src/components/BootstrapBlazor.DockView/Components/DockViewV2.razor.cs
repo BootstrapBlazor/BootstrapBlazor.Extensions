@@ -12,7 +12,7 @@ namespace BootstrapBlazor.Components;
 /// <para lang="zh">DockViewV2 组件</para>
 /// <para lang="en">DockViewV2 component</para>
 /// </summary>
-public partial class DockViewV2 : IDisposable
+public partial class DockViewV2
 {
     /// <summary>
     /// <para lang="zh">获得/设置 DockView 名称，默认为 null，用于本地存储标识</para>
@@ -413,20 +413,18 @@ public partial class DockViewV2 : IDisposable
         return state;
     }
 
-    private void Dispose(bool disposing)
+    /// <summary>
+    /// <inheritdoc/>
+    /// </summary>
+    /// <param name="disposing"></param>
+    /// <returns></returns>
+    protected override ValueTask DisposeAsync(bool disposing)
     {
         if (disposing)
         {
             ThemeProviderService.ThemeChangedAsync -= OnThemeChangedAsync;
         }
-    }
 
-    /// <summary>
-    /// <inheritdoc/>
-    /// </summary>
-    public void Dispose()
-    {
-        Dispose(true);
-        GC.SuppressFinalize(this);
+        return base.DisposeAsync(disposing);
     }
 }
