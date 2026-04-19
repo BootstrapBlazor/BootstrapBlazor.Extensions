@@ -420,7 +420,10 @@ public partial class DockViewV2
     /// <returns></returns>
     protected override ValueTask DisposeAsync(bool disposing)
     {
-        ThemeProviderService.ThemeChangedAsync -= OnThemeChangedAsync;
+        if (disposing)
+        {
+            ThemeProviderService.ThemeChangedAsync -= OnThemeChangedAsync;
+        }
 
         return base.DisposeAsync(disposing);
     }
