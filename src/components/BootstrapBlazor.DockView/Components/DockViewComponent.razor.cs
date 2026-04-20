@@ -191,20 +191,4 @@ public partial class DockViewComponent
     internal void SetVisible(bool visible) => Visible = visible;
 
     internal void SetLock(bool isLock) => IsLock = isLock;
-
-    /// <summary>
-    /// <inheritdoc/>
-    /// </summary>
-    /// <param name="disposing"></param>
-    protected override void Dispose(bool disposing)
-    {
-        base.Dispose(disposing);
-
-        if (OnClickTitleBarCallback != null)
-        {
-            OnClickTitleBarCallback = null;
-        }
-
-        DockView.RemoveComponentState(Key);
-    }
 }
