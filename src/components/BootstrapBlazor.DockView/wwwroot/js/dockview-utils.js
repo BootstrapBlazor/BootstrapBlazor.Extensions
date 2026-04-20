@@ -88,6 +88,10 @@ const initDockview = (dockview, options, template) => {
         })
         const handler = setTimeout(() => {
             clearTimeout(handler);
+            if (dockview._isDisposed) {
+                dockview = null;
+                return;
+            }
             const panels = dockview.panels;
             const groups = dockview.groups;
             const delPanelsStr = localStorage.getItem(dockview.params.options.localStorageKey + '-panels');
@@ -133,17 +137,17 @@ const initDockview = (dockview, options, template) => {
             dockview.groups.forEach(group => {
                 observeGroup(group)
             })
-            dockview.element.querySelector('&>.dv-dockview>.dv-branch-node').addEventListener('click', function(e) {
-                this.parentElement.querySelectorAll('&>.dv-resize-container-drawer, &>.dv-render-overlay-float-drawer').forEach(item => {
+            dockview.element.querySelector('&>.dv-dockview>.dv-branch-node')?.addEventListener('click', function(e) {
+                this.parentElement.querySelectorAll('&>.dv-resize-container-drawer, &>.dv-render-overlay-float-drawer')?.forEach(item => {
                     item.classList.remove('active')
                 })
-                this.closest('.bb-dockview').querySelectorAll('&>.bb-dockview-aside>.bb-dockview-aside-button').forEach(item => {
+                this.closest('.bb-dockview').querySelectorAll('&>.bb-dockview-aside>.bb-dockview-aside-button')?.forEach(item => {
                     item.classList.remove('active')
                 })
             })
             dockview._inited = true;
             dockview._initialized?.fire();
-        }, 100);
+        }, 0);
     })
 
     dockview.gridview.onDidChange(event => {

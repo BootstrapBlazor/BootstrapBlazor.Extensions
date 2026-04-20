@@ -8,30 +8,29 @@ const onAddPanel = panel => {
     observePanelActiveChange(panel)
 }
 const observePanelActiveChange = panel => {
-    panel.api.onDidActiveChange(({ isActive }) => {
-        if (isActive && !panel.group.api.isMaximized()) {
+    panel.api.onDidVisibilityChange(({ isVisible }) => {
+        const dockview = panel.accessor;
+        if (dockview._isDisposed) return;
+        const renderer = dockview.params.options.renderer;
+        if (renderer === 'onlyWhenVisible' && dockview._inited && isVisible) {
             saveConfig(panel.accessor)
-            if (panel.group.panels.length >= 2){
-                panel.group.panels.filter(p => p != panel.group.activePanel && p.renderer == 'onlyWhenVisible').forEach(p => {
+            if (!panel.group.api.isMaximized()) {
+                panel.group.panels.filter(p => p != panel.group.activePanel).forEach(p => {
                     appendTemplatePanelEle(p)
                 })
             }
+            const visiblePanels = dockview.groups.map(g => g.panels.find(p => p.params.isActive) || g.panels.find(p => p.api.isVisible))
+            dockview._loadTabs?.fire(visiblePanels.filter(p => Boolean(p)).map(p => p.params.key));
         }
-        if (isActive && panel.group.getParams().floatType == 'drawer') {
+
+        if (isVisible && panel.group.getParams().floatType == 'drawer') {
             setDrawerTitle(panel.group)
         }
-        setTimeout(function () {
+        const handler = setTimeout(function () {
+            clearTimeout(handler)
+            if (dockview._isDisposed) return;
             moveAlwaysRenderPanel(panel)
         }, 0)
-    })
-    panel.api.onDidVisibilityChange(({ isVisible }) => {
-        const dockview = panel.accessor;
-        if (dockview.params.options.renderer === 'onlyWhenVisible' && dockview._inited && isVisible) {
-            setTimeout(function() {
-                const visiblePanels = dockview.groups.map(g => g.panels.find(p => p.params.isActive) || g.panels.find(p => p.api.isVisible))
-                dockview._loadTabs?.fire(visiblePanels.filter(p => Boolean(p)).map(p => p.params.key));
-            }, 0)
-        }
     })
 }
 
@@ -176,7 +175,7 @@ const savePanel = (dockview, panel) => {
 
 const deletePanel = (dockview, panel) => {
     const { panels, options } = dockview.params;
-    let index = panels.indexOf(panel);
+    let index = panels.findIndex(p => p.params.key === panel.params.key);
     if (index > -1) {
         panels.splice(index, 1);
     }
