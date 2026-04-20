@@ -12,15 +12,15 @@ const observePanelActiveChange = panel => {
         const dockview = panel.accessor;
         if (dockview._isDisposed) return;
         const renderer = dockview.params.options.renderer;
-        if (renderer === 'onlyWhenVisible' && dockview._inited && isVisible) {
-            saveConfig(panel.accessor)
-            if (!panel.group.api.isMaximized()) {
-                panel.group.panels.filter(p => p != panel.group.activePanel).forEach(p => {
-                    appendTemplatePanelEle(p)
-                })
+        if (renderer === 'onlyWhenVisible' && dockview._inited) {
+            if (isVisible) {
+                saveConfig(panel.accessor)
+                const visiblePanels = dockview.groups.map(g => g.panels.find(p => p.params.isActive) || g.panels.find(p => p.api.isVisible))
+                dockview._loadTabs?.fire(visiblePanels.filter(p => Boolean(p)).map(p => p.params.key));
             }
-            const visiblePanels = dockview.groups.map(g => g.panels.find(p => p.params.isActive) || g.panels.find(p => p.api.isVisible))
-            dockview._loadTabs?.fire(visiblePanels.filter(p => Boolean(p)).map(p => p.params.key));
+            else {
+                appendTemplatePanelEle(panel)
+            }
         }
 
         if (isVisible && panel.group.getParams().floatType == 'drawer') {

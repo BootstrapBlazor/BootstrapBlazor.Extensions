@@ -70,17 +70,12 @@ DockviewGroupPanelModel.prototype.closePanel = function(panel, triggerVisibleCha
         }
     }
 
-    if (panel.view.content.element) {
-        if (moveToTemplate) {
-            if (panel.titleMenuEle) {
-                panel.view.content.element.append(panel.titleMenuEle)
-            }
-            if (this.accessor.params.template) {
-                this.accessor.params.template.append(panel.view.content.element)
-            }
+    if (panel.view.content.element && moveToTemplate) {
+        if (panel.titleMenuEle) {
+            panel.view.content.element.append(panel.titleMenuEle)
         }
-        else {
-            panel.view.content.element.remove()
+        if (this.accessor.params.template) {
+            this.accessor.params.template.append(panel.view.content.element)
         }
     }
 }
