@@ -223,7 +223,9 @@ const setWidth = (target, dockview) => {
         group.panels[0] && group.panels[0].api.setActive()
     }
 }
-
+const cleanUndefined = (obj) => Object.fromEntries(
+    Object.entries(obj).filter(([, v]) => v != null)
+);
 const toggleComponent = (dockview, options) => {
     const optionsPanels = getPanelsFromOptions(options);
     const panels = optionsPanels.filter(p => p.params.visible);
@@ -231,8 +233,13 @@ const toggleComponent = (dockview, options) => {
     panels.forEach(p => {
         const pan = findContentFromPanels(localPanels, p);
         if (pan === void 0) {
-            const panel = findContentFromPanels(dockview.params.panels, p) || p;
-            panel.params = { ...panel.params, ...p.params };
+            const existingPanel = findContentFromPanels(dockview.params.panels, p);
+            const panel = existingPanel ?
+            {
+                ...existingPanel,
+                ...cleanUndefined(p),
+                params: { ...existingPanel.params, ...cleanUndefined(p.params) }
+            } : p;
             const groupPanels = panels.filter(p1 => p1.params.parentId == p.params.parentId);
             let indexOfOptions = groupPanels.findIndex(p => p.params.key == panel?.params.key);
             indexOfOptions = indexOfOptions == -1 ? 0 : indexOfOptions;
