@@ -88,6 +88,10 @@ const initDockview = (dockview, options, template) => {
         })
         const handler = setTimeout(() => {
             clearTimeout(handler);
+            if (dockview._isDisposed) {
+                dockview = null;
+                return;
+            }
             const panels = dockview.panels;
             const groups = dockview.groups;
             const delPanelsStr = localStorage.getItem(dockview.params.options.localStorageKey + '-panels');
@@ -133,17 +137,17 @@ const initDockview = (dockview, options, template) => {
             dockview.groups.forEach(group => {
                 observeGroup(group)
             })
-            dockview.element.querySelector('&>.dv-dockview>.dv-branch-node').addEventListener('click', function(e) {
-                this.parentElement.querySelectorAll('&>.dv-resize-container-drawer, &>.dv-render-overlay-float-drawer').forEach(item => {
+            dockview.element.querySelector('&>.dv-dockview>.dv-branch-node')?.addEventListener('click', function(e) {
+                this.parentElement.querySelectorAll('&>.dv-resize-container-drawer, &>.dv-render-overlay-float-drawer')?.forEach(item => {
                     item.classList.remove('active')
                 })
-                this.closest('.bb-dockview').querySelectorAll('&>.bb-dockview-aside>.bb-dockview-aside-button').forEach(item => {
+                this.closest('.bb-dockview').querySelectorAll('&>.bb-dockview-aside>.bb-dockview-aside-button')?.forEach(item => {
                     item.classList.remove('active')
                 })
             })
             dockview._inited = true;
             dockview._initialized?.fire();
-        }, 100);
+        }, 0);
     })
 
     dockview.gridview.onDidChange(event => {
@@ -223,7 +227,9 @@ const setWidth = (target, dockview) => {
         group.panels[0] && group.panels[0].api.setActive()
     }
 }
-
+const cleanUndefined = (obj) => Object.fromEntries(
+    Object.entries(obj).filter(([, v]) => v != null)
+);
 const toggleComponent = (dockview, options) => {
     const optionsPanels = getPanelsFromOptions(options);
     const panels = optionsPanels.filter(p => p.params.visible);
@@ -231,8 +237,13 @@ const toggleComponent = (dockview, options) => {
     panels.forEach(p => {
         const pan = findContentFromPanels(localPanels, p);
         if (pan === void 0) {
-            const panel = findContentFromPanels(dockview.params.panels, p) || p;
-            panel.params = { ...panel.params, ...p.params };
+            const existingPanel = findContentFromPanels(dockview.params.panels, p);
+            const panel = existingPanel ?
+            {
+                ...existingPanel,
+                ...cleanUndefined(p),
+                params: { ...existingPanel.params, ...cleanUndefined(p.params) }
+            } : p;
             const groupPanels = panels.filter(p1 => p1.params.parentId == p.params.parentId);
             let indexOfOptions = groupPanels.findIndex(p => p.params.key == panel?.params.key);
             indexOfOptions = indexOfOptions == -1 ? 0 : indexOfOptions;
