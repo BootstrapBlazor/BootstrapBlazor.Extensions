@@ -8,30 +8,29 @@ const onAddPanel = panel => {
     observePanelActiveChange(panel)
 }
 const observePanelActiveChange = panel => {
-    panel.api.onDidActiveChange(({ isActive }) => {
-        if (isActive && !panel.group.api.isMaximized()) {
-            saveConfig(panel.accessor)
-            if (panel.group.panels.length >= 2){
-                panel.group.panels.filter(p => p != panel.group.activePanel && p.renderer == 'onlyWhenVisible').forEach(p => {
-                    appendTemplatePanelEle(p)
-                })
-            }
-        }
-        if (isActive && panel.group.getParams().floatType == 'drawer') {
-            setDrawerTitle(panel.group)
-        }
-        setTimeout(function () {
-            moveAlwaysRenderPanel(panel)
-        }, 0)
-    })
     panel.api.onDidVisibilityChange(({ isVisible }) => {
         const dockview = panel.accessor;
-        if (dockview.params.options.renderer === 'onlyWhenVisible' && dockview._inited && isVisible) {
-            setTimeout(function() {
+        if (dockview._isDisposed) return;
+        const renderer = dockview.params.options.renderer;
+        if (renderer === 'onlyWhenVisible' && dockview._inited) {
+            if (isVisible) {
+                saveConfig(panel.accessor)
                 const visiblePanels = dockview.groups.map(g => g.panels.find(p => p.params.isActive) || g.panels.find(p => p.api.isVisible))
                 dockview._loadTabs?.fire(visiblePanels.filter(p => Boolean(p)).map(p => p.params.key));
-            }, 0)
+            }
+            else {
+                appendTemplatePanelEle(panel)
+            }
         }
+
+        if (isVisible && panel.group.getParams().floatType == 'drawer') {
+            setDrawerTitle(panel.group)
+        }
+        const handler = setTimeout(function () {
+            clearTimeout(handler)
+            if (dockview._isDisposed) return;
+            moveAlwaysRenderPanel(panel)
+        }, 0)
     })
 }
 
@@ -176,7 +175,7 @@ const savePanel = (dockview, panel) => {
 
 const deletePanel = (dockview, panel) => {
     const { panels, options } = dockview.params;
-    let index = panels.indexOf(panel);
+    let index = panels.findIndex(p => p.params.key === panel.params.key);
     if (index > -1) {
         panels.splice(index, 1);
     }

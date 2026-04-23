@@ -30,7 +30,6 @@ DockviewGroupPanel.prototype.getParams = function() {
 }
 
 DockviewGroupPanel.prototype.setParams = function(data) {
-    console.log('setParameter', data);
     Object.keys(data).forEach(key => {
         this.panels.forEach(panel => panel.params[key] = data[key])
     })
@@ -71,14 +70,12 @@ DockviewGroupPanelModel.prototype.closePanel = function(panel, triggerVisibleCha
         }
     }
 
-    if (moveToTemplate) {
-        if (panel.view.content.element) {
-            if (panel.titleMenuEle) {
-                panel.view.content.element.append(panel.titleMenuEle)
-            }
-            if (this.accessor.params.template) {
-                this.accessor.params.template.append(panel.view.content.element)
-            }
+    if (panel.view.content.element && moveToTemplate) {
+        if (panel.titleMenuEle) {
+            panel.view.content.element.append(panel.titleMenuEle)
+        }
+        if (this.accessor.params.template) {
+            this.accessor.params.template.append(panel.view.content.element)
         }
     }
 }
