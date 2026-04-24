@@ -188,6 +188,20 @@ public partial class DockViewV2
     /// <summary>
     /// <inheritdoc/>
     /// </summary>
+    protected override void OnParametersSet()
+    {
+        base.OnParametersSet();
+
+        // 开启本体存储未提供 Name 时抛出异常提示
+        if (IsEnableLocalStorage && string.IsNullOrEmpty(Name))
+        {
+            throw new InvalidOperationException("Name must be provided when local storage is enabled.");
+        }
+    }
+
+    /// <summary>
+    /// <inheritdoc/>
+    /// </summary>
     /// <param name="firstRender"></param>
     protected override async Task OnAfterRenderAsync(bool firstRender)
     {
@@ -195,19 +209,19 @@ public partial class DockViewV2
 
         if (!firstRender)
         {
-            await InvokeVoidAsync("update", Id, GetOptions());
+            await InvokeVoidAsync("update", Id, GetDockViewConfig());
         }
     }
 
     /// <summary>
     /// <inheritdoc />
     /// </summary>
-    protected override Task InvokeInitAsync() => InvokeVoidAsync("init", Id, Interop, GetOptions());
+    protected override Task InvokeInitAsync() => InvokeVoidAsync("init", Id, Interop, GetDockViewConfig());
 
-    private DockViewConfig GetOptions() => new()
+    private DockViewConfig GetDockViewConfig() => new()
     {
-        EnableLocalStorage = EnableLocalStorage ?? _options.EnableLocalStorage ?? false,
-        LocalStorageKey = $"{GetPrefixKey()}-{Name}-{GetVersion()}",
+        EnableLocalStorage = IsEnableLocalStorage,
+        LocalStorageKey = LocalStorageKey,
         IsLock = IsLock,
         ShowLock = ShowLock,
         IsFloating = IsFloating,
@@ -226,6 +240,10 @@ public partial class DockViewV2
         LoadTabs = nameof(LoadTabs)
     };
 
+    private bool IsEnableLocalStorage => EnableLocalStorage ?? _options.EnableLocalStorage ?? false;
+
+    private string? LocalStorageKey => IsEnableLocalStorage ? $"{GetPrefixKey()}-{Name}-{GetVersion()}" : null;
+
     private string GetVersion() => Version ?? _options.Version ?? "v1";
 
     private string GetPrefixKey() => LocalStoragePrefix ?? _options.LocalStoragePrefix ?? "bb-dockview";
@@ -236,7 +254,7 @@ public partial class DockViewV2
     /// </summary>
     public async Task Reset(string? layoutConfig = null)
     {
-        var options = GetOptions();
+        var options = GetDockViewConfig();
         if (layoutConfig != null)
         {
             options.LayoutConfig = layoutConfig;
