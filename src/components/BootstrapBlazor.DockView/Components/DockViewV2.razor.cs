@@ -15,15 +15,6 @@ namespace BootstrapBlazor.Components;
 public partial class DockViewV2
 {
     /// <summary>
-    /// <para lang="zh">获得/设置 DockView 名称，默认为 null，用于本地存储标识</para>
-    /// <para lang="en">Gets or sets the DockView name. Default is null and it is used for local storage identification</para>
-    /// </summary>
-    [Parameter]
-    [EditorRequired]
-    [NotNull]
-    public string? Name { get; set; }
-
-    /// <summary>
     /// <para lang="zh">获得/设置 布局配置</para>
     /// <para lang="en">Gets or sets the layout configuration</para>
     /// </summary>
@@ -127,6 +118,14 @@ public partial class DockViewV2
     /// </summary>
     [Parameter]
     public string? Version { get; set; }
+
+    /// <summary>
+    /// <para lang="zh">获得/设置 DockView 名称，默认为 null，用于本地存储标识</para>
+    /// <para lang="en">Gets or sets the DockView name. Default is null and it is used for local storage identification</para>
+    /// </summary>
+    [Parameter]
+    [NotNull]
+    public string? Name { get; set; }
 
     /// <summary>
     /// <para lang="zh">获得/设置 是否启用本地存储布局，默认为 null</para>
