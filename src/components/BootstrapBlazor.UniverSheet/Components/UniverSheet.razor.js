@@ -48,6 +48,9 @@ export async function init(id, invoke, options) {
 
 export function execute(id, data) {
     const univerSheet = Data.get(id);
+    if (univerSheet === null) {
+        return;
+    }
 
     const { firstPush, backdrop, pushData } = univerSheet;
     let ret = null;
@@ -65,6 +68,10 @@ export function execute(id, data) {
 export function dispose(id) {
     const univerSheet = Data.get(id);
     Data.remove(id);
+
+    if (univerSheet === null) {
+        return;
+    }
 
     if (isFunction(univerSheet.dispose)) {
         univerSheet.dispose();
