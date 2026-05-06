@@ -168,12 +168,6 @@ export const observeGroup = (group) => {
     }
     dockview.params.observer.observe(group.header.element)
     dockview.params.observer.observe(group.header.tabs._tabsList)
-    for (let panel of group.panels) {
-        if (panel.params.isActive) {
-            panel.api.setActive()
-            break
-        }
-    }
 }
 
 const resizeObserverHandle = (observerList, dockview) => {

@@ -58,6 +58,7 @@ const renewConfigFromOptions = (config, options) => {
                 ...optionPanel.params,
                 visible: panel.params.visible
             }
+            optionPanel.id = panel.id
             config.panels[panel.id] = optionPanel
         }
         else {
