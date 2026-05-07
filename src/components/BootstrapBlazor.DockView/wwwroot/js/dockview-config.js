@@ -32,17 +32,7 @@ const getConfigFromOptions = options => options.layoutConfig ? getConfigFromLayo
 
 const getConfigFromLayoutString = options => {
     let config = JSON.parse(options.layoutConfig);
-    const panels = getPanelsFromOptions(options);
-    Object.values(config.panels).forEach(value => {
-        const contentPanel = findContentFromPanels(panels, value);
-        if (contentPanel) {
-            value.params = {
-                ...value.params,
-                ...contentPanel.params
-            }
-        }
-    });
-    return config;
+    return renewConfigFromOptions(config);
 }
 
 const renewConfigFromOptions = (config, options) => {
