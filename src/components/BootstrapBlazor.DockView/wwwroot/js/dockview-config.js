@@ -1,5 +1,4 @@
-﻿import { fixObject } from "./dockview-fix.js"
-import { getPanelsFromOptions, findContentFromPanels } from "./dockview-panel.js"
+﻿import { getPanelsFromOptions, findContentFromPanels } from "./dockview-panel.js"
 
 const loadPanelsFromLocalstorage = dockview => {
     const { options } = dockview.params;
@@ -26,7 +25,7 @@ const getConfig = options => {
 
 const getConfigFromStorage = options => {
     const jsonString = localStorage.getItem(options.localStorageKey);
-    return jsonString ? fixObject(renewConfigFromOptions(JSON.parse(jsonString), options)) : null;
+    return jsonString ? renewConfigFromOptions(JSON.parse(jsonString), options) : null;
 }
 
 const getConfigFromOptions = options => options.layoutConfig ? getConfigFromLayoutString(options) : getConfigFromContent(options);
@@ -43,7 +42,7 @@ const getConfigFromLayoutString = options => {
             }
         }
     });
-    return fixObject(config);
+    return config;
 }
 
 const renewConfigFromOptions = (config, options) => {
@@ -190,7 +189,7 @@ const removePanel = (branch, panel, parent) => {
         branch.data.forEach(item => {
             removePanel(item, panel, branch)
         })
-        if (branch.data.length == 0) {
+        if (branch.data.length == 0 && parent) {
             parent.data = parent.data.filter(b => !(b.type == 'branch' && b.data.length == 0))
         }
     }
@@ -203,11 +202,11 @@ const getConfigFromContent = options => {
     const panels = {}, rootType = options.content[0].type
     const orientation = rootType === 'column' ? 'VERTICAL' : 'HORIZONTAL';
     const root = getTree(options.content[0], { width, height, orientation }, options, panels, getGroupId, options)
-    return fixObject({
+    return {
         activeGroup: '1',
         grid: { width, height, orientation, root },
         panels
-    });
+    }
 }
 
 const getGroupIdFunc = () => {
@@ -348,4 +347,4 @@ const saveParamsIsActive = dockview => {
     })
 }
 
-export { getConfigFromStorage, getConfig, reloadFromConfig, saveConfig, loadPanelsFromLocalstorage };
+export { getConfigFromStorage, getConfigFromOptions, getConfig, reloadFromConfig, saveConfig, loadPanelsFromLocalstorage };

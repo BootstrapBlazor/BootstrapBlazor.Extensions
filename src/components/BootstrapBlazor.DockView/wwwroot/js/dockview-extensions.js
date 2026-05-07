@@ -1,5 +1,5 @@
 import { DockviewComponent, DockviewGroupPanel, DockviewGroupPanelModel, getGridLocation, getRelativeLocation, DockviewEmitter } from "./dockview-core.esm.js"
-import { getConfigFromStorage, saveConfig } from "./dockview-config.js"
+import { saveConfig } from "./dockview-config.js"
 import { disposeGroup, removeDrawerBtn } from "./dockview-group.js"
 import { markFirstVisibleElement } from "./dockview-utils.js"
 
