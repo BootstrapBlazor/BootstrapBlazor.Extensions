@@ -347,4 +347,4 @@ const saveParamsIsActive = dockview => {
     })
 }
 
-export { getConfigFromStorage, getConfigFromOptions, getConfig, reloadFromConfig, saveConfig, loadPanelsFromLocalstorage };
+export { getConfigFromContent, getConfig, reloadFromConfig, saveConfig, loadPanelsFromLocalstorage };
