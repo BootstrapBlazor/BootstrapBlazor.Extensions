@@ -10,7 +10,8 @@ const onAddPanel = panel => {
 const observePanelActiveChange = panel => {
     panel.api.onDidVisibilityChange(({ isVisible }) => {
         const dockview = panel.accessor;
-        if (dockview._isDisposed) return;
+        // 最大化缩小时用toJson会重新调用setVisible，此时状态不对，导致出问题，因此直接返回不做处理
+        if (dockview._isDisposed || dockview.maximizing) return;
         const renderer = dockview.params.options.renderer;
         if (renderer === 'onlyWhenVisible' && dockview._inited) {
             if (isVisible) {
