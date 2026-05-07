@@ -45,7 +45,7 @@ const initDockview = (dockview, options, template) => {
 
     dockview.update = options => {
         const oldOptions = dockview.params.options;
-        dockview.params.options = options;
+        dockview.params.options = {...options, renderer: options.renderer || 'onlyWhenVisible' };
 
         if (oldOptions.lock !== options.lock) {
             toggleGroupLock(dockview, options);
