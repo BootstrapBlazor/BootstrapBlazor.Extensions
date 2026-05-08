@@ -448,6 +448,7 @@ const toggleLock = (group, actionContainer, isLock) => {
 }
 
 const toggleFull = (group, actionContainer, maximize) => {
+    group.api.accessor.maximizing = true;
     const type = group.model.location.type;
     if (type === 'grid') {
         maximize ? group.api.exitMaximized() : group.api.maximize();
@@ -455,6 +456,7 @@ const toggleFull = (group, actionContainer, maximize) => {
     else if (type === 'floating') {
         maximize ? floatingExitMaximized(group) : floatingMaximize(group);
     }
+    group.api.accessor.maximizing = false;
     maximize ? actionContainer.classList.remove('bb-maximize') : actionContainer.classList.add('bb-maximize')
     if (maximize) {
         group.element.parentElement.classList.remove('bb-maximize')

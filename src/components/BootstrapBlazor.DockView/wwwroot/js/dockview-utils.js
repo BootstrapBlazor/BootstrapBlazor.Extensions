@@ -2,7 +2,7 @@ import { DockviewComponent } from "./dockview-core.esm.js"
 import { DockviewPanelContent } from "./dockview-content.js"
 import { onAddGroup, addGroupWithPanel, toggleLock, observeFloatingGroupLocationChange, observeOverlayChange, createDrawerHandle } from "./dockview-group.js"
 import { onAddPanel, onRemovePanel, getPanelsFromOptions, findContentFromPanels } from "./dockview-panel.js"
-import { getConfig, reloadFromConfig, loadPanelsFromLocalstorage, saveConfig } from './dockview-config.js'
+import { getConfig, getConfigFromContent, reloadFromConfig, loadPanelsFromLocalstorage, saveConfig } from './dockview-config.js'
 import './dockview-extensions.js'
 
 const cerateDockview = (el, options) => {
@@ -30,9 +30,20 @@ const initDockview = (dockview, options, template) => {
     loadPanelsFromLocalstorage(dockview);
 
     dockview.init = () => {
-        const config = getConfig(options);
+        let config = null
+        try {
+            config = getConfig(options);
+        } catch (error) {
+            console.error(error);
+            config = getConfigFromContent(options);
+        }
+        try {
+            dockview.fromJSON(config);
+        } catch (error) {
+            console.error(error);
+            dockview.fromJSON(getConfigFromContent(options));
+        }
         dockview.params.floatingGroups = config.floatingGroups || []
-        dockview.fromJSON(config);
     }
 
     dockview.switchTheme = theme => {
@@ -44,12 +55,13 @@ const initDockview = (dockview, options, template) => {
     }
 
     dockview.update = options => {
-        if (dockview.params.options.lock !== options.lock) {
-            dockview.params.options.lock = options.lock;
+        const oldOptions = dockview.params.options;
+        dockview.params.options = {...options, renderer: options.renderer || 'onlyWhenVisible' };
+
+        if (oldOptions.lock !== options.lock) {
             toggleGroupLock(dockview, options);
         }
-        if (dockview.options.theme.className !== options.theme) {
-            dockview.options.theme.className = options.theme;
+        if (oldOptions.theme.className !== options.theme) {
             dockview.updateTheme();
         }
         if (options.layoutConfig) {
@@ -116,9 +128,6 @@ const initDockview = (dockview, options, template) => {
                 const visiblePanels = groups.filter(g => g.isVisible).map(g => g.panels.find(p => p.params.isActive) || g.panels.find(p => p.api.isVisible))
                 dockview._loadTabs?.fire(visiblePanels.filter(p => Boolean(p)).map(p => p.params.key));
             }
-            if (options.renderer === 'always') {
-                dockview._loadTabs?.fire(dockview.panels.map(p => p.params.key));
-            }
             const { floatingGroups } = dockview.params
             dockview.floatingGroups.forEach(fg => {
                 const { top, right, bottom, left } = floatingGroups.find(g => g.data.id == fg.group.id).position
@@ -168,12 +177,6 @@ export const observeGroup = (group) => {
     }
     dockview.params.observer.observe(group.header.element)
     dockview.params.observer.observe(group.header.tabs._tabsList)
-    for (let panel of group.panels) {
-        if (panel.params.isActive) {
-            panel.api.setActive()
-            break
-        }
-    }
 }
 
 const resizeObserverHandle = (observerList, dockview) => {

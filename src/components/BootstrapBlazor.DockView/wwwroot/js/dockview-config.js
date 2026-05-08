@@ -1,5 +1,4 @@
-﻿import { fixObject } from "./dockview-fix.js"
-import { getPanelsFromOptions, findContentFromPanels } from "./dockview-panel.js"
+﻿import { getPanelsFromOptions, findContentFromPanels } from "./dockview-panel.js"
 
 const loadPanelsFromLocalstorage = dockview => {
     const { options } = dockview.params;
@@ -26,24 +25,14 @@ const getConfig = options => {
 
 const getConfigFromStorage = options => {
     const jsonString = localStorage.getItem(options.localStorageKey);
-    return jsonString ? fixObject(renewConfigFromOptions(JSON.parse(jsonString), options)) : null;
+    return jsonString ? renewConfigFromOptions(JSON.parse(jsonString), options) : null;
 }
 
 const getConfigFromOptions = options => options.layoutConfig ? getConfigFromLayoutString(options) : getConfigFromContent(options);
 
 const getConfigFromLayoutString = options => {
     let config = JSON.parse(options.layoutConfig);
-    const panels = getPanelsFromOptions(options);
-    Object.values(config.panels).forEach(value => {
-        const contentPanel = findContentFromPanels(panels, value);
-        if (contentPanel) {
-            value.params = {
-                ...value.params,
-                ...contentPanel.params
-            }
-        }
-    });
-    return fixObject(config);
+    return renewConfigFromOptions(config);
 }
 
 const renewConfigFromOptions = (config, options) => {
@@ -58,6 +47,7 @@ const renewConfigFromOptions = (config, options) => {
                 ...optionPanel.params,
                 visible: panel.params.visible
             }
+            optionPanel.id = panel.id
             config.panels[panel.id] = optionPanel
         }
         else {
@@ -189,7 +179,7 @@ const removePanel = (branch, panel, parent) => {
         branch.data.forEach(item => {
             removePanel(item, panel, branch)
         })
-        if (branch.data.length == 0) {
+        if (branch.data.length == 0 && parent) {
             parent.data = parent.data.filter(b => !(b.type == 'branch' && b.data.length == 0))
         }
     }
@@ -202,11 +192,11 @@ const getConfigFromContent = options => {
     const panels = {}, rootType = options.content[0].type
     const orientation = rootType === 'column' ? 'VERTICAL' : 'HORIZONTAL';
     const root = getTree(options.content[0], { width, height, orientation }, options, panels, getGroupId, options)
-    return fixObject({
+    return {
         activeGroup: '1',
         grid: { width, height, orientation, root },
         panels
-    });
+    }
 }
 
 const getGroupIdFunc = () => {
@@ -347,4 +337,4 @@ const saveParamsIsActive = dockview => {
     })
 }
 
-export { getConfigFromStorage, getConfig, reloadFromConfig, saveConfig, loadPanelsFromLocalstorage };
+export { getConfigFromContent, getConfig, reloadFromConfig, saveConfig, loadPanelsFromLocalstorage };
