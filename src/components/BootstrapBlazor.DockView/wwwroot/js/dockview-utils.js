@@ -128,9 +128,6 @@ const initDockview = (dockview, options, template) => {
                 const visiblePanels = groups.filter(g => g.isVisible).map(g => g.panels.find(p => p.params.isActive) || g.panels.find(p => p.api.isVisible))
                 dockview._loadTabs?.fire(visiblePanels.filter(p => Boolean(p)).map(p => p.params.key));
             }
-            if (options.renderer === 'always') {
-                dockview._loadTabs?.fire(dockview.panels.map(p => p.params.key));
-            }
             const { floatingGroups } = dockview.params
             dockview.floatingGroups.forEach(fg => {
                 const { top, right, bottom, left } = floatingGroups.find(g => g.data.id == fg.group.id).position
