@@ -178,6 +178,7 @@ public partial class DockViewV2
     [NotNull]
     private DockViewOptions? _options = null;
     private ConcurrentDictionary<string, DockViewComponentState> _componentStates = new();
+    private string? _layoutConfig;
 
     /// <summary>
     /// <inheritdoc/>
@@ -214,7 +215,11 @@ public partial class DockViewV2
     {
         await base.OnAfterRenderAsync(firstRender);
 
-        if (!firstRender)
+        if (firstRender)
+        {
+            _layoutConfig = LayoutConfig;
+        }
+        else
         {
             await InvokeVoidAsync("update", Id, GetDockViewConfig());
         }
@@ -233,6 +238,14 @@ public partial class DockViewV2
             throw new InvalidOperationException("LayoutConfig must be provided when no components are added.");
         }
 
+        string? layoutConfig = null;
+        if (_layoutConfig != LayoutConfig)
+        {
+            // 如果布局更改了。需要推送下去，如果未更改不需要推送这个变量
+            _layoutConfig = LayoutConfig;
+            layoutConfig = LayoutConfig;
+        }
+
         return new()
         {
             EnableLocalStorage = IsEnableLocalStorage,
@@ -245,7 +258,7 @@ public partial class DockViewV2
             ShowPin = ShowPin,
             ShowMaximize = ShowMaximize,
             Renderer = Renderer,
-            LayoutConfig = LayoutConfig,
+            LayoutConfig = layoutConfig,
             Theme = Theme.ToDescriptionString(),
             InitializedCallback = nameof(InitializedCallbackAsync),
             PanelVisibleChangedCallback = nameof(PanelVisibleChangedCallbackAsync),
