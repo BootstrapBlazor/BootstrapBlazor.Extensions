@@ -35,7 +35,13 @@ export async function init(id, invoke, options) {
     dockview.on('loadTabs', tabs => {
         invoke.invokeMethodAsync(options.loadTabs, tabs);
     });
+    dockview.on('saveConfig', json => {
+        if (options.enableLocalStorage) {
+            return;
+        }
 
+        invoke.invokeMethodAsync(options.SaveConfigCallback, json);
+    });
     EventHandler.on(document, 'changed.bb.theme', updateTheme);
 }
 
