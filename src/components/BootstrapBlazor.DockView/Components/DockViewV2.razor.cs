@@ -218,27 +218,36 @@ public partial class DockViewV2
     /// </summary>
     protected override Task InvokeInitAsync() => InvokeVoidAsync("init", Id, Interop, GetDockViewConfig());
 
-    private DockViewConfig GetDockViewConfig() => new()
+    private DockViewConfig GetDockViewConfig()
     {
-        EnableLocalStorage = IsEnableLocalStorage,
-        LocalStorageKey = LocalStorageKey,
-        IsLock = IsLock,
-        ShowLock = ShowLock,
-        IsFloating = IsFloating,
-        ShowFloat = ShowFloat,
-        ShowClose = ShowClose,
-        ShowPin = ShowPin,
-        ShowMaximize = ShowMaximize,
-        Renderer = Renderer,
-        LayoutConfig = LayoutConfig,
-        Theme = Theme.ToDescriptionString(),
-        InitializedCallback = nameof(InitializedCallbackAsync),
-        PanelVisibleChangedCallback = nameof(PanelVisibleChangedCallbackAsync),
-        LockChangedCallback = nameof(LockChangedCallbackAsync),
-        SplitterCallback = nameof(SplitterCallbackAsync),
-        Contents = _components,
-        LoadTabs = nameof(LoadTabs)
-    };
+        if (_components.Count == 0 && string.IsNullOrEmpty(LayoutConfig))
+        {
+            // 未设置布局并且未设置 LayoutConfig
+            throw new InvalidOperationException("LayoutConfig must be provided when no components are added.");
+        }
+
+        return new()
+        {
+            EnableLocalStorage = IsEnableLocalStorage,
+            LocalStorageKey = LocalStorageKey,
+            IsLock = IsLock,
+            ShowLock = ShowLock,
+            IsFloating = IsFloating,
+            ShowFloat = ShowFloat,
+            ShowClose = ShowClose,
+            ShowPin = ShowPin,
+            ShowMaximize = ShowMaximize,
+            Renderer = Renderer,
+            LayoutConfig = LayoutConfig,
+            Theme = Theme.ToDescriptionString(),
+            InitializedCallback = nameof(InitializedCallbackAsync),
+            PanelVisibleChangedCallback = nameof(PanelVisibleChangedCallbackAsync),
+            LockChangedCallback = nameof(LockChangedCallbackAsync),
+            SplitterCallback = nameof(SplitterCallbackAsync),
+            Contents = _components,
+            LoadTabs = nameof(LoadTabs)
+        };
+    }
 
     private bool IsEnableLocalStorage => EnableLocalStorage ?? _options.EnableLocalStorage ?? false;
 
