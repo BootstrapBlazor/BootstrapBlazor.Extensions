@@ -1,38 +1,46 @@
 import { getPanelsFromOptions, findContentFromPanels } from "./dockview-panel.js"
 
-const loadPanelsFromLocalstorage = dockview => {
-    const { options } = dockview.params;
-    if (options.enableLocalStorage) {
-        const panelsStr = localStorage.getItem(`${options.localStorageKey}-panels`)
-        dockview.params.panels = panelsStr ? JSON.parse(panelsStr) : [];
-    }
-}
-
-const reloadFromConfig = (dockview, options) => {
-    dockview.isClearing = true
-    dockview.clear()
-    dockview.isClearing = false
-    dockview.params.panels = [];
-
-    const jsonData = getConfigFromOptions(options);
-    dockview.fromJSON(jsonData);
-}
-
 const getConfig = options => {
-    const config = options.enableLocalStorage ? getConfigFromStorage(options) : null;
-    return config ?? getConfigFromOptions(options);
+    const { layoutConfig, enableLocalStorage } = options;
+    if (layoutConfig) {
+        try {
+            var layout = JSON.parse(layoutConfig)
+            return layout;
+        }
+        catch (error) {
+            console.error('Invalid layoutConfig JSON string:', error);
+        }
+    }
+
+    if (enableLocalStorage) {
+        const panelsStr = localStorage.getItem(`${options.localStorageKey}-panels`);
+
+        try {
+            dockview.params.panels = panelsStr ? JSON.parse(panelsStr) : [];
+
+            const dockViewJsonString = localStorage.getItem(options.localStorageKey);
+            return renewConfigFromOptions(JSON.parse(dockViewJsonString), options);
+        }
+        catch (error) {
+            console.error('Invalid localStorage JSON string:', error);
+        }
+    }
+
+    return getConfigFromContent(options);
 }
 
-const getConfigFromStorage = options => {
-    const jsonString = localStorage.getItem(options.localStorageKey);
-    return jsonString ? renewConfigFromOptions(JSON.parse(jsonString), options) : null;
-}
-
-const getConfigFromOptions = options => options.layoutConfig ? getConfigFromLayoutString(options) : getConfigFromContent(options);
-
-const getConfigFromLayoutString = options => {
-    let config = JSON.parse(options.layoutConfig);
-    return renewConfigFromOptions(config);
+const getConfigFromContent = options => {
+    const { width, height } = { width: 800, height: 600 };
+    const getGroupId = getGroupIdFunc()
+    options = filterEmptyContent(options)
+    const panels = {}, rootType = options.content[0].type
+    const orientation = rootType === 'column' ? 'VERTICAL' : 'HORIZONTAL';
+    const root = getTree(options.content[0], { width, height, orientation }, options, panels, getGroupId, options)
+    return {
+        activeGroup: '1',
+        grid: { width, height, orientation, root },
+        panels
+    }
 }
 
 const renewConfigFromOptions = (config, options) => {
@@ -102,6 +110,7 @@ const removeEmptyGridViews = (config, options) => {
     const delPanels = delPanelsStr ? JSON.parse(delPanelsStr) : delPanelsStr
     removeEmptyLeafViews(config.grid.root, config.floatingGroups || [], delPanels || [])
 }
+
 const removeEmptyLeafViews = (branch, floatingGroups, delPanels, parent) => {
     if (branch.type == 'branch') {
         branch.data.forEach(item => removeEmptyLeafViews(item, floatingGroups, delPanels, branch))
@@ -185,24 +194,11 @@ const removePanel = (branch, panel, parent) => {
     }
 }
 
-const getConfigFromContent = options => {
-    const { width, height } = { width: 800, height: 600 };
-    const getGroupId = getGroupIdFunc()
-    options = filterEmptyContent(options)
-    const panels = {}, rootType = options.content[0].type
-    const orientation = rootType === 'column' ? 'VERTICAL' : 'HORIZONTAL';
-    const root = getTree(options.content[0], { width, height, orientation }, options, panels, getGroupId, options)
-    return {
-        activeGroup: '1',
-        grid: { width, height, orientation, root },
-        panels
-    }
-}
-
 const getGroupIdFunc = () => {
     let currentId = 0;
     return () => `${currentId++}`;
 }
+
 const filterEmptyContent = function (data) {
     if (!data || typeof data !== 'object') return data;
 
@@ -214,6 +210,7 @@ const filterEmptyContent = function (data) {
 
     return data;
 }
+
 const getTree = (contentItem, { width, height, orientation }, parent, panels, getGroupId, options) => {
     const length = parent.content.length;
     const boxSize = orientation === 'HORIZONTAL' ? width : height;
@@ -346,4 +343,4 @@ const saveParamsIsActive = dockview => {
     })
 }
 
-export { getConfigFromContent, getConfig, reloadFromConfig, saveConfig, loadPanelsFromLocalstorage };
+export { getConfig, saveConfig };
