@@ -2,13 +2,13 @@ import { DockviewComponent } from "./dockview-core.esm.js"
 import { DockviewPanelContent } from "./dockview-content.js"
 import { onAddGroup, addGroupWithPanel, toggleLock, observeFloatingGroupLocationChange, observeOverlayChange, createDrawerHandle } from "./dockview-group.js"
 import { onAddPanel, onRemovePanel, getPanelsFromOptions, findContentFromPanels } from "./dockview-panel.js"
-import { getConfig, getConfigFromContent, reloadFromConfig, loadPanelsFromLocalstorage, saveConfig } from './dockview-config.js'
+import { getConfig, saveConfig } from './dockview-config.js'
 import './dockview-extensions.js'
 
 const cerateDockview = (el, options) => {
     const theme = options.theme || "dockview-theme-light";
     const template = el.querySelector('template');
-    options.renderer ??= 'onlyWhenVisible'; // onlyWhenVisible | partial | always
+    options.renderer ??= 'onlyWhenVisible';
     const dockview = new DockviewComponent(el, {
         parentElement: el,
         theme: {
@@ -21,29 +21,19 @@ const cerateDockview = (el, options) => {
         createComponent: option => new DockviewPanelContent(option)
     });
     initDockview(dockview, options, template);
-    dockview.init();
     return dockview;
 }
 
 const initDockview = (dockview, options, template) => {
     dockview.params = { panels: [], options, template, observer: null };
-    loadPanelsFromLocalstorage(dockview);
-
     dockview.init = () => {
-        let config = null
-        try {
-            config = getConfig(options);
-        } catch (error) {
-            console.error(error);
-            config = getConfigFromContent(options);
-        }
+        let config = getConfig(options);
         try {
             dockview.fromJSON(config);
+            dockview.params.floatingGroups = config.floatingGroups || []
         } catch (error) {
-            console.error(error);
-            dockview.fromJSON(getConfigFromContent(options));
+            console.error("dockview fromJSON throw error", error);
         }
-        dockview.params.floatingGroups = config.floatingGroups || []
     }
 
     dockview.switchTheme = theme => {
@@ -56,7 +46,7 @@ const initDockview = (dockview, options, template) => {
 
     dockview.update = options => {
         const oldOptions = dockview.params.options;
-        dockview.params.options = {...options, renderer: options.renderer || 'onlyWhenVisible' };
+        dockview.params.options = { ...options, renderer: options.renderer || 'onlyWhenVisible' };
 
         if (oldOptions.lock !== options.lock) {
             toggleGroupLock(dockview, options);
@@ -126,7 +116,7 @@ const initDockview = (dockview, options, template) => {
 
             if (options.renderer === 'onlyWhenVisible') {
                 const visiblePanels = groups.filter(g => g.isVisible).map(g => g.panels.find(p => p.params.isActive) || g.panels.find(p => p.api.isVisible))
-                dockview._loadTabs?.fire(visiblePanels.filter(p => Boolean(p)).map(p => p.params.key));
+                dockview._loadTabs?.fire(visiblePanels.filter(p => p.params.key).map(p => p.params.key));
             }
             const { floatingGroups } = dockview.params
             dockview.floatingGroups.forEach(fg => {
@@ -146,7 +136,7 @@ const initDockview = (dockview, options, template) => {
             dockview.groups.forEach(group => {
                 observeGroup(group)
             })
-            dockview.element.querySelector('&>.dv-dockview>.dv-branch-node')?.addEventListener('click', function(e) {
+            dockview.element.querySelector('&>.dv-dockview>.dv-branch-node')?.addEventListener('click', function (e) {
                 this.parentElement.querySelectorAll('&>.dv-resize-container-drawer, &>.dv-render-overlay-float-drawer')?.forEach(item => {
                     item.classList.remove('active')
                 })
@@ -168,6 +158,7 @@ const initDockview = (dockview, options, template) => {
         saveConfig(dockview)
     })
 
+    dockview.init();
 }
 
 export const observeGroup = (group) => {
@@ -262,7 +253,7 @@ const toggleComponent = (dockview, options) => {
             }
         }
     })
-    
+
     localPanels.forEach(item => {
         let pan = findContentFromPanels(panels, item);
         if (pan === void 0) {
