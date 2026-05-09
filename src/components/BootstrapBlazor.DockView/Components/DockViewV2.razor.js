@@ -43,7 +43,7 @@ export async function init(id, invoke, options) {
             return;
         }
 
-        invoke.invokeMethodAsync(options.SaveConfigCallback, json);
+        invoke.invokeMethodAsync(options.saveConfigCallback, json);
     });
     EventHandler.on(document, 'changed.bb.theme', updateTheme);
 }
