@@ -106,6 +106,13 @@ public partial class DockViewV2
     public Func<Task>? OnInitializedCallbackAsync { get; set; }
 
     /// <summary>
+    /// <para lang="zh">获得/设置 客户端配置文件保存回调方法</para>
+    /// <para lang="en">Gets or sets the callback for when the client config is saved</para>
+    /// </summary>
+    [Parameter]
+    public Func<string, Task>? OnSaveConfigCallbackAsync { get; set; }
+
+    /// <summary>
     /// <para lang="zh">获得/设置 子组件内容</para>
     /// <para lang="en">Gets or sets the child content</para>
     /// </summary>
@@ -218,27 +225,37 @@ public partial class DockViewV2
     /// </summary>
     protected override Task InvokeInitAsync() => InvokeVoidAsync("init", Id, Interop, GetDockViewConfig());
 
-    private DockViewConfig GetDockViewConfig() => new()
+    private DockViewConfig GetDockViewConfig()
     {
-        EnableLocalStorage = IsEnableLocalStorage,
-        LocalStorageKey = LocalStorageKey,
-        IsLock = IsLock,
-        ShowLock = ShowLock,
-        IsFloating = IsFloating,
-        ShowFloat = ShowFloat,
-        ShowClose = ShowClose,
-        ShowPin = ShowPin,
-        ShowMaximize = ShowMaximize,
-        Renderer = Renderer,
-        LayoutConfig = LayoutConfig,
-        Theme = Theme.ToDescriptionString(),
-        InitializedCallback = nameof(InitializedCallbackAsync),
-        PanelVisibleChangedCallback = nameof(PanelVisibleChangedCallbackAsync),
-        LockChangedCallback = nameof(LockChangedCallbackAsync),
-        SplitterCallback = nameof(SplitterCallbackAsync),
-        Contents = _components,
-        LoadTabs = nameof(LoadTabs)
-    };
+        if (_components.Count == 0 && string.IsNullOrEmpty(LayoutConfig))
+        {
+            // 未设置布局并且未设置 LayoutConfig
+            throw new InvalidOperationException("LayoutConfig must be provided when no components are added.");
+        }
+
+        return new()
+        {
+            EnableLocalStorage = IsEnableLocalStorage,
+            LocalStorageKey = LocalStorageKey,
+            IsLock = IsLock,
+            ShowLock = ShowLock,
+            IsFloating = IsFloating,
+            ShowFloat = ShowFloat,
+            ShowClose = ShowClose,
+            ShowPin = ShowPin,
+            ShowMaximize = ShowMaximize,
+            Renderer = Renderer,
+            LayoutConfig = LayoutConfig,
+            Theme = Theme.ToDescriptionString(),
+            InitializedCallback = nameof(InitializedCallbackAsync),
+            PanelVisibleChangedCallback = nameof(PanelVisibleChangedCallbackAsync),
+            LockChangedCallback = nameof(LockChangedCallbackAsync),
+            SplitterCallback = nameof(SplitterCallbackAsync),
+            SaveConfigCallback = nameof(SaveConfigCallbackAsync),
+            Contents = _components,
+            LoadTabs = nameof(LoadTabs)
+        };
+    }
 
     private bool IsEnableLocalStorage => EnableLocalStorage ?? _options.EnableLocalStorage ?? false;
 
@@ -368,6 +385,25 @@ public partial class DockViewV2
         StateHasChanged();
 
         return Task.CompletedTask;
+    }
+
+    /// <summary>
+    /// <para lang="zh">保存配置回调方法，由 JavaScript 调用</para>
+    /// <para lang="en">Save configuration callback method called by JavaScript</para>
+    /// </summary>
+    /// <param name="configJsonString">
+    ///   <para lang="zh">布局配置 JSON 字符串</para>
+    ///   <para lang="en">Layout configuration JSON string</para>
+    /// </param>
+    /// <returns></returns>
+    [JSInvokable]
+    public async Task SaveConfigCallbackAsync(string configJsonString)
+    {
+        // 此处可将 configJsonString 保存到服务器中，以便下次加载时使用
+        if (OnSaveConfigCallbackAsync != null)
+        {
+            await OnSaveConfigCallbackAsync(configJsonString);
+        }
     }
 
     internal void AddComponentState(DockViewComponentState state)

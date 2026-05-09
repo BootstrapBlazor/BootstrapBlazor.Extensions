@@ -93,6 +93,12 @@ class DockViewConfig
     public string? SplitterCallback { get; set; }
 
     /// <summary>
+    /// <para lang="zh">获得/设置 客户端配置文件改变时回调名称</para>
+    /// <para lang="en">Gets or sets the callback name for when the client config changes</para>
+    /// </summary>
+    public string? SaveConfigCallback { get; set; }
+
+    /// <summary>
     /// <para lang="zh">获得/设置 加载标签页回调名称</para>
     /// <para lang="en">Gets or sets the callback name for loading tabs</para>
     /// </summary>
