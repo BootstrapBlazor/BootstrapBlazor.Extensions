@@ -1,4 +1,4 @@
-﻿import { getPanelsFromOptions, findContentFromPanels } from "./dockview-panel.js"
+import { getPanelsFromOptions, findContentFromPanels } from "./dockview-panel.js"
 
 const loadPanelsFromLocalstorage = dockview => {
     const { options } = dockview.params;
@@ -203,15 +203,15 @@ const getGroupIdFunc = () => {
     let currentId = 0;
     return () => `${currentId++}`;
 }
-const filterEmptyContent = function(data) {
+const filterEmptyContent = function (data) {
     if (!data || typeof data !== 'object') return data;
-    
+
     if (Array.isArray(data.content)) {
         data.content = data.content
             .map(item => filterEmptyContent(item))
             .filter(item => !(Array.isArray(item.content) && item.content.length === 0));
     }
-    
+
     return data;
 }
 const getTree = (contentItem, { width, height, orientation }, parent, panels, getGroupId, options) => {
@@ -302,35 +302,44 @@ const getLeafNode = (contentItem, size, boxSize, parent, panels, getGroupId, opt
 }
 
 const saveConfig = dockview => {
-    if (dockview.params.options.enableLocalStorage && dockview._inited === true) {
-        saveParamsIsActive(dockview)
-        const json = dockview.toJSON();
-        if (dockview.floatingGroups && dockview.floatingGroups.length > 0) {
-            json.floatingGroups.forEach((fg, index) => {
-                const group = dockview.floatingGroups[index].group
-                if (fg.position.width > 0) {
-                    group.panels.forEach(panel => {
-                        !panel.params.currentPosition && (panel.params.currentPosition = {})
-                        panel.params.currentPosition.width = fg.position.width
-                    })
-                }
-                else {
-                    fg.position.width = group.params.currentPosition.width || 500
-                }
-                if (fg.position.height > 0) {
-                    group.panels.forEach(panel => {
-                        !panel.params.currentPosition && (panel.params.currentPosition = {})
-                        panel.params.currentPosition.height = fg.position.height
-                    })
-                }
-                else {
-                    fg.position.height = group.params.currentPosition.height || 350
-                }
-            })
-        }
+    if (dockview._inited !== true) {
+        return;
+    }
+
+    saveParamsIsActive(dockview)
+    const json = dockview.toJSON();
+    if (dockview.floatingGroups && dockview.floatingGroups.length > 0) {
+        json.floatingGroups.forEach((fg, index) => {
+            const group = dockview.floatingGroups[index].group
+            if (fg.position.width > 0) {
+                group.panels.forEach(panel => {
+                    !panel.params.currentPosition && (panel.params.currentPosition = {})
+                    panel.params.currentPosition.width = fg.position.width
+                })
+            }
+            else {
+                fg.position.width = group.params.currentPosition.width || 500
+            }
+            if (fg.position.height > 0) {
+                group.panels.forEach(panel => {
+                    !panel.params.currentPosition && (panel.params.currentPosition = {})
+                    panel.params.currentPosition.height = fg.position.height
+                })
+            }
+            else {
+                fg.position.height = group.params.currentPosition.height || 350
+            }
+        })
+    }
+
+    if (dockview.params.options.enableLocalStorage) {
         localStorage.setItem(dockview.params.options.localStorageKey, JSON.stringify(json));
     }
+    else {
+        dockview._saveConfig?.fire(JSON.stringify(json));
+    }
 }
+
 const saveParamsIsActive = dockview => {
     dockview.panels.forEach(panel => {
         panel.params.isActive = panel.api.isActive || panel.group.activePanel === panel
