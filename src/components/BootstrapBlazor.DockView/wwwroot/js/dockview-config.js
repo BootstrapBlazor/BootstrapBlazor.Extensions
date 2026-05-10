@@ -1,22 +1,22 @@
 import { getPanelsFromOptions, findContentFromPanels } from "./dockview-panel.js"
 
-const getConfig = options => {
+const initDockviewFromConfig = (dockview, options) => {
     const { layoutConfig, enableLocalStorage } = options;
+    let config = null;
     if (layoutConfig) {
         try {
-            return JSON.parse(layoutConfig)
+            config = JSON.parse(layoutConfig);
         }
         catch (error) {
             console.error('Invalid layoutConfig JSON string:', error);
         }
     }
-
-    if (enableLocalStorage) {
+    else if (enableLocalStorage) {
         try {
             let key = `${options.localStorageKey}-layout`;
             const layoutJson = localStorage.getItem(key);
             if (layoutJson) {
-                return JSON.parse(layoutJson);
+                config = JSON.parse(layoutJson);
             }
             else {
                 key = `${options.localStorageKey}`;
@@ -28,7 +28,7 @@ const getConfig = options => {
                     if (panels) {
                         localStorage.removeItem(key);
                     }
-                    return {
+                    config = {
                         layout,
                         panels: panles || []
                     }
@@ -40,7 +40,22 @@ const getConfig = options => {
         }
     }
 
-    return getConfigFromContent(options);
+    if (config) {
+        const { layout, panels } = config;
+        try {
+            dockview.fromJSON(layout);
+            dockview.params.panels = panels;
+        }
+        catch {
+            dockview.fromJSON(getConfigFromContent(options));
+        }
+    }
+    else {
+        dockview.fromJSON(getConfigFromContent(options));
+        dockview.params.panels = [];
+    }
+
+    dockview.params.floatingGroups = layout.floatingGroups || []
 }
 
 const getConfigFromContent = options => {
@@ -51,12 +66,9 @@ const getConfigFromContent = options => {
     const orientation = rootType === 'column' ? 'VERTICAL' : 'HORIZONTAL';
     const root = getTree(options.content[0], { width, height, orientation }, options, panels, getGroupId, options)
     return {
-        layout: {
-            activeGroup: '1',
-            grid: { width, height, orientation, root },
-            panels
-        },
-        panels: []
+        activeGroup: '1',
+        grid: { width, height, orientation, root },
+        panels
     }
 }
 
@@ -363,4 +375,4 @@ export const getInvisiblePanels = localStorageKey => {
     return storedStr ? JSON.parse(storedStr)?.invisiblePanels ?? [] : [];
 }
 
-export { getConfig, saveConfig };
+export { initDockviewFromConfig, saveConfig };

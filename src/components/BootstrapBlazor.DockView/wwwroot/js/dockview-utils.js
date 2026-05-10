@@ -2,7 +2,7 @@ import { DockviewComponent } from "./dockview-core.esm.js"
 import { DockviewPanelContent } from "./dockview-content.js"
 import { onAddGroup, addGroupWithPanel, toggleLock, observeFloatingGroupLocationChange, observeOverlayChange, createDrawerHandle } from "./dockview-group.js"
 import { onAddPanel, onRemovePanel, getPanelsFromOptions, findContentFromPanels } from "./dockview-panel.js"
-import { getConfig, saveConfig } from './dockview-config.js'
+import { initDockviewFromConfig, saveConfig } from './dockview-config.js'
 import './dockview-extensions.js'
 
 const cerateDockview = (el, options) => {
@@ -27,15 +27,7 @@ const cerateDockview = (el, options) => {
 const initDockview = (dockview, options, template) => {
     dockview.params = { panels: [], options, template, observer: null };
     dockview.init = function (options) {
-        let config = getConfig(options);
-        try {
-            const { layout, panels } = config;
-            this.fromJSON(layout);
-            this.params.panels = panels;
-            this.params.floatingGroups = layout.floatingGroups || []
-        } catch (error) {
-            console.error("dockview fromJSON throw error", error);
-        }
+        initDockviewFromConfig(this, options);
     }
 
     dockview.switchTheme = theme => {
