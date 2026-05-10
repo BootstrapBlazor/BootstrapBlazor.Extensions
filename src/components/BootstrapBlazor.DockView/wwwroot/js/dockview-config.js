@@ -158,7 +158,6 @@ const addPanel = (branch, panel, brotherPanel, brotherId, originFloatingGroupId)
                     id: Date.now() + Math.floor(Math.random() * 100) + '',
                     views: [panel.id]
                 },
-                // size: branch.data.reduce((pre, cur) => pre + cur.size, 0)/branch.data.length,
                 type: 'leaf'
             })
         }
@@ -275,7 +274,6 @@ const getGroupNode = (contentItem, size, boxSize, parent, panels, getGroupId, op
                     title: item.title,
                     tabComponent: item.componentName,
                     contentComponent: item.componentName,
-                    // renderer: item.renderer || options.renderer,
                     params: { ...item, parentId: parent.id }
                 }
                 return item.id
@@ -300,7 +298,6 @@ const getLeafNode = (contentItem, size, boxSize, parent, panels, getGroupId, opt
     panels[contentItem.id] = {
         id: contentItem.id,
         title: contentItem.title,
-        // renderer: contentItem.renderer || options.renderer,
         tabComponent: contentItem.componentName,
         contentComponent: contentItem.componentName,
         params: { ...contentItem, parentId: parent.id }
