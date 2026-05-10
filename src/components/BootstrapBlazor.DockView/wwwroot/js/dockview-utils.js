@@ -2,7 +2,7 @@ import { DockviewComponent } from "./dockview-core.esm.js"
 import { DockviewPanelContent } from "./dockview-content.js"
 import { onAddGroup, addGroupWithPanel, toggleLock, observeFloatingGroupLocationChange, observeOverlayChange, createDrawerHandle } from "./dockview-group.js"
 import { onAddPanel, onRemovePanel, getPanelsFromOptions, findContentFromPanels } from "./dockview-panel.js"
-import { getConfig, saveConfig } from './dockview-config.js'
+import { getConfig, saveConfig, getInvisiblePanels } from './dockview-config.js'
 import './dockview-extensions.js'
 
 const cerateDockview = (el, options) => {
@@ -27,7 +27,7 @@ const cerateDockview = (el, options) => {
 const initDockview = (dockview, options, template) => {
     dockview.params = { panels: [], options, template, observer: null };
     dockview.init = () => {
-        let config = getConfig(options);
+        let config = getConfig(options, dockview);
         try {
             dockview.fromJSON(config);
             dockview.params.floatingGroups = config.floatingGroups || []
@@ -96,8 +96,7 @@ const initDockview = (dockview, options, template) => {
             }
             const panels = dockview.panels;
             const groups = dockview.groups;
-            const delPanelsStr = localStorage.getItem(dockview.params.options.localStorageKey + '-panels');
-            const delPanels = delPanelsStr && JSON.parse(delPanelsStr) || [];
+            const delPanels = getInvisiblePanels(options.localStorageKey)
 
             if (options.enableLocalStorage) {
                 panels.forEach(panel => {

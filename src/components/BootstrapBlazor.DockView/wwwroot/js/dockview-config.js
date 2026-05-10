@@ -1,6 +1,6 @@
 import { getPanelsFromOptions, findContentFromPanels } from "./dockview-panel.js"
 
-const getConfig = options => {
+const getConfig = (options, dockview) => {
     const { layoutConfig, enableLocalStorage } = options;
     if (layoutConfig) {
         try {
@@ -13,13 +13,13 @@ const getConfig = options => {
     }
 
     if (enableLocalStorage) {
-        const panelsStr = localStorage.getItem(`${options.localStorageKey}-panels`);
-
         try {
-            dockview.params.panels = panelsStr ? JSON.parse(panelsStr) : [];
+            dockview.params.panels = getInvisiblePanels(options.localStorageKey)
 
-            const dockViewJsonString = localStorage.getItem(options.localStorageKey);
-            return renewConfigFromOptions(JSON.parse(dockViewJsonString), options);
+            const dockViewJsonString = localStorage.getItem(options.localStorageKey)?.layout;
+            if (dockViewJsonString) {
+                return renewConfigFromOptions(JSON.parse(dockViewJsonString), options);
+            }
         }
         catch (error) {
             console.error('Invalid localStorage JSON string:', error);
@@ -59,7 +59,7 @@ const renewConfigFromOptions = (config, options) => {
             config.panels[panel.id] = optionPanel
         }
         else {
-            const delPanels = JSON.parse(localStorage.getItem(options.localStorageKey + '-panels'))
+            const delPanels = getInvisiblePanels(options.localStorageKey)
             if (delPanels?.find(delPanel => delPanel.params.key == optionPanel.params.key)) return
             let index = optionPanels.findIndex(item => item.id == optionPanel.id)
             let brotherPanel, brotherType
@@ -106,8 +106,7 @@ const removeFloatingPanel = (config, localPanel) => {
 }
 
 const removeEmptyGridViews = (config, options) => {
-    const delPanelsStr = localStorage.getItem(options.localStorageKey + '-panels')
-    const delPanels = delPanelsStr ? JSON.parse(delPanelsStr) : delPanelsStr
+    const delPanels = getInvisiblePanels(options.localStorageKey)
     removeEmptyLeafViews(config.grid.root, config.floatingGroups || [], delPanels || [])
 }
 
@@ -329,12 +328,21 @@ const saveConfig = dockview => {
         })
     }
 
+    const itemData = {
+        invisiblePanels: dockview.params.panels,
+        layout: json
+    }
     if (dockview.params.options.enableLocalStorage) {
-        localStorage.setItem(dockview.params.options.localStorageKey, JSON.stringify(json));
+        localStorage.setItem(dockview.params.options.localStorageKey, JSON.stringify(itemData));
     }
     else {
-        dockview._saveConfig?.fire(JSON.stringify(json));
+        dockview._saveConfig?.fire(JSON.stringify(itemData));
     }
+}
+
+export const getInvisiblePanels = localStorageKey => {
+    const storedStr = localStorage.getItem(localStorageKey);
+    return storedStr ? JSON.parse(storedStr)?.invisiblePanels ?? [] : [];
 }
 
 const saveParamsIsActive = dockview => {

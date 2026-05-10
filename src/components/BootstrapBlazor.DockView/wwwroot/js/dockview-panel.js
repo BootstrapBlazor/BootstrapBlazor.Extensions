@@ -165,7 +165,7 @@ const savePanel = (dockview, panel) => {
     const { panels, options } = dockview.params;
     panels.push(panel)
     if (options.enableLocalStorage) {
-        localStorage.setItem(`${options.localStorageKey}-panels`, JSON.stringify(panels))
+        // localStorage.setItem(`${options.localStorageKey}-panels`, JSON.stringify(panels))
         const timer = setTimeout(() => {
             clearTimeout(timer)
             saveConfig(dockview)
@@ -180,7 +180,7 @@ const deletePanel = (dockview, panel) => {
         panels.splice(index, 1);
     }
     if (options.enableLocalStorage) {
-        localStorage.setItem(`${options.localStorageKey}-panels`, JSON.stringify(panels))
+        // localStorage.setItem(`${options.localStorageKey}-panels`, JSON.stringify(panels))
         saveConfig(dockview)
     }
 }
