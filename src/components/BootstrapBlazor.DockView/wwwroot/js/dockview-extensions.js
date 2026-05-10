@@ -43,11 +43,23 @@ DockviewGroupPanel.prototype.removePropsOfParams = function(keys) {
 
 const removeGroup = DockviewComponent.prototype.removeGroup
 DockviewComponent.prototype.removeGroup = function(...args) {
-    if (this.isClearing) {
-        return removeGroup.apply(this, args)
+    const group = args[0]
+    if (this.isClearing) { // true就直接删除
+        const panels = [...group.panels];
+        removeGroup.apply(this, args)
+        panels.forEach(panel => {
+            if (panel.view.content.element) {
+                if (panel.titleMenuEle) {
+                    panel.view.content.element.append(panel.titleMenuEle)
+                }
+                if (this.params.template) {
+                    this.params.template.append(panel.view.content.element)
+                }
+            }
+        })
+        return
     }
 
-    const group = args[0]
     const type = group.api.location.type;
     if (type == 'grid') {
         [...group.panels].forEach(panel => {
