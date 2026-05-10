@@ -13,17 +13,24 @@ const getConfig = options => {
 
     if (enableLocalStorage) {
         try {
-            const key = `${options.localStorageKey}-layout`;
+            let key = `${options.localStorageKey}-layout`;
             const layoutJson = localStorage.getItem(key);
             if (layoutJson) {
                 return JSON.parse(layoutJson);
             }
             else {
-                const layout = JSON.parse(localStorage.getItem(`${options.localStorageKey}`));
+                key = `${options.localStorageKey}`;
+                const layout = JSON.parse(localStorage.getItem(key));
                 if (layout) {
+                    localStorage.removeItem(key);
+                    key = `${options.localStorageKey}-panels`;
+                    const panels = JSON.parse(localStorage.getItem(key));
+                    if (panels) {
+                        localStorage.removeItem(key);
+                    }
                     return {
                         layout,
-                        panels: JSON.parse(localStorage.getItem(`${options.localStorageKey}-panels`))
+                        panels: panles || []
                     }
                 }
             }
@@ -343,7 +350,8 @@ const saveConfig = dockview => {
     });
 
     if (dockview.params.options.enableLocalStorage) {
-        localStorage.setItem(dockview.params.options.localStorageKey, json);
+        const key = `${dockview.params.options.localStorageKey}-layout`;
+        localStorage.setItem(key, json);
     }
     else {
         dockview._saveConfig?.fire(json);
