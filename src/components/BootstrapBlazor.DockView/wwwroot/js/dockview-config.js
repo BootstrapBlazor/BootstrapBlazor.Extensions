@@ -45,11 +45,11 @@ const initDockviewFromConfig = (dockview, options) => {
         try {
             dockview.fromJSON(layout);
             dockview.params.panels = panels;
+            dockview.params.floatingGroups = layout.floatingGroups || []
         }
         catch {
             dockview.fromJSON(getConfigFromContent(options));
         }
-        dockview.params.floatingGroups = layout.floatingGroups || []
     }
     else {
         dockview.fromJSON(getConfigFromContent(options));
