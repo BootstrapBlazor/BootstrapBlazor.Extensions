@@ -310,7 +310,7 @@ const getLeafNode = (contentItem, size, boxSize, parent, panels, getGroupId, opt
 }
 
 const saveConfig = dockview => {
-    if (dockview._inited !== true) {
+    if (dockview.params.inited !== true) {
         return;
     }
 

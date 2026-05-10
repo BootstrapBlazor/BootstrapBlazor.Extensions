@@ -66,7 +66,7 @@ const initDockview = (dockview, options, template) => {
     }
 
     dockview.reset = options => {
-        dockview._inited = false;
+        dockview.params.inited = false;
         dockview.params.reset = true;
         dockview.init(options);
         dockview.params.reset = false;
@@ -143,7 +143,7 @@ const initDockview = (dockview, options, template) => {
                     item.classList.remove('active')
                 })
             })
-            dockview._inited = true;
+            dockview.params.inited = true;
             dockview._initialized?.fire();
         }, 0);
     })
@@ -215,7 +215,7 @@ const setWidth = (target, dockview) => {
             }
         }
     }
-    if (dockview._inited && [...tabsContainer.children].every(tab => tab.classList.contains('dv-inactive-tab'))) {
+    if (dockview.params.inited && [...tabsContainer.children].every(tab => tab.classList.contains('dv-inactive-tab'))) {
         const group = dockview.groups.find(g => g.element === header.parentElement)
         group.panels[0] && group.panels[0].api.setActive()
     }

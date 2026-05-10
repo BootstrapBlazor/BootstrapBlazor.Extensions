@@ -13,7 +13,7 @@ const observePanelActiveChange = panel => {
         const dockview = panel.accessor;
         if (dockview._isDisposed || dockview.maximizing) return;
         const renderer = dockview.params.options.renderer;
-        if (renderer === 'onlyWhenVisible' && dockview._inited) {
+        if (renderer === 'onlyWhenVisible' && dockview.params.inited) {
             if (isVisible) {
                 saveConfig(panel.accessor)
                 const visiblePanels = dockview.groups.map(g => g.panels.find(p => p.params.isActive) || g.panels.find(p => p.api.isVisible))
