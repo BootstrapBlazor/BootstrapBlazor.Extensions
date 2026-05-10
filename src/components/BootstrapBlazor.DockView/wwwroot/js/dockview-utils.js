@@ -2,7 +2,7 @@ import { DockviewComponent } from "./dockview-core.esm.js"
 import { DockviewPanelContent } from "./dockview-content.js"
 import { onAddGroup, addGroupWithPanel, toggleLock, observeFloatingGroupLocationChange, observeOverlayChange, createDrawerHandle } from "./dockview-group.js"
 import { onAddPanel, onRemovePanel, getPanelsFromOptions, findContentFromPanels } from "./dockview-panel.js"
-import { getConfig, saveConfig, getInvisiblePanels } from './dockview-config.js'
+import { getConfig, saveConfig } from './dockview-config.js'
 import './dockview-extensions.js'
 
 const cerateDockview = (el, options) => {
@@ -96,7 +96,6 @@ const initDockview = (dockview, options, template) => {
             }
             const panels = dockview.panels;
             const groups = dockview.groups;
-            const delPanels = getInvisiblePanels(options.localStorageKey)
 
             panels.forEach(panel => {
                 const visible = panel.params.visible
@@ -106,9 +105,6 @@ const initDockview = (dockview, options, template) => {
                 else {
                     panel.group.model.closePanel(panel)
                 }
-            })
-            delPanels.forEach(panel => {
-                dockview._panelVisibleChanged?.fire({ key: panel.params.key, status: false });
             })
 
             if (options.renderer === 'onlyWhenVisible') {
