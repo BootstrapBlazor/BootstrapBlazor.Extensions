@@ -29,8 +29,10 @@ const initDockview = (dockview, options, template) => {
     dockview.init = () => {
         let config = getConfig(options, dockview);
         try {
-            dockview.fromJSON(config);
-            dockview.params.floatingGroups = config.floatingGroups || []
+            const { grid, panels } = config;
+            dockview.fromJSON(grid);
+            dockview.params.panels = panels;
+            dockview.params.floatingGroups = grid.floatingGroups || []
         } catch (error) {
             console.error("dockview fromJSON throw error", error);
         }
