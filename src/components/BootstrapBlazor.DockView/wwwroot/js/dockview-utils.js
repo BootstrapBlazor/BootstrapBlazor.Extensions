@@ -56,6 +56,7 @@ const initDockview = (dockview, options, template) => {
         if (oldOptions.theme.className !== options.theme) {
             dockview.updateTheme();
         }
+
         if (options.layoutConfig) {
             reloadFromConfig(dockview, options);
         }
@@ -65,6 +66,7 @@ const initDockview = (dockview, options, template) => {
     }
 
     dockview.reset = options => {
+        dockview._inited = false;
         dockview.params.reset = true;
         dockview.init(options);
         dockview.params.reset = false;
