@@ -65,7 +65,9 @@ const initDockview = (dockview, options, template) => {
     }
 
     dockview.reset = options => {
+        dockview.params.reset = true;
         dockview.init(options);
+        dockview.params.reset = false;
     }
 
     dockview.onDidRemovePanel(onRemovePanel);
