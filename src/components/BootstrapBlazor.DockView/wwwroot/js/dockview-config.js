@@ -1,17 +1,18 @@
 import { getPanelsFromOptions, findContentFromPanels } from "./dockview-panel.js"
 
 const getConfig = options => {
-    let config = null;
     const { layoutConfig, enableLocalStorage } = options;
     if (layoutConfig) {
         try {
-            config = JSON.parse(layoutConfig)
+            return JSON.parse(layoutConfig)
         }
         catch (error) {
             console.error('Invalid layoutConfig JSON string:', error);
         }
     }
-    else if (enableLocalStorage) {
+
+    if (enableLocalStorage) {
+        let config = null;
         try {
             const key = `${options.localStorageKey}-layout`;
             const layoutJson = localStorage.getItem(key);
@@ -24,18 +25,10 @@ const getConfig = options => {
                     panels: JSON.parse(localStorage.getItem(`${options.localStorageKey}-panels`))
                 };
             }
+            return config;
         }
         catch (error) {
-            config = null;
             console.error('Invalid localStorage JSON string:', error);
-        }
-    }
-
-    if (config) {
-        const { layout } = config;
-        if (layout != null) {
-            renewConfigFromOptions(layout, options);
-            return config;
         }
     }
 
