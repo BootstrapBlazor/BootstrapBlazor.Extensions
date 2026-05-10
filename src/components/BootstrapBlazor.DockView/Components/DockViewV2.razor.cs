@@ -219,9 +219,13 @@ public partial class DockViewV2
         {
             _layoutConfig = LayoutConfig;
         }
-        else
+        else if (!_triggerLoadTabs)
         {
             await InvokeVoidAsync("update", Id, GetDockViewConfig());
+        }
+        else
+        {
+            _triggerLoadTabs = false;
         }
     }
 
@@ -380,6 +384,7 @@ public partial class DockViewV2
     }
 
     private HashSet<string> _loadTabs = new();
+    private bool _triggerLoadTabs = false;
 
     /// <summary>
     /// <para lang="zh">加载指定标签页的方法，由 JavaScript 调用</para>
@@ -395,6 +400,7 @@ public partial class DockViewV2
             // 标记是否渲染
             componnet.Value.Render = tabs.Contains(componnet.Key);
         }
+        _triggerLoadTabs = true;
         StateHasChanged();
 
         return Task.CompletedTask;
