@@ -12,20 +12,21 @@ const getConfig = options => {
     }
 
     if (enableLocalStorage) {
-        let config = null;
         try {
             const key = `${options.localStorageKey}-layout`;
             const layoutJson = localStorage.getItem(key);
             if (layoutJson) {
-                config = JSON.parse(layoutJson);
+                return JSON.parse(layoutJson);
             }
             else {
-                config = {
-                    layout: JSON.parse(localStorage.getItem(`${options.localStorageKey}`)),
-                    panels: JSON.parse(localStorage.getItem(`${options.localStorageKey}-panels`))
-                };
+                const layout = JSON.parse(localStorage.getItem(`${options.localStorageKey}`));
+                if (layout) {
+                    return {
+                        layout,
+                        panels: JSON.parse(localStorage.getItem(`${options.localStorageKey}-panels`))
+                    }
+                }
             }
-            return config;
         }
         catch (error) {
             console.error('Invalid localStorage JSON string:', error);
@@ -337,8 +338,8 @@ const saveConfig = dockview => {
     }
 
     const json = JSON.stringify({
-        grid: gridJson,
-        pannels: dockview.params.panels
+        layout: gridJson,
+        panels: dockview.params.panels
     });
 
     if (dockview.params.options.enableLocalStorage) {
