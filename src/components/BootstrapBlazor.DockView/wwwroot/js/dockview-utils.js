@@ -216,9 +216,11 @@ const setWidth = (target, dockview) => {
         group.panels[0] && group.panels[0].api.setActive()
     }
 }
+
 const cleanUndefined = (obj) => Object.fromEntries(
     Object.entries(obj).filter(([, v]) => v != null)
 );
+
 const toggleComponent = (dockview, options) => {
     const optionsPanels = getPanelsFromOptions(options);
     const panels = optionsPanels.filter(p => p.params.visible);
@@ -264,6 +266,7 @@ const toggleComponent = (dockview, options) => {
         }
     })
 }
+
 const toggleGroupLock = (dockview, options) => {
     dockview.groups.forEach(group => {
         toggleLock(group, group.header.rightActionsContainer, options.lock)
