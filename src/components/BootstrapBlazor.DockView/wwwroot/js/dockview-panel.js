@@ -164,13 +164,10 @@ const findContentFromPanels = (panels, content) => {
 const savePanel = (dockview, panel) => {
     const { panels, options } = dockview.params;
     panels.push(panel)
-    if (options.enableLocalStorage) {
-        // localStorage.setItem(`${options.localStorageKey}-panels`, JSON.stringify(panels))
-        const timer = setTimeout(() => {
-            clearTimeout(timer)
-            saveConfig(dockview)
-        }, 0)
-    }
+    const timer = setTimeout(() => {
+        clearTimeout(timer)
+        saveConfig(dockview)
+    }, 0);
 }
 
 const deletePanel = (dockview, panel) => {
@@ -179,10 +176,7 @@ const deletePanel = (dockview, panel) => {
     if (index > -1) {
         panels.splice(index, 1);
     }
-    if (options.enableLocalStorage) {
-        // localStorage.setItem(`${options.localStorageKey}-panels`, JSON.stringify(panels))
-        saveConfig(dockview)
-    }
+    saveConfig(dockview)
 }
 
 export { onAddPanel, observePanelActiveChange, moveAlwaysRenderPanel, onRemovePanel, getPanelsFromOptions, findContentFromPanels, deletePanel };
