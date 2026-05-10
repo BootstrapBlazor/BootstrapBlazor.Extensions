@@ -98,20 +98,18 @@ const initDockview = (dockview, options, template) => {
             const groups = dockview.groups;
             const delPanels = getInvisiblePanels(options.localStorageKey)
 
-            if (options.enableLocalStorage) {
-                panels.forEach(panel => {
-                    const visible = panel.params.visible
-                    if (visible) {
-                        dockview._panelVisibleChanged?.fire({ key: panel.params.key, status: true });
-                    }
-                    else {
-                        panel.group.model.closePanel(panel)
-                    }
-                })
-                delPanels.forEach(panel => {
-                    dockview._panelVisibleChanged?.fire({ key: panel.params.key, status: false });
-                })
-            }
+            panels.forEach(panel => {
+                const visible = panel.params.visible
+                if (visible) {
+                    dockview._panelVisibleChanged?.fire({ key: panel.params.key, status: true });
+                }
+                else {
+                    panel.group.model.closePanel(panel)
+                }
+            })
+            delPanels.forEach(panel => {
+                dockview._panelVisibleChanged?.fire({ key: panel.params.key, status: false });
+            })
 
             if (options.renderer === 'onlyWhenVisible') {
                 const visiblePanels = groups.filter(g => g.isVisible).map(g => g.panels.find(p => p.params.isActive) || g.panels.find(p => p.api.isVisible))
@@ -232,11 +230,11 @@ const toggleComponent = (dockview, options) => {
         if (pan === void 0) {
             const existingPanel = findContentFromPanels(dockview.params.panels, p);
             const panel = existingPanel ?
-            {
-                ...existingPanel,
-                ...cleanUndefined(p),
-                params: { ...existingPanel.params, ...cleanUndefined(p.params) }
-            } : p;
+                {
+                    ...existingPanel,
+                    ...cleanUndefined(p),
+                    params: { ...existingPanel.params, ...cleanUndefined(p.params) }
+                } : p;
             const groupPanels = panels.filter(p1 => p1.params.parentId == p.params.parentId);
             let indexOfOptions = groupPanels.findIndex(p => p.params.key == panel?.params.key);
             indexOfOptions = indexOfOptions == -1 ? 0 : indexOfOptions;
