@@ -78,23 +78,11 @@ const onRemovePanel = event => {
             params: event.params
         })
     }
-
-    // if (event.view.content.element) {
-    //     if (event.titleMenuEle) {
-    //         event.view.content.element.append(event.titleMenuEle)
-    //     }
-    //     if (dockview.params.template) {
-    //         dockview.params.template.append(event.view.content.element)
-    //     }
-    // }
 }
 
 const appendTemplatePanelEle = (panel) => {
     const dockview = panel.accessor
     if (panel.view.content.element) {
-        // if (panel.titleMenuEle) {
-        //     panel.view.content.element.append(panel.titleMenuEle)
-        // }
         if (dockview.params.template) {
             dockview.params.template.append(panel.view.content.element)
         }
