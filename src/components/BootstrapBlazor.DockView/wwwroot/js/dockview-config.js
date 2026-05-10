@@ -43,6 +43,7 @@ const initDockviewFromConfig = (dockview, options) => {
     if (config) {
         const { layout, panels } = config;
         try {
+            renewConfigFromOptions(layout, options);
             dockview.fromJSON(layout);
             dockview.params.panels = panels;
             dockview.params.floatingGroups = layout.floatingGroups || []
