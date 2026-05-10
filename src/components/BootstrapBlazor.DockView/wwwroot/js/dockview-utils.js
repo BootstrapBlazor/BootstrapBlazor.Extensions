@@ -53,7 +53,7 @@ const initDockview = (dockview, options, template) => {
         if (oldOptions.lock !== options.lock) {
             toggleGroupLock(dockview, options);
         }
-        if (oldOptions.theme.className !== options.theme) {
+        if (oldOptions.theme !== options.theme) {
             dockview.updateTheme();
         }
 
