@@ -65,7 +65,7 @@ const initDockview = (dockview, options, template) => {
     }
 
     dockview.reset = options => {
-        reloadFromConfig(dockview, options)
+        dockview.init(options);
     }
 
     dockview.onDidRemovePanel(onRemovePanel);
@@ -153,7 +153,7 @@ const initDockview = (dockview, options, template) => {
         saveConfig(dockview)
     })
 
-    dockview.init();
+    dockview.init(options);
 }
 
 export const observeGroup = (group) => {
