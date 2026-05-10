@@ -19,23 +19,27 @@ const getConfig = options => {
                 config = JSON.parse(layoutJson);
             }
             else {
-                config.layout = JSON.parse(localStorage.getItem(`${options.localStorageKey}`));
-                config.panels = JSON.parse(localStorage.getItem(`${options.localStorageKey}-panels`));
+                config = {
+                    layout: JSON.parse(localStorage.getItem(`${options.localStorageKey}`)),
+                    panels: JSON.parse(localStorage.getItem(`${options.localStorageKey}-panels`))
+                };
             }
         }
         catch (error) {
+            config = null;
             console.error('Invalid localStorage JSON string:', error);
         }
     }
 
     if (config) {
-        const { layout, panels } = config;
-        renewConfigFromOptions(layout, options);
-        return config;
+        const { layout } = config;
+        if (layout != null) {
+            renewConfigFromOptions(layout, options);
+            return config;
+        }
     }
-    else {
-        return getConfigFromContent(options);
-    }
+
+    return getConfigFromContent(options);
 }
 
 const getConfigFromContent = options => {
