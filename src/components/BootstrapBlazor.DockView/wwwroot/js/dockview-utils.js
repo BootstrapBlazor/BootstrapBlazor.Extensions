@@ -26,13 +26,13 @@ const cerateDockview = (el, options) => {
 
 const initDockview = (dockview, options, template) => {
     dockview.params = { panels: [], options, template, observer: null };
-    dockview.init = () => {
-        let config = getConfig(options, dockview);
+    dockview.init = function (options) {
+        let config = getConfig(options);
         try {
-            const { grid, panels } = config;
-            dockview.fromJSON(grid);
-            dockview.params.panels = panels;
-            dockview.params.floatingGroups = grid.floatingGroups || []
+            const { layout, panels } = config;
+            this.fromJSON(layout);
+            this.params.panels = panels;
+            this.params.floatingGroups = layout.floatingGroups || []
         } catch (error) {
             console.error("dockview fromJSON throw error", error);
         }

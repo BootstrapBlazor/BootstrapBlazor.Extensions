@@ -19,7 +19,7 @@ const getConfig = options => {
                 config = JSON.parse(layoutJson);
             }
             else {
-                config.grid = JSON.parse(localStorage.getItem(`${options.localStorageKey}`));
+                config.layout = JSON.parse(localStorage.getItem(`${options.localStorageKey}`));
                 config.panels = JSON.parse(localStorage.getItem(`${options.localStorageKey}-panels`));
             }
         }
@@ -29,8 +29,8 @@ const getConfig = options => {
     }
 
     if (config) {
-        const { grid, panels } = config;
-        renewConfigFromOptions(grid, options);
+        const { layout, panels } = config;
+        renewConfigFromOptions(layout, options);
         return config;
     }
     else {
@@ -46,7 +46,7 @@ const getConfigFromContent = options => {
     const orientation = rootType === 'column' ? 'VERTICAL' : 'HORIZONTAL';
     const root = getTree(options.content[0], { width, height, orientation }, options, panels, getGroupId, options)
     return {
-        grid: {
+        layout: {
             activeGroup: '1',
             grid: { width, height, orientation, root },
             panels
