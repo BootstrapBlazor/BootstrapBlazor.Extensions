@@ -17,6 +17,10 @@ export async function init(id, invoke, options) {
         }
     }
     const dockview = cerateDockview(el, options);
+    dockview.params.panels.forEach(panel => {
+        invoke.invokeMethodAsync(options.panelVisibleChangedCallback, panel.params.key, false);
+    })
+
     const updateTheme = e => dockview.switchTheme(e.theme);
     Data.set(id, { el, dockview, updateTheme });
 
