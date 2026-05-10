@@ -313,12 +313,13 @@ const saveConfig = dockview => {
         return;
     }
 
-    const json = dockview.toJSON();
     dockview.panels.forEach(panel => {
         panel.params.isActive = panel.api.isActive || panel.group.activePanel === panel
     })
+
+    const gridJson = dockview.toJSON();
     if (dockview.floatingGroups && dockview.floatingGroups.length > 0) {
-        json.floatingGroups.forEach((fg, index) => {
+        gridJson.floatingGroups.forEach((fg, index) => {
             const group = dockview.floatingGroups[index].group
             if (fg.position.width > 0) {
                 group.panels.forEach(panel => {
@@ -341,15 +342,16 @@ const saveConfig = dockview => {
         })
     }
 
-    const itemData = {
-        invisiblePanels: dockview.params.panels,
-        layout: json
-    }
+    const json = JSON.stringify({
+        grid: gridJson,
+        pannels: dockview.params.panels
+    });
+
     if (dockview.params.options.enableLocalStorage) {
-        localStorage.setItem(dockview.params.options.localStorageKey, JSON.stringify(itemData));
+        localStorage.setItem(dockview.params.options.localStorageKey, json);
     }
     else {
-        dockview._saveConfig?.fire(JSON.stringify(itemData));
+        dockview._saveConfig?.fire(json);
     }
 }
 
