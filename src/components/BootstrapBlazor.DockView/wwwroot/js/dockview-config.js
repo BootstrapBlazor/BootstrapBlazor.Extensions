@@ -30,7 +30,7 @@ const initDockviewFromConfig = (dockview, options) => {
                     }
                     config = {
                         layout,
-                        panels: panles || []
+                        panels: panels || []
                     }
                 }
             }
@@ -49,13 +49,13 @@ const initDockviewFromConfig = (dockview, options) => {
         catch {
             dockview.fromJSON(getConfigFromContent(options));
         }
+        dockview.params.floatingGroups = layout.floatingGroups || []
     }
     else {
         dockview.fromJSON(getConfigFromContent(options));
         dockview.params.panels = [];
     }
 
-    dockview.params.floatingGroups = layout.floatingGroups || []
 }
 
 const getConfigFromContent = options => {
