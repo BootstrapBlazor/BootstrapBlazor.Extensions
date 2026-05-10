@@ -1,24 +1,26 @@
 import { getPanelsFromOptions, findContentFromPanels } from "./dockview-panel.js"
 
-const getConfig = (options, dockview) => {
+const getConfig = options => {
+    let config = null;
     const { layoutConfig, enableLocalStorage } = options;
     if (layoutConfig) {
         try {
-            var layout = JSON.parse(layoutConfig)
-            return layout;
+            config = JSON.parse(layoutConfig)
         }
         catch (error) {
             console.error('Invalid layoutConfig JSON string:', error);
         }
     }
-
-    if (enableLocalStorage) {
+    else if (enableLocalStorage) {
         try {
-            dockview.params.panels = getInvisiblePanels(options.localStorageKey)
-
-            const dockViewJsonString = localStorage.getItem(options.localStorageKey)?.layout;
-            if (dockViewJsonString) {
-                return renewConfigFromOptions(JSON.parse(dockViewJsonString), options);
+            const key = `${options.localStorageKey}-layout`;
+            const layoutJson = localStorage.getItem(key);
+            if (layoutJson) {
+                config = JSON.parse(layoutJson);
+            }
+            else {
+                config.grid = JSON.parse(localStorage.getItem(`${options.localStorageKey}`));
+                config.panels = JSON.parse(localStorage.getItem(`${options.localStorageKey}-panels`));
             }
         }
         catch (error) {
@@ -26,7 +28,14 @@ const getConfig = (options, dockview) => {
         }
     }
 
-    return getConfigFromContent(options);
+    if (config) {
+        const { grid, panels } = config;
+        renewConfigFromOptions(grid, options);
+        return config;
+    }
+    else {
+        return getConfigFromContent(options);
+    }
 }
 
 const getConfigFromContent = options => {
@@ -37,9 +46,12 @@ const getConfigFromContent = options => {
     const orientation = rootType === 'column' ? 'VERTICAL' : 'HORIZONTAL';
     const root = getTree(options.content[0], { width, height, orientation }, options, panels, getGroupId, options)
     return {
-        activeGroup: '1',
-        grid: { width, height, orientation, root },
-        panels
+        grid: {
+            activeGroup: '1',
+            grid: { width, height, orientation, root },
+            panels
+        },
+        panels: []
     }
 }
 
@@ -95,7 +107,6 @@ const renewConfigFromOptions = (config, options) => {
             }
         }
     })
-    return config
 }
 
 const removeFloatingPanel = (config, localPanel) => {
