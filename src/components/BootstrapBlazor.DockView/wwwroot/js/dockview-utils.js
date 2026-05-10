@@ -58,7 +58,7 @@ const initDockview = (dockview, options, template) => {
         }
 
         if (options.layoutConfig) {
-            reloadFromConfig(dockview, options);
+            dockview.reset(options);
         }
         else {
             toggleComponent(dockview, options);
