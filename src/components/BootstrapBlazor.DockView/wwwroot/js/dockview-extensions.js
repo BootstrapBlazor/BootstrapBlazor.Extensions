@@ -43,20 +43,13 @@ DockviewGroupPanel.prototype.removePropsOfParams = function (keys) {
 }
 
 const removeGroup = DockviewComponent.prototype.removeGroup
-DockviewComponent.prototype.removeGroup = function(...args) {
+DockviewComponent.prototype.removeGroup = function (...args) {
     const group = args[0]
-    if (this.isClearing) { // true就直接删除
+    if (this.params.reset) {
         const panels = [...group.panels];
         removeGroup.apply(this, args)
         panels.forEach(panel => {
-            if (panel.view.content.element) {
-                if (panel.titleMenuEle) {
-                    panel.view.content.element.append(panel.titleMenuEle)
-                }
-                if (this.params.template) {
-                    this.params.template.append(panel.view.content.element)
-                }
-            }
+            movePanelContentToTemplate(panel, true);
         })
         return
     }
@@ -83,13 +76,8 @@ DockviewGroupPanelModel.prototype.closePanel = function (panel, triggerVisibleCh
         }
     }
 
-    if (panel.view.content.element && moveToTemplate) {
-        if (panel.titleMenuEle) {
-            panel.view.content.element.append(panel.titleMenuEle)
-        }
-        if (this.accessor.params.template) {
-            this.accessor.params.template.append(panel.view.content.element)
-        }
+    if (moveToTemplate) {
+        movePanelContentToTemplate(panel, true);
     }
 }
 

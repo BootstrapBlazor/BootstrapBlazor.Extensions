@@ -7,6 +7,7 @@ const onAddPanel = panel => {
     updateTitle(panel);
     observePanelActiveChange(panel)
 }
+
 const observePanelActiveChange = panel => {
     panel.api.onDidVisibilityChange(({ isVisible }) => {
         const dockview = panel.accessor;
@@ -19,7 +20,7 @@ const observePanelActiveChange = panel => {
                 dockview._loadTabs?.fire(visiblePanels.filter(p => Boolean(p)).map(p => p.params.key));
             }
             else {
-                appendTemplatePanelEle(panel)
+                movePanelContentToTemplate(panel, false)
             }
         }
 
@@ -77,15 +78,6 @@ const onRemovePanel = event => {
             title: event.title,
             params: event.params
         })
-    }
-}
-
-const appendTemplatePanelEle = (panel) => {
-    const dockview = panel.accessor
-    if (panel.view.content.element) {
-        if (dockview.params.template) {
-            dockview.params.template.append(panel.view.content.element)
-        }
     }
 }
 
@@ -165,6 +157,18 @@ const deletePanel = (dockview, panel) => {
         panels.splice(index, 1);
     }
     saveConfig(dockview)
+}
+
+export const movePanelContentToTemplate = (panel, titleMenu = false) => {
+    const dockview = panel.accessor
+    if (panel.view.content.element) {
+        if (titleMenu && panel.titleMenuEle) {
+            panel.view.content.element.append(panel.titleMenuEle)
+        }
+        if (dockview.params.template) {
+            dockview.params.template.append(panel.view.content.element)
+        }
+    }
 }
 
 export { onAddPanel, observePanelActiveChange, moveAlwaysRenderPanel, onRemovePanel, getPanelsFromOptions, findContentFromPanels, deletePanel };
