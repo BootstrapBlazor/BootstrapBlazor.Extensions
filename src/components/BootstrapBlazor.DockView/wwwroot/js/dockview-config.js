@@ -302,8 +302,10 @@ const saveConfig = dockview => {
         return;
     }
 
-    saveParamsIsActive(dockview)
     const json = dockview.toJSON();
+    dockview.panels.forEach(panel => {
+        panel.params.isActive = panel.api.isActive || panel.group.activePanel === panel
+    })
     if (dockview.floatingGroups && dockview.floatingGroups.length > 0) {
         json.floatingGroups.forEach((fg, index) => {
             const group = dockview.floatingGroups[index].group
@@ -343,12 +345,6 @@ const saveConfig = dockview => {
 export const getInvisiblePanels = localStorageKey => {
     const storedStr = localStorage.getItem(localStorageKey);
     return storedStr ? JSON.parse(storedStr)?.invisiblePanels ?? [] : [];
-}
-
-const saveParamsIsActive = dockview => {
-    dockview.panels.forEach(panel => {
-        panel.params.isActive = panel.api.isActive || panel.group.activePanel === panel
-    })
 }
 
 export { getConfig, saveConfig };
