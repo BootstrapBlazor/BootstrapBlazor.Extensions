@@ -224,7 +224,7 @@ const toggleComponent = (dockview, options) => {
     panels.forEach(p => {
         const pan = findContentFromPanels(localPanels, p);
         if (pan === void 0) {
-            const existingPanel = findContentFromPanels(dockview.params.panels, p);
+            const existingPanel = findContentFromPanels(dockview.params.invisiblePanels, p);
             const panel = existingPanel ?
                 {
                     ...existingPanel,

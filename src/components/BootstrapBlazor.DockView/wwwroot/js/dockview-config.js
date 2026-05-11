@@ -24,13 +24,13 @@ const initDockviewFromConfig = (dockview, options) => {
                 if (layout) {
                     localStorage.removeItem(key);
                     key = `${options.localStorageKey}-panels`;
-                    const panels = JSON.parse(localStorage.getItem(key));
-                    if (panels) {
+                    const invisiblePanels = JSON.parse(localStorage.getItem(key));
+                    if (invisiblePanels) {
                         localStorage.removeItem(key);
                     }
                     config = {
                         layout,
-                        panels: panels || []
+                        invisiblePanels: invisiblePanels || []
                     }
                 }
             }
@@ -41,11 +41,11 @@ const initDockviewFromConfig = (dockview, options) => {
     }
 
     if (config) {
-        const { layout, panels } = config;
+        let { layout, invisiblePanels } = config;
         try {
             renewConfigFromOptions(layout, options);
             dockview.fromJSON(layout);
-            dockview.params.panels = panels;
+            dockview.params.invisiblePanels = invisiblePanels;
             dockview.params.floatingGroups = layout.floatingGroups || []
         }
         catch {
@@ -54,7 +54,7 @@ const initDockviewFromConfig = (dockview, options) => {
     }
     else {
         dockview.fromJSON(getConfigFromContent(options));
-        dockview.params.panels = [];
+        dockview.params.invisiblePanels = [];
     }
 
 }
@@ -356,10 +356,9 @@ const saveConfig = dockview => {
             }
         })
     }
-
     const json = JSON.stringify({
         layout: gridJson,
-        panels: dockview.params.panels
+        invisiblePanels: dockview.params.invisiblePanels
     });
 
     if (dockview.params.options.enableLocalStorage) {
