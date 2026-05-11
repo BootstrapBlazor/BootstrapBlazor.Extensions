@@ -542,9 +542,9 @@ const observeFloatingGroupLocationChange = group => {
             setTimeout(() => {
                 let originalGroup = dockview.groups.find(g => g.id.split('_')[0] == group.id.split('_')[0])
                 if (originalGroup) {
-                    dockview.isClearing = true
+                    dockview.params.reset = true
                     dockview.removeGroup(originalGroup)
-                    dockview.isClearing = false
+                    dockview.params.reset = false
                     group.header.rightActionsContainer.classList.remove('bb-float')
                     saveConfig(dockview)
                 }
