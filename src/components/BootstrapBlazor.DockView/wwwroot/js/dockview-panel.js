@@ -151,12 +151,10 @@ const saveInvisiblePanel = (dockview, invisiblePanel) => {
     }, 0);
 }
 
-const deletePanel = (dockview, panel) => {
-    const { panels, options } = dockview.params;
-    let index = panels.findIndex(p => p.params.key === panel.params.key);
-    if (index > -1) {
-        panels.splice(index, 1);
-    }
+const deleteInvisiblePanel = (dockview, invisiblePanel) => {
+    const { invisiblePanels, options } = dockview.params;
+    
+    dockview.params.invisiblePanels = invisiblePanels.filter(p => p.params.key !== invisiblePanel.params.key)
     saveConfig(dockview)
 }
 
@@ -172,4 +170,4 @@ export const movePanelContentToTemplate = (panel, titleMenu = false) => {
     }
 }
 
-export { onAddPanel, observePanelActiveChange, moveAlwaysRenderPanel, onRemovePanel, getPanelsFromOptions, findContentFromPanels, deletePanel };
+export { onAddPanel, observePanelActiveChange, moveAlwaysRenderPanel, onRemovePanel, getPanelsFromOptions, findContentFromPanels, deleteInvisiblePanel };

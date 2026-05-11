@@ -1,5 +1,5 @@
 import { getIcons, getIcon } from "./dockview-icon.js"
-import { deletePanel, findContentFromPanels, moveAlwaysRenderPanel } from "./dockview-panel.js"
+import { deleteInvisiblePanel, findContentFromPanels, moveAlwaysRenderPanel } from "./dockview-panel.js"
 import { saveConfig } from "./dockview-config.js"
 import { observeGroup, markFirstVisibleElement } from "./dockview-utils.js"
 import EventHandler from '../../BootstrapBlazor/modules/event-handler.js'
@@ -34,7 +34,7 @@ const addGroupWithPanel = (dockview, panel, panels, index) => {
     else {
         addPanelWidthCreatGroup(dockview, panel, panels)
     }
-    deletePanel(dockview, panel)
+    deleteInvisiblePanel(dockview, panel)
 }
 
 const addPanelWidthGroupId = (dockview, panel, index) => {
