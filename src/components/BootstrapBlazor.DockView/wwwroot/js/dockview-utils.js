@@ -271,6 +271,7 @@ const toggleGroupLock = (dockview, options) => {
 export const markFirstVisibleElement = group => {
     if (!group) return
     const viewContainerEle = group.element.parentElement.parentElement;
+    if (!viewContainerEle) return
     const className = 'first-visible';
     [...viewContainerEle.children].forEach(ele => {
         if (ele.classList.contains(className)) {
