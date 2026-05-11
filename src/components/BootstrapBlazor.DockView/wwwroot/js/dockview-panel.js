@@ -52,7 +52,7 @@ const moveAlwaysRenderPanel = panel => {
 
 const onRemovePanel = event => {
     const dockview = event.accessor
-    let panel = {
+    let invisiblePanel = {
         id: event.id,
         title: event.title,
         component: event.view.contentComponent,
@@ -69,7 +69,7 @@ const onRemovePanel = event => {
             index: event.group.delPanelIndex
         }
     }
-    savePanel(dockview, panel)
+    saveInvisiblePanel(dockview, invisiblePanel)
 
     if (event.group.children) {
         event.group.children = event.group.children.filter(p => findPanel(p, event) !== null);
@@ -141,9 +141,10 @@ const findContentFromPanels = (panels, content) => {
     return panels.find((p => p.params.key && p.params.key === content.params.key) || p.id === content.id || p.title === content.title);
 }
 
-const savePanel = (dockview, panel) => {
-    const { panels, options } = dockview.params;
-    panels.push(panel)
+const saveInvisiblePanel = (dockview, invisiblePanel) => {
+    const { invisiblePanels, options } = dockview.params;
+    if (!invisiblePanels) return
+    invisiblePanels.push(invisiblePanel)
     const timer = setTimeout(() => {
         clearTimeout(timer)
         saveConfig(dockview)
