@@ -448,7 +448,7 @@ const toggleLock = (group, actionContainer, isLock) => {
 }
 
 const toggleFull = (group, actionContainer, maximize) => {
-    group.api.accessor.maximizing = true;
+    group.api.accessor.params.maximizing = true;
     const type = group.model.location.type;
     if (type === 'grid') {
         maximize ? group.api.exitMaximized() : group.api.maximize();
@@ -456,7 +456,7 @@ const toggleFull = (group, actionContainer, maximize) => {
     else if (type === 'floating') {
         maximize ? floatingExitMaximized(group) : floatingMaximize(group);
     }
-    group.api.accessor.maximizing = false;
+    group.api.accessor.params.maximizing = false;
     maximize ? actionContainer.classList.remove('bb-maximize') : actionContainer.classList.add('bb-maximize')
     if (maximize) {
         group.element.parentElement.classList.remove('bb-maximize')
@@ -477,6 +477,9 @@ const float = group => {
     const floatingGroupRect = rect || {
         width, height: packup?.isPackup ? packup.height : height, position: { left, top }
     }
+    group.api.accessor.params.maximizing = true;
+    group.api.isMaximized() && group.api.exitMaximized()
+    group.api.accessor.params.maximizing = false;
     const floatingGroup = createFloatingGroup(group, floatingGroupRect)
     saveConfig(dockview)
 }

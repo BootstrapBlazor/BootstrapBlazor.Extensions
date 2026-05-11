@@ -325,7 +325,7 @@ const getLeafNode = (contentItem, size, boxSize, parent, panels, getGroupId, opt
 }
 
 const saveConfig = dockview => {
-    if (dockview.params.inited !== true) {
+    if (dockview.params.inited !== true || dockview.params.maximizing) {
         return;
     }
 

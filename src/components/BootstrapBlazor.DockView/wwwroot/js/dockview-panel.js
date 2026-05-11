@@ -11,7 +11,7 @@ const onAddPanel = panel => {
 const observePanelActiveChange = panel => {
     panel.api.onDidVisibilityChange(({ isVisible }) => {
         const dockview = panel.accessor;
-        if (dockview._isDisposed || dockview.maximizing) return;
+        if (dockview._isDisposed || dockview.params.maximizing) return;
         const renderer = dockview.params.options.renderer;
         if (renderer === 'onlyWhenVisible' && dockview.params.inited) {
             if (isVisible) {
