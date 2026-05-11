@@ -41,9 +41,9 @@ const initDockviewFromConfig = (dockview, options) => {
     }
 
     if (config) {
-        let { layout, invisiblePanels } = config;
         try {
-            renewConfigFromOptions(layout, options);
+            renewConfigFromOptions(config, options);
+            const { layout, invisiblePanels } = config;
             dockview.fromJSON(layout);
             dockview.params.invisiblePanels = invisiblePanels;
             dockview.params.floatingGroups = layout.floatingGroups || []
@@ -74,9 +74,10 @@ const getConfigFromContent = options => {
 }
 
 const renewConfigFromOptions = (config, options) => {
-    removeEmptyGridViews(config, options)
+    const {layout, invisiblePanels} = config
+    removeEmptyGridViews(layout, options, invisiblePanels)
     const optionPanels = getPanelsFromOptions(options)
-    const localPanels = Object.values(config.panels)
+    const localPanels = Object.values(layout.panels)
     optionPanels.forEach(optionPanel => {
         const panel = localPanels.find(localPanel => localPanel.params.key == optionPanel.params.key)
         if (panel) {
@@ -86,10 +87,10 @@ const renewConfigFromOptions = (config, options) => {
                 visible: panel.params.visible
             }
             optionPanel.id = panel.id
-            config.panels[panel.id] = optionPanel
+            layout.panels[panel.id] = optionPanel
         }
         else {
-            const delPanels = getInvisiblePanels(options.localStorageKey)
+            const delPanels = invisiblePanels;
             if (delPanels?.find(delPanel => delPanel.params.key == optionPanel.params.key)) return
             let index = optionPanels.findIndex(item => item.id == optionPanel.id)
             let brotherPanel, brotherType
@@ -101,10 +102,10 @@ const renewConfigFromOptions = (config, options) => {
                 brotherPanel = optionPanels[index - 1]
                 brotherType = 'front'
             }
-            config.panels[optionPanel.id] = optionPanel
-            const brotherId = Object.keys(config.panels).find(key => config.panels[key].params.key == brotherPanel.params.key)
-            const originFloatingGroupId = config.floatingGroups?.find(fg => fg.data.views.includes(brotherId))?.data.id.split('_')[0]
-            addPanel(config.grid.root, optionPanel, brotherPanel, brotherId, originFloatingGroupId)
+            layout.panels[optionPanel.id] = optionPanel
+            const brotherId = Object.keys(layout.panels).find(key => layout.panels[key].params.key == brotherPanel.params.key)
+            const originFloatingGroupId = layout.floatingGroups?.find(fg => fg.data.views.includes(brotherId))?.data.id.split('_')[0]
+            addPanel(layout.grid.root, optionPanel, brotherPanel, brotherId, originFloatingGroupId)
         }
     })
     localPanels.forEach(localPanel => {
@@ -134,9 +135,8 @@ const removeFloatingPanel = (config, localPanel) => {
     config.floatingGroups = config.floatingGroups.filter(fg => fg.data.views.lengt > 0)
 }
 
-const removeEmptyGridViews = (config, options) => {
-    const delPanels = getInvisiblePanels(options.localStorageKey)
-    removeEmptyLeafViews(config.grid.root, config.floatingGroups || [], delPanels || [])
+const removeEmptyGridViews = (config, options, invisiblePanels) => {
+    removeEmptyLeafViews(config.grid.root, config.floatingGroups || [], invisiblePanels || [])
 }
 
 const removeEmptyLeafViews = (branch, floatingGroups, delPanels, parent) => {
