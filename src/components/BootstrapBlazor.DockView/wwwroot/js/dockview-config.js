@@ -45,10 +45,11 @@ const initDockviewFromConfig = (dockview, options) => {
             renewConfigFromOptions(config, options);
             const { layout, invisiblePanels } = config;
             dockview.fromJSON(layout);
-            dockview.params.invisiblePanels = invisiblePanels;
+            dockview.params.invisiblePanels = invisiblePanels || [];
             dockview.params.floatingGroups = layout.floatingGroups || []
         }
-        catch {
+        catch (error) {
+            console.error('Invalid localStorage JSON string:', error);
             dockview.fromJSON(getConfigFromContent(options));
         }
     }
