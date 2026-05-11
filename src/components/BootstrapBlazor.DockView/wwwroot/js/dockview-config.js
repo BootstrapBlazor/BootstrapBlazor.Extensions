@@ -114,15 +114,15 @@ const renewConfigFromOptions = (config, options) => {
 
         }
         else {
-            delete config.panels[localPanel.id] && config.panels[localPanel.id]
-            if (config.floatingGroups
-                && config.floatingGroups.length > 0
-                && config.floatingGroups.find(fg => fg.data.views.includes(localPanel.id))
+            delete layout.panels[localPanel.id] && layout.panels[localPanel.id]
+            if (layout.floatingGroups
+                && layout.floatingGroups.length > 0
+                && layout.floatingGroups.find(fg => fg.data.views.includes(localPanel.id))
             ) {
-                removeFloatingPanel(config, localPanel)
+                removeFloatingPanel(layout, localPanel)
             }
             else {
-                removePanel(config.grid.root, localPanel)
+                removePanel(layout.grid.root, localPanel)
             }
         }
     })
