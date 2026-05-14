@@ -1,4 +1,4 @@
-import { getPanelsFromOptions, findContentFromPanels } from "./dockview-panel.js"
+import { getPanelsFromOptions } from "./dockview-panel.js"
 
 const initDockviewFromConfig = (dockview, options) => {
     const { layoutConfig, enableLocalStorage } = options;
@@ -42,7 +42,7 @@ const initDockviewFromConfig = (dockview, options) => {
 
     if (config) {
         try {
-            renewConfigFromOptions(config, options);
+            mergeLayoutWithOptions(config, options);
             const { layout, invisiblePanels } = config;
             dockview.fromJSON(layout);
             dockview.params.invisiblePanels = invisiblePanels || [];
@@ -74,152 +74,11 @@ const getConfigFromContent = options => {
     }
 }
 
-const renewConfigFromOptions = (config, options) => {
-    const {layout, invisiblePanels} = config
-    removeEmptyGridViews(layout, options, invisiblePanels)
-    const optionPanels = getPanelsFromOptions(options)
-    const localPanels = Object.values(layout.panels)
-    optionPanels.forEach(optionPanel => {
-        const panel = localPanels.find(localPanel => localPanel.params.key == optionPanel.params.key)
-        if (panel) {
-            optionPanel.params = {
-                ...panel.params,
-                ...optionPanel.params,
-                visible: panel.params.visible
-            }
-            optionPanel.id = panel.id
-            layout.panels[panel.id] = optionPanel
-        }
-        else {
-            const delPanels = invisiblePanels;
-            if (delPanels?.find(delPanel => delPanel.params.key == optionPanel.params.key)) return
-            let index = optionPanels.findIndex(item => item.id == optionPanel.id)
-            let brotherPanel, brotherType
-            if (index == 0) {
-                brotherPanel = optionPanels[1]
-                brotherType = 'after'
-            }
-            else {
-                brotherPanel = optionPanels[index - 1]
-                brotherType = 'front'
-            }
-            layout.panels[optionPanel.id] = optionPanel
-            const brotherId = Object.keys(layout.panels).find(key => layout.panels[key].params.key == brotherPanel.params.key)
-            const originFloatingGroupId = layout.floatingGroups?.find(fg => fg.data.views.includes(brotherId))?.data.id.split('_')[0]
-            addPanel(layout.grid.root, optionPanel, brotherPanel, brotherId, originFloatingGroupId)
-        }
-    })
-    localPanels.forEach(localPanel => {
-        const panel = optionPanels.find(optionPanel => optionPanel.params.key == localPanel.params.key)
-        if (panel) {
-
-        }
-        else {
-            delete layout.panels[localPanel.id] && layout.panels[localPanel.id]
-            if (layout.floatingGroups
-                && layout.floatingGroups.length > 0
-                && layout.floatingGroups.find(fg => fg.data.views.includes(localPanel.id))
-            ) {
-                removeFloatingPanel(layout, localPanel)
-            }
-            else {
-                removePanel(layout.grid.root, localPanel)
-            }
-        }
-    })
-}
-
-const removeFloatingPanel = (config, localPanel) => {
-    config.floatingGroups.forEach((fg, index) => {
-        fg.data.views = fg.data.views.filter(p => p.id !== localPanel.id)
-    })
-    config.floatingGroups = config.floatingGroups.filter(fg => fg.data.views.lengt > 0)
-}
-
-const removeEmptyGridViews = (config, options, invisiblePanels) => {
-    removeEmptyLeafViews(config.grid.root, config.floatingGroups || [], invisiblePanels || [])
-}
-
-const removeEmptyLeafViews = (branch, floatingGroups, delPanels, parent) => {
-    if (branch.type == 'branch') {
-        branch.data.forEach(item => removeEmptyLeafViews(item, floatingGroups, delPanels, branch))
-    }
-    else if (branch.type == 'leaf') {
-        if (
-            branch.data.views.length == 0
-            && !floatingGroups.find(fg => fg.data.id.split('_')[0] == branch.data.id.split('_')[0])
-            && !delPanels.find(p => p.groupId?.split('_')[0] == branch.data.id?.split('_')[0])
-        ) {
-            parent && (parent.data = parent.data.filter(item => item.data.id != branch.data.id))
-        }
-    }
-}
-
-const addPanel = (branch, panel, brotherPanel, brotherId, originFloatingGroupId) => {
-    if (brotherPanel.params.parentType == 'group') {
-        if (branch.type == 'leaf') {
-            if (branch.data.views.includes(brotherId)) {
-                branch.data.views.push(panel.id)
-            }
-        }
-        else if (branch.type == 'branch') {
-            branch.data.forEach(item => {
-                addPanel(item, panel, brotherPanel, brotherId, originFloatingGroupId)
-            })
-        }
-    }
-    else if (branch.type == 'branch') {
-
-        if (branch.data.length == 0) {
-            branch.data.push({
-                data: {
-                    activeView: panel.id,
-                    id: Date.now() + Math.floor(Math.random() * 100) + '',
-                    views: [panel.id]
-                },
-                type: 'leaf'
-            })
-        }
-        else {
-            [...branch.data].forEach(item => {
-                if (item.type == 'leaf') {
-                    if (item.data.views.includes(brotherId) || item.data.id == originFloatingGroupId) {
-                        branch.data.push({
-                            data: {
-                                activeView: panel.id,
-                                id: Date.now() + Math.floor(Math.random() * 100) + '',
-                                views: [panel.id]
-                            },
-                            size: branch.data.reduce((pre, cur) => pre + cur.size, 0) / branch.data.length,
-                            type: 'leaf'
-                        })
-                    }
-                }
-                else {
-                    addPanel(item, panel, brotherPanel, brotherId, originFloatingGroupId)
-                }
-            })
-        }
-    }
-}
-
-const removePanel = (branch, panel, parent) => {
-    if (branch.type == 'leaf') {
-        if (branch.data.views.length > 0) {
-            branch.data.views = branch.data.views.filter(id => id != panel.id)
-            if (branch.data.views.length == 0) {
-                parent && (parent.data = parent.data.filter(child => child.data.id != branch.data.id))
-            }
-        }
-    }
-    else if (branch.type == 'branch') {
-        branch.data.forEach(item => {
-            removePanel(item, panel, branch)
-        })
-        if (branch.data.length == 0 && parent) {
-            parent.data = parent.data.filter(b => !(b.type == 'branch' && b.data.length == 0))
-        }
-    }
+const mergeLayoutWithOptions = (config, options) => {
+    const { layout, invisiblePanels } = config;
+    const synced = syncLayoutWithOptions(layout, options, invisiblePanels);
+    // 将同步结果写回 config.layout（保留引用结构）
+    config.layout = synced;
 }
 
 const getGroupIdFunc = () => {
@@ -379,4 +238,359 @@ export const getInvisiblePanels = localStorageKey => {
     return storedStr ? JSON.parse(storedStr)?.invisiblePanels ?? [] : [];
 }
 
-export { initDockviewFromConfig, saveConfig };
+/**
+ * 将本地保存的 dockview layout 与最新的 options 同步：
+ *  - 本地有、options 没有 → 从 grid/floatingGroups/panels 中删除
+ *  - options 有、本地没有 → 插入到与其同 group 的兄弟 panel 所在的 leaf 中
+ *  - 都有 → 用 options params 覆盖，保留本地 id 和 visible
+ *
+ * @param {Object} layout  - 本地存储的 dockview layout（{ grid, panels, floatingGroups? }）
+ * @param {Object} options - 最新的 options（含 content 树）
+ * @param {Array}  invisiblePanels - 用户主动关闭的面板列表（这些不应被重新添加）
+ * @returns {Object} 同步后的新 layout（深拷贝，不修改原始对象）
+ */
+const syncLayoutWithOptions = (layout, options, invisiblePanels = []) => {
+    // ── 1. 从 options.content 树中提取所有 panel 的完整信息（含 parentType/parentId）
+    //     注意：包括 visible: false 的 panel，它们会在 onDidLayoutFromJSON 中被关闭
+    const optionPanels = getPanelsFromOptions(options);
+
+    // key → optionPanel
+    const optionPanelByKey = new Map(optionPanels.map(p => [p.params.key, p]));
+
+    // ── 2. 建立本地 key → panelId 的映射
+    const localIdByKey = new Map();
+    Object.values(layout.panels).forEach(p => {
+        if (p.params?.key) localIdByKey.set(p.params.key, p.id);
+    });
+
+    // ── 3. 检测匹配率：若本地 panel 与 options panel 完全没有交集，说明是全新配置，直接重建
+    const matchCount = [...optionPanelByKey.keys()].filter(key => localIdByKey.has(key)).length;
+    if (matchCount === 0) {
+        return getConfigFromContent(options);
+    }
+
+    const newLayout = JSON.parse(JSON.stringify(layout));
+
+    // ── 4. 用户主动关闭的 key 集合（不应被重新添加）
+    const invisibleKeys = new Set((invisiblePanels || []).map(p => p.params?.key).filter(Boolean));
+
+    // ── 5. 更新：options 和本地都有的 panel，合并 params，保留本地 id 和 visible
+    for (const [key, optionPanel] of optionPanelByKey) {
+        if (!localIdByKey.has(key)) continue;
+        const localId = localIdByKey.get(key);
+        const localPanel = newLayout.panels[localId];
+        newLayout.panels[localId] = {
+            ...localPanel,
+            title: optionPanel.title ?? localPanel.title,
+            tabComponent: optionPanel.tabComponent ?? localPanel.tabComponent,
+            contentComponent: optionPanel.contentComponent ?? localPanel.contentComponent,
+            params: {
+                ...localPanel.params,        // 保留本地状态（isActive、currentPosition 等）
+                ...optionPanel.params,       // options 的最新配置覆盖
+                id: localId,                 // 保留本地 id
+                visible: localPanel.params.visible  // 保留本地 visible 状态
+            }
+        };
+    }
+
+    // ── 6. 删除：本地有但 options 没有的 panel
+    const keysToDelete = [...localIdByKey.keys()].filter(key => !optionPanelByKey.has(key));
+    const idsToDelete = new Set(keysToDelete.map(key => localIdByKey.get(key)));
+    if (idsToDelete.size > 0) {
+        _removePanelIdsFromLayout(newLayout, idsToDelete);
+    }
+
+    // ── 7. 添加：options 有但本地没有的 panel（且不在用户主动关闭列表中）
+    //    此时 localIdByKey 已反映删除后的状态，用更新后的 map 追踪新插入的 panel
+    const currentIdByKey = new Map(
+        Object.values(newLayout.panels)
+            .filter(p => p.params?.key)
+            .map(p => [p.params.key, p.id])
+    );
+    const panelsToAdd = optionPanels.filter(p => !currentIdByKey.has(p.params.key) && !invisibleKeys.has(p.params.key));
+    for (const optionPanel of panelsToAdd) {
+        _insertPanelIntoLayout(newLayout, optionPanel, optionPanels, currentIdByKey);
+        currentIdByKey.set(optionPanel.params.key, optionPanel.id);
+    }
+
+    return newLayout;
+}
+
+/**
+ * 从 layout 的 grid、floatingGroups、panels 中删除指定 id 的 panel
+ * @param {Object} layout
+ * @param {Set<string>} idsToDelete
+ */
+const _removePanelIdsFromLayout = (layout, idsToDelete) => {
+    // 从 panels 对象删除
+    for (const id of idsToDelete) {
+        delete layout.panels[id];
+    }
+
+    // 从 grid 树的 leaf.views 中删除，leaf 变空则从父 branch 移除
+    const pruneNode = (node, parent) => {
+        if (node.type === 'leaf') {
+            node.data.views = node.data.views.filter(id => !idsToDelete.has(id));
+            if (idsToDelete.has(node.data.activeView)) {
+                node.data.activeView = node.data.views[0] ?? '';
+            }
+            if (node.data.views.length === 0 && parent) {
+                parent.data = parent.data.filter(n => n !== node);
+            }
+        } else if (node.type === 'branch') {
+            // 先递归，再清理空 branch
+            [...node.data].forEach(child => pruneNode(child, node));
+            if (node.data.length === 0 && parent) {
+                parent.data = parent.data.filter(n => n !== node);
+            }
+        }
+    };
+    pruneNode(layout.grid.root, null);
+
+    // 从 floatingGroups 中删除
+    if (layout.floatingGroups?.length) {
+        layout.floatingGroups.forEach(fg => {
+            if (!fg.data?.views) return;
+            fg.data.views = fg.data.views.filter(id => !idsToDelete.has(id));
+            if (idsToDelete.has(fg.data.activeView)) {
+                fg.data.activeView = fg.data.views[0] ?? '';
+            }
+        });
+        layout.floatingGroups = layout.floatingGroups.filter(fg => fg.data?.views?.length > 0);
+    }
+}
+
+/**
+ * 将一个新 panel 插入到 layout 中合适的位置。
+ * 策略：
+ * 1. 根据 options 里的兄弟/父子关系找到添加位置
+ * 2. 若找不到任何兄弟（极端情况），则添加到根目录的最后作为一个独立的 leaf
+ *
+ * @param {Object} layout
+ * @param {Object} optionPanel   - 要插入的 panel（来自 getPanelsFromOptions）
+ * @param {Array}  optionPanels  - 全部 optionPanels（用于找兄弟）
+ * @param {Map}    localIdByKey  - 当前 key → localId 映射（已包含之前插入的）
+ */
+const _insertPanelIntoLayout = (layout, optionPanel, optionPanels, localIdByKey) => {
+    // 注册到 panels
+    layout.panels[optionPanel.id] = {
+        id: optionPanel.id,
+        title: optionPanel.title,
+        tabComponent: optionPanel.tabComponent,
+        contentComponent: optionPanel.contentComponent,
+        params: { ...optionPanel.params }
+    };
+
+    const parentType = optionPanel.params.parentType; // 'group' | 'column' | 'row' | ...
+
+    if (parentType === 'group') {
+        // 找同一个 group（parentId 相同）中已存在于本地的兄弟 panel 的 localId
+        const siblingLocalId = _findSiblingLocalId(optionPanel, optionPanels, localIdByKey);
+
+        if (siblingLocalId) {
+            // 找到兄弟所在的 leaf，把新 panel 追加进去
+            const inserted = _insertIntoLeafWithSibling(layout.grid.root, siblingLocalId, optionPanel.id);
+            if (inserted) return;
+
+            // 兄弟可能在 floatingGroup 里
+            if (layout.floatingGroups?.length) {
+                for (const fg of layout.floatingGroups) {
+                    if (fg.data?.views?.includes(siblingLocalId)) {
+                        fg.data.views.push(optionPanel.id);
+                        return;
+                    }
+                }
+            }
+        }
+    } else {
+        // parentType 是 'column' 或 'row'：平级组件，应该保持独立的 leaf
+        // 在 grid 中找一个合适的位置创建新的独立 leaf
+        _createIndependentLeaf(layout, optionPanel, optionPanels, localIdByKey);
+        return;
+    }
+
+    // 兜底：添加到根目录的最后作为一个独立的 leaf
+    _appendToRootAsIndependentLeaf(layout, optionPanel);
+}
+
+/**
+ * 在 optionPanels 中找与 targetPanel 同 parentId 且已存在于本地的兄弟 panel 的 localId
+ */
+const _findSiblingLocalId = (targetPanel, optionPanels, localIdByKey) => {
+    const parentId = targetPanel.params.parentId;
+    // 同 group 的兄弟（parentId 相同），按 optionPanels 顺序找最近的已存在的
+    const siblings = optionPanels.filter(p =>
+        p.params.key !== targetPanel.params.key &&
+        p.params.parentId === parentId &&
+        localIdByKey.has(p.params.key)
+    );
+    if (siblings.length > 0) return localIdByKey.get(siblings[0].params.key);
+
+    // 同 parentType 但不同 parentId 的兜底（跨 group 找最近邻）
+    const idx = optionPanels.findIndex(p => p.params.key === targetPanel.params.key);
+    for (let i = idx - 1; i >= 0; i--) {
+        if (localIdByKey.has(optionPanels[i].params.key)) return localIdByKey.get(optionPanels[i].params.key);
+    }
+    for (let i = idx + 1; i < optionPanels.length; i++) {
+        if (localIdByKey.has(optionPanels[i].params.key)) return localIdByKey.get(optionPanels[i].params.key);
+    }
+    return null;
+}
+
+/**
+ * 在 grid 树中找包含 siblingId 的 leaf，并将 newPanelId 追加到其 views
+ * @returns {boolean} 是否成功插入
+ */
+const _insertIntoLeafWithSibling = (node, siblingId, newPanelId) => {
+    if (node.type === 'leaf') {
+        if (node.data.views.includes(siblingId)) {
+            node.data.views.push(newPanelId);
+            return true;
+        }
+        return false;
+    }
+    if (node.type === 'branch') {
+        for (const child of node.data) {
+            if (_insertIntoLeafWithSibling(child, siblingId, newPanelId)) return true;
+        }
+    }
+    return false;
+}
+
+
+
+/**
+ * 为平级组件（parentType 为 'column' 或 'row'）创建独立的 leaf
+ */
+const _createIndependentLeaf = (layout, optionPanel, optionPanels, localIdByKey) => {
+    // 在 optionPanels 中找到这个 panel 的索引
+    const optionIndex = optionPanels.findIndex(p => p.params.key === optionPanel.params.key);
+    
+    // 找同 parent 的兄弟 panel（在 options 中相邻的）
+    const parentId = optionPanel.params.parentId;
+    const siblingsInOptions = optionPanels.filter(p => 
+        p.params.parentId === parentId && 
+        localIdByKey.has(p.params.key)
+    );
+    
+    if (siblingsInOptions.length > 0) {
+        // 有兄弟存在，找到兄弟所在的 leaf，在旁边创建新的 leaf
+        const firstSiblingKey = siblingsInOptions[0].params.key;
+        const firstSiblingId = localIdByKey.get(firstSiblingKey);
+        
+        // 在 grid 中找包含兄弟的 branch，在旁边插入新 leaf
+        const inserted = _insertLeafNextToSibling(layout.grid.root, firstSiblingId, optionPanel.id);
+        if (inserted) return;
+    }
+    
+    // 没有兄弟或插入失败，在 grid root 的第一个 branch 里追加新 leaf
+    const rootBranch = _findFirstBranch(layout.grid.root);
+    if (rootBranch) {
+        const newLeaf = {
+            type: 'leaf',
+            size: rootBranch.data.length > 0 ? rootBranch.data[0].size : 100,
+            data: {
+                id: Date.now() + Math.floor(Math.random() * 100) + '',
+                activeView: optionPanel.id,
+                views: [optionPanel.id]
+            }
+        };
+        rootBranch.data.push(newLeaf);
+        // 重新平衡 size
+        const avgSize = rootBranch.data.reduce((sum, leaf) => sum + leaf.size, 0) / rootBranch.data.length;
+        rootBranch.data.forEach(leaf => leaf.size = avgSize);
+    }
+}
+
+/**
+ * 在包含 siblingId 的 branch 旁边插入新 leaf
+ */
+const _insertLeafNextToSibling = (node, siblingId, newPanelId) => {
+    if (node.type === 'branch') {
+        // 检查这个 branch 里是否有 leaf 包含 siblingId
+        for (let i = 0; i < node.data.length; i++) {
+            const child = node.data[i];
+            if (child.type === 'leaf' && child.data.views.includes(siblingId)) {
+                // 在这个 leaf 后面插入新 leaf
+                const newLeaf = {
+                    type: 'leaf',
+                    size: child.size,
+                    data: {
+                        id: Date.now() + Math.floor(Math.random() * 100) + '',
+                        activeView: newPanelId,
+                        views: [newPanelId]
+                    }
+                };
+                node.data.splice(i + 1, 0, newLeaf);
+                // 重新平衡 size
+                const avgSize = node.data.reduce((sum, leaf) => sum + leaf.size, 0) / node.data.length;
+                node.data.forEach(leaf => leaf.size = avgSize);
+                return true;
+            } else if (child.type === 'branch') {
+                if (_insertLeafNextToSibling(child, siblingId, newPanelId)) return true;
+            }
+        }
+    }
+    return false;
+}
+
+/**
+ * 找 grid 树中第一个 branch 节点
+ */
+const _findFirstBranch = node => {
+    if (node.type === 'branch') return node;
+    if (node.type === 'leaf') return null;
+    return null;
+}
+
+/**
+ * 找 grid 树中第一个 leaf 节点
+ */
+const _findFirstLeaf = node => {
+    if (node.type === 'leaf') return node;
+    if (node.type === 'branch') {
+        for (const child of node.data) {
+            const found = _findFirstLeaf(child);
+            if (found) return found;
+        }
+    }
+    return null;
+}
+
+/**
+ * 添加到根目录的最后作为一个独立的 leaf（兜底逻辑）
+ */
+const _appendToRootAsIndependentLeaf = (layout, optionPanel) => {
+    // 找到根 branch（grid.root 或 grid.root 的第一个 branch）
+    let targetBranch = layout.grid.root;
+    if (targetBranch.type === 'leaf') {
+        // 如果 root 是 leaf，需要把它包装进一个 branch
+        const newBranch = {
+            type: 'branch',
+            size: targetBranch.size,
+            data: [targetBranch]
+        };
+        layout.grid.root = newBranch;
+        targetBranch = newBranch;
+    }
+    
+    // 创建新 leaf
+    const newLeaf = {
+        type: 'leaf',
+        size: targetBranch.data.length > 0 ? targetBranch.data[0].size : 100,
+        data: {
+            id: Date.now() + Math.floor(Math.random() * 100) + '',
+            activeView: optionPanel.id,
+            views: [optionPanel.id]
+        }
+    };
+    
+    // 追加到 branch 的末尾
+    targetBranch.data.push(newLeaf);
+    
+    // 重新平衡 size
+    const avgSize = targetBranch.data.reduce((sum, leaf) => sum + leaf.size, 0) / targetBranch.data.length;
+    targetBranch.data.forEach(leaf => leaf.size = avgSize);
+}
+
+export { initDockviewFromConfig, saveConfig, syncLayoutWithOptions };
