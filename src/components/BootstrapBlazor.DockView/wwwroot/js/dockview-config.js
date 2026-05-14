@@ -279,6 +279,18 @@ const getActualSize = (width, height, widthRate, heightRate, defaultSize) => (wi
     : width ? width * widthRate / 100 : height * heightRate / 100;
 
 const getGroupNode = (contentItem, size, boxSize, parent, panels, getGroupId, options) => {
+    // 所有 panel 都应该注册到 panels 对象中，包括 visible: false 的
+    const views = contentItem.content.map(item => {
+        panels[item.id] = {
+            id: item.id,
+            title: item.title,
+            tabComponent: item.componentName,
+            contentComponent: item.componentName,
+            params: { ...item, parentId: parent.id }
+        }
+        return item.id
+    });
+    
     return {
         type: 'leaf',
         size: getSize(boxSize, contentItem.width || contentItem.height) || size,
@@ -287,16 +299,7 @@ const getGroupNode = (contentItem, size, boxSize, parent, panels, getGroupId, op
             id: getGroupId(),
             activeView: contentItem.content[0]?.id || '',
             hideHeader: contentItem.content.length === 1 && contentItem.content[0].showHeader === false,
-            views: contentItem.content.filter(item => item.visible !== false).map(item => {
-                panels[item.id] = {
-                    id: item.id,
-                    title: item.title,
-                    tabComponent: item.componentName,
-                    contentComponent: item.componentName,
-                    params: { ...item, parentId: parent.id }
-                }
-                return item.id
-            })
+            views: views  // 包含所有 panel，包括 visible: false 的
         }
     }
 }
