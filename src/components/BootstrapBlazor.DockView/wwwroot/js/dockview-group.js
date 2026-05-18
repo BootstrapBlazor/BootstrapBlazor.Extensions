@@ -1,5 +1,5 @@
-﻿import { getIcons, getIcon } from "./dockview-icon.js"
-import { deletePanel, findContentFromPanels, moveAlwaysRenderPanel } from "./dockview-panel.js"
+import { getIcons, getIcon } from "./dockview-icon.js"
+import { deleteInvisiblePanel, findContentFromPanels, moveAlwaysRenderPanel } from "./dockview-panel.js"
 import { saveConfig } from "./dockview-config.js"
 import { observeGroup, markFirstVisibleElement } from "./dockview-utils.js"
 import EventHandler from '../../BootstrapBlazor/modules/event-handler.js'
@@ -24,7 +24,7 @@ const onAddGroup = group => {
         markFirstVisibleElement(group)
     })
     createGroupActions(group);
-    dockview._inited && observeGroup(group)
+    dockview.params.inited && observeGroup(group)
 }
 
 const addGroupWithPanel = (dockview, panel, panels, index) => {
@@ -34,7 +34,7 @@ const addGroupWithPanel = (dockview, panel, panels, index) => {
     else {
         addPanelWidthCreatGroup(dockview, panel, panels)
     }
-    deletePanel(dockview, panel)
+    deleteInvisiblePanel(dockview, panel)
 }
 
 const addPanelWidthGroupId = (dockview, panel, index) => {
@@ -448,7 +448,7 @@ const toggleLock = (group, actionContainer, isLock) => {
 }
 
 const toggleFull = (group, actionContainer, maximize) => {
-    group.api.accessor.maximizing = true;
+    group.api.accessor.params.maximizing = true;
     const type = group.model.location.type;
     if (type === 'grid') {
         maximize ? group.api.exitMaximized() : group.api.maximize();
@@ -456,7 +456,7 @@ const toggleFull = (group, actionContainer, maximize) => {
     else if (type === 'floating') {
         maximize ? floatingExitMaximized(group) : floatingMaximize(group);
     }
-    group.api.accessor.maximizing = false;
+    group.api.accessor.params.maximizing = false;
     maximize ? actionContainer.classList.remove('bb-maximize') : actionContainer.classList.add('bb-maximize')
     if (maximize) {
         group.element.parentElement.classList.remove('bb-maximize')
@@ -477,6 +477,9 @@ const float = group => {
     const floatingGroupRect = rect || {
         width, height: packup?.isPackup ? packup.height : height, position: { left, top }
     }
+    group.api.accessor.params.maximizing = true;
+    group.api.isMaximized() && group.api.exitMaximized()
+    group.api.accessor.params.maximizing = false;
     const floatingGroup = createFloatingGroup(group, floatingGroupRect)
     saveConfig(dockview)
 }
@@ -510,7 +513,7 @@ const createFloatingGroup = (group, rect, groupType) => {
     observeOverlayChange(overlay, floatingGroup)
     observeGroup(floatingGroup)
     createGroupActions(floatingGroup, groupType)
-    if(floatingGroup.panels.length == 1) {
+    if (floatingGroup.panels.length == 1) {
         moveAlwaysRenderPanel(floatingGroup.activePanel)
     }
     return floatingGroup
@@ -542,9 +545,9 @@ const observeFloatingGroupLocationChange = group => {
             setTimeout(() => {
                 let originalGroup = dockview.groups.find(g => g.id.split('_')[0] == group.id.split('_')[0])
                 if (originalGroup) {
-                    dockview.isClearing = true
+                    dockview.params.reset = true
                     dockview.removeGroup(originalGroup)
-                    dockview.isClearing = false
+                    dockview.params.reset = false
                     group.header.rightActionsContainer.classList.remove('bb-float')
                     saveConfig(dockview)
                 }
@@ -569,7 +572,7 @@ const dock = (group, floatType) => {
     originGroup.element.parentElement.classList.remove('bb-maximize')
     const { drawer, rect = {} } = group.getParams()
     const inset = group.element.parentElement.style.inset.split(' ').map(item => isNaN(parseFloat(item)) ? item : parseFloat(item))
-    if(!rect.isMaximized) {
+    if (!rect.isMaximized) {
         rect.width = group.width + 2;
         rect.height = group.height + 2;
         rect.position = {};
@@ -640,11 +643,11 @@ const floatingMaximize = group => {
         isMaximized: true,
         position: {}
     }
-    ;['top', 'right', 'bottom', 'left'].forEach((key, index) => {
-        if (typeof inset[index] == 'number') {
-            rect.position[key] = inset[index]
-        }
-    })
+        ;['top', 'right', 'bottom', 'left'].forEach((key, index) => {
+            if (typeof inset[index] == 'number') {
+                rect.position[key] = inset[index]
+            }
+        })
     group.setParams({ rect })
 
     parentEle.style.left = 0;

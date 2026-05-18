@@ -178,6 +178,7 @@ public partial class DockViewV2
     [NotNull]
     private DockViewOptions? _options = null;
     private ConcurrentDictionary<string, DockViewComponentState> _componentStates = new();
+    private string? _layoutConfig;
 
     /// <summary>
     /// <inheritdoc/>
@@ -214,9 +215,17 @@ public partial class DockViewV2
     {
         await base.OnAfterRenderAsync(firstRender);
 
-        if (!firstRender)
+        if (firstRender)
+        {
+            _layoutConfig = LayoutConfig;
+        }
+        else if (!_triggerLoadTabs)
         {
             await InvokeVoidAsync("update", Id, GetDockViewConfig());
+        }
+        else
+        {
+            _triggerLoadTabs = false;
         }
     }
 
@@ -233,6 +242,14 @@ public partial class DockViewV2
             throw new InvalidOperationException("LayoutConfig must be provided when no components are added.");
         }
 
+        string? layoutConfig = null;
+        if (_layoutConfig != LayoutConfig)
+        {
+            // 如果布局更改了。需要推送下去，如果未更改不需要推送这个变量
+            _layoutConfig = LayoutConfig;
+            layoutConfig = LayoutConfig;
+        }
+
         return new()
         {
             EnableLocalStorage = IsEnableLocalStorage,
@@ -245,7 +262,7 @@ public partial class DockViewV2
             ShowPin = ShowPin,
             ShowMaximize = ShowMaximize,
             Renderer = Renderer,
-            LayoutConfig = LayoutConfig,
+            LayoutConfig = layoutConfig,
             Theme = Theme.ToDescriptionString(),
             InitializedCallback = nameof(InitializedCallbackAsync),
             PanelVisibleChangedCallback = nameof(PanelVisibleChangedCallbackAsync),
@@ -367,6 +384,7 @@ public partial class DockViewV2
     }
 
     private HashSet<string> _loadTabs = new();
+    private bool _triggerLoadTabs = false;
 
     /// <summary>
     /// <para lang="zh">加载指定标签页的方法，由 JavaScript 调用</para>
@@ -382,6 +400,7 @@ public partial class DockViewV2
             // 标记是否渲染
             componnet.Value.Render = tabs.Contains(componnet.Key);
         }
+        _triggerLoadTabs = true;
         StateHasChanged();
 
         return Task.CompletedTask;

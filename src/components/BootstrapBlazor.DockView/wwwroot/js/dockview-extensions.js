@@ -1,15 +1,16 @@
 import { DockviewComponent, DockviewGroupPanel, DockviewGroupPanelModel, getGridLocation, getRelativeLocation, DockviewEmitter } from "./dockview-core.esm.js"
 import { saveConfig } from "./dockview-config.js"
+import { movePanelContentToTemplate } from "./dockview-panel.js"
 import { disposeGroup, removeDrawerBtn } from "./dockview-group.js"
 import { markFirstVisibleElement } from "./dockview-utils.js"
 
-DockviewComponent.prototype.on = function(eventType, callback) {
+DockviewComponent.prototype.on = function (eventType, callback) {
     this['_' + eventType] = new DockviewEmitter();
     this['_' + eventType].event(callback)
 }
 
 const dispose = DockviewComponent.prototype.dispose;
-DockviewComponent.prototype.dispose = function() {
+DockviewComponent.prototype.dispose = function () {
     this.params.observer?.disconnect();
     this.groups.forEach(group => {
         if (group.mutationObserver) {
@@ -21,33 +22,38 @@ DockviewComponent.prototype.dispose = function() {
 }
 
 const groupDispose = DockviewGroupPanel.prototype.dispose
-DockviewGroupPanel.prototype.dispose = function() {
+DockviewGroupPanel.prototype.dispose = function () {
     disposeGroup(this)
     groupDispose.call(this)
 }
-DockviewGroupPanel.prototype.getParams = function() {
+DockviewGroupPanel.prototype.getParams = function () {
     return this.activePanel?.params || {}
 }
 
-DockviewGroupPanel.prototype.setParams = function(data) {
+DockviewGroupPanel.prototype.setParams = function (data) {
     Object.keys(data).forEach(key => {
         this.panels.forEach(panel => panel.params[key] = data[key])
     })
 }
 
-DockviewGroupPanel.prototype.removePropsOfParams = function(keys) {
+DockviewGroupPanel.prototype.removePropsOfParams = function (keys) {
     return (keys instanceof Array)
         ? keys.map(key => this.panels.forEach(panel => delete panel.params[key]))
         : typeof keys == 'string' ? this.panels.forEach(panel => delete panel.params[keys]) : false
 }
 
 const removeGroup = DockviewComponent.prototype.removeGroup
-DockviewComponent.prototype.removeGroup = function(...args) {
-    if (this.isClearing) {
-        return removeGroup.apply(this, args)
+DockviewComponent.prototype.removeGroup = function (...args) {
+    const group = args[0]
+    if (this.params.reset) {
+        const panels = [...group.panels];
+        removeGroup.apply(this, args)
+        panels.forEach(panel => {
+            movePanelContentToTemplate(panel, true);
+        })
+        return
     }
 
-    const group = args[0]
     const type = group.api.location.type;
     if (type == 'grid') {
         [...group.panels].forEach(panel => {
@@ -62,7 +68,7 @@ DockviewComponent.prototype.removeGroup = function(...args) {
 }
 
 const closePanel = DockviewGroupPanelModel.prototype.closePanel;
-DockviewGroupPanelModel.prototype.closePanel = function(panel, triggerVisibleChangedCallback = true, moveToTemplate = true) {
+DockviewGroupPanelModel.prototype.closePanel = function (panel, triggerVisibleChangedCallback = true, moveToTemplate = true) {
     if (!panel.group.locked) {
         closePanel.call(this, panel);
         if (triggerVisibleChangedCallback) {
@@ -70,18 +76,13 @@ DockviewGroupPanelModel.prototype.closePanel = function(panel, triggerVisibleCha
         }
     }
 
-    if (panel.view.content.element && moveToTemplate) {
-        if (panel.titleMenuEle) {
-            panel.view.content.element.append(panel.titleMenuEle)
-        }
-        if (this.accessor.params.template) {
-            this.accessor.params.template.append(panel.view.content.element)
-        }
+    if (moveToTemplate) {
+        movePanelContentToTemplate(panel, true);
     }
 }
 
 const setVisible = DockviewComponent.prototype.setVisible
-DockviewComponent.prototype.setVisible = function(...args) {
+DockviewComponent.prototype.setVisible = function (...args) {
     setVisible.apply(this, args);
     const branch = getBranchByGroup(args[0])
     const { orientation, splitview: { sashes } } = branch

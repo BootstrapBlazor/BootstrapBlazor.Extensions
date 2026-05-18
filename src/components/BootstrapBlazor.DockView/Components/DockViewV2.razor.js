@@ -17,6 +17,10 @@ export async function init(id, invoke, options) {
         }
     }
     const dockview = cerateDockview(el, options);
+    dockview.params.invisiblePanels?.forEach(invisiblePanel => {
+        invoke.invokeMethodAsync(options.panelVisibleChangedCallback, invisiblePanel.params.key, false);
+    })
+
     const updateTheme = e => dockview.switchTheme(e.theme);
     Data.set(id, { el, dockview, updateTheme });
 
@@ -33,9 +37,18 @@ export async function init(id, invoke, options) {
         invoke.invokeMethodAsync(options.splitterCallback);
     });
     dockview.on('loadTabs', tabs => {
+        if (tabs.length === 0) {
+            return;
+        }
         invoke.invokeMethodAsync(options.loadTabs, tabs);
     });
+    dockview.on('saveConfig', json => {
+        if (options.enableLocalStorage) {
+            return;
+        }
 
+        invoke.invokeMethodAsync(options.saveConfigCallback, json);
+    });
     EventHandler.on(document, 'changed.bb.theme', updateTheme);
 }
 

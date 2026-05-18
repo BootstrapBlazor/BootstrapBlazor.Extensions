@@ -1,4 +1,4 @@
-﻿import Data from '../../BootstrapBlazor/modules/data.js'
+import Data from '../../BootstrapBlazor/modules/data.js'
 
 const getIcon = (name, hasTitle = true) => {
     const icons = getIcons();

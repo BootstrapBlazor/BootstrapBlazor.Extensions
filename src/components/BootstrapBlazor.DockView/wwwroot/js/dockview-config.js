@@ -1,188 +1,63 @@
-﻿import { getPanelsFromOptions, findContentFromPanels } from "./dockview-panel.js"
+import { getPanelsFromOptions } from "./dockview-panel.js"
 
-const loadPanelsFromLocalstorage = dockview => {
-    const { options } = dockview.params;
-    if (options.enableLocalStorage) {
-        const panelsStr = localStorage.getItem(`${options.localStorageKey}-panels`)
-        dockview.params.panels = panelsStr ? JSON.parse(panelsStr) : [];
-    }
-}
-
-const reloadFromConfig = (dockview, options) => {
-    dockview.isClearing = true
-    dockview.clear()
-    dockview.isClearing = false
-    dockview.params.panels = [];
-
-    const jsonData = getConfigFromOptions(options);
-    dockview.fromJSON(jsonData);
-}
-
-const getConfig = options => {
-    const config = options.enableLocalStorage ? getConfigFromStorage(options) : null;
-    return config ?? getConfigFromOptions(options);
-}
-
-const getConfigFromStorage = options => {
-    const jsonString = localStorage.getItem(options.localStorageKey);
-    return jsonString ? renewConfigFromOptions(JSON.parse(jsonString), options) : null;
-}
-
-const getConfigFromOptions = options => options.layoutConfig ? getConfigFromLayoutString(options) : getConfigFromContent(options);
-
-const getConfigFromLayoutString = options => {
-    let config = JSON.parse(options.layoutConfig);
-    return renewConfigFromOptions(config);
-}
-
-const renewConfigFromOptions = (config, options) => {
-    removeEmptyGridViews(config, options)
-    const optionPanels = getPanelsFromOptions(options)
-    const localPanels = Object.values(config.panels)
-    optionPanels.forEach(optionPanel => {
-        const panel = localPanels.find(localPanel => localPanel.params.key == optionPanel.params.key)
-        if (panel) {
-            optionPanel.params = {
-                ...panel.params,
-                ...optionPanel.params,
-                visible: panel.params.visible
-            }
-            optionPanel.id = panel.id
-            config.panels[panel.id] = optionPanel
+const initDockviewFromConfig = (dockview, options) => {
+    const { layoutConfig, enableLocalStorage } = options;
+    let config = null;
+    if (layoutConfig) {
+        try {
+            config = JSON.parse(layoutConfig);
         }
-        else {
-            const delPanels = JSON.parse(localStorage.getItem(options.localStorageKey + '-panels'))
-            if (delPanels?.find(delPanel => delPanel.params.key == optionPanel.params.key)) return
-            let index = optionPanels.findIndex(item => item.id == optionPanel.id)
-            let brotherPanel, brotherType
-            if (index == 0) {
-                brotherPanel = optionPanels[1]
-                brotherType = 'after'
+        catch (error) {
+            console.error('Invalid layoutConfig JSON string:', error);
+        }
+    }
+    else if (enableLocalStorage) {
+        try {
+            let key = `${options.localStorageKey}-layout`;
+            const layoutJson = localStorage.getItem(key);
+            if (layoutJson) {
+                config = JSON.parse(layoutJson);
             }
             else {
-                brotherPanel = optionPanels[index - 1]
-                brotherType = 'front'
-            }
-            config.panels[optionPanel.id] = optionPanel
-            const brotherId = Object.keys(config.panels).find(key => config.panels[key].params.key == brotherPanel.params.key)
-            const originFloatingGroupId = config.floatingGroups?.find(fg => fg.data.views.includes(brotherId))?.data.id.split('_')[0]
-            addPanel(config.grid.root, optionPanel, brotherPanel, brotherId, originFloatingGroupId)
-        }
-    })
-    localPanels.forEach(localPanel => {
-        const panel = optionPanels.find(optionPanel => optionPanel.params.key == localPanel.params.key)
-        if (panel) {
-
-        }
-        else {
-            delete config.panels[localPanel.id] && config.panels[localPanel.id]
-            if (config.floatingGroups
-                && config.floatingGroups.length > 0
-                && config.floatingGroups.find(fg => fg.data.views.includes(localPanel.id))
-            ) {
-                removeFloatingPanel(config, localPanel)
-            }
-            else {
-                removePanel(config.grid.root, localPanel)
-            }
-        }
-    })
-    return config
-}
-
-const removeFloatingPanel = (config, localPanel) => {
-    config.floatingGroups.forEach((fg, index) => {
-        fg.data.views = fg.data.views.filter(p => p.id !== localPanel.id)
-    })
-    config.floatingGroups = config.floatingGroups.filter(fg => fg.data.views.lengt > 0)
-}
-
-const removeEmptyGridViews = (config, options) => {
-    const delPanelsStr = localStorage.getItem(options.localStorageKey + '-panels')
-    const delPanels = delPanelsStr ? JSON.parse(delPanelsStr) : delPanelsStr
-    removeEmptyLeafViews(config.grid.root, config.floatingGroups || [], delPanels || [])
-}
-const removeEmptyLeafViews = (branch, floatingGroups, delPanels, parent) => {
-    if (branch.type == 'branch') {
-        branch.data.forEach(item => removeEmptyLeafViews(item, floatingGroups, delPanels, branch))
-    }
-    else if (branch.type == 'leaf') {
-        if (
-            branch.data.views.length == 0
-            && !floatingGroups.find(fg => fg.data.id.split('_')[0] == branch.data.id.split('_')[0])
-            && !delPanels.find(p => p.groupId?.split('_')[0] == branch.data.id?.split('_')[0])
-        ) {
-            parent && (parent.data = parent.data.filter(item => item.data.id != branch.data.id))
-        }
-    }
-}
-
-const addPanel = (branch, panel, brotherPanel, brotherId, originFloatingGroupId) => {
-    if (brotherPanel.params.parentType == 'group') {
-        if (branch.type == 'leaf') {
-            if (branch.data.views.includes(brotherId)) {
-                branch.data.views.push(panel.id)
-            }
-        }
-        else if (branch.type == 'branch') {
-            branch.data.forEach(item => {
-                addPanel(item, panel, brotherPanel, brotherId, originFloatingGroupId)
-            })
-        }
-    }
-    else if (branch.type == 'branch') {
-
-        if (branch.data.length == 0) {
-            branch.data.push({
-                data: {
-                    activeView: panel.id,
-                    id: Date.now() + Math.floor(Math.random() * 100) + '',
-                    views: [panel.id]
-                },
-                // size: branch.data.reduce((pre, cur) => pre + cur.size, 0)/branch.data.length,
-                type: 'leaf'
-            })
-        }
-        else {
-            [...branch.data].forEach(item => {
-                if (item.type == 'leaf') {
-                    if (item.data.views.includes(brotherId) || item.data.id == originFloatingGroupId) {
-                        branch.data.push({
-                            data: {
-                                activeView: panel.id,
-                                id: Date.now() + Math.floor(Math.random() * 100) + '',
-                                views: [panel.id]
-                            },
-                            size: branch.data.reduce((pre, cur) => pre + cur.size, 0) / branch.data.length,
-                            type: 'leaf'
-                        })
+                key = `${options.localStorageKey}`;
+                const layout = JSON.parse(localStorage.getItem(key));
+                if (layout) {
+                    localStorage.removeItem(key);
+                    key = `${options.localStorageKey}-panels`;
+                    const invisiblePanels = JSON.parse(localStorage.getItem(key));
+                    if (invisiblePanels) {
+                        localStorage.removeItem(key);
+                    }
+                    config = {
+                        layout,
+                        invisiblePanels: invisiblePanels || []
                     }
                 }
-                else {
-                    addPanel(item, panel, brotherPanel, brotherId, originFloatingGroupId)
-                }
-            })
-        }
-    }
-}
-
-const removePanel = (branch, panel, parent) => {
-    if (branch.type == 'leaf') {
-        if (branch.data.views.length > 0) {
-            branch.data.views = branch.data.views.filter(id => id != panel.id)
-            if (branch.data.views.length == 0) {
-                parent && (parent.data = parent.data.filter(child => child.data.id != branch.data.id))
             }
         }
-    }
-    else if (branch.type == 'branch') {
-        branch.data.forEach(item => {
-            removePanel(item, panel, branch)
-        })
-        if (branch.data.length == 0 && parent) {
-            parent.data = parent.data.filter(b => !(b.type == 'branch' && b.data.length == 0))
+        catch (error) {
+            console.error('Invalid localStorage JSON string:', error);
         }
     }
+
+    if (config) {
+        try {
+            mergeLayoutWithOptions(config, options);
+            const { layout, invisiblePanels } = config;
+            dockview.fromJSON(layout);
+            dockview.params.invisiblePanels = invisiblePanels || [];
+            dockview.params.floatingGroups = layout.floatingGroups || []
+        }
+        catch (error) {
+            console.error('Invalid localStorage JSON string:', error);
+            dockview.fromJSON(getConfigFromContent(options));
+        }
+    }
+    else {
+        dockview.fromJSON(getConfigFromContent(options));
+        dockview.params.invisiblePanels = [];
+    }
+
 }
 
 const getConfigFromContent = options => {
@@ -199,21 +74,29 @@ const getConfigFromContent = options => {
     }
 }
 
+const mergeLayoutWithOptions = (config, options) => {
+    const { layout, invisiblePanels } = config;
+    const synced = syncLayoutWithOptions(layout, options, invisiblePanels);
+    config.layout = synced;
+}
+
 const getGroupIdFunc = () => {
     let currentId = 0;
     return () => `${currentId++}`;
 }
-const filterEmptyContent = function(data) {
+
+const filterEmptyContent = function (data) {
     if (!data || typeof data !== 'object') return data;
-    
+
     if (Array.isArray(data.content)) {
         data.content = data.content
             .map(item => filterEmptyContent(item))
             .filter(item => !(Array.isArray(item.content) && item.content.length === 0));
     }
-    
+
     return data;
 }
+
 const getTree = (contentItem, { width, height, orientation }, parent, panels, getGroupId, options) => {
     const length = parent.content.length;
     const boxSize = orientation === 'HORIZONTAL' ? width : height;
@@ -254,6 +137,17 @@ const getActualSize = (width, height, widthRate, heightRate, defaultSize) => (wi
     : width ? width * widthRate / 100 : height * heightRate / 100;
 
 const getGroupNode = (contentItem, size, boxSize, parent, panels, getGroupId, options) => {
+    const views = contentItem.content.map(item => {
+        panels[item.id] = {
+            id: item.id,
+            title: item.title,
+            tabComponent: item.componentName,
+            contentComponent: item.componentName,
+            params: { ...item, parentId: parent.id }
+        }
+        return item.id
+    });
+
     return {
         type: 'leaf',
         size: getSize(boxSize, contentItem.width || contentItem.height) || size,
@@ -262,17 +156,7 @@ const getGroupNode = (contentItem, size, boxSize, parent, panels, getGroupId, op
             id: getGroupId(),
             activeView: contentItem.content[0]?.id || '',
             hideHeader: contentItem.content.length === 1 && contentItem.content[0].showHeader === false,
-            views: contentItem.content.filter(item => item.visible !== false).map(item => {
-                panels[item.id] = {
-                    id: item.id,
-                    title: item.title,
-                    tabComponent: item.componentName,
-                    contentComponent: item.componentName,
-                    // renderer: item.renderer || options.renderer,
-                    params: { ...item, parentId: parent.id }
-                }
-                return item.id
-            })
+            views: views
         }
     }
 }
@@ -293,7 +177,6 @@ const getLeafNode = (contentItem, size, boxSize, parent, panels, getGroupId, opt
     panels[contentItem.id] = {
         id: contentItem.id,
         title: contentItem.title,
-        // renderer: contentItem.renderer || options.renderer,
         tabComponent: contentItem.componentName,
         contentComponent: contentItem.componentName,
         params: { ...contentItem, parentId: parent.id }
@@ -302,39 +185,339 @@ const getLeafNode = (contentItem, size, boxSize, parent, panels, getGroupId, opt
 }
 
 const saveConfig = dockview => {
-    if (dockview.params.options.enableLocalStorage && dockview._inited === true) {
-        saveParamsIsActive(dockview)
-        const json = dockview.toJSON();
-        if (dockview.floatingGroups && dockview.floatingGroups.length > 0) {
-            json.floatingGroups.forEach((fg, index) => {
-                const group = dockview.floatingGroups[index].group
-                if (fg.position.width > 0) {
-                    group.panels.forEach(panel => {
-                        !panel.params.currentPosition && (panel.params.currentPosition = {})
-                        panel.params.currentPosition.width = fg.position.width
-                    })
-                }
-                else {
-                    fg.position.width = group.params.currentPosition.width || 500
-                }
-                if (fg.position.height > 0) {
-                    group.panels.forEach(panel => {
-                        !panel.params.currentPosition && (panel.params.currentPosition = {})
-                        panel.params.currentPosition.height = fg.position.height
-                    })
-                }
-                else {
-                    fg.position.height = group.params.currentPosition.height || 350
-                }
-            })
-        }
-        localStorage.setItem(dockview.params.options.localStorageKey, JSON.stringify(json));
+    if (dockview.params.inited !== true || dockview.params.maximizing) {
+        return;
     }
-}
-const saveParamsIsActive = dockview => {
+
     dockview.panels.forEach(panel => {
         panel.params.isActive = panel.api.isActive || panel.group.activePanel === panel
     })
+
+    const gridJson = dockview.toJSON();
+    if (dockview.floatingGroups && dockview.floatingGroups.length > 0) {
+        gridJson.floatingGroups.forEach((fg, index) => {
+            const group = dockview.floatingGroups[index].group
+            if (fg.position.width > 0) {
+                group.panels.forEach(panel => {
+                    !panel.params.currentPosition && (panel.params.currentPosition = {})
+                    panel.params.currentPosition.width = fg.position.width
+                })
+            }
+            else {
+                fg.position.width = group.params.currentPosition.width || 500
+            }
+            if (fg.position.height > 0) {
+                group.panels.forEach(panel => {
+                    !panel.params.currentPosition && (panel.params.currentPosition = {})
+                    panel.params.currentPosition.height = fg.position.height
+                })
+            }
+            else {
+                fg.position.height = group.params.currentPosition.height || 350
+            }
+        })
+    }
+    const json = JSON.stringify({
+        layout: gridJson,
+        invisiblePanels: dockview.params.invisiblePanels
+    });
+
+    if (dockview.params.options.enableLocalStorage) {
+        const key = `${dockview.params.options.localStorageKey}-layout`;
+        localStorage.setItem(key, json);
+    }
+    else {
+        dockview._saveConfig?.fire(json);
+    }
 }
 
-export { getConfigFromContent, getConfig, reloadFromConfig, saveConfig, loadPanelsFromLocalstorage };
+export const getInvisiblePanels = localStorageKey => {
+    const storedStr = localStorage.getItem(localStorageKey);
+    return storedStr ? JSON.parse(storedStr)?.invisiblePanels ?? [] : [];
+}
+
+/**
+ * @param {Object} layout
+ * @param {Object} options
+ * @param {Array}  invisiblePanels
+ * @returns {Object}
+ */
+const syncLayoutWithOptions = (layout, options, invisiblePanels = []) => {
+    const optionPanels = getPanelsFromOptions(options);
+    const optionPanelByKey = new Map(optionPanels.map(p => [p.params.key, p]));
+    const localIdByKey = new Map();
+    Object.values(layout.panels).forEach(p => {
+        if (p.params?.key) localIdByKey.set(p.params.key, p.id);
+    });
+
+    const matchCount = [...optionPanelByKey.keys()].filter(key => localIdByKey.has(key)).length;
+    if (matchCount === 0) {
+        return getConfigFromContent(options);
+    }
+
+    const newLayout = JSON.parse(JSON.stringify(layout));
+    const invisibleKeys = new Set((invisiblePanels || []).map(p => p.params?.key).filter(Boolean));
+
+    for (const [key, optionPanel] of optionPanelByKey) {
+        if (!localIdByKey.has(key)) continue;
+        const localId = localIdByKey.get(key);
+        const localPanel = newLayout.panels[localId];
+        newLayout.panels[localId] = {
+            ...localPanel,
+            title: optionPanel.title ?? localPanel.title,
+            tabComponent: optionPanel.tabComponent ?? localPanel.tabComponent,
+            contentComponent: optionPanel.contentComponent ?? localPanel.contentComponent,
+            params: {
+                ...localPanel.params,
+                ...optionPanel.params,
+                id: localId,
+                visible: localPanel.params.visible
+            }
+        };
+    }
+
+    const keysToDelete = [...localIdByKey.keys()].filter(key => !optionPanelByKey.has(key));
+    const idsToDelete = new Set(keysToDelete.map(key => localIdByKey.get(key)));
+    if (idsToDelete.size > 0) {
+        _removePanelIdsFromLayout(newLayout, idsToDelete);
+    }
+
+    const currentIdByKey = new Map(
+        Object.values(newLayout.panels)
+            .filter(p => p.params?.key)
+            .map(p => [p.params.key, p.id])
+    );
+    const panelsToAdd = optionPanels.filter(p => !currentIdByKey.has(p.params.key) && !invisibleKeys.has(p.params.key));
+    for (const optionPanel of panelsToAdd) {
+        _insertPanelIntoLayout(newLayout, optionPanel, optionPanels, currentIdByKey);
+        currentIdByKey.set(optionPanel.params.key, optionPanel.id);
+    }
+
+    return newLayout;
+}
+
+/**
+ * @param {Object} layout
+ * @param {Set<string>} idsToDelete
+ */
+const _removePanelIdsFromLayout = (layout, idsToDelete) => {
+    for (const id of idsToDelete) {
+        delete layout.panels[id];
+    }
+
+    const pruneNode = (node, parent) => {
+        if (node.type === 'leaf') {
+            node.data.views = node.data.views.filter(id => !idsToDelete.has(id));
+            if (idsToDelete.has(node.data.activeView)) {
+                node.data.activeView = node.data.views[0] ?? '';
+            }
+            if (node.data.views.length === 0 && parent) {
+                parent.data = parent.data.filter(n => n !== node);
+            }
+        } else if (node.type === 'branch') {
+            [...node.data].forEach(child => pruneNode(child, node));
+            if (node.data.length === 0 && parent) {
+                parent.data = parent.data.filter(n => n !== node);
+            }
+        }
+    };
+    pruneNode(layout.grid.root, null);
+
+    if (layout.floatingGroups?.length) {
+        layout.floatingGroups.forEach(fg => {
+            if (!fg.data?.views) return;
+            fg.data.views = fg.data.views.filter(id => !idsToDelete.has(id));
+            if (idsToDelete.has(fg.data.activeView)) {
+                fg.data.activeView = fg.data.views[0] ?? '';
+            }
+        });
+        layout.floatingGroups = layout.floatingGroups.filter(fg => fg.data?.views?.length > 0);
+    }
+}
+
+/**
+ * @param {Object} layout
+ * @param {Object} optionPanel
+ * @param {Array}  optionPanels
+ * @param {Map}    localIdByKey
+ */
+const _insertPanelIntoLayout = (layout, optionPanel, optionPanels, localIdByKey) => {
+    layout.panels[optionPanel.id] = {
+        id: optionPanel.id,
+        title: optionPanel.title,
+        tabComponent: optionPanel.tabComponent,
+        contentComponent: optionPanel.contentComponent,
+        params: { ...optionPanel.params }
+    };
+
+    const parentType = optionPanel.params.parentType;
+
+    if (parentType === 'group') {
+        const siblingLocalId = _findSiblingLocalId(optionPanel, optionPanels, localIdByKey);
+
+        if (siblingLocalId) {
+            const inserted = _insertIntoLeafWithSibling(layout.grid.root, siblingLocalId, optionPanel.id);
+            if (inserted) return;
+
+            if (layout.floatingGroups?.length) {
+                for (const fg of layout.floatingGroups) {
+                    if (fg.data?.views?.includes(siblingLocalId)) {
+                        fg.data.views.push(optionPanel.id);
+                        return;
+                    }
+                }
+            }
+        }
+    }
+    else {
+        _createIndependentLeaf(layout, optionPanel, optionPanels, localIdByKey);
+        return;
+    }
+
+    _appendToRootAsIndependentLeaf(layout, optionPanel);
+}
+
+const _findSiblingLocalId = (targetPanel, optionPanels, localIdByKey) => {
+    const parentId = targetPanel.params.parentId;
+    const siblings = optionPanels.filter(p =>
+        p.params.key !== targetPanel.params.key &&
+        p.params.parentId === parentId &&
+        localIdByKey.has(p.params.key)
+    );
+    if (siblings.length > 0) return localIdByKey.get(siblings[0].params.key);
+
+    const idx = optionPanels.findIndex(p => p.params.key === targetPanel.params.key);
+    for (let i = idx - 1; i >= 0; i--) {
+        if (localIdByKey.has(optionPanels[i].params.key)) return localIdByKey.get(optionPanels[i].params.key);
+    }
+    for (let i = idx + 1; i < optionPanels.length; i++) {
+        if (localIdByKey.has(optionPanels[i].params.key)) return localIdByKey.get(optionPanels[i].params.key);
+    }
+    return null;
+}
+
+/**
+ * @returns {boolean}
+ */
+const _insertIntoLeafWithSibling = (node, siblingId, newPanelId) => {
+    if (node.type === 'leaf') {
+        if (node.data.views.includes(siblingId)) {
+            node.data.views.push(newPanelId);
+            return true;
+        }
+        return false;
+    }
+    if (node.type === 'branch') {
+        for (const child of node.data) {
+            if (_insertIntoLeafWithSibling(child, siblingId, newPanelId)) return true;
+        }
+    }
+    return false;
+}
+
+
+
+const _createIndependentLeaf = (layout, optionPanel, optionPanels, localIdByKey) => {
+    const optionIndex = optionPanels.findIndex(p => p.params.key === optionPanel.params.key);
+    const parentId = optionPanel.params.parentId;
+    const siblingsInOptions = optionPanels.filter(p =>
+        p.params.parentId === parentId &&
+        localIdByKey.has(p.params.key)
+    );
+
+    if (siblingsInOptions.length > 0) {
+        const firstSiblingKey = siblingsInOptions[0].params.key;
+        const firstSiblingId = localIdByKey.get(firstSiblingKey);
+        const inserted = _insertLeafNextToSibling(layout.grid.root, firstSiblingId, optionPanel.id);
+        if (inserted) return;
+    }
+
+    const rootBranch = _findFirstBranch(layout.grid.root);
+    if (rootBranch) {
+        const newLeaf = {
+            type: 'leaf',
+            size: rootBranch.data.length > 0 ? rootBranch.data[0].size : 100,
+            data: {
+                id: Date.now() + Math.floor(Math.random() * 100) + '',
+                activeView: optionPanel.id,
+                views: [optionPanel.id]
+            }
+        };
+        rootBranch.data.push(newLeaf);
+        const avgSize = rootBranch.data.reduce((sum, leaf) => sum + leaf.size, 0) / rootBranch.data.length;
+        rootBranch.data.forEach(leaf => leaf.size = avgSize);
+    }
+}
+
+const _insertLeafNextToSibling = (node, siblingId, newPanelId) => {
+    if (node.type === 'branch') {
+        for (let i = 0; i < node.data.length; i++) {
+            const child = node.data[i];
+            if (child.type === 'leaf' && child.data.views.includes(siblingId)) {
+                const newLeaf = {
+                    type: 'leaf',
+                    size: child.size,
+                    data: {
+                        id: Date.now() + Math.floor(Math.random() * 100) + '',
+                        activeView: newPanelId,
+                        views: [newPanelId]
+                    }
+                };
+                node.data.splice(i + 1, 0, newLeaf);
+                const avgSize = node.data.reduce((sum, leaf) => sum + leaf.size, 0) / node.data.length;
+                node.data.forEach(leaf => leaf.size = avgSize);
+                return true;
+            } else if (child.type === 'branch') {
+                if (_insertLeafNextToSibling(child, siblingId, newPanelId)) return true;
+            }
+        }
+    }
+    return false;
+}
+
+const _findFirstBranch = node => {
+    if (node.type === 'branch') return node;
+    if (node.type === 'leaf') return null;
+    return null;
+}
+
+const _findFirstLeaf = node => {
+    if (node.type === 'leaf') return node;
+    if (node.type === 'branch') {
+        for (const child of node.data) {
+            const found = _findFirstLeaf(child);
+            if (found) return found;
+        }
+    }
+    return null;
+}
+
+const _appendToRootAsIndependentLeaf = (layout, optionPanel) => {
+    let targetBranch = layout.grid.root;
+    if (targetBranch.type === 'leaf') {
+        const newBranch = {
+            type: 'branch',
+            size: targetBranch.size,
+            data: [targetBranch]
+        };
+        layout.grid.root = newBranch;
+        targetBranch = newBranch;
+    }
+
+    const newLeaf = {
+        type: 'leaf',
+        size: targetBranch.data.length > 0 ? targetBranch.data[0].size : 100,
+        data: {
+            id: Date.now() + Math.floor(Math.random() * 100) + '',
+            activeView: optionPanel.id,
+            views: [optionPanel.id]
+        }
+    };
+
+    targetBranch.data.push(newLeaf);
+
+    const avgSize = targetBranch.data.reduce((sum, leaf) => sum + leaf.size, 0) / targetBranch.data.length;
+    targetBranch.data.forEach(leaf => leaf.size = avgSize);
+}
+
+export { initDockviewFromConfig, saveConfig, syncLayoutWithOptions };
