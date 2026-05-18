@@ -153,7 +153,7 @@ const saveInvisiblePanel = (dockview, invisiblePanel) => {
 
 const deleteInvisiblePanel = (dockview, invisiblePanel) => {
     const { invisiblePanels, options } = dockview.params;
-    
+
     dockview.params.invisiblePanels = invisiblePanels.filter(p => p.params.key !== invisiblePanel.params.key)
     saveConfig(dockview)
 }

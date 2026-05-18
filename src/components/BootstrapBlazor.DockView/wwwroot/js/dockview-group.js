@@ -513,7 +513,7 @@ const createFloatingGroup = (group, rect, groupType) => {
     observeOverlayChange(overlay, floatingGroup)
     observeGroup(floatingGroup)
     createGroupActions(floatingGroup, groupType)
-    if(floatingGroup.panels.length == 1) {
+    if (floatingGroup.panels.length == 1) {
         moveAlwaysRenderPanel(floatingGroup.activePanel)
     }
     return floatingGroup
@@ -572,7 +572,7 @@ const dock = (group, floatType) => {
     originGroup.element.parentElement.classList.remove('bb-maximize')
     const { drawer, rect = {} } = group.getParams()
     const inset = group.element.parentElement.style.inset.split(' ').map(item => isNaN(parseFloat(item)) ? item : parseFloat(item))
-    if(!rect.isMaximized) {
+    if (!rect.isMaximized) {
         rect.width = group.width + 2;
         rect.height = group.height + 2;
         rect.position = {};
@@ -643,11 +643,11 @@ const floatingMaximize = group => {
         isMaximized: true,
         position: {}
     }
-    ;['top', 'right', 'bottom', 'left'].forEach((key, index) => {
-        if (typeof inset[index] == 'number') {
-            rect.position[key] = inset[index]
-        }
-    })
+        ;['top', 'right', 'bottom', 'left'].forEach((key, index) => {
+            if (typeof inset[index] == 'number') {
+                rect.position[key] = inset[index]
+            }
+        })
     group.setParams({ rect })
 
     parentEle.style.left = 0;
