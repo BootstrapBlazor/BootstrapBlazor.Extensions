@@ -11,13 +11,7 @@ export async function init(id, invoke, options) {
         return;
     }
 
-    if (options.locale.startsWith('en')) {
-        options.locale = 'en';
-    }
-
-    if (options.theme === 'auto') {
-        options.theme = getTheme();
-    }
+    setOptions(options);
 
     const { createViewer } = window.JitViewer;
     const viewer = createViewer({
@@ -29,6 +23,7 @@ export async function init(id, invoke, options) {
     Data.set(id, {
         el,
         invoke,
+        options,
         viewer
     });
 
@@ -36,7 +31,17 @@ export async function init(id, invoke, options) {
     EventHandler.on(document, 'changed.bb.theme', updateTheme);
 }
 
-export function setFile(id, file, fileName) {
+const setOptions = options => {
+    if (options.locale.startsWith('en')) {
+        options.locale = 'en';
+    }
+
+    if (options.theme === 'auto') {
+        options.theme = getTheme();
+    }
+}
+
+export function update(id, options) {
     const data = Data.get(id);
     if (data === null) {
         return;
@@ -44,7 +49,17 @@ export function setFile(id, file, fileName) {
 
     const { viewer } = data;
     if (viewer) {
-        viewer.setFile(file, fileName);
+        setOptions(options);
+
+        if (data.options.theme !== options.theme) {
+            viewer.setTheme(options.theme);
+        }
+        if (data.options.locale !== options.locale) {
+            viewer.setLocale(options.locale);
+        }
+        if (data.options.file !== options.file) {
+            viewer.setFile(options.file, options.fileName);
+        }
     }
 }
 

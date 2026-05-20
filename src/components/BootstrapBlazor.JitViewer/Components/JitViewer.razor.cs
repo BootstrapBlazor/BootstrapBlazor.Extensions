@@ -53,7 +53,17 @@ public partial class JitViewer
         .AddClassFromAttributes(AdditionalAttributes)
         .Build();
 
-    private string? _lastFile;
+    private bool _invoke = false;
+
+    /// <summary>
+    /// <inheritdoc/>
+    /// </summary>
+    protected override void OnParametersSet()
+    {
+        base.OnParametersSet();
+
+        _invoke = true;
+    }
 
     /// <summary>
     /// <inheritdoc/>
@@ -65,13 +75,14 @@ public partial class JitViewer
 
         if (firstRender)
         {
-            _lastFile = File;
+            _invoke = false;
+            return;
         }
 
-        if (_lastFile != File)
+        if (_invoke)
         {
-            _lastFile = File;
-            await InvokeVoidAsync("setFile", Id, File, FileName);
+            _invoke = false;
+            await InvokeVoidAsync("update", Id, GetOptions());
         }
     }
 
@@ -79,7 +90,9 @@ public partial class JitViewer
     /// <inheritdoc/>
     /// </summary>
     /// <returns></returns>
-    protected override Task InvokeInitAsync() => InvokeVoidAsync("init", Id, Interop, new
+    protected override Task InvokeInitAsync() => InvokeVoidAsync("init", Id, Interop, GetOptions());
+
+    private object GetOptions() => new
     {
         File = File,
         FileName = FileName,
@@ -87,5 +100,5 @@ public partial class JitViewer
         Toolbar = ShowToolbar,
         Locale = CultureInfo.CurrentUICulture.Name,
         Theme = Theme
-    });
+    };
 }
