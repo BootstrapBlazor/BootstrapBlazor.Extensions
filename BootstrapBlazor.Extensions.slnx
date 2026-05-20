@@ -56,6 +56,7 @@
     <Project Path="src/components/BootstrapBlazor.ImageHelper/BootstrapBlazor.ImageHelper.csproj" />
     <Project Path="src/components/BootstrapBlazor.IP2Region/BootstrapBlazor.IP2Region.csproj" />
     <Project Path="src/components/BootstrapBlazor.JitsiMeet/BootstrapBlazor.JitsiMeet.csproj" />
+    <Project Path="src/components/BootstrapBlazor.JitViewer/BootstrapBlazor.JitViewer.csproj" />
     <Project Path="src/components/BootstrapBlazor.JuHeIpLocatorProvider/BootstrapBlazor.JuHeIpLocatorProvider.csproj" />
     <Project Path="src/components/BootstrapBlazor.Live2DDisplay/BootstrapBlazor.Live2DDisplay.csproj" />
     <Project Path="src/components/BootstrapBlazor.Maps/BootstrapBlazor.Maps.csproj" />
