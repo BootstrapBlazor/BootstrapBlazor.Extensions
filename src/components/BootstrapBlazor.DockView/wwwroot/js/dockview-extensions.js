@@ -17,7 +17,6 @@ DockviewComponent.prototype.dispose = function () {
             group.mutationObserver.disconnect();
         }
     })
-    saveConfig(this);
     dispose.call(this);
 }
 
