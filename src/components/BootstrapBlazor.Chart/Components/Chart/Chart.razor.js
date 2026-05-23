@@ -555,12 +555,13 @@ export function toImage(id, mimeType) {
 }
 
 export function dispose(id) {
-    const chart = Data.get(id)
+    const d = Data.get(id)
     Data.remove(id)
     BootstrapBlazor.Chart.removeOptionsById(id);
 
-    if (chart) {
-        EventHandler.off(window, 'resize', chart.resizeHandler)
+    if (d) {
+        const { chart, chart: { resizeHandler } } = d;
+        EventHandler.off(window, 'resize', resizeHandler)
         chart.destroy()
     }
 }
