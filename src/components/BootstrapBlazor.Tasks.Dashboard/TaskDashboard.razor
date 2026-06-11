@@ -4,32 +4,32 @@
 <div @attributes="AdditionalAttributes" class="@ClassString">
     <Table TItem="IScheduler" Items="@_schedulers" IsBordered="true" IsStriped="true">
         <TableColumns>
-            <TableTemplateColumn Text="@Localizer["Name"]">
+            <TableTemplateColumn FieldName="Name" Text="@Localizer["Name"]">
                 <Template Context="v">
                     @v.Row.Name
                 </Template>
             </TableTemplateColumn>
-            <TableTemplateColumn Text="@Localizer["Status"]">
+            <TableTemplateColumn FieldName="Status" Text="@Localizer["Status"]">
                 <Template Context="v">
                     <Tag Color="GetStatusColor(v.Row.Status)" Icon="@GetStatusIcon(v.Row.Status)">@FormatStatus(v.Row.Status)</Tag>
                 </Template>
             </TableTemplateColumn>
-            <TableTemplateColumn Text="@Localizer["LastRuntime"]">
+            <TableTemplateColumn FieldName="LastRuntime" Text="@Localizer["LastRuntime"]">
                 <Template Context="v">
                     @FormatDateTime(v.Row.LastRuntime)
                 </Template>
             </TableTemplateColumn>
-            <TableTemplateColumn Text="@Localizer["NextRuntime"]">
+            <TableTemplateColumn FieldName="NextRuntime" Text="@Localizer["NextRuntime"]">
                 <Template Context="v">
                     @FormatDateTime(v.Row.NextRuntime)
                 </Template>
             </TableTemplateColumn>
-            <TableTemplateColumn Text="@Localizer["LastRunResult"]">
+            <TableTemplateColumn FieldName="LastRunResult" Text="@Localizer["LastRunResult"]">
                 <Template Context="v">
                     <Tag Color="GetResultColor(v.Row.LastRunResult)">@FormatResult(v.Row.LastRunResult)</Tag>
                 </Template>
             </TableTemplateColumn>
-            <TableTemplateColumn Text="@Localizer["Exception"]">
+            <TableTemplateColumn FieldName="Exception" Text="@Localizer["Exception"]">
                 <Template Context="v">
                     @if (v.Row.Exception != null)
                     {
@@ -42,7 +42,7 @@
                     }
                 </Template>
             </TableTemplateColumn>
-            <TableTemplateColumn Text="@Localizer["Operation"]" Width="170">
+            <TableTemplateColumn FieldName="Operation" Text="@Localizer["Operation"]" Width="170">
                 <Template Context="v">
                     <div class="btn-group">
                         <Button Size="Size.ExtraSmall" Color="Color.Warning" Icon="fa-solid fa-pause-circle"
