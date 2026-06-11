@@ -52,6 +52,8 @@ const moveAlwaysRenderPanel = panel => {
 
 const onRemovePanel = event => {
     const dockview = event.accessor
+    // Data-driven channels (showClose=false) must not enter invisiblePanels, else suppressed by the visible filter
+    const isDataChannel = event.params?.showClose === false;
     let invisiblePanel = {
         id: event.id,
         title: event.title,
@@ -69,7 +71,9 @@ const onRemovePanel = event => {
             index: event.group.delPanelIndex
         }
     }
-    saveInvisiblePanel(dockview, invisiblePanel)
+    if (!isDataChannel) {
+        saveInvisiblePanel(dockview, invisiblePanel)
+    }
 
     if (event.group.children) {
         event.group.children = event.group.children.filter(p => findPanel(p, event) !== null);
