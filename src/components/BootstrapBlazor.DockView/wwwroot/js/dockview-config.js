@@ -76,8 +76,22 @@ const getConfigFromContent = options => {
 
 const mergeLayoutWithOptions = (config, options) => {
     const { layout, invisiblePanels } = config;
-    const synced = syncLayoutWithOptions(layout, options, invisiblePanels);
-    config.layout = synced;
+    // Clean invisiblePanels before merging, so sync's panelsToAdd can re-add the cleaned channels
+    const optionKeys = new Set(getPanelsFromOptions(options).map(p => p.params?.key).filter(Boolean));
+    const cleaned = (invisiblePanels || []).filter(p => {
+        if (p.params?.showClose === false) return false;   // data-driven channel wrongly registered -> drop
+        const key = p.params?.key;
+        if (key && !optionKeys.has(key)) return false;     // key no longer in options (stale after dataset switch)
+        return true;
+    });
+    // Sentinel: warn when a data-driven channel was wrongly in invisiblePanels (silent otherwise)
+    const wronglyRegistered = (invisiblePanels || []).filter(p => p.params?.showClose === false);
+    if (wronglyRegistered.length > 0) {
+        console.warn('[dockview] data-driven channel wrongly in invisiblePanels (auto-cleared):',
+            wronglyRegistered.map(p => p.params?.key), '| storage:', options.localStorageKey);
+    }
+    config.invisiblePanels = cleaned;
+    config.layout = syncLayoutWithOptions(layout, options, cleaned);
 }
 
 const getGroupIdFunc = () => {
