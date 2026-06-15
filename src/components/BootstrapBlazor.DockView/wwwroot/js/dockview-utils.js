@@ -1,6 +1,6 @@
 import { DockviewComponent } from "./dockview-core.esm.js"
 import { DockviewPanelContent } from "./dockview-content.js"
-import { onAddGroup, addGroupWithPanel, toggleLock, observeFloatingGroupLocationChange, observeOverlayChange, createDrawerHandle } from "./dockview-group.js"
+import { onAddGroup, addGroupWithPanel, toggleLock, observeFloatingGroupLocationChange, observeOverlayChange, createDrawerHandle, onMaximizedGroupChange } from "./dockview-group.js"
 import { onAddPanel, onRemovePanel, getPanelsFromOptions, findContentFromPanels } from "./dockview-panel.js"
 import { initDockviewFromConfig, saveConfig } from './dockview-config.js'
 import './dockview-extensions.js'
@@ -69,6 +69,8 @@ const initDockview = (dockview, options, template) => {
     dockview.onDidAddPanel(onAddPanel);
 
     dockview.onDidAddGroup(onAddGroup);
+
+    dockview.onDidMaximizedGroupChange(onMaximizedGroupChange);
 
     dockview.onWillDragPanel(event => {
         if (event.panel.group.locked) {
