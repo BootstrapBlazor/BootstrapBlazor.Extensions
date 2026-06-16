@@ -44,6 +44,7 @@ const initDockviewFromConfig = (dockview, options) => {
         try {
             mergeLayoutWithOptions(config, options);
             const { layout, invisiblePanels } = config;
+            normalizeMaximizeState(layout?.grid);
             dockview.fromJSON(layout);
             dockview.params.invisiblePanels = invisiblePanels || [];
             dockview.params.floatingGroups = layout.floatingGroups || []
@@ -198,6 +199,25 @@ const getLeafNode = (contentItem, size, boxSize, parent, panels, getGroupId, opt
     return data;
 }
 
+// Strip maximize residue: drop maximizedNode and re-show non-empty hidden grid leaves
+// (a maximized group's hidden siblings; floating placeholders are empty leaves, left as-is).
+const normalizeMaximizeState = grid => {
+    if (!grid) return;
+    delete grid.maximizedNode;
+    const walk = node => {
+        if (!node) return;
+        if (node.type === 'leaf') {
+            if (node.visible === false && node.data?.views?.length > 0) {
+                node.visible = true;
+            }
+        }
+        else if (Array.isArray(node.data)) {
+            node.data.forEach(walk);
+        }
+    };
+    walk(grid.root);
+};
+
 const saveConfig = dockview => {
     if (dockview.params.inited !== true || dockview.params.maximizing) {
         return;
@@ -207,7 +227,20 @@ const saveConfig = dockview => {
         panel.params.isActive = panel.api.isActive || panel.group.activePanel === panel
     })
 
-    const gridJson = dockview.toJSON();
+    // While maximized, toJSON()'s serialize() toggles sibling visibility once; guard it with
+    // `maximizing` so the onlyWhenVisible handler doesn't move sibling content into the template
+    // (which would blank it after exit). finally resets the flag even on throw, otherwise a stuck
+    // `maximizing` would make every later saveConfig bail at the top guard.
+    let gridJson;
+    dockview.params.maximizing = true;
+    try {
+        gridJson = dockview.toJSON();
+    }
+    finally {
+        dockview.params.maximizing = false;
+    }
+    // Maximize is transient; don't persist it.
+    normalizeMaximizeState(gridJson.grid);
     if (dockview.floatingGroups && dockview.floatingGroups.length > 0) {
         gridJson.floatingGroups.forEach((fg, index) => {
             const group = dockview.floatingGroups[index].group
