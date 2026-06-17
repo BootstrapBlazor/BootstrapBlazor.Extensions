@@ -23,30 +23,36 @@ public static class BootstrapBlazorRootLocator
         var current = new DirectoryInfo(Environment.CurrentDirectory);
         while (current is not null)
         {
-            var indexPath = Path.Combine(current.FullName, "skill-index.json");
-            if (File.Exists(indexPath))
+            // Check for BootstrapBlazor repository structure
+            if (IsBootstrapBlazorRepository(current.FullName))
             {
                 return new BootstrapBlazorRoot(
                     BootstrapBlazorRootMode.Repository,
                     current.FullName,
-                    indexPath);
+                    null); // No longer need skill-index.json
             }
 
             current = current.Parent;
         }
 
-        throw new InvalidOperationException("Unable to locate skill-index.json. Use --repo-root.");
+        throw new InvalidOperationException("Unable to locate BootstrapBlazor repository. Use --repo-root or ensure Components directory exists.");
     }
 
     private static BootstrapBlazorRoot FromRepositoryRoot(string repoRoot)
     {
         var root = Path.GetFullPath(repoRoot);
-        var indexPath = Path.Combine(root, "skill-index.json");
-        if (!File.Exists(indexPath))
+
+        if (!IsBootstrapBlazorRepository(root))
         {
-            throw new FileNotFoundException("Repository skill-index.json was not found.", indexPath);
+            throw new DirectoryNotFoundException($"Directory does not appear to be a BootstrapBlazor repository: {root}");
         }
 
-        return new BootstrapBlazorRoot(BootstrapBlazorRootMode.Repository, root, indexPath);
+        return new BootstrapBlazorRoot(BootstrapBlazorRootMode.Repository, root, null);
+    }
+
+    private static bool IsBootstrapBlazorRepository(string path)
+    {
+        var componentsPath = Path.Combine(path, "src", "BootstrapBlazor", "Components");
+        return Directory.Exists(componentsPath);
     }
 }

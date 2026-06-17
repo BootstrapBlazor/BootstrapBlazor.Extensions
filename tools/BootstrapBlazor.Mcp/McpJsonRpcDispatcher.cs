@@ -123,7 +123,7 @@ public sealed class McpJsonRpcDispatcher
     {
         return
         [
-            Tool("list_components", "List BootstrapBlazor components from skill-index.json.",
+            Tool("list_components", "List BootstrapBlazor components (dynamically scanned from repository).",
                 new
                 {
                     type = "object",
@@ -160,7 +160,7 @@ public sealed class McpJsonRpcDispatcher
                 }),
             Tool("get_component_source", "Read only the current component source files.",
                 ComponentReadSchema()),
-            Tool("get_component_sample", "Read only the official Sample files from skill-index.json.",
+            Tool("get_component_sample", "Read only the official Sample files for a component.",
                 ComponentReadSchema()),
             Tool("get_component_skill", "Read only the component Skill file.",
                 new
@@ -185,7 +185,7 @@ public sealed class McpJsonRpcDispatcher
                         warnAllMissingSkills = BooleanProperty("Warn for every component missing a Skill.")
                     }
                 }),
-            Tool("generate_skill_index", "Generate or dry-run-check skill-index.json. Repository mode only; dryRun defaults to true.",
+            Tool("generate_skill_index", "Generate or dry-run-check skill-index.json (legacy tool, may not be needed).",
                 new
                 {
                     type = "object",

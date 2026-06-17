@@ -128,5 +128,6 @@
   <Folder Name="/tools/">
     <Project Path="tools/BootstrapBlazor.CssBundler/BootstrapBlazor.CssBundler.csproj" />
     <Project Path="tools/BootstrapBlazor.LLMsDocsGenerator/BootstrapBlazor.LLMsDocsGenerator.csproj" />
+    <Project Path="tools/BootstrapBlazor.Mcp/BootstrapBlazor.Mcp.csproj" />
   </Folder>
 </Solution>

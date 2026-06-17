@@ -11,7 +11,11 @@ public enum BootstrapBlazorRootMode
 public sealed record BootstrapBlazorRoot(
     BootstrapBlazorRootMode Mode,
     string RootPath,
-    string SkillIndexPath);
+    string? SkillIndexPath)
+{
+    public string ComponentsPath => Path.Combine(RootPath, "src", "BootstrapBlazor", "Components");
+    public string SamplesPath => Path.Combine(RootPath, "src", "BootstrapBlazor.Server", "Components", "Samples");
+};
 
 public sealed record ComponentSummary(
     string Name,

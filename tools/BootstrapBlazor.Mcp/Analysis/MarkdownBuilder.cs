@@ -15,7 +15,7 @@ internal static class MarkdownBuilder
         var builder = new StringBuilder();
         builder.AppendLine("# BootstrapBlazor");
         builder.AppendLine();
-        builder.AppendLine("> LLM-friendly component reference generated from the current repository source, official Samples, and skill-index.json.");
+        builder.AppendLine("> LLM-friendly component reference generated from the current repository source and official Samples.");
         builder.AppendLine();
         builder.AppendLine("## Quick Start");
         builder.AppendLine();
@@ -130,7 +130,7 @@ internal static class MarkdownBuilder
         builder.AppendLine();
         if (string.IsNullOrWhiteSpace(component.SamplePath))
         {
-            builder.AppendLine("No official Sample is listed in skill-index.json.");
+            builder.AppendLine("No official Sample is available for this component.");
             builder.AppendLine();
             return;
         }

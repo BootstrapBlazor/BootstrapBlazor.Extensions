@@ -34,8 +34,6 @@ public sealed class RepositoryManager
 
     public string SamplesPath => Path.Combine(RepoPath, "src", "BootstrapBlazor.Server", "Components", "Samples");
 
-    public string SkillIndexPath => Path.Combine(RepoPath, "skill-index.json");
-
     /// <summary>
     /// Ensures the repository is cloned and up-to-date
     /// </summary>

@@ -27,7 +27,55 @@ public sealed class BootstrapBlazorContextService
     public static BootstrapBlazorContextService Create(McpServerOptions options)
     {
         var root = BootstrapBlazorRootLocator.Locate(options);
-        return new BootstrapBlazorContextService(root, LoadIndex(root.SkillIndexPath));
+        var index = root.SkillIndexPath != null && File.Exists(root.SkillIndexPath)
+            ? LoadIndex(root.SkillIndexPath)
+            : ScanComponents(root);
+        return new BootstrapBlazorContextService(root, index);
+    }
+
+    /// <summary>
+    /// Dynamically scan component directories to build the index
+    /// </summary>
+    private static Dictionary<string, SkillIndexEntry> ScanComponents(BootstrapBlazorRoot root)
+    {
+        var entries = new Dictionary<string, SkillIndexEntry>(StringComparer.OrdinalIgnoreCase);
+
+        if (!Directory.Exists(root.ComponentsPath))
+        {
+            throw new DirectoryNotFoundException($"Components directory not found: {root.ComponentsPath}");
+        }
+
+        // Scan Components directory
+        foreach (var componentDir in Directory.GetDirectories(root.ComponentsPath))
+        {
+            var componentName = Path.GetFileName(componentDir);
+            var relativePath = $"src/BootstrapBlazor/Components/{componentName}";
+
+            // Try to find matching sample
+            string? samplePath = null;
+            if (Directory.Exists(root.SamplesPath))
+            {
+                // Try plural form first (e.g., Buttons.razor for Button component)
+                var pluralSampleFile = Path.Combine(root.SamplesPath, $"{componentName}s.razor");
+                if (File.Exists(pluralSampleFile))
+                {
+                    samplePath = $"src/BootstrapBlazor.Server/Components/Samples/{componentName}s.razor";
+                }
+                else
+                {
+                    // Try singular form
+                    var singularSampleFile = Path.Combine(root.SamplesPath, $"{componentName}.razor");
+                    if (File.Exists(singularSampleFile))
+                    {
+                        samplePath = $"src/BootstrapBlazor.Server/Components/Samples/{componentName}.razor";
+                    }
+                }
+            }
+
+            entries[componentName] = new SkillIndexEntry(componentName, relativePath, samplePath);
+        }
+
+        return entries;
     }
 
     public IReadOnlyList<ComponentSummary> ListComponents(string? query = null)
@@ -110,12 +158,12 @@ public sealed class BootstrapBlazorContextService
 
         if (entry.Component is null)
         {
-            warnings.Add("No component source path exists in skill-index.json for this entry.");
+            warnings.Add("No component source path exists for this entry.");
         }
 
         if (entry.Sample is null)
         {
-            warnings.Add("No official sample path exists in skill-index.json for this entry.");
+            warnings.Add("No official sample path exists for this entry.");
         }
 
         return new ComponentContext(
@@ -228,7 +276,7 @@ public sealed class BootstrapBlazorContextService
             return match;
         }
 
-        throw new KeyNotFoundException($"Component was not found in skill-index.json: {componentName}");
+        throw new KeyNotFoundException($"Component was not found: {componentName}");
     }
 
     private static Dictionary<string, SkillIndexEntry> LoadIndex(string indexPath)
