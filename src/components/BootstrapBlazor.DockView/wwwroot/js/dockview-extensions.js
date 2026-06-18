@@ -73,10 +73,10 @@ DockviewGroupPanelModel.prototype.closePanel = function (panel, triggerVisibleCh
         if (triggerVisibleChangedCallback) {
             this.accessor._panelVisibleChanged?.fire({ key: panel.params.key, status: false });
         }
-    }
-
-    if (moveToTemplate) {
-        movePanelContentToTemplate(panel, true);
+        // locked groups keep panels intact — guard moveToTemplate too
+        if (moveToTemplate) {
+            movePanelContentToTemplate(panel, true);
+        }
     }
 }
 
