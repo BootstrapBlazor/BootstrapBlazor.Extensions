@@ -355,7 +355,9 @@ const syncLayoutWithOptions = (layout, options, invisiblePanels = []) => {
                 ...localPanel.params,
                 ...optionPanel.params,
                 id: localId,
-                visible: localPanel.params.visible
+                visible: localPanel.params.visible,
+                // keep remembered lock unless backend explicitly sends one
+                isLock: optionPanel.params.isLock ?? localPanel.params.isLock
             }
         };
     }

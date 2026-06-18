@@ -222,8 +222,10 @@ const getPinState = (dockview, group, groupType) => {
 }
 
 const getLockState = (dockview, group) => {
+    // group.locked (core-persisted) is the reliable truth; else fall back to isLock(3-state) / options.lock
+    if (group.locked) return true;
     const { options } = dockview.params;
-    return group.panels.every(p => p.params.isLock === null)
+    return group.panels.every(p => p.params.isLock == null)
         ? options.lock
         : group.panels.some(p => p.params.isLock === true);
 }
@@ -264,11 +266,11 @@ const addActionEvent = group => {
         const ele = e.delegateTarget;
         if (ele.classList.contains('bb-dockview-control-icon-lock')) {
             toggleLock(group, actionContainer, false);
-            group.api.accessor._lockChanged.fire({ title: group.panels.map(panel => panel.title), isLock: false });
+            group.api.accessor._lockChanged.fire({ keys: group.panels.map(panel => panel.params.key), isLock: false });
         }
         else if (ele.classList.contains('bb-dockview-control-icon-unlock')) {
             toggleLock(group, actionContainer, true);
-            group.api.accessor._lockChanged.fire({ title: group.panels.map(panel => panel.title), isLock: true });
+            group.api.accessor._lockChanged.fire({ keys: group.panels.map(panel => panel.params.key), isLock: true });
         }
         else if (ele.classList.contains('bb-dockview-control-icon-restore')) {
             toggleFull(group, true);
