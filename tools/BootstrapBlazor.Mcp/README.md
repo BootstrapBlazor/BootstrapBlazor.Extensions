@@ -126,7 +126,7 @@ dotnet build
 ### Running Locally
 
 ```bash
-dotnet run -- --auto-update --log-messages
+dotnet run --auto-update --log-messages
 ```
 
 ### Manual Repository Sync
