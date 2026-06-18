@@ -162,7 +162,7 @@ public sealed class McpJsonRpcDispatcher
                 ComponentReadSchema()),
             Tool("get_component_sample", "Read only the official Sample files for a component.",
                 ComponentReadSchema()),
-            Tool("get_component_skill", "Read only the component Skill file.",
+            Tool("get_component_analysis", "Read only the dynamically generated component analysis (parameters, methods, etc.).",
                 new
                 {
                     type = "object",
