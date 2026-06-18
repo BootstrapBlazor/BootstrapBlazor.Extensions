@@ -45,6 +45,7 @@ const initDockviewFromConfig = (dockview, options) => {
             mergeLayoutWithOptions(config, options);
             const { layout, invisiblePanels } = config;
             normalizeMaximizeState(layout?.grid);
+            pruneOrphanViews(layout);
             dockview.fromJSON(layout);
             dockview.params.invisiblePanels = invisiblePanels || [];
             dockview.params.floatingGroups = layout.floatingGroups || []
@@ -198,6 +199,42 @@ const getLeafNode = (contentItem, size, boxSize, parent, panels, getGroupId, opt
     }
     return data;
 }
+
+// Drop view ids missing from layout.panels; fromJSON throws on such orphans and reverts the
+// whole layout to empty. Only leaves/groups emptied by pruning are dropped, so already-empty
+// floating placeholders are kept and float/dock still work.
+const pruneOrphanViews = layout => {
+    if (!layout || !layout.panels) return;
+    const has = id => Object.prototype.hasOwnProperty.call(layout.panels, id);
+    // returns true if the data had views and pruning removed all of them
+    const pruneViews = data => {
+        if (!data || !Array.isArray(data.views)) return false;
+        const before = data.views.length;
+        data.views = data.views.filter(has);
+        if (!has(data.activeView)) {
+            data.activeView = data.views[0] ?? '';
+        }
+        return before > 0 && data.views.length === 0;
+    };
+    const walk = (node, parent) => {
+        if (!node) return;
+        if (node.type === 'leaf') {
+            if (pruneViews(node.data) && parent) {
+                parent.data = parent.data.filter(n => n !== node);
+            }
+        }
+        else if (node.type === 'branch' && Array.isArray(node.data)) {
+            [...node.data].forEach(child => walk(child, node));
+            if (node.data.length === 0 && parent) {
+                parent.data = parent.data.filter(n => n !== node);
+            }
+        }
+    };
+    walk(layout.grid?.root, null);
+    if (Array.isArray(layout.floatingGroups)) {
+        layout.floatingGroups = layout.floatingGroups.filter(fg => !pruneViews(fg.data));
+    }
+};
 
 // Strip maximize residue: drop maximizedNode and re-show non-empty hidden grid leaves
 // (a maximized group's hidden siblings; floating placeholders are empty leaves, left as-is).
