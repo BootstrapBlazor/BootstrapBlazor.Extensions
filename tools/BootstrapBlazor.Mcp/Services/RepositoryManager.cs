@@ -22,8 +22,7 @@ public sealed class RepositoryManager
 
         // Default to .mcp-data in the Extensions repository root
         _dataDirectory = dataDirectory ?? Path.Combine(
-            Path.GetDirectoryName(typeof(RepositoryManager).Assembly.Location)!,
-            "..", "..", "..", "..", ".mcp-data");
+            AppContext.BaseDirectory, ".mcp-data");
 
         _repoPath = Path.Combine(_dataDirectory, "BootstrapBlazor");
     }
