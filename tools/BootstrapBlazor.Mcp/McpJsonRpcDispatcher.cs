@@ -62,7 +62,7 @@ public sealed class McpJsonRpcDispatcher
         try
         {
             var arguments = parameters?["arguments"] as JsonObject ?? [];
-            var result = name switch
+            object result = name switch
             {
                 "list_components" => _service.ListComponents(GetString(arguments, "query")),
                 "search_components" => _service.SearchComponents(
@@ -72,7 +72,7 @@ public sealed class McpJsonRpcDispatcher
                     GetRequiredString(arguments, "component"),
                     GetBool(arguments, "includeSource", true),
                     GetBool(arguments, "includeSample", true),
-                    GetBool(arguments, "includeSkill", true),
+                    GetBool(arguments, "includeAnalysis", true),
                     GetInt(arguments, "maxFileBytes", 128 * 1024),
                     GetInt(arguments, "maxFiles", 40)),
                 "get_component_source" => _service.GetComponentSource(
@@ -86,14 +86,6 @@ public sealed class McpJsonRpcDispatcher
                 "get_component_analysis" => _service.GetComponentAnalysis(
                     GetRequiredString(arguments, "component"),
                     GetInt(arguments, "maxFileBytes", 128 * 1024)),
-                "validate_skill_index" => await _service.ValidateSkillIndexAsync(cancellationToken),
-                "check_skill_sync" => await _service.CheckSkillSyncAsync(
-                    GetString(arguments, "baseRef"),
-                    GetBool(arguments, "warnAllMissingSkills", false),
-                    cancellationToken),
-                "generate_skill_index" => await _service.GenerateSkillIndexAsync(
-                    GetBool(arguments, "dryRun", true),
-                    cancellationToken),
                 _ => throw new InvalidOperationException($"Unknown tool: {name}")
             };
 
@@ -143,7 +135,7 @@ public sealed class McpJsonRpcDispatcher
                     },
                     required = new[] { "query" }
                 }),
-            Tool("get_component_context", "Read source, official Sample, and Skill for a component in the required priority order.",
+            Tool("get_component_context", "Read source, official Sample, and dynamic analysis for a component in the required priority order.",
                 new
                 {
                     type = "object",
@@ -152,7 +144,7 @@ public sealed class McpJsonRpcDispatcher
                         component = StringProperty("Component name, for example Button."),
                         includeSource = BooleanProperty("Include current component source. Default: true."),
                         includeSample = BooleanProperty("Include official Sample. Default: true."),
-                        includeSkill = BooleanProperty("Include component Skill. Default: true."),
+                        includeAnalysis = BooleanProperty("Include dynamic analysis. Default: true."),
                         maxFileBytes = IntegerProperty("Maximum bytes per file. Default: 131072."),
                         maxFiles = IntegerProperty("Maximum files per directory. Default: 40.")
                     },
@@ -172,27 +164,6 @@ public sealed class McpJsonRpcDispatcher
                         maxFileBytes = IntegerProperty("Maximum bytes per file. Default: 131072.")
                     },
                     required = new[] { "component" }
-                }),
-            Tool("validate_skill_index", "Run scripts/generate-skill-index.ps1 -Check. Repository mode only.",
-                new { type = "object", properties = new { } }),
-            Tool("check_skill_sync", "Run scripts/check-skill-sync.ps1. Repository mode only.",
-                new
-                {
-                    type = "object",
-                    properties = new
-                    {
-                        baseRef = StringProperty("Optional git base ref."),
-                        warnAllMissingSkills = BooleanProperty("Warn for every component missing a Skill.")
-                    }
-                }),
-            Tool("generate_skill_index", "Generate or dry-run-check skill-index.json (legacy tool, may not be needed).",
-                new
-                {
-                    type = "object",
-                    properties = new
-                    {
-                        dryRun = BooleanProperty("Run check only when true. Default: true.")
-                    }
                 })
         ];
     }

@@ -4,7 +4,7 @@
 
 namespace BootstrapBlazor.Mcp.Analysis;
 
-public sealed record SkillIndexEntry(
+public sealed record ComponentIndexEntry(
     string Name,
     string? Component,
     string? Sample);
@@ -21,8 +21,6 @@ internal sealed class ComponentDocument
     public string Name { get; init; } = "";
 
     public string? ComponentPath { get; init; }
-
-    public string? SkillPath { get; init; }
 
     public string? SamplePath { get; init; }
 

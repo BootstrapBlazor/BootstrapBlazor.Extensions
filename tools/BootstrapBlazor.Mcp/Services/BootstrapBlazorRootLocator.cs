@@ -28,8 +28,7 @@ public static class BootstrapBlazorRootLocator
             {
                 return new BootstrapBlazorRoot(
                     BootstrapBlazorRootMode.Repository,
-                    current.FullName,
-                    null); // No longer need skill-index.json
+                    current.FullName);
             }
 
             current = current.Parent;
@@ -47,7 +46,7 @@ public static class BootstrapBlazorRootLocator
             throw new DirectoryNotFoundException($"Directory does not appear to be a BootstrapBlazor repository: {root}");
         }
 
-        return new BootstrapBlazorRoot(BootstrapBlazorRootMode.Repository, root, null);
+        return new BootstrapBlazorRoot(BootstrapBlazorRootMode.Repository, root);
     }
 
     private static bool IsBootstrapBlazorRepository(string path)

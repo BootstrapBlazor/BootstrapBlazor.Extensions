@@ -34,7 +34,7 @@ internal static class MarkdownBuilder
         builder.AppendLine("## Agent Rules");
         builder.AppendLine();
         builder.AppendLine("1. Load only the component files needed for the task.");
-        builder.AppendLine("2. Prefer current source over official Samples, and Samples over Skill guidance.");
+        builder.AppendLine("2. Prefer current source over official Samples.");
         builder.AppendLine("3. Do not invent parameters, events, template context types, or obsolete APIs.");
         builder.AppendLine();
         builder.AppendLine("## Components");
@@ -89,7 +89,6 @@ internal static class MarkdownBuilder
         builder.AppendLine("- Parameter tables include `[Parameter]` properties detected in current C# source.");
         builder.AppendLine("- Cascading parameters are listed for implementation context and usually should not be set by consumers.");
         builder.AppendLine("- Official Sample snippets are extracted mechanically; inspect the Sample before copying advanced usage.");
-        builder.AppendLine("- Existing component Skill files remain the manual guidance layer for usage nuance.");
 
         return builder.ToString();
     }
@@ -105,10 +104,6 @@ internal static class MarkdownBuilder
         if (!string.IsNullOrWhiteSpace(component.SamplePath))
         {
             builder.AppendLine($"- Official Sample: [{component.SamplePath}]({GitHubBaseUrl}{component.SamplePath})");
-        }
-        if (!string.IsNullOrWhiteSpace(component.SkillPath))
-        {
-            builder.AppendLine($"- Component Skill: [{component.SkillPath}]({GitHubBaseUrl}{component.SkillPath})");
         }
         builder.AppendLine();
         builder.AppendLine("### Files Reviewed");

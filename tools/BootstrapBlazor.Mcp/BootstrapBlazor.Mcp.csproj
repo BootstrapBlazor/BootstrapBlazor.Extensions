@@ -11,7 +11,7 @@
 
   <PropertyGroup>
     <Title>BootstrapBlazor LLMs docs Generator</Title>
-    <Description>MCP server for BootstrapBlazor component Skills, Samples, and source context.</Description>
+    <Description>MCP server for BootstrapBlazor component analysis, samples, and source context.</Description>
     <PackageId>BootstrapBlazor.Mcp</PackageId>
     <PackAsTool>true</PackAsTool>
     <ToolCommandName>bootstrapblazor-mcp</ToolCommandName>

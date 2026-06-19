@@ -10,8 +10,7 @@ public enum BootstrapBlazorRootMode
 
 public sealed record BootstrapBlazorRoot(
     BootstrapBlazorRootMode Mode,
-    string RootPath,
-    string? SkillIndexPath)
+    string RootPath)
 {
     public string ComponentsPath => Path.Combine(RootPath, "src", "BootstrapBlazor", "Components");
     public string SamplesPath => Path.Combine(RootPath, "src", "BootstrapBlazor.Server", "Components", "Samples");
@@ -41,11 +40,6 @@ public sealed record ComponentContext(
     IReadOnlyList<FileContent> SourceFiles,
     IReadOnlyList<FileContent> SampleFiles,
     string? GeneratedAnalysis);
-
-public sealed record ScriptResult(
-    int ExitCode,
-    string StandardOutput,
-    string StandardError);
 
 public sealed record ToolContent(
     [property: JsonPropertyName("type")] string Type,

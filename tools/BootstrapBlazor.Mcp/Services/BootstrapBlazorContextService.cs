@@ -1,8 +1,6 @@
-using System.Diagnostics;
 using System.Text;
 using System.Text.Json;
 using BootstrapBlazor.Mcp.Analysis;
-using AnalysisEntry = BootstrapBlazor.Mcp.Analysis.SkillIndexEntry;
 
 namespace BootstrapBlazor.Mcp.Services;
 
@@ -16,9 +14,9 @@ public sealed class BootstrapBlazorContextService
     };
 
     private readonly BootstrapBlazorRoot _root;
-    private readonly Dictionary<string, SkillIndexEntry> _index;
+    private readonly Dictionary<string, ComponentIndexEntry> _index;
 
-    private BootstrapBlazorContextService(BootstrapBlazorRoot root, Dictionary<string, SkillIndexEntry> index)
+    private BootstrapBlazorContextService(BootstrapBlazorRoot root, Dictionary<string, ComponentIndexEntry> index)
     {
         _root = root;
         _index = index;
@@ -27,18 +25,16 @@ public sealed class BootstrapBlazorContextService
     public static BootstrapBlazorContextService Create(McpServerOptions options)
     {
         var root = BootstrapBlazorRootLocator.Locate(options);
-        var index = root.SkillIndexPath != null && File.Exists(root.SkillIndexPath)
-            ? LoadIndex(root.SkillIndexPath)
-            : ScanComponents(root);
+        var index = ScanComponents(root);
         return new BootstrapBlazorContextService(root, index);
     }
 
     /// <summary>
     /// Dynamically scan component directories to build the index
     /// </summary>
-    private static Dictionary<string, SkillIndexEntry> ScanComponents(BootstrapBlazorRoot root)
+    private static Dictionary<string, ComponentIndexEntry> ScanComponents(BootstrapBlazorRoot root)
     {
-        var entries = new Dictionary<string, SkillIndexEntry>(StringComparer.OrdinalIgnoreCase);
+        var entries = new Dictionary<string, ComponentIndexEntry>(StringComparer.OrdinalIgnoreCase);
 
         if (!Directory.Exists(root.ComponentsPath))
         {
@@ -72,7 +68,7 @@ public sealed class BootstrapBlazorContextService
                 }
             }
 
-            entries[componentName] = new SkillIndexEntry(componentName, relativePath, samplePath);
+            entries[componentName] = new ComponentIndexEntry(componentName, relativePath, samplePath);
         }
 
         return entries;
@@ -80,7 +76,7 @@ public sealed class BootstrapBlazorContextService
 
     public IReadOnlyList<ComponentSummary> ListComponents(string? query = null)
     {
-        IEnumerable<SkillIndexEntry> items = _index.Values;
+        IEnumerable<ComponentIndexEntry> items = _index.Values;
         if (!string.IsNullOrWhiteSpace(query))
         {
             items = items.Where(entry =>
@@ -118,7 +114,7 @@ public sealed class BootstrapBlazorContextService
         string componentName,
         bool includeSource = true,
         bool includeSample = true,
-        bool includeAnalysis = true,  // Changed from includeSkill
+        bool includeAnalysis = true,
         int maxFileBytes = 128 * 1024,
         int maxFiles = 40)
     {
@@ -128,7 +124,6 @@ public sealed class BootstrapBlazorContextService
         {
             ["component"] = entry.Component,
             ["sample"] = entry.Sample
-            // Removed skill path
         };
 
         var sourceFiles = includeSource && !string.IsNullOrWhiteSpace(entry.Component)
@@ -146,7 +141,7 @@ public sealed class BootstrapBlazorContextService
             try
             {
                 var analyzer = new ComponentAnalyzer(_root.RootPath);
-                var analysisEntry = new AnalysisEntry(entry.Name, entry.Component, entry.Sample);
+                var analysisEntry = new ComponentIndexEntry(entry.Name, entry.Component, entry.Sample);
                 var document = analyzer.AnalyzeAsync(analysisEntry).GetAwaiter().GetResult();
                 analysisMarkdown = MarkdownBuilder.BuildComponentDoc(document);
             }
@@ -173,13 +168,13 @@ public sealed class BootstrapBlazorContextService
             [
                 "Current component source",
                 "Official Sample",
-                "Dynamic Analysis"  // Changed from "Component Skill"
+                "Dynamic Analysis"
             ],
             indexedPaths,
             warnings,
             sourceFiles,
             sampleFiles,
-            analysisMarkdown);  // Changed from skillFile
+            analysisMarkdown);
     }
 
     public ComponentContext GetComponentSource(string componentName, int maxFileBytes = 128 * 1024, int maxFiles = 40)
@@ -214,51 +209,12 @@ public sealed class BootstrapBlazorContextService
             maxFileBytes);
     }
 
-    public async Task<ScriptResult> ValidateSkillIndexAsync(CancellationToken cancellationToken)
-    {
-        EnsureRepositoryMode();
-        return await RunPowerShellScriptAsync("generate-skill-index.ps1", ["-Check"], cancellationToken);
-    }
-
-    public async Task<ScriptResult> CheckSkillSyncAsync(string? baseRef, bool warnAllMissingSkills, CancellationToken cancellationToken)
-    {
-        EnsureRepositoryMode();
-        var args = new List<string>();
-        if (!string.IsNullOrWhiteSpace(baseRef))
-        {
-            args.Add("-BaseRef");
-            args.Add(baseRef);
-        }
-
-        if (warnAllMissingSkills)
-        {
-            args.Add("-WarnAllMissingSkills");
-        }
-
-        return await RunPowerShellScriptAsync("check-skill-sync.ps1", args, cancellationToken);
-    }
-
-    public async Task<object> GenerateSkillIndexAsync(bool dryRun, CancellationToken cancellationToken)
-    {
-        EnsureRepositoryMode();
-        var result = dryRun
-            ? await RunPowerShellScriptAsync("generate-skill-index.ps1", ["-Check"], cancellationToken)
-            : await RunPowerShellScriptAsync("generate-skill-index.ps1", [], cancellationToken);
-
-        return new
-        {
-            dryRun,
-            changed = dryRun ? result.ExitCode != 0 : (bool?)null,
-            result
-        };
-    }
-
     public string SerializeToolResult(object value)
     {
         return JsonSerializer.Serialize(value, JsonOptions);
     }
 
-    private SkillIndexEntry GetEntry(string componentName)
+    private ComponentIndexEntry GetEntry(string componentName)
     {
         if (string.IsNullOrWhiteSpace(componentName))
         {
@@ -277,32 +233,6 @@ public sealed class BootstrapBlazorContextService
         }
 
         throw new KeyNotFoundException($"Component was not found: {componentName}");
-    }
-
-    private static Dictionary<string, SkillIndexEntry> LoadIndex(string indexPath)
-    {
-        using var document = JsonDocument.Parse(File.ReadAllText(indexPath));
-        var entries = new Dictionary<string, SkillIndexEntry>(StringComparer.OrdinalIgnoreCase);
-
-        foreach (var property in document.RootElement.EnumerateObject())
-        {
-            string? component = null;
-            string? sample = null;
-
-            if (property.Value.TryGetProperty("component", out var componentElement))
-            {
-                component = componentElement.GetString();
-            }
-
-            if (property.Value.TryGetProperty("sample", out var sampleElement))
-            {
-                sample = sampleElement.GetString();
-            }
-
-            entries[property.Name] = new SkillIndexEntry(property.Name, component, sample);
-        }
-
-        return entries;
     }
 
     private IReadOnlyList<FileContent> ReadPath(
@@ -407,53 +337,4 @@ public sealed class BootstrapBlazorContextService
         return Path.GetRelativePath(_root.RootPath, fullPath).Replace('\\', '/');
     }
 
-    private void EnsureRepositoryMode()
-    {
-        if (_root.Mode != BootstrapBlazorRootMode.Repository)
-        {
-            throw new InvalidOperationException("This tool is available only when the MCP server is running in repository mode.");
-        }
-    }
-
-    private async Task<ScriptResult> RunPowerShellScriptAsync(
-        string scriptName,
-        IReadOnlyList<string> scriptArgs,
-        CancellationToken cancellationToken)
-    {
-        var scriptPath = Path.Combine(_root.RootPath, "scripts", scriptName);
-        if (!File.Exists(scriptPath))
-        {
-            throw new FileNotFoundException("Script was not found.", scriptPath);
-        }
-
-        var startInfo = new ProcessStartInfo
-        {
-            FileName = "powershell",
-            WorkingDirectory = _root.RootPath,
-            RedirectStandardError = true,
-            RedirectStandardOutput = true,
-            UseShellExecute = false
-        };
-
-        startInfo.ArgumentList.Add("-NoProfile");
-        startInfo.ArgumentList.Add("-ExecutionPolicy");
-        startInfo.ArgumentList.Add("Bypass");
-        startInfo.ArgumentList.Add("-File");
-        startInfo.ArgumentList.Add(scriptPath);
-
-        foreach (var arg in scriptArgs)
-        {
-            startInfo.ArgumentList.Add(arg);
-        }
-
-        using var process = Process.Start(startInfo) ?? throw new InvalidOperationException("Unable to start PowerShell.");
-        var stdoutTask = process.StandardOutput.ReadToEndAsync(cancellationToken);
-        var stderrTask = process.StandardError.ReadToEndAsync(cancellationToken);
-
-        await process.WaitForExitAsync(cancellationToken);
-        var stdout = await stdoutTask;
-        var stderr = await stderrTask;
-
-        return new ScriptResult(process.ExitCode, stdout, stderr);
-    }
 }

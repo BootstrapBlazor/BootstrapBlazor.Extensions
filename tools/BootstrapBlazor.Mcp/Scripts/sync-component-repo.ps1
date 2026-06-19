@@ -76,13 +76,7 @@ else {
 # Verify key paths
 $ComponentsPath = Join-Path $RepoPath "src\BootstrapBlazor\Components"
 $SamplesPath = Join-Path $RepoPath "src\BootstrapBlazor.Server\Components\Samples"
-$IndexPath = Join-Path $RepoPath "skill-index.json"
 
 Write-Host "`nVerifying repository structure:" -ForegroundColor Cyan
 Write-Host "  Components: $(if (Test-Path $ComponentsPath) { 'OK' } else { 'MISSING' })" -ForegroundColor $(if (Test-Path $ComponentsPath) { 'Green' } else { 'Red' })
 Write-Host "  Samples: $(if (Test-Path $SamplesPath) { 'OK' } else { 'MISSING' })" -ForegroundColor $(if (Test-Path $SamplesPath) { 'Green' } else { 'Red' })
-Write-Host "  skill-index.json: $(if (Test-Path $IndexPath) { 'OK' } else { 'MISSING' })" -ForegroundColor $(if (Test-Path $IndexPath) { 'Green' } else { 'Red' })
-
-if (-not (Test-Path $IndexPath)) {
-    Write-Warning "skill-index.json not found. The MCP server may not work correctly."
-}

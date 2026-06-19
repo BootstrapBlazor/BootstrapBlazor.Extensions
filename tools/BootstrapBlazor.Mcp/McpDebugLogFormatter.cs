@@ -103,7 +103,7 @@ public static class McpDebugLogFormatter
     {
         var sourceFiles = obj["sourceFiles"] as JsonArray;
         var sampleFiles = obj["sampleFiles"] as JsonArray;
-        var skillFile = obj["skillFile"] as JsonObject;
+        var generatedAnalysis = obj["generatedAnalysis"]?.GetValue<string>();
         var warnings = obj["warnings"] as JsonArray;
 
         return string.Join("; ", new[]
@@ -113,7 +113,7 @@ public static class McpDebugLogFormatter
             $"warnings={warnings?.Count ?? 0}",
             $"sourceFiles={sourceFiles?.Count ?? 0}:{FormatPaths(sourceFiles, previewChars)}",
             $"sampleFiles={sampleFiles?.Count ?? 0}:{FormatPaths(sampleFiles, previewChars)}",
-            $"skillFile={skillFile?["path"]?.GetValue<string>() ?? "<none>"}"
+            $"generatedAnalysisChars={generatedAnalysis?.Length ?? 0}"
         });
     }
 

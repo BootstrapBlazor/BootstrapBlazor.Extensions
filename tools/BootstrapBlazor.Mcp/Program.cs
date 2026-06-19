@@ -8,20 +8,27 @@ using System.Diagnostics;
 using System.Text;
 using System.Text.Json.Nodes;
 
-// Ensure the component repository is available
-var repoManager = new RepositoryManager();
-var repoStatus = await repoManager.EnsureRepositoryAsync(autoUpdate: args.Contains("--auto-update"));
+var options = McpServerOptions.Parse(args);
 
-Console.Error.WriteLine(repoStatus.WasCloned
-    ? $"[BootstrapBlazor.Mcp] Cloned repository to: {repoStatus.Path}"
-    : repoStatus.UpdatedToCommit != null
-        ? $"[BootstrapBlazor.Mcp] Updated repository to: {repoStatus.UpdatedToCommit}"
-        : $"[BootstrapBlazor.Mcp] Using repository at: {repoStatus.Path}");
+if (string.IsNullOrWhiteSpace(options.RepoRoot))
+{
+    var repoManager = new RepositoryManager();
+    var repoStatus = await repoManager.EnsureRepositoryAsync(autoUpdate: options.AutoUpdate);
+
+    Console.Error.WriteLine(repoStatus.WasCloned
+        ? $"[BootstrapBlazor.Mcp] Cloned repository to: {repoStatus.Path}"
+        : repoStatus.UpdatedToCommit != null
+            ? $"[BootstrapBlazor.Mcp] Updated repository to: {repoStatus.UpdatedToCommit}"
+            : $"[BootstrapBlazor.Mcp] Using repository at: {repoStatus.Path}");
+
+    options = options with { RootPath = repoManager.RepoPath };
+}
+else
+{
+    Console.Error.WriteLine($"[BootstrapBlazor.Mcp] Using repository at: {Path.GetFullPath(options.RepoRoot)}");
+}
 
 var builder = WebApplication.CreateBuilder(args);
-
-// Parse options and override root path with cloned repository
-var options = McpServerOptions.Parse(args) with { RootPath = repoManager.RepoPath };
 
 builder.Services.AddSingleton(options);
 builder.Services.AddSingleton(serviceProvider =>

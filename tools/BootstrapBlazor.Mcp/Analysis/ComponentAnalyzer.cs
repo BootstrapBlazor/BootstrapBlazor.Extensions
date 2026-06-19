@@ -11,7 +11,7 @@ namespace BootstrapBlazor.Mcp.Analysis;
 
 internal sealed partial class ComponentAnalyzer(string repoRoot)
 {
-    public async Task<ComponentDocument> AnalyzeAsync(SkillIndexEntry entry)
+    public async Task<ComponentDocument> AnalyzeAsync(ComponentIndexEntry entry)
     {
         var document = new ComponentDocument
         {
@@ -182,7 +182,7 @@ internal sealed partial class ComponentAnalyzer(string repoRoot)
         };
     }
 
-    private async Task<SampleUsage> AnalyzeSampleAsync(SkillIndexEntry entry)
+    private async Task<SampleUsage> AnalyzeSampleAsync(ComponentIndexEntry entry)
     {
         var usage = new SampleUsage();
         if (entry.Sample is null)
