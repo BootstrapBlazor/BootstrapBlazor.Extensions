@@ -88,7 +88,12 @@ app.MapPost("/mcp", async (
         logger.LogInformation("MCP request: {Request}", McpDebugLogFormatter.FormatRequest(jsonObject, rawBody, options.LogPreviewChars));
     }
 
-    var response = await dispatcher.HandleMessageAsync(jsonObject, cancellationToken);
+    var sampleLocale = SampleLocaleResolver.Resolve(
+        options.DefaultSampleLocale,
+        request.Headers[SampleLocaleResolver.LocaleHeaderName].ToString(),
+        request.Headers.AcceptLanguage.ToString());
+
+    var response = await dispatcher.HandleMessageAsync(jsonObject, sampleLocale, cancellationToken);
     if (logMessages)
     {
         logger.LogInformation("MCP response: {Response}", McpDebugLogFormatter.FormatResponse(response, options.LogPreviewChars));

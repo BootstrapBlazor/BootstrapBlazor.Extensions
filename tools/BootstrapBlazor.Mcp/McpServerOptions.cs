@@ -8,6 +8,8 @@ public sealed record McpServerOptions
 
     public bool AutoUpdate { get; init; }  // New: auto-update repository on start
 
+    public string DefaultSampleLocale { get; init; } = SampleLocaleResolver.DefaultLocale;
+
     public bool LogMessages { get; init; }
 
     public int LogPreviewChars { get; init; } = 1200;
@@ -49,6 +51,8 @@ public sealed record McpServerOptions
         {
             RepoRoot = GetOption(options, "repo-root"),
             AutoUpdate = GetBoolOption(options, "auto-update"),
+            DefaultSampleLocale = SampleLocaleResolver.NormalizeOrDefault(
+                GetOption(options, "default-sample-locale") ?? GetOption(options, "sample-locale")),
             LogMessages = GetBoolOption(options, "log-messages") || GetBoolOption(options, "log-mcp"),
             LogPreviewChars = GetIntOption(options, "log-preview-chars", 1200)
         };

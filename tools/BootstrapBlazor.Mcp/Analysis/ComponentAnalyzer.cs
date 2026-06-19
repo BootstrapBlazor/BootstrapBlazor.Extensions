@@ -2,6 +2,7 @@
 // The .NET Foundation licenses this file to you under the Apache 2.0 License
 // See the LICENSE file in the project root for more information.
 
+using BootstrapBlazor.Mcp;
 using Microsoft.CodeAnalysis;
 using Microsoft.CodeAnalysis.CSharp;
 using Microsoft.CodeAnalysis.CSharp.Syntax;
@@ -9,7 +10,10 @@ using System.Text.RegularExpressions;
 
 namespace BootstrapBlazor.Mcp.Analysis;
 
-internal sealed partial class ComponentAnalyzer(string repoRoot)
+internal sealed partial class ComponentAnalyzer(
+    string repoRoot,
+    SampleLocalizer? sampleLocalizer = null,
+    string sampleLocale = SampleLocaleResolver.DefaultLocale)
 {
     public async Task<ComponentDocument> AnalyzeAsync(ComponentIndexEntry entry)
     {
@@ -201,7 +205,18 @@ internal sealed partial class ComponentAnalyzer(string repoRoot)
                 : [];
 
         usage.Files.AddRange(files.Select(file => RepositoryPaths.ToRepoPath(repoRoot, file)));
-        var text = string.Join(Environment.NewLine, await Task.WhenAll(files.Select(file => File.ReadAllTextAsync(file))));
+        var fileContents = await Task.WhenAll(files.Select(async file =>
+        {
+            var text = await File.ReadAllTextAsync(file);
+            return sampleLocalizer is null
+                ? text
+                : sampleLocalizer.LocalizeFile(
+                    RepositoryPaths.ToRepoPath(repoRoot, file),
+                    text,
+                    sampleLocale,
+                    []);
+        }));
+        var text = string.Join(Environment.NewLine, fileContents);
 
         var tagPattern = $@"(?ms)<\s*{Regex.Escape(entry.Name)}(?=[\s>/])(?<attrs>.{{0,2000}}?)(?:/?>)";
         var tags = TagRegex(tagPattern).Matches(text);
@@ -219,7 +234,13 @@ internal sealed partial class ComponentAnalyzer(string repoRoot)
         var snippetMatch = TagRegex(snippetPattern).Match(text);
         if (snippetMatch.Success)
         {
-            var snippet = TextHelpers.RemoveNonAscii(snippetMatch.Value.Replace("\r\n", "\n", StringComparison.Ordinal)).Trim();
+            var snippet = snippetMatch.Value.Replace("\r\n", "\n", StringComparison.Ordinal);
+            if (!sampleLocale.Equals("zh-CN", StringComparison.OrdinalIgnoreCase))
+            {
+                snippet = TextHelpers.RemoveNonAscii(snippet);
+            }
+
+            snippet = snippet.Trim();
             var lines = snippet.Split('\n');
             usage.Snippet = lines.Length > 28
                 ? string.Join('\n', lines.Take(26)) + "\n..."

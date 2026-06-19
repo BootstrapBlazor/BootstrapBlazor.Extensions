@@ -15,11 +15,13 @@ public sealed class BootstrapBlazorContextService
 
     private readonly BootstrapBlazorRoot _root;
     private readonly Dictionary<string, ComponentIndexEntry> _index;
+    private readonly SampleLocalizer _sampleLocalizer;
 
     private BootstrapBlazorContextService(BootstrapBlazorRoot root, Dictionary<string, ComponentIndexEntry> index)
     {
         _root = root;
         _index = index;
+        _sampleLocalizer = new SampleLocalizer(root.RootPath);
     }
 
     public static BootstrapBlazorContextService Create(McpServerOptions options)
@@ -116,10 +118,12 @@ public sealed class BootstrapBlazorContextService
         bool includeSample = true,
         bool includeAnalysis = true,
         int maxFileBytes = 128 * 1024,
-        int maxFiles = 40)
+        int maxFiles = 40,
+        string sampleLocale = SampleLocaleResolver.DefaultLocale)
     {
         var entry = GetEntry(componentName);
         var warnings = new List<string>();
+        sampleLocale = SampleLocaleResolver.NormalizeOrDefault(sampleLocale);
         var indexedPaths = new Dictionary<string, string?>(StringComparer.OrdinalIgnoreCase)
         {
             ["component"] = entry.Component,
@@ -131,7 +135,7 @@ public sealed class BootstrapBlazorContextService
             : [];
 
         var sampleFiles = includeSample && !string.IsNullOrWhiteSpace(entry.Sample)
-            ? ReadPath(entry.Sample, SampleExtensions, maxFileBytes, maxFiles, warnings)
+            ? ReadPath(entry.Sample, SampleExtensions, maxFileBytes, maxFiles, warnings, sampleLocale)
             : [];
 
         // Generate analysis markdown dynamically
@@ -140,7 +144,7 @@ public sealed class BootstrapBlazorContextService
         {
             try
             {
-                var analyzer = new ComponentAnalyzer(_root.RootPath);
+                var analyzer = new ComponentAnalyzer(_root.RootPath, _sampleLocalizer, sampleLocale);
                 var analysisEntry = new ComponentIndexEntry(entry.Name, entry.Component, entry.Sample);
                 var document = analyzer.AnalyzeAsync(analysisEntry).GetAwaiter().GetResult();
                 analysisMarkdown = MarkdownBuilder.BuildComponentDoc(document);
@@ -167,7 +171,7 @@ public sealed class BootstrapBlazorContextService
             _root.RootPath,
             [
                 "Current component source",
-                "Official Sample",
+                $"Official Sample ({sampleLocale})",
                 "Dynamic Analysis"
             ],
             indexedPaths,
@@ -188,7 +192,11 @@ public sealed class BootstrapBlazorContextService
             maxFiles);
     }
 
-    public ComponentContext GetComponentSample(string componentName, int maxFileBytes = 128 * 1024, int maxFiles = 40)
+    public ComponentContext GetComponentSample(
+        string componentName,
+        int maxFileBytes = 128 * 1024,
+        int maxFiles = 40,
+        string sampleLocale = SampleLocaleResolver.DefaultLocale)
     {
         return GetComponentContext(
             componentName,
@@ -196,17 +204,22 @@ public sealed class BootstrapBlazorContextService
             includeSample: true,
             includeAnalysis: false,
             maxFileBytes,
-            maxFiles);
+            maxFiles,
+            sampleLocale);
     }
 
-    public ComponentContext GetComponentAnalysis(string componentName, int maxFileBytes = 128 * 1024)
+    public ComponentContext GetComponentAnalysis(
+        string componentName,
+        int maxFileBytes = 128 * 1024,
+        string sampleLocale = SampleLocaleResolver.DefaultLocale)
     {
         return GetComponentContext(
             componentName,
             includeSource: false,
             includeSample: false,
             includeAnalysis: true,
-            maxFileBytes);
+            maxFileBytes,
+            sampleLocale: sampleLocale);
     }
 
     public string SerializeToolResult(object value)
@@ -240,12 +253,13 @@ public sealed class BootstrapBlazorContextService
         IReadOnlyCollection<string> allowedExtensions,
         int maxFileBytes,
         int maxFiles,
-        List<string> warnings)
+        List<string> warnings,
+        string? sampleLocale = null)
     {
         var fullPath = ResolveIndexedPath(relativePath);
         if (File.Exists(fullPath))
         {
-            return [ReadFile(fullPath, maxFileBytes, warnings)];
+            return [ReadFile(fullPath, maxFileBytes, warnings, sampleLocale)];
         }
 
         if (!Directory.Exists(fullPath))
@@ -267,7 +281,7 @@ public sealed class BootstrapBlazorContextService
             files = files.Take(maxFiles).ToArray();
         }
 
-        return files.Select(path => ReadFile(path, maxFileBytes, warnings)).ToArray();
+        return files.Select(path => ReadFile(path, maxFileBytes, warnings, sampleLocale)).ToArray();
     }
 
     private FileContent? ReadSingleFile(string relativePath, int maxFileBytes, List<string> warnings)
@@ -282,7 +296,7 @@ public sealed class BootstrapBlazorContextService
         return ReadFile(fullPath, maxFileBytes, warnings);
     }
 
-    private FileContent ReadFile(string fullPath, int maxFileBytes, List<string> warnings)
+    private FileContent ReadFile(string fullPath, int maxFileBytes, List<string> warnings, string? sampleLocale = null)
     {
         var info = new FileInfo(fullPath);
         var limit = Math.Clamp(maxFileBytes, 4 * 1024, 1024 * 1024);
@@ -299,14 +313,20 @@ public sealed class BootstrapBlazorContextService
             }
         }
 
+        var repoPath = ToRepoPath(fullPath);
         var content = Encoding.UTF8.GetString(buffer);
+        if (!truncated && sampleLocale is not null)
+        {
+            content = _sampleLocalizer.LocalizeFile(repoPath, content, sampleLocale, warnings);
+        }
+
         if (truncated)
         {
-            warnings.Add($"File content was truncated to {limit} bytes: {ToRepoPath(fullPath)}");
+            warnings.Add($"File content was truncated to {limit} bytes: {repoPath}");
         }
 
         return new FileContent(
-            ToRepoPath(fullPath),
+            repoPath,
             fullPath,
             content,
             truncated,

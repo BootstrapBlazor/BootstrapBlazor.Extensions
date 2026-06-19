@@ -6,7 +6,7 @@ HTTP Model Context Protocol (MCP) server that provides BootstrapBlazor component
 
 - Runtime component analysis with Roslyn
 - Source access from the BootstrapBlazor main repository
-- Official sample code from BootstrapBlazor.Server
+- Localized official sample code from BootstrapBlazor.Server
 - Automatic repository clone and optional update
 
 ## Installation
@@ -30,8 +30,20 @@ The server exposes:
 
 - `--auto-update`: update the component repository on startup
 - `--repo-root <path>`: use a specific BootstrapBlazor repository path instead of the managed clone
+- `--default-sample-locale <en-US|zh-CN>`: default locale for localized sample code, default `en-US`
 - `--log-messages`: enable detailed logging in development
 - `--log-preview-chars <number>`: set log preview length, default `1200`
+
+### Sample Locale
+
+Sample localization is resolved per MCP request:
+
+1. `X-BootstrapBlazor-Locale`
+2. `Accept-Language`
+3. `--default-sample-locale`
+4. `en-US`
+
+Supported locales: `en-US`, `zh-CN`.
 
 ## Available Tools
 

@@ -18,7 +18,7 @@ public sealed class McpJsonRpcDispatcher
         _service = service;
     }
 
-    public async Task<JsonNode?> HandleMessageAsync(JsonObject message, CancellationToken cancellationToken)
+    public async Task<JsonNode?> HandleMessageAsync(JsonObject message, string sampleLocale, CancellationToken cancellationToken)
     {
         var method = message["method"]?.GetValue<string>();
         if (string.IsNullOrWhiteSpace(method))
@@ -46,12 +46,12 @@ public sealed class McpJsonRpcDispatcher
             "notifications/initialized" => null,
             "ping" => CreateResponse(id, new { }),
             "tools/list" => CreateResponse(id, new { tools = GetTools() }),
-            "tools/call" => await HandleToolCallAsync(id, message["params"] as JsonObject, cancellationToken),
+            "tools/call" => await HandleToolCallAsync(id, message["params"] as JsonObject, sampleLocale, cancellationToken),
             _ => id is null ? null : CreateErrorResponse(id, -32601, $"Unknown method: {method}")
         };
     }
 
-    private async Task<JsonNode> HandleToolCallAsync(JsonNode? id, JsonObject? parameters, CancellationToken cancellationToken)
+    private async Task<JsonNode> HandleToolCallAsync(JsonNode? id, JsonObject? parameters, string sampleLocale, CancellationToken cancellationToken)
     {
         var name = parameters?["name"]?.GetValue<string>();
         if (string.IsNullOrWhiteSpace(name))
@@ -74,7 +74,8 @@ public sealed class McpJsonRpcDispatcher
                     GetBool(arguments, "includeSample", true),
                     GetBool(arguments, "includeAnalysis", true),
                     GetInt(arguments, "maxFileBytes", 128 * 1024),
-                    GetInt(arguments, "maxFiles", 40)),
+                    GetInt(arguments, "maxFiles", 40),
+                    sampleLocale),
                 "get_component_source" => _service.GetComponentSource(
                     GetRequiredString(arguments, "component"),
                     GetInt(arguments, "maxFileBytes", 128 * 1024),
@@ -82,10 +83,12 @@ public sealed class McpJsonRpcDispatcher
                 "get_component_sample" => _service.GetComponentSample(
                     GetRequiredString(arguments, "component"),
                     GetInt(arguments, "maxFileBytes", 128 * 1024),
-                    GetInt(arguments, "maxFiles", 40)),
+                    GetInt(arguments, "maxFiles", 40),
+                    sampleLocale),
                 "get_component_analysis" => _service.GetComponentAnalysis(
                     GetRequiredString(arguments, "component"),
-                    GetInt(arguments, "maxFileBytes", 128 * 1024)),
+                    GetInt(arguments, "maxFileBytes", 128 * 1024),
+                    sampleLocale),
                 _ => throw new InvalidOperationException($"Unknown tool: {name}")
             };
 
@@ -135,7 +138,7 @@ public sealed class McpJsonRpcDispatcher
                     },
                     required = new[] { "query" }
                 }),
-            Tool("get_component_context", "Read source, official Sample, and dynamic analysis for a component in the required priority order.",
+            Tool("get_component_context", "Read source, localized official Sample, and dynamic analysis for a component in the required priority order. Sample locale is resolved from X-BootstrapBlazor-Locale, Accept-Language, then the server default.",
                 new
                 {
                     type = "object",
@@ -152,9 +155,9 @@ public sealed class McpJsonRpcDispatcher
                 }),
             Tool("get_component_source", "Read only the current component source files.",
                 ComponentReadSchema()),
-            Tool("get_component_sample", "Read only the official Sample files for a component.",
+            Tool("get_component_sample", "Read only the localized official Sample files for a component. Sample locale is resolved from X-BootstrapBlazor-Locale, Accept-Language, then the server default.",
                 ComponentReadSchema()),
-            Tool("get_component_analysis", "Read only the dynamically generated component analysis (parameters, methods, etc.).",
+            Tool("get_component_analysis", "Read only the dynamically generated component analysis (parameters, methods, sample usage, etc.). Sample usage is localized from X-BootstrapBlazor-Locale, Accept-Language, then the server default.",
                 new
                 {
                     type = "object",
