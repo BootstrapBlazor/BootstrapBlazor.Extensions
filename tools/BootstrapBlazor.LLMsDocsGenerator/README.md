@@ -1,6 +1,8 @@
-# LlmsDocsGenerator
+# BootstrapBlazor.LLMsDocsGenerator
 
-A tool that automatically generates LLM-friendly documentation for BootstrapBlazor components.
+English | [简体中文](./README.zh-CN.md)
+
+A .NET tool that automatically generates LLM-friendly documentation for BootstrapBlazor components.
 
 ## Purpose
 
@@ -8,30 +10,29 @@ AI coding assistants (Claude Code, Cursor, GitHub Copilot) often generate incorr
 
 1. **Auto-generating parameter tables** from source code using Roslyn
 2. **Providing GitHub source links** for deeper reference
-3. **Integrating with CI/CD** to keep docs synchronized with code
+3. **Producing one file per component** so agents load only the API they need
 
 ## Architecture
 
 ```
 ┌─────────────────────────────────────────────────────────────┐
-│                    LlmsDocsGenerator                        │
+│                BootstrapBlazor.LLMsDocsGenerator             │
 ├─────────────────────────────────────────────────────────────┤
-│  ComponentAnalyzer     → Roslyn-based source code parser    │
-│  MarkdownBuilder       → Generates markdown documentation   │
-│  DocsGenerator         → Orchestrates the generation flow   │
+│  ComponentAnalyzer     → Roslyn-based source code parser     │
+│  MarkdownBuilder       → Generates markdown documentation    │
+│  DocsGenerator         → Orchestrates the generation flow    │
 └─────────────────────────────────────────────────────────────┘
                               │
                               ▼
 ┌─────────────────────────────────────────────────────────────┐
-│              Output: wwwroot/llms/                          │
+│              Output: <output>/wwwroot/llms/                  │
 ├─────────────────────────────────────────────────────────────┤
-│  llms.txt              → Index with quick start guide       │
-│  components/           → Individual component documentation │
-│    ├── Button.txt      → Button component API reference     │
-│    ├── Table.txt       → Table component API reference      │
-│    ├── Select.txt      → Select component API reference     │
-│    ├── Modal.txt       → Modal component API reference      │
-│    └── ...             → One file per component             │
+│  llms.txt              → Index with quick start guide        │
+│  components/           → Individual component documentation  │
+│    ├── Button.txt      → Button component API reference      │
+│    ├── Table.txt       → Table component API reference       │
+│    ├── Select.txt      → Select component API reference      │
+│    └── ...             → One file per component              │
 └─────────────────────────────────────────────────────────────┘
 ```
 
@@ -45,23 +46,12 @@ This design optimizes for LLM and Code Agent consumption:
 | **Token Efficiency** | ❌ Wastes tokens on irrelevant data | ✅ Minimal context loading |
 | **Cache Friendly** | ❌ Regenerates entire category | ✅ Updates single file |
 | **RAG Retrieval** | ❌ Coarse-grained matches | ✅ Fine-grained matches |
-| **Incremental Updates** | ❌ Complex CI/CD checks | ✅ Simple file mapping |
 
 ## How It Works
 
 ### 1. Source Code Analysis
 
-The `ComponentAnalyzer` uses Roslyn to parse C# source files:
-
-```csharp
-// Scans for [Parameter] attributes
-var parameters = classDeclaration.DescendantNodes()
-    .OfType<PropertyDeclarationSyntax>()
-    .Where(p => HasAttribute(p, "Parameter"));
-
-// Extracts XML documentation comments
-var summary = ExtractXmlSummary(property);
-```
+The `ComponentAnalyzer` uses Roslyn to parse C# source files, scanning properties marked with the `[Parameter]` attribute and extracting their XML documentation comments.
 
 ### 2. Documentation Generation
 
@@ -89,118 +79,86 @@ Components are organized in the index by category for easy navigation, but each 
 | form | ValidateForm, EditorForm |
 | other | All other components |
 
+## Requirements
+
+- .NET 10 SDK
+
 ## Installation
 
-### Install as Global Tool
+### Run from source
 
 ```bash
-dotnet pack tools/LlmsDocsGenerator
-dotnet tool install --global --add-source ./tools/LlmsDocsGenerator/bin/Release BootstrapBlazor.LlmsDocsGenerator
+dotnet run --project tools/BootstrapBlazor.LLMsDocsGenerator -- --root <ROOT> --output <OUTPUT>
 ```
 
-Or install from NuGet (once published):
+### Install as a global tool
+
+Pack and install from the local build output:
 
 ```bash
-dotnet tool install --global BootstrapBlazor.LlmsDocsGenerator
+dotnet pack tools/BootstrapBlazor.LLMsDocsGenerator -c Release
+dotnet tool install --global --add-source ./tools/BootstrapBlazor.LLMsDocsGenerator/bin/Release BootstrapBlazor.LLMsDocsGenerator
 ```
 
-### Update Tool
+Update / uninstall:
 
 ```bash
-dotnet tool update --global BootstrapBlazor.LlmsDocsGenerator
+dotnet tool update --global BootstrapBlazor.LLMsDocsGenerator
+dotnet tool uninstall --global BootstrapBlazor.LLMsDocsGenerator
 ```
 
-### Uninstall Tool
-
-```bash
-dotnet tool uninstall --global BootstrapBlazor.LlmsDocsGenerator
-```
+Once installed, the tool is invoked with the command name `llms-docs`.
 
 ## Usage
 
-Once installed as a global tool, use the `llms-docs` command:
+The generator requires **both** `--root` and `--output`. If either is missing it exits without writing anything.
 
-### Generate All Documentation
+| Option | Required | Description |
+|--------|----------|-------------|
+| `--root` | Yes | Project root folder. The component source is read from `<root>/../BootstrapBlazor`, so this is typically the `BootstrapBlazor.Server` project directory. |
+| `--output` | Yes | Publish folder. Documentation is written to `<output>/wwwroot/llms/`. |
+
+### Example
+
+Running from the BootstrapBlazor repository root, pointing both options at the server project:
 
 ```bash
-llms-docs
+llms-docs --root src/BootstrapBlazor.Server --output src/BootstrapBlazor.Server
 ```
 
-Or when running from source:
+This reads components from `src/BootstrapBlazor` and produces:
 
-```bash
-dotnet run --project tools/LlmsDocsGenerator
+```
+src/BootstrapBlazor.Server/wwwroot/llms/llms.txt
+src/BootstrapBlazor.Server/wwwroot/llms/components/*.txt
 ```
 
-### Generate Specific Component
+The same command works through `dotnet run`:
 
 ```bash
-llms-docs --component Table
-```
-
-### Generate Index Only
-
-```bash
-llms-docs --index-only
-```
-
-### Check Freshness (CI/CD)
-
-```bash
-llms-docs --check
-```
-
-Returns exit code 1 if documentation is outdated.
-
-### Custom Output Directory
-
-```bash
-llms-docs --output ./docs
-```
-
-### Show Help
-
-```bash
-llms-docs --help
+dotnet run --project tools/BootstrapBlazor.LLMsDocsGenerator -- --root src/BootstrapBlazor.Server --output src/BootstrapBlazor.Server
 ```
 
 ## CI/CD Integration
 
-### Build Workflow (build.yml)
-
-Checks if documentation is up-to-date on every push to main:
-
-```yaml
-- name: Check LLM Documentation
-  run: dotnet run --project tools/LlmsDocsGenerator -- --check
-```
-
-### Docker Workflow (docker.yml)
-
-Regenerates documentation before building the doc site:
+Regenerate the documentation as part of a workflow that publishes the doc site:
 
 ```yaml
 - name: Generate LLM Documentation
-  run: dotnet run --project tools/LlmsDocsGenerator
-```
-
-### Dockerfile
-
-Generates documentation during container build:
-
-```dockerfile
-WORKDIR /tools/LlmsDocsGenerator
-RUN dotnet run
+  run: >
+    dotnet run --project tools/BootstrapBlazor.LLMsDocsGenerator --
+    --root src/BootstrapBlazor.Server
+    --output src/BootstrapBlazor.Server
 ```
 
 ## Output Format
 
-Each component documentation includes:
+Each component file (`components/<ComponentName>.txt`) contains markdown like:
 
 ```markdown
-## ComponentName
+# BootstrapBlazor Table
 
-Description from XML comments
+> Component summary from XML comments
 
 ### Type Parameters
 - `TItem` - Generic type parameter
@@ -241,5 +199,6 @@ Users can reference this documentation in their own projects by creating a `llms
 ```
 
 LLM agents can:
+
 1. First read `llms.txt` to discover available components
 2. Then fetch specific `components/{ComponentName}.txt` for detailed API info
