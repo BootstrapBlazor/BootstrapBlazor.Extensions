@@ -153,12 +153,12 @@ Regenerate the documentation as part of a workflow that publishes the doc site:
 
 ## Output Format
 
-Each component file (`components/<ComponentName>.txt`) contains markdown like:
+Documentation is generated in Chinese, extracted from the bilingual `<para lang="zh">` blocks in the source XML comments. Each component file (`components/<ComponentName>.txt`) contains markdown like:
 
 ```markdown
 # BootstrapBlazor Table
 
-> Component summary from XML comments
+Component summary from XML comments
 
 ### Type Parameters
 - `TItem` - Generic type parameter

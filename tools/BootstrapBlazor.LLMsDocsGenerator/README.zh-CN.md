@@ -153,12 +153,12 @@ dotnet run --project tools/BootstrapBlazor.LLMsDocsGenerator -- --root src/Boots
 
 ## 输出格式
 
-每个组件文件（`components/<组件名>.txt`）的 Markdown 内容形如：
+文档统一生成中文版本，从 XML 注释的双语 `<para lang="zh">` 块中提取。每个组件文件（`components/<组件名>.txt`）的 Markdown 内容形如：
 
 ```markdown
 # BootstrapBlazor Table
 
-> 来自 XML 注释的组件描述
+来自 XML 注释的组件描述
 
 ### Type Parameters
 - `TItem` - 泛型类型参数
