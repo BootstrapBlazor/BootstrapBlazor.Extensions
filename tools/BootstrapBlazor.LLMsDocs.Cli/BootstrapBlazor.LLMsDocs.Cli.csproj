@@ -1,0 +1,33 @@
+<Project Sdk="Microsoft.NET.Sdk">
+
+  <PropertyGroup>
+    <Version>10.0.0</Version>
+    <OutputType>Exe</OutputType>
+    <TargetFramework>net10.0</TargetFramework>
+    <SatelliteResourceLanguages>false</SatelliteResourceLanguages>
+    <RootNamespace>BootstrapBlazor.LLMsDocs.Cli</RootNamespace>
+    <AssemblyName>BootstrapBlazor.LLMsDocs.Cli</AssemblyName>
+  </PropertyGroup>
+
+  <PropertyGroup>
+    <Title>BootstrapBlazor LLMs Docs CLI</Title>
+    <Description>CLI that fetches BootstrapBlazor component documentation from www.blazor.zone/llms for AI agents and developers.</Description>
+    <PackageId>BootstrapBlazor.LLMsDocs.Cli</PackageId>
+    <PackAsTool>true</PackAsTool>
+    <ToolCommandName>bb-llms</ToolCommandName>
+    <PackageReadmeFile>README.md</PackageReadmeFile>
+  </PropertyGroup>
+
+  <ItemGroup>
+    <PackageReference Include="System.CommandLine" Version="2.0.1" />
+  </ItemGroup>
+
+  <ItemGroup>
+    <SupportedPlatform Remove="browser" />
+  </ItemGroup>
+
+  <ItemGroup>
+    <None Include="README.md" Pack="true" PackagePath="" />
+  </ItemGroup>
+
+</Project>
