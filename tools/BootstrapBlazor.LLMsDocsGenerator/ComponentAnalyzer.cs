@@ -11,13 +11,36 @@ using System.Text.RegularExpressions;
 namespace BootstrapBlazorLLMsDocsGenerator;
 
 /// <summary>
-/// Analyzes Blazor component source files using Roslyn
+/// Analyzes Blazor component source files using Roslyn.
+/// <para>
+/// A single <see cref="CSharpCompilation"/> is built from every source file in the
+/// library so that each component is resolved as an <see cref="INamedTypeSymbol"/>.
+/// Walking the symbol's <see cref="INamedTypeSymbol.BaseType"/> chain collects
+/// parameters declared on base classes, and <c>GetMembers()</c> aggregates members
+/// from every <c>partial</c> declaration automatically.
+/// </para>
 /// </summary>
 public partial class ComponentAnalyzer
 {
     private readonly string _sourcePath;
     private readonly string _componentsPath;
     private readonly string _samplesPath;
+
+    private CSharpCompilation? _compilation;
+    private readonly Dictionary<string, SyntaxTree> _treeByPath = new(StringComparer.OrdinalIgnoreCase);
+
+    /// <summary>
+    /// Short type names with language keywords (int, string, bool) and nullable markers.
+    /// Replaces the old hand-rolled <c>SimplifyTypeName</c> string replacement.
+    /// </summary>
+    private static readonly SymbolDisplayFormat TypeFormat = SymbolDisplayFormat.MinimallyQualifiedFormat;
+
+    /// <summary>
+    /// Fully qualified name including namespace and generic type parameters.
+    /// </summary>
+    private static readonly SymbolDisplayFormat FullNameFormat = new(
+        typeQualificationStyle: SymbolDisplayTypeQualificationStyle.NameAndContainingTypesAndNamespaces,
+        genericsOptions: SymbolDisplayGenericsOptions.IncludeTypeParameters);
 
     public ComponentAnalyzer(string sourcePath)
     {
@@ -39,24 +62,21 @@ public partial class ComponentAnalyzer
             return components;
         }
 
-        // Find all .razor.cs files
-        var files = Directory.GetFiles(_componentsPath, "*.razor.cs", SearchOption.AllDirectories);
+        await EnsureCompilationAsync();
 
-        foreach (var file in files)
-        {
-            var component = await AnalyzeFileAsync(file);
-            if (component != null && component.Parameters.Count > 0)
-            {
-                components.Add(component);
-            }
-        }
+        // Entry points: component code-behind files and explicit base classes.
+        // Other partial files (e.g. Table.razor.Toolbar.cs) are NOT entry points;
+        // their members are merged into the component via the symbol model.
+        var entryFiles = Directory.GetFiles(_componentsPath, "*.razor.cs", SearchOption.AllDirectories)
+            .Concat(Directory.GetFiles(_componentsPath, "*Base.cs", SearchOption.AllDirectories))
+            .Distinct(StringComparer.OrdinalIgnoreCase);
 
-        // Also analyze .cs files that might be component base classes
-        var csFiles = Directory.GetFiles(_componentsPath, "*Base.cs", SearchOption.AllDirectories);
-        foreach (var file in csFiles)
+        var seenTypes = new HashSet<string>(StringComparer.Ordinal);
+
+        foreach (var file in entryFiles)
         {
-            var component = await AnalyzeFileAsync(file);
-            if (component != null && component.Parameters.Count > 0)
+            var component = AnalyzeEntryFile(file);
+            if (component != null && component.Parameters.Count > 0 && seenTypes.Add(component.FullName))
             {
                 components.Add(component);
             }
@@ -70,61 +90,189 @@ public partial class ComponentAnalyzer
     /// </summary>
     public async Task<ComponentInfo?> AnalyzeComponentAsync(string componentName)
     {
-        var pattern = $"{componentName}.razor.cs";
-        var files = Directory.GetFiles(_componentsPath, pattern, SearchOption.AllDirectories);
-
-        if (files.Length == 0)
-        {
-            // Try without .razor extension
-            pattern = $"{componentName}.cs";
-            files = Directory.GetFiles(_componentsPath, pattern, SearchOption.AllDirectories);
-        }
-
-        if (files.Length == 0)
+        if (!Directory.Exists(_componentsPath))
         {
             return null;
         }
 
-        return await AnalyzeFileAsync(files[0]);
+        await EnsureCompilationAsync();
+
+        var files = Directory.GetFiles(_componentsPath, $"{componentName}.razor.cs", SearchOption.AllDirectories);
+        if (files.Length == 0)
+        {
+            files = Directory.GetFiles(_componentsPath, $"{componentName}.cs", SearchOption.AllDirectories);
+        }
+
+        return files.Length == 0 ? null : AnalyzeEntryFile(files[0]);
     }
 
-    private async Task<ComponentInfo?> AnalyzeFileAsync(string filePath)
+    /// <summary>
+    /// Build a single compilation from every source file in the library so that
+    /// base types declared in source can be resolved as symbols. No external metadata
+    /// references are added: attributes are matched by name, which tolerates the
+    /// unresolved framework types (e.g. <c>ComponentBase</c>) at the top of each chain.
+    /// </summary>
+    private async Task EnsureCompilationAsync()
+    {
+        if (_compilation != null)
+        {
+            return;
+        }
+
+        var parseOptions = new CSharpParseOptions(documentationMode: DocumentationMode.Parse);
+        var trees = new List<SyntaxTree>();
+
+        var files = Directory.GetFiles(_sourcePath, "*.cs", SearchOption.AllDirectories)
+            .Where(IsCompilableSource);
+
+        foreach (var file in files)
+        {
+            var code = await File.ReadAllTextAsync(file);
+            var fullPath = Path.GetFullPath(file);
+            var tree = CSharpSyntaxTree.ParseText(code, parseOptions, path: fullPath);
+            trees.Add(tree);
+            _treeByPath[fullPath] = tree;
+        }
+
+        // Razor components declare their base class via the @inherits directive, which
+        // only materializes in the generated *.razor.g.cs (under obj/, excluded above).
+        // Synthesize an equivalent partial declaration so the base type resolves and the
+        // inheritance chain is complete. This relies on the .cs trees already being
+        // indexed in _treeByPath for namespace lookup, so it must run afterwards.
+        var sep = Path.DirectorySeparatorChar;
+        foreach (var razorFile in Directory.GetFiles(_sourcePath, "*.razor", SearchOption.AllDirectories))
+        {
+            if (razorFile.Contains($"{sep}obj{sep}") || razorFile.Contains($"{sep}bin{sep}"))
+            {
+                continue;
+            }
+
+            var shim = await BuildInheritsShimAsync(razorFile);
+            if (shim != null)
+            {
+                trees.Add(CSharpSyntaxTree.ParseText(shim, parseOptions));
+            }
+        }
+
+        _compilation = CSharpCompilation.Create(
+            "BootstrapBlazorDocs",
+            trees,
+            references: null,
+            options: new CSharpCompilationOptions(OutputKind.DynamicallyLinkedLibrary));
+    }
+
+    /// <summary>
+    /// Read the <c>@inherits</c> / <c>@typeparam</c> / <c>@namespace</c> directives from a
+    /// .razor file and emit a minimal partial class that re-states the base type, so the
+    /// component's <see cref="INamedTypeSymbol.BaseType"/> resolves in the compilation.
+    /// Returns null when the file has no <c>@inherits</c> directive.
+    /// </summary>
+    private async Task<string?> BuildInheritsShimAsync(string razorFile)
+    {
+        var content = await File.ReadAllTextAsync(razorFile);
+
+        string? baseType = null;
+        string? ns = null;
+        var typeParams = new List<string>();
+
+        foreach (var raw in content.Split('\n'))
+        {
+            var line = raw.Trim();
+            if (line.StartsWith("@inherits ", StringComparison.Ordinal))
+            {
+                baseType = line["@inherits ".Length..].Trim();
+            }
+            else if (line.StartsWith("@namespace ", StringComparison.Ordinal))
+            {
+                ns = line["@namespace ".Length..].Trim();
+            }
+            else if (line.StartsWith("@typeparam ", StringComparison.Ordinal))
+            {
+                // Take the parameter name only, dropping any "where T : ..." constraint.
+                var name = line["@typeparam ".Length..].Trim().Split([' ', '\t'], 2)[0];
+                if (name.Length > 0)
+                {
+                    typeParams.Add(name);
+                }
+            }
+        }
+
+        if (string.IsNullOrEmpty(baseType))
+        {
+            return null;
+        }
+
+        var className = Path.GetFileNameWithoutExtension(razorFile);
+        ns ??= GetNamespaceForRazor(razorFile) ?? "BootstrapBlazor.Components";
+        var generics = typeParams.Count > 0 ? $"<{string.Join(", ", typeParams)}>" : "";
+
+        return $"namespace {ns};\npublic partial class {className}{generics} : {baseType} {{ }}\n";
+    }
+
+    /// <summary>
+    /// Resolve the namespace of a .razor file from its sibling code-behind (X.razor.cs),
+    /// already parsed into <see cref="_treeByPath"/>. Returns null when none exists.
+    /// </summary>
+    private string? GetNamespaceForRazor(string razorFile)
+    {
+        var csPath = Path.GetFullPath(razorFile + ".cs");
+        if (_treeByPath.TryGetValue(csPath, out var tree))
+        {
+            return tree.GetRoot().DescendantNodes()
+                .OfType<BaseNamespaceDeclarationSyntax>()
+                .FirstOrDefault()?.Name.ToString();
+        }
+
+        return null;
+    }
+
+    private static bool IsCompilableSource(string path)
+    {
+        if (path.Contains($"{Path.DirectorySeparatorChar}obj{Path.DirectorySeparatorChar}") ||
+            path.Contains($"{Path.DirectorySeparatorChar}bin{Path.DirectorySeparatorChar}"))
+        {
+            return false;
+        }
+
+        // Skip generated files; they contain no authored [Parameter] documentation.
+        return !path.EndsWith(".g.cs", StringComparison.OrdinalIgnoreCase) &&
+               !path.EndsWith(".Designer.cs", StringComparison.OrdinalIgnoreCase) &&
+               !path.EndsWith(".AssemblyInfo.cs", StringComparison.OrdinalIgnoreCase) &&
+               !path.EndsWith(".GlobalUsings.g.cs", StringComparison.OrdinalIgnoreCase);
+    }
+
+    private ComponentInfo? AnalyzeEntryFile(string filePath)
     {
         try
         {
-            var code = await File.ReadAllTextAsync(filePath);
-            var tree = CSharpSyntaxTree.ParseText(code);
-            var root = await tree.GetRootAsync();
+            var fullPath = Path.GetFullPath(filePath);
+            if (!_treeByPath.TryGetValue(fullPath, out var tree))
+            {
+                return null;
+            }
 
-            // Find the class declaration
+            var root = tree.GetRoot();
+
+            // Prefer the class whose name matches the file (Button.razor.cs -> Button),
+            // falling back to the first class declaration.
+            var expectedName = DeriveClassName(filePath);
             var classDeclaration = root.DescendantNodes()
                 .OfType<ClassDeclarationSyntax>()
-                .FirstOrDefault();
+                .FirstOrDefault(c => c.Identifier.Text == expectedName)
+                ?? root.DescendantNodes().OfType<ClassDeclarationSyntax>().FirstOrDefault();
 
             if (classDeclaration == null)
             {
                 return null;
             }
 
-            var component = new ComponentInfo
+            var model = _compilation!.GetSemanticModel(tree);
+            if (model.GetDeclaredSymbol(classDeclaration) is not INamedTypeSymbol symbol)
             {
-                Name = GetClassName(classDeclaration),
-                FullName = GetFullClassName(classDeclaration, root),
-                Summary = ExtractXmlSummary(classDeclaration),
-                TypeParameters = GetTypeParameters(classDeclaration),
-                BaseClass = GetBaseClass(classDeclaration),
-                SourcePath = GetRelativePath(filePath),
-                LastModified = File.GetLastWriteTimeUtc(filePath),
-                SamplePath = FindSamplePath(GetClassName(classDeclaration))
-            };
+                return null;
+            }
 
-            // Extract parameters
-            component.Parameters = ExtractParameters(classDeclaration);
-
-            // Extract public methods
-            component.PublicMethods = ExtractPublicMethods(classDeclaration);
-
-            return component;
+            return BuildComponentInfo(symbol, classDeclaration, filePath);
         }
         catch (Exception ex)
         {
@@ -133,115 +281,140 @@ public partial class ComponentAnalyzer
         }
     }
 
-    private string GetClassName(ClassDeclarationSyntax classDeclaration)
+    private ComponentInfo BuildComponentInfo(INamedTypeSymbol symbol, ClassDeclarationSyntax classDeclaration, string filePath)
     {
-        return classDeclaration.Identifier.Text;
+        return new ComponentInfo
+        {
+            Name = symbol.Name,
+            FullName = symbol.ToDisplayString(FullNameFormat),
+            Summary = ExtractXmlSummary(classDeclaration),
+            TypeParameters = symbol.TypeParameters.Select(t => t.Name).ToList(),
+            BaseClass = GetBaseClassName(symbol),
+            SourcePath = GetRelativePath(filePath),
+            LastModified = File.GetLastWriteTimeUtc(filePath),
+            SamplePath = FindSamplePath(symbol.Name),
+            Parameters = CollectParameters(symbol),
+            PublicMethods = CollectMethods(symbol)
+        };
     }
 
-    private string GetFullClassName(ClassDeclarationSyntax classDeclaration, SyntaxNode root)
+    private static string? GetBaseClassName(INamedTypeSymbol symbol)
     {
-        var namespaceName = root.DescendantNodes()
-            .OfType<BaseNamespaceDeclarationSyntax>()
-            .FirstOrDefault()?.Name.ToString() ?? "";
-
-        var className = classDeclaration.Identifier.Text;
-
-        if (classDeclaration.TypeParameterList != null)
+        var baseType = symbol.BaseType;
+        if (baseType == null || baseType.SpecialType == SpecialType.System_Object)
         {
-            className += classDeclaration.TypeParameterList.ToString();
+            return null;
         }
 
-        return string.IsNullOrEmpty(namespaceName) ? className : $"{namespaceName}.{className}";
+        return baseType.ToDisplayString(TypeFormat);
     }
 
-    private List<string> GetTypeParameters(ClassDeclarationSyntax classDeclaration)
-    {
-        if (classDeclaration.TypeParameterList == null)
-        {
-            return new List<string>();
-        }
-
-        return classDeclaration.TypeParameterList.Parameters
-            .Select(p => p.Identifier.Text)
-            .ToList();
-    }
-
-    private string? GetBaseClass(ClassDeclarationSyntax classDeclaration)
-    {
-        var baseList = classDeclaration.BaseList;
-        if (baseList == null) return null;
-
-        var baseType = baseList.Types.FirstOrDefault();
-        return baseType?.Type.ToString();
-    }
-
-    private List<ParameterInfo> ExtractParameters(ClassDeclarationSyntax classDeclaration)
+    /// <summary>
+    /// Collect [Parameter] properties from the type and every base class in source.
+    /// Derived declarations win on name collisions; obsolete parameters are dropped.
+    /// </summary>
+    private List<ParameterInfo> CollectParameters(INamedTypeSymbol type)
     {
         var parameters = new List<ParameterInfo>();
+        var seen = new HashSet<string>(StringComparer.Ordinal);
 
-        var properties = classDeclaration.DescendantNodes()
-            .OfType<PropertyDeclarationSyntax>();
-
-        foreach (var property in properties)
+        for (var current = type;
+             current is { SpecialType: SpecialType.None, TypeKind: not TypeKind.Error };
+             current = current.BaseType)
         {
-            // Check if property has [Parameter] attribute
-            var hasParameterAttr = property.AttributeLists
-                .SelectMany(a => a.Attributes)
-                .Any(a => a.Name.ToString() is "Parameter" or "ParameterAttribute");
-
-            if (!hasParameterAttr) continue;
-
-            var paramInfo = new ParameterInfo
+            foreach (var property in current.GetMembers().OfType<IPropertySymbol>())
             {
-                Name = property.Identifier.Text,
-                Type = SimplifyTypeName(property.Type?.ToString() ?? "unknown"),
-                DefaultValue = GetDefaultValue(property),
-                Description = ExtractXmlSummary(property),
-                IsRequired = HasAttribute(property, "EditorRequired"),
-                IsObsolete = HasAttribute(property, "Obsolete"),
-                ObsoleteMessage = GetObsoleteMessage(property),
-                IsEventCallback = property.Type?.ToString().Contains("EventCallback") ?? false
-            };
+                var syntax = GetPropertySyntax(property);
+                if (syntax == null || !HasAttribute(syntax, "Parameter"))
+                {
+                    continue;
+                }
 
-            // Skip obsolete parameters
-            if (!paramInfo.IsObsolete)
-            {
-                parameters.Add(paramInfo);
+                // Reserve the name even when skipped so a derived declaration always
+                // shadows a base one (whether or not the base is obsolete).
+                if (!seen.Add(property.Name))
+                {
+                    continue;
+                }
+
+                if (HasAttribute(syntax, "Obsolete"))
+                {
+                    continue;
+                }
+
+                parameters.Add(new ParameterInfo
+                {
+                    Name = property.Name,
+                    Type = property.Type.ToDisplayString(TypeFormat),
+                    DefaultValue = GetDefaultValue(syntax),
+                    Description = ExtractXmlSummary(syntax),
+                    IsRequired = HasAttribute(syntax, "EditorRequired"),
+                    IsObsolete = false,
+                    ObsoleteMessage = null,
+                    IsEventCallback = property.Type.Name == "EventCallback",
+                    DeclaringType = current.Name
+                });
             }
         }
 
         return parameters.OrderBy(p => p.Name).ToList();
     }
 
-    private List<MethodInfo> ExtractPublicMethods(ClassDeclarationSyntax classDeclaration)
+    /// <summary>
+    /// Collect public methods declared on the component itself (partials merged),
+    /// excluding overrides, constructors, accessors and operators.
+    /// </summary>
+    private List<MethodInfo> CollectMethods(INamedTypeSymbol type)
     {
         var methods = new List<MethodInfo>();
 
-        var methodDeclarations = classDeclaration.DescendantNodes()
-            .OfType<MethodDeclarationSyntax>()
-            .Where(m => m.Modifiers.Any(mod => mod.IsKind(SyntaxKind.PublicKeyword)));
-
-        foreach (var method in methodDeclarations)
+        foreach (var method in type.GetMembers().OfType<IMethodSymbol>())
         {
-            // Skip property accessors, overrides of base class methods
-            if (method.Modifiers.Any(m => m.IsKind(SyntaxKind.OverrideKeyword)))
-                continue;
-
-            var methodInfo = new MethodInfo
+            if (method.DeclaredAccessibility != Accessibility.Public ||
+                method.IsOverride ||
+                method.IsImplicitlyDeclared ||
+                method.MethodKind != MethodKind.Ordinary)
             {
-                Name = method.Identifier.Text,
-                ReturnType = SimplifyTypeName(method.ReturnType.ToString()),
-                Description = ExtractXmlSummary(method),
-                IsJSInvokable = HasAttribute(method, "JSInvokable"),
-                Parameters = method.ParameterList.Parameters
-                    .Select(p => (SimplifyTypeName(p.Type?.ToString() ?? ""), p.Identifier.Text))
-                    .ToList()
-            };
+                continue;
+            }
 
-            methods.Add(methodInfo);
+            var syntax = method.DeclaringSyntaxReferences
+                .Select(r => r.GetSyntax())
+                .OfType<MethodDeclarationSyntax>()
+                .FirstOrDefault();
+
+            methods.Add(new MethodInfo
+            {
+                Name = method.Name,
+                ReturnType = method.ReturnType.ToDisplayString(TypeFormat),
+                Description = syntax == null ? null : ExtractXmlSummary(syntax),
+                IsJSInvokable = syntax != null && HasAttribute(syntax, "JSInvokable"),
+                Parameters = method.Parameters
+                    .Select(p => (p.Type.ToDisplayString(TypeFormat), p.Name))
+                    .ToList()
+            });
         }
 
         return methods;
+    }
+
+    private static PropertyDeclarationSyntax? GetPropertySyntax(IPropertySymbol property) =>
+        property.DeclaringSyntaxReferences
+            .Select(r => r.GetSyntax())
+            .OfType<PropertyDeclarationSyntax>()
+            .FirstOrDefault();
+
+    private static string DeriveClassName(string filePath)
+    {
+        var fileName = Path.GetFileName(filePath);
+        if (fileName.EndsWith(".razor.cs", StringComparison.OrdinalIgnoreCase))
+        {
+            return fileName[..^".razor.cs".Length];
+        }
+
+        return fileName.EndsWith(".cs", StringComparison.OrdinalIgnoreCase)
+            ? fileName[..^".cs".Length]
+            : fileName;
     }
 
     private string? ExtractXmlSummary(SyntaxNode node)
@@ -304,51 +477,12 @@ public partial class ComponentAnalyzer
         return value;
     }
 
-    private string SimplifyTypeName(string typeName)
-    {
-        // Remove common namespace prefixes
-        var result = typeName
-            .Replace("System.", "")
-            .Replace("Collections.Generic.", "")
-            .Replace("Threading.Tasks.", "");
-
-        // Handle Nullable<T> -> T? (must be done carefully to not break other generics)
-        result = NullableRegex().Replace(result, "$1?");
-
-        // Simplify primitive type names
-        result = result
-            .Replace("Int32", "int")
-            .Replace("Int64", "long")
-            .Replace("Boolean", "bool")
-            .Replace("String", "string")
-            .Replace("Object", "object");
-
-        return result;
-    }
-
-    [GeneratedRegex(@"Nullable<([^>]+)>")]
-    private static partial Regex NullableRegex();
-
     private bool HasAttribute(MemberDeclarationSyntax member, string attributeName)
     {
         return member.AttributeLists
             .SelectMany(a => a.Attributes)
             .Any(a => a.Name.ToString() == attributeName ||
                      a.Name.ToString() == attributeName + "Attribute");
-    }
-
-    private string? GetObsoleteMessage(PropertyDeclarationSyntax property)
-    {
-        var obsoleteAttr = property.AttributeLists
-            .SelectMany(a => a.Attributes)
-            .FirstOrDefault(a => a.Name.ToString() is "Obsolete" or "ObsoleteAttribute");
-
-        if (obsoleteAttr?.ArgumentList?.Arguments.Count > 0)
-        {
-            return obsoleteAttr.ArgumentList.Arguments[0].ToString().Trim('"');
-        }
-
-        return null;
     }
 
     private string GetRelativePath(string fullPath)

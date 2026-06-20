@@ -105,6 +105,12 @@ public class ParameterInfo
     /// Whether this is an EventCallback
     /// </summary>
     public bool IsEventCallback { get; set; }
+
+    /// <summary>
+    /// Name of the type that declares this parameter. Differs from the component
+    /// name when the parameter is inherited from a base class.
+    /// </summary>
+    public string? DeclaringType { get; set; }
 }
 
 /// <summary>
