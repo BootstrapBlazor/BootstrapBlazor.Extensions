@@ -347,7 +347,7 @@ public partial class ComponentAnalyzer
                     Name = property.Name,
                     Type = property.Type.ToDisplayString(TypeFormat),
                     DefaultValue = GetDefaultValue(syntax),
-                    Description = ExtractXmlSummary(syntax),
+                    Description = ResolveDescription(property),
                     IsRequired = HasAttribute(syntax, "EditorRequired"),
                     IsObsolete = false,
                     ObsoleteMessage = null,
@@ -403,6 +403,114 @@ public partial class ComponentAnalyzer
             .Select(r => r.GetSyntax())
             .OfType<PropertyDeclarationSyntax>()
             .FirstOrDefault();
+
+    /// <summary>
+    /// Resolve a parameter's summary, following <c>&lt;inheritdoc&gt;</c> (with or without a
+    /// cref) to the inherited member so parameters that delegate their docs to a base
+    /// type or interface still get a real description instead of an empty cell.
+    /// </summary>
+    private string? ResolveDescription(IPropertySymbol property, int depth = 0)
+    {
+        if (depth > 8)
+        {
+            return null;
+        }
+
+        var syntax = GetPropertySyntax(property);
+        if (syntax == null)
+        {
+            return null;
+        }
+
+        var inheritdoc = FindInheritdoc(syntax);
+        if (inheritdoc == null)
+        {
+            return ExtractXmlSummary(syntax);
+        }
+
+        var target = ResolveInheritdocTarget(property, syntax, inheritdoc);
+        if (target != null && !SymbolEqualityComparer.Default.Equals(target, property))
+        {
+            var inherited = ResolveDescription(target, depth + 1);
+            if (!string.IsNullOrWhiteSpace(inherited))
+            {
+                return inherited;
+            }
+        }
+
+        // Unresolved: fall back to whatever this declaration itself carries.
+        return ExtractXmlSummary(syntax);
+    }
+
+    private static XmlNodeSyntax? FindInheritdoc(PropertyDeclarationSyntax syntax)
+    {
+        var doc = syntax.GetLeadingTrivia()
+            .Select(t => t.GetStructure())
+            .OfType<DocumentationCommentTriviaSyntax>()
+            .FirstOrDefault();
+        if (doc == null)
+        {
+            return null;
+        }
+
+        // <inheritdoc> is usually nested inside <summary>, so search all descendants.
+        foreach (var node in doc.DescendantNodes())
+        {
+            switch (node)
+            {
+                case XmlEmptyElementSyntax e when e.Name.LocalName.Text == "inheritdoc":
+                    return e;
+                case XmlElementSyntax el when el.StartTag.Name.LocalName.Text == "inheritdoc":
+                    return el;
+            }
+        }
+
+        return null;
+    }
+
+    private IPropertySymbol? ResolveInheritdocTarget(IPropertySymbol property, PropertyDeclarationSyntax syntax, XmlNodeSyntax inheritdoc)
+    {
+        var cref = GetCref(inheritdoc);
+        if (cref != null)
+        {
+            var model = _compilation!.GetSemanticModel(syntax.SyntaxTree);
+            return model.GetSymbolInfo(cref).Symbol as IPropertySymbol;
+        }
+
+        // Implicit <inheritdoc/>: prefer the overridden base property, then a matching
+        // interface member.
+        return property.OverriddenProperty ?? FindInterfaceMember(property);
+    }
+
+    private static CrefSyntax? GetCref(XmlNodeSyntax inheritdoc)
+    {
+        SyntaxList<XmlAttributeSyntax> attributes = inheritdoc switch
+        {
+            XmlEmptyElementSyntax e => e.Attributes,
+            XmlElementSyntax el => el.StartTag.Attributes,
+            _ => default
+        };
+
+        return attributes.OfType<XmlCrefAttributeSyntax>().FirstOrDefault()?.Cref;
+    }
+
+    private static IPropertySymbol? FindInterfaceMember(IPropertySymbol property)
+    {
+        var type = property.ContainingType;
+        foreach (var iface in type.AllInterfaces)
+        {
+            foreach (var member in iface.GetMembers(property.Name).OfType<IPropertySymbol>())
+            {
+                var impl = type.FindImplementationForInterfaceMember(member);
+                if (SymbolEqualityComparer.Default.Equals(impl, property))
+                {
+                    return member;
+                }
+            }
+        }
+
+        return null;
+    }
 
     private static string DeriveClassName(string filePath)
     {
