@@ -487,8 +487,12 @@ public partial class ComponentAnalyzer
 
     private string GetRelativePath(string fullPath)
     {
-        var basePath = Path.GetDirectoryName(Path.GetDirectoryName(_sourcePath))!;
-        return Path.GetRelativePath(basePath, fullPath).Replace('\\', '/');
+        // Normalize first: _sourcePath is "<root>/../BootstrapBlazor", so without
+        // GetFullPath the ".." segment throws off GetDirectoryName and the result
+        // becomes "../BootstrapBlazor/..." instead of "src/BootstrapBlazor/...".
+        var sourceRoot = Path.GetFullPath(_sourcePath);
+        var basePath = Path.GetDirectoryName(Path.GetDirectoryName(sourceRoot))!;
+        return Path.GetRelativePath(basePath, Path.GetFullPath(fullPath)).Replace('\\', '/');
     }
 
     private string? FindSamplePath(string componentName)

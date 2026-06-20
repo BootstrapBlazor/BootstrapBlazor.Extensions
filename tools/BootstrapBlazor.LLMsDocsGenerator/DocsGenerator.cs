@@ -14,19 +14,14 @@ internal static class DocsGenerator
     {
         var _sourcePath = Path.Combine(rootFolder, "..", "BootstrapBlazor");
         var _outputPath = Path.Combine(outputFolder, "wwwroot", "llms");
-        var _componentsOutputPath = Path.Combine(_outputPath, "components");
 
         Logger($"Source path: {_sourcePath}");
         Logger($"Output path: {_outputPath}");
-        Logger($"Components path: {_componentsOutputPath}");
 
         if (!Directory.Exists(_sourcePath))
         {
             return;
         }
-
-        Directory.CreateDirectory(_outputPath);
-        Directory.CreateDirectory(_componentsOutputPath);
 
         Logger("Analyzing components...");
 
@@ -34,20 +29,23 @@ internal static class DocsGenerator
         var components = await _analyzer.AnalyzeAllComponentsAsync();
         Logger($"Found {components.Count} components");
 
+        // Chinese documentation only: the index at the docs root and one file per
+        // component (Chinese text extracted from the bilingual <para> blocks) under
+        // the components/ directory.
+        Directory.CreateDirectory(_outputPath);
         var indexPath = Path.Combine(_outputPath, "llms.txt");
-        var content = MarkdownBuilder.BuildIndexDoc(components);
-        await File.WriteAllTextAsync(indexPath, content);
+        await File.WriteAllTextAsync(indexPath, MarkdownBuilder.BuildIndexDoc(components, "zh"));
         Logger($"Generated: {indexPath}");
 
-        Logger("Generating individual component documentation...");
+        var componentsOutputPath = Path.Combine(_outputPath, "components");
+        Directory.CreateDirectory(componentsOutputPath);
         foreach (var component in components)
         {
-            content = MarkdownBuilder.BuildComponentDoc(component);
-            var fileName = $"{component.Name}.txt";
-            var filePath = Path.Combine(_componentsOutputPath, fileName);
+            var content = MarkdownBuilder.BuildComponentDoc(component, "zh");
+            var filePath = Path.Combine(componentsOutputPath, $"{component.Name}.txt");
             await File.WriteAllTextAsync(filePath, content);
-            Logger($"Generated: {filePath}");
         }
+        Logger($"Generated {components.Count} component files in {componentsOutputPath}");
         Logger("Documentation generation complete!");
     }
 
