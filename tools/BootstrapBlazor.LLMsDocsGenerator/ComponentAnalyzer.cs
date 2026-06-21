@@ -25,6 +25,7 @@ public partial class ComponentAnalyzer
     private readonly string _sourcePath;
     private readonly string _componentsPath;
     private readonly string _samplesPath;
+    private readonly string? _extensionsSourcePath;
 
     private CSharpCompilation? _compilation;
     private readonly Dictionary<string, SyntaxTree> _treeByPath = new(StringComparer.OrdinalIgnoreCase);
@@ -42,11 +43,12 @@ public partial class ComponentAnalyzer
         typeQualificationStyle: SymbolDisplayTypeQualificationStyle.NameAndContainingTypesAndNamespaces,
         genericsOptions: SymbolDisplayGenericsOptions.IncludeTypeParameters);
 
-    public ComponentAnalyzer(string sourcePath)
+    public ComponentAnalyzer(string sourcePath, string? extensionsSourcePath = null)
     {
         _sourcePath = sourcePath;
         _componentsPath = Path.Combine(sourcePath, "Components");
         _samplesPath = Path.Combine(Path.GetDirectoryName(sourcePath)!, "BootstrapBlazor.Server", "Components", "Samples");
+        _extensionsSourcePath = extensionsSourcePath;
     }
 
     /// <summary>
@@ -141,6 +143,144 @@ public partial class ComponentAnalyzer
     }
 
     /// <summary>
+    /// Analyze arbitrary types by name (extension components and services) into
+    /// ComponentInfo records with parameters, methods and source path. The compilation
+    /// must include both the extension sources and the core library (for base types).
+    /// </summary>
+    public async Task<List<ComponentInfo>> AnalyzeTypesByNameAsync(IEnumerable<string> typeNames, bool resolveRegistration = false)
+    {
+        await EnsureCompilationAsync();
+
+        var extSrc = string.IsNullOrEmpty(_extensionsSourcePath) ? null : Path.GetFullPath(_extensionsSourcePath);
+        var result = new List<ComponentInfo>();
+        foreach (var name in typeNames)
+        {
+            var symbol = _compilation!.GetSymbolsWithName(name, SymbolFilter.Type)
+                .OfType<INamedTypeSymbol>()
+                .FirstOrDefault();
+            var syntax = symbol?.DeclaringSyntaxReferences.FirstOrDefault()?.GetSyntax();
+            if (symbol == null || syntax == null)
+            {
+                continue;
+            }
+
+            var path = Path.GetFullPath(syntax.SyntaxTree.FilePath);
+            result.Add(new ComponentInfo
+            {
+                Name = symbol.Name,
+                FullName = symbol.ToDisplayString(FullNameFormat),
+                Summary = ExtractXmlSummary(syntax),
+                TypeParameters = symbol.TypeParameters.Select(t => t.Name).ToList(),
+                BaseClass = GetBaseClassName(symbol),
+                Parameters = CollectParameters(symbol),
+                PublicMethods = CollectMethods(symbol),
+                SourcePath = GetRelativePath(path),
+                IsExtension = extSrc != null && path.StartsWith(extSrc, StringComparison.OrdinalIgnoreCase),
+                Registration = resolveRegistration ? ResolveRegistration(symbol) : null
+            });
+        }
+
+        return result;
+    }
+
+    /// <summary>
+    /// The DI registration helpers whose first type argument is the registered service.
+    /// </summary>
+    private static readonly HashSet<string> RegistrationMethodNames = new(StringComparer.Ordinal)
+    {
+        "AddScoped", "AddSingleton", "AddTransient",
+        "TryAddScoped", "TryAddSingleton", "TryAddTransient"
+    };
+
+    private Dictionary<INamedTypeSymbol, ServiceRegistration>? _registrationIndex;
+
+    /// <summary>
+    /// Look up the extension method that registers a service type into DI.
+    /// </summary>
+    private ServiceRegistration? ResolveRegistration(INamedTypeSymbol serviceType)
+    {
+        BuildRegistrationIndex();
+        return _registrationIndex!.TryGetValue(serviceType, out var reg) ? reg : null;
+    }
+
+    /// <summary>
+    /// Map each DI service type to the <c>AddXxx(this IServiceCollection)</c> extension
+    /// method that registers it. Every such extension method is scanned for
+    /// <c>AddScoped/AddSingleton/AddTransient</c> (and the <c>TryAdd*</c> variants) generic
+    /// calls; the first type argument is the registered service. The DI helpers
+    /// themselves are matched syntactically (no metadata references are loaded), while
+    /// the type argument resolves because it lives in the analyzed source.
+    /// </summary>
+    private void BuildRegistrationIndex()
+    {
+        if (_registrationIndex != null)
+        {
+            return;
+        }
+
+        _registrationIndex = new Dictionary<INamedTypeSymbol, ServiceRegistration>(SymbolEqualityComparer.Default);
+
+        foreach (var tree in _compilation!.SyntaxTrees)
+        {
+            SemanticModel? model = null;
+            foreach (var method in tree.GetRoot().DescendantNodes().OfType<MethodDeclarationSyntax>())
+            {
+                var receiver = method.ParameterList.Parameters.FirstOrDefault();
+                if (receiver == null ||
+                    !receiver.Modifiers.Any(m => m.IsKind(SyntaxKind.ThisKeyword)) ||
+                    receiver.Type?.ToString().EndsWith("IServiceCollection", StringComparison.Ordinal) != true)
+                {
+                    continue;
+                }
+
+                foreach (var invocation in method.DescendantNodes().OfType<InvocationExpressionSyntax>())
+                {
+                    if (invocation.Expression is not MemberAccessExpressionSyntax { Name: GenericNameSyntax generic } ||
+                        !RegistrationMethodNames.Contains(generic.Identifier.Text))
+                    {
+                        continue;
+                    }
+
+                    var firstArg = generic.TypeArgumentList.Arguments.FirstOrDefault();
+                    if (firstArg == null)
+                    {
+                        continue;
+                    }
+
+                    model ??= _compilation.GetSemanticModel(tree);
+                    if (model.GetSymbolInfo(firstArg).Symbol is not INamedTypeSymbol serviceType)
+                    {
+                        continue;
+                    }
+
+                    // First writer wins so the most direct registration method sticks.
+                    if (!_registrationIndex.ContainsKey(serviceType))
+                    {
+                        _registrationIndex[serviceType] = new ServiceRegistration
+                        {
+                            MethodName = method.Identifier.Text,
+                            Parameters = BuildRegistrationParameters(method)
+                        };
+                    }
+                }
+            }
+        }
+    }
+
+    /// <summary>
+    /// Render the registration method's parameters (excluding the <c>this IServiceCollection</c>
+    /// receiver) on a single line, or null when there are none.
+    /// </summary>
+    private static string? BuildRegistrationParameters(MethodDeclarationSyntax method)
+    {
+        var extra = method.ParameterList.Parameters.Skip(1)
+            .Select(p => WhitespaceRegex().Replace(p.ToString(), " ")
+                .Replace("< ", "<").Replace(" >", ">").Trim());
+        var text = string.Join(", ", extra);
+        return string.IsNullOrWhiteSpace(text) ? null : text;
+    }
+
+    /// <summary>
     /// Build a single compilation from every source file in the library so that
     /// base types declared in source can be resolved as symbols. No external metadata
     /// references are added: attributes are matched by name, which tolerates the
@@ -156,16 +296,29 @@ public partial class ComponentAnalyzer
         var parseOptions = new CSharpParseOptions(documentationMode: DocumentationMode.Parse);
         var trees = new List<SyntaxTree>();
 
-        var files = Directory.GetFiles(_sourcePath, "*.cs", SearchOption.AllDirectories)
-            .Where(IsCompilableSource);
-
-        foreach (var file in files)
+        // Include the core library and, when provided, the extensions repository so that
+        // extension components (which inherit core base types) resolve their full chain.
+        var sourceRoots = new List<string> { _sourcePath };
+        if (!string.IsNullOrEmpty(_extensionsSourcePath) && Directory.Exists(_extensionsSourcePath))
         {
-            var code = await File.ReadAllTextAsync(file);
-            var fullPath = Path.GetFullPath(file);
-            var tree = CSharpSyntaxTree.ParseText(code, parseOptions, path: fullPath);
-            trees.Add(tree);
-            _treeByPath[fullPath] = tree;
+            sourceRoots.Add(_extensionsSourcePath);
+        }
+
+        foreach (var root in sourceRoots)
+        {
+            foreach (var file in Directory.GetFiles(root, "*.cs", SearchOption.AllDirectories).Where(IsCompilableSource))
+            {
+                var fullPath = Path.GetFullPath(file);
+                if (_treeByPath.ContainsKey(fullPath))
+                {
+                    continue;
+                }
+
+                var code = await File.ReadAllTextAsync(file);
+                var tree = CSharpSyntaxTree.ParseText(code, parseOptions, path: fullPath);
+                trees.Add(tree);
+                _treeByPath[fullPath] = tree;
+            }
         }
 
         // Razor components declare their base class via the @inherits directive, which
@@ -174,17 +327,20 @@ public partial class ComponentAnalyzer
         // inheritance chain is complete. This relies on the .cs trees already being
         // indexed in _treeByPath for namespace lookup, so it must run afterwards.
         var sep = Path.DirectorySeparatorChar;
-        foreach (var razorFile in Directory.GetFiles(_sourcePath, "*.razor", SearchOption.AllDirectories))
+        foreach (var root in sourceRoots)
         {
-            if (razorFile.Contains($"{sep}obj{sep}") || razorFile.Contains($"{sep}bin{sep}"))
+            foreach (var razorFile in Directory.GetFiles(root, "*.razor", SearchOption.AllDirectories))
             {
-                continue;
-            }
+                if (razorFile.Contains($"{sep}obj{sep}") || razorFile.Contains($"{sep}bin{sep}"))
+                {
+                    continue;
+                }
 
-            var shim = await BuildInheritsShimAsync(razorFile);
-            if (shim != null)
-            {
-                trees.Add(CSharpSyntaxTree.ParseText(shim, parseOptions));
+                var shim = await BuildInheritsShimAsync(razorFile);
+                if (shim != null)
+                {
+                    trees.Add(CSharpSyntaxTree.ParseText(shim, parseOptions));
+                }
             }
         }
 
@@ -364,17 +520,16 @@ public partial class ComponentAnalyzer
                     continue;
                 }
 
-                // Reserve the name even when skipped so a derived declaration always
-                // shadows a base one (whether or not the base is obsolete).
+                // Reserve the name so a derived declaration always shadows a base one
+                // (whether or not either is obsolete).
                 if (!seen.Add(property.Name))
                 {
                     continue;
                 }
 
-                if (HasAttribute(syntax, "Obsolete"))
-                {
-                    continue;
-                }
+                // Obsolete parameters are kept (and flagged) rather than dropped, so the
+                // docs show the full API surface and the migration hint for old code.
+                var (isObsolete, obsoleteMessage) = GetObsoleteInfo(syntax);
 
                 parameters.Add(new ParameterInfo
                 {
@@ -383,8 +538,8 @@ public partial class ComponentAnalyzer
                     DefaultValue = GetDefaultValue(syntax),
                     Description = ResolveDescription(property),
                     IsRequired = HasAttribute(syntax, "EditorRequired"),
-                    IsObsolete = false,
-                    ObsoleteMessage = null,
+                    IsObsolete = isObsolete,
+                    ObsoleteMessage = obsoleteMessage,
                     IsEventCallback = property.Type.Name == "EventCallback",
                     DeclaringType = current.Name
                 });
@@ -643,14 +798,51 @@ public partial class ComponentAnalyzer
                      a.Name.ToString() == attributeName + "Attribute");
     }
 
+    /// <summary>
+    /// Read the <c>[Obsolete]</c> attribute, returning whether it is present and the
+    /// message string (the first literal argument, typically a migration hint).
+    /// </summary>
+    private static (bool IsObsolete, string? Message) GetObsoleteInfo(MemberDeclarationSyntax member)
+    {
+        var attribute = member.AttributeLists
+            .SelectMany(a => a.Attributes)
+            .FirstOrDefault(a => a.Name.ToString() is "Obsolete" or "ObsoleteAttribute");
+        if (attribute == null)
+        {
+            return (false, null);
+        }
+
+        var message = attribute.ArgumentList?.Arguments
+            .Select(arg => arg.Expression)
+            .OfType<LiteralExpressionSyntax>()
+            .FirstOrDefault(e => e.IsKind(SyntaxKind.StringLiteralExpression))?
+            .Token.ValueText;
+
+        return (true, string.IsNullOrWhiteSpace(message) ? null : message);
+    }
+
     private string GetRelativePath(string fullPath)
     {
+        var full = Path.GetFullPath(fullPath);
+
+        // Extension sources live in a separate repository; make the path relative to
+        // that repo root (the parent of its src folder).
+        if (!string.IsNullOrEmpty(_extensionsSourcePath))
+        {
+            var extSrc = Path.GetFullPath(_extensionsSourcePath);
+            if (full.StartsWith(extSrc, StringComparison.OrdinalIgnoreCase))
+            {
+                var extRoot = Path.GetDirectoryName(extSrc)!;
+                return Path.GetRelativePath(extRoot, full).Replace('\\', '/');
+            }
+        }
+
         // Normalize first: _sourcePath is "<root>/../BootstrapBlazor", so without
         // GetFullPath the ".." segment throws off GetDirectoryName and the result
         // becomes "../BootstrapBlazor/..." instead of "src/BootstrapBlazor/...".
         var sourceRoot = Path.GetFullPath(_sourcePath);
         var basePath = Path.GetDirectoryName(Path.GetDirectoryName(sourceRoot))!;
-        return Path.GetRelativePath(basePath, Path.GetFullPath(fullPath)).Replace('\\', '/');
+        return Path.GetRelativePath(basePath, full).Replace('\\', '/');
     }
 
     private string? FindSamplePath(string componentName)
@@ -681,4 +873,7 @@ public partial class ComponentAnalyzer
 
     [GeneratedRegex(@"<summary>\s*(.*?)\s*</summary>", RegexOptions.Singleline)]
     private static partial Regex SummaryRegex();
+
+    [GeneratedRegex(@"\s+")]
+    private static partial Regex WhitespaceRegex();
 }

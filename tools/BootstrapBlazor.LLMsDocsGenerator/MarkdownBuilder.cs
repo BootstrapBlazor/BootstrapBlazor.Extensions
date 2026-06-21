@@ -15,6 +15,8 @@ internal static partial class MarkdownBuilder
 {
     private const string GitHubRawBaseUrl = "https://raw.githubusercontent.com/dotnetcore/BootstrapBlazor/refs/heads/main/";
     private const string GitHubRepositoryUrl = "https://github.com/dotnetcore/BootstrapBlazor";
+    private const string GitHubExtensionsRawUrl = "https://raw.githubusercontent.com/dotnetcore/BootstrapBlazor.Extensions/refs/heads/main/";
+    private const string GitHubExtensionsRepositoryUrl = "https://github.com/BootstrapBlazor/BootstrapBlazor.Extensions";
 
     /// <summary>
     /// Extract the text for a single language from a doc string that may contain
@@ -87,7 +89,7 @@ internal static partial class MarkdownBuilder
     [GeneratedRegex("\\s+")]
     private static partial Regex WhitespaceRegex();
 
-    public static string BuildIndexDoc(List<ComponentInfo> components, List<ComponentCategory> categories, List<ComponentInfo> services, string lang)
+    public static string BuildIndexDoc(List<ComponentInfo> components, List<ComponentCategory> categories, List<ComponentInfo> services, List<ComponentInfo> extensionComponents, List<ComponentInfo> extensionServices, List<ExtensionPackage> extensionPackages, string lang)
     {
         var _sb = new StringBuilder();
         _sb.AppendLine("# BootstrapBlazor");
@@ -193,6 +195,61 @@ internal static partial class MarkdownBuilder
             _sb.AppendLine();
         }
 
+        // Extension components & services (from BootstrapBlazor.Extensions)
+        void AppendExtensionLink(ComponentInfo item)
+        {
+            var localized = Localize(item.Summary, lang);
+            var s = !string.IsNullOrEmpty(localized) ? $" - {TruncateSummary(localized, 60)}" : "";
+            _sb.AppendLine($"- [{item.Name}](extensions/{item.Name}.txt){s}");
+        }
+
+        // Group extension items under their owning package (docs.json "extensions"
+        // order), so the index mirrors the per-package layout of the source repo.
+        void AppendExtensionByPackage(List<ComponentInfo> items, Func<ExtensionPackage, List<string>> selector)
+        {
+            var byName = items
+                .GroupBy(c => c.Name, StringComparer.Ordinal)
+                .ToDictionary(g => g.Key, g => g.First(), StringComparer.Ordinal);
+
+            foreach (var pkg in extensionPackages)
+            {
+                var members = selector(pkg)
+                    .Where(byName.ContainsKey)
+                    .Select(n => byName[n])
+                    .ToList();
+                if (members.Count == 0)
+                {
+                    continue;
+                }
+
+                _sb.AppendLine($"### {pkg.Name}");
+                _sb.AppendLine();
+                foreach (var item in members)
+                {
+                    AppendExtensionLink(item);
+                }
+                _sb.AppendLine();
+            }
+        }
+
+        if (extensionComponents.Count > 0)
+        {
+            _sb.AppendLine("## 扩展组件");
+            _sb.AppendLine();
+            _sb.AppendLine("来自 BootstrapBlazor.Extensions 扩展库的组件，按扩展包分组，每个在 `extensions/` 目录下都有独立的文档文件。");
+            _sb.AppendLine();
+            AppendExtensionByPackage(extensionComponents, p => p.Components);
+        }
+
+        if (extensionServices.Count > 0)
+        {
+            _sb.AppendLine("## 扩展服务");
+            _sb.AppendLine();
+            _sb.AppendLine("来自 BootstrapBlazor.Extensions 扩展库的服务，按扩展包分组，每个在 `extensions/` 目录下都有独立的文档文件。");
+            _sb.AppendLine();
+            AppendExtensionByPackage(extensionServices, p => p.Services);
+        }
+
         // Source Code Reference
         _sb.AppendLine("## 源码参考");
         _sb.AppendLine();
@@ -234,10 +291,21 @@ internal static partial class MarkdownBuilder
         _sb.AppendLine("---");
         _sb.AppendLine($"生成时间: {DateTime.UtcNow:yyyy-MM-dd}");
         _sb.AppendLine($"组件总数: {components.Count}");
+        _sb.AppendLine($"服务总数: {services.Count}");
         _sb.AppendLine($"仓库地址: {GitHubRepositoryUrl}");
 
         return _sb.ToString();
     }
+
+    /// <summary>
+    /// Suggested injection property name for a service type: drops a leading <c>I</c>
+    /// interface prefix (e.g. <c>IBaiduOcr</c> -> <c>BaiduOcr</c>), otherwise keeps the
+    /// type name (e.g. <c>WinBoxService</c>).
+    /// </summary>
+    private static string InjectPropertyName(string typeName) =>
+        typeName.Length > 1 && typeName[0] == 'I' && char.IsUpper(typeName[1])
+            ? typeName[1..]
+            : typeName;
 
     private static string TruncateSummary(string summary, int maxLength)
     {
@@ -283,6 +351,32 @@ internal static partial class MarkdownBuilder
             }
         }
 
+        // Service registration (DI): extension services must be registered before use.
+        if (component.Registration != null)
+        {
+            var reg = component.Registration;
+            _sb.AppendLine("### 服务注册");
+            _sb.AppendLine();
+            _sb.AppendLine("该服务需要先注册到容器，在 `Program.cs` 中添加：");
+            _sb.AppendLine();
+            _sb.AppendLine("```csharp");
+            _sb.AppendLine($"builder.Services.{reg.MethodName}();");
+            if (!string.IsNullOrEmpty(reg.Parameters))
+            {
+                _sb.AppendLine($"// 可选配置参数：{reg.MethodName}({reg.Parameters})");
+            }
+            _sb.AppendLine("```");
+            _sb.AppendLine();
+            _sb.AppendLine("在组件或页面中注入使用：");
+            _sb.AppendLine();
+            _sb.AppendLine("```csharp");
+            _sb.AppendLine("[Inject]");
+            _sb.AppendLine("[NotNull]");
+            _sb.AppendLine($"private {component.Name}? {InjectPropertyName(component.Name)} {{ get; set; }}");
+            _sb.AppendLine("```");
+            _sb.AppendLine();
+        }
+
         // Type parameters
         if (component.TypeParameters.Count > 0)
         {
@@ -312,16 +406,18 @@ internal static partial class MarkdownBuilder
             _sb.AppendLine("| 参数 | 类型 | 默认值 | 描述 |");
             _sb.AppendLine("|------|------|--------|------|");
 
-            // Sort: required first, then events, then alphabetically
+            // Sort: active params first (obsolete sink to the bottom), then required,
+            // then events, then alphabetically.
             var sortedParams = component.Parameters
-                .OrderByDescending(p => p.IsRequired)
+                .OrderBy(p => p.IsObsolete)
+                .ThenByDescending(p => p.IsRequired)
                 .ThenBy(p => p.IsEventCallback)
                 .ThenBy(p => p.Name);
 
             foreach (var param in sortedParams)
             {
                 var required = param.IsRequired ? " **[必填]**" : "";
-                var description = EscapeMarkdownCell(Localize(param.Description, lang) ?? "") + required;
+                var description = EscapeMarkdownCell(Localize(param.Description, lang) ?? "") + required + FormatObsolete(param);
                 var defaultVal = param.DefaultValue ?? "-";
                 var type = EscapeMarkdownCell(param.Type);
 
@@ -342,9 +438,9 @@ internal static partial class MarkdownBuilder
             _sb.AppendLine("| 事件 | 类型 | 描述 |");
             _sb.AppendLine("|------|------|------|");
 
-            foreach (var evt in eventCallbacks.OrderBy(e => e.Name))
+            foreach (var evt in eventCallbacks.OrderBy(e => e.IsObsolete).ThenBy(e => e.Name))
             {
-                var description = EscapeMarkdownCell(Localize(evt.Description, lang) ?? "");
+                var description = EscapeMarkdownCell(Localize(evt.Description, lang) ?? "") + FormatObsolete(evt);
                 var type = EscapeMarkdownCell(evt.Type);
                 _sb.AppendLine($"| {evt.Name} | `{type}` | {description} |");
             }
@@ -381,11 +477,12 @@ internal static partial class MarkdownBuilder
         {
             _sb.AppendLine("### 源码");
             _sb.AppendLine();
-            var sourceUrl = $"{GitHubRawBaseUrl}{component.SourcePath}";
+            var rawBase = component.IsExtension ? GitHubExtensionsRawUrl : GitHubRawBaseUrl;
+            var sourceUrl = $"{rawBase}{component.SourcePath}";
             _sb.AppendLine($"- 组件: [{component.SourcePath}]({sourceUrl})");
             if (!string.IsNullOrEmpty(component.SamplePath))
             {
-                var sampleUrl = $"{GitHubRawBaseUrl}{component.SamplePath}";
+                var sampleUrl = $"{rawBase}{component.SamplePath}";
                 _sb.AppendLine($"- 示例: [{component.SamplePath}]({sampleUrl})");
             }
             _sb.AppendLine();
@@ -419,6 +516,23 @@ internal static partial class MarkdownBuilder
 
     //    return _sb.ToString();
     //}
+
+    /// <summary>
+    /// Render the deprecation flag for a parameter/event table cell: a bold
+    /// <c>[已弃用]</c> marker followed by the migration hint from <c>[Obsolete("…")]</c>
+    /// when present. Empty for active parameters.
+    /// </summary>
+    private static string FormatObsolete(ParameterInfo param)
+    {
+        if (!param.IsObsolete)
+        {
+            return "";
+        }
+
+        return string.IsNullOrEmpty(param.ObsoleteMessage)
+            ? " **[已弃用]**"
+            : $" **[已弃用]** {EscapeMarkdownCell(param.ObsoleteMessage)}";
+    }
 
     private static string EscapeMarkdownCell(string text)
     {

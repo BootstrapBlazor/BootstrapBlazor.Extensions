@@ -24,6 +24,19 @@ public sealed class ComponentCategory
 }
 
 /// <summary>
+/// An extension package (from BootstrapBlazor.Extensions) with its exported components
+/// and services.
+/// </summary>
+public sealed class ExtensionPackage
+{
+    public string Name { get; set; } = string.Empty;
+
+    public List<string> Components { get; set; } = new();
+
+    public List<string> Services { get; set; } = new();
+}
+
+/// <summary>
 /// Provides component categories from the demo site's <c>docs.json</c> "category"
 /// section — the maintained source of truth mapping each category to its component
 /// types. This replaces parsing the navigation menu and localization resources.
@@ -94,5 +107,52 @@ internal sealed class CategoryProvider
         }
 
         return result;
+    }
+
+    /// <summary>
+    /// Read the "extensions" section: each package with its components and services.
+    /// </summary>
+    public List<ExtensionPackage> ParseExtensions()
+    {
+        var result = new List<ExtensionPackage>();
+        if (!File.Exists(_docsFile))
+        {
+            return result;
+        }
+
+        using var doc = JsonDocument.Parse(File.ReadAllText(_docsFile));
+        if (doc.RootElement.TryGetProperty("extensions", out var extensions) &&
+            extensions.ValueKind == JsonValueKind.Object)
+        {
+            foreach (var pkg in extensions.EnumerateObject())
+            {
+                if (pkg.Value.ValueKind != JsonValueKind.Object)
+                {
+                    continue;
+                }
+
+                result.Add(new ExtensionPackage
+                {
+                    Name = pkg.Name,
+                    Components = ReadStringArray(pkg.Value, "components"),
+                    Services = ReadStringArray(pkg.Value, "services")
+                });
+            }
+        }
+
+        return result;
+    }
+
+    private static List<string> ReadStringArray(JsonElement obj, string name)
+    {
+        var list = new List<string>();
+        if (obj.TryGetProperty(name, out var arr) && arr.ValueKind == JsonValueKind.Array)
+        {
+            list.AddRange(arr.EnumerateArray()
+                .Where(e => e.ValueKind == JsonValueKind.String)
+                .Select(e => e.GetString()!));
+        }
+
+        return list;
     }
 }
