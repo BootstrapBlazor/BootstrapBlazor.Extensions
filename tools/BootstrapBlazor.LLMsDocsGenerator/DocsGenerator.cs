@@ -29,17 +29,20 @@ internal static class DocsGenerator
         var components = await _analyzer.AnalyzeAllComponentsAsync();
         Logger($"Found {components.Count} components");
 
-        // Derive index categories from the demo site's docs.json "category" section.
+        // Derive index categories and injected services from the demo site's docs.json.
         var serverPath = Path.Combine(Path.GetDirectoryName(Path.GetFullPath(_sourcePath))!, "BootstrapBlazor.Server");
-        var categories = new CategoryProvider(serverPath).Parse();
+        var provider = new CategoryProvider(serverPath);
+        var categories = provider.Parse();
         Logger($"Found {categories.Count} categories");
+        var services = await _analyzer.AnalyzeServicesAsync(provider.ParseServices());
+        Logger($"Found {services.Count} services");
 
         // Chinese documentation only: the index at the docs root and one file per
         // component (Chinese text extracted from the bilingual <para> blocks) under
         // the components/ directory.
         Directory.CreateDirectory(_outputPath);
         var indexPath = Path.Combine(_outputPath, "llms.txt");
-        await File.WriteAllTextAsync(indexPath, MarkdownBuilder.BuildIndexDoc(components, categories, "zh"));
+        await File.WriteAllTextAsync(indexPath, MarkdownBuilder.BuildIndexDoc(components, categories, services, "zh"));
         Logger($"Generated: {indexPath}");
 
         var componentsOutputPath = Path.Combine(_outputPath, "components");
@@ -50,7 +53,13 @@ internal static class DocsGenerator
             var filePath = Path.Combine(componentsOutputPath, $"{component.Name}.txt");
             await File.WriteAllTextAsync(filePath, content);
         }
-        Logger($"Generated {components.Count} component files in {componentsOutputPath}");
+        foreach (var service in services)
+        {
+            var content = MarkdownBuilder.BuildComponentDoc(service, "zh");
+            var filePath = Path.Combine(componentsOutputPath, $"{service.Name}.txt");
+            await File.WriteAllTextAsync(filePath, content);
+        }
+        Logger($"Generated {components.Count} component and {services.Count} service files in {componentsOutputPath}");
         Logger("Documentation generation complete!");
     }
 

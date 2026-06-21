@@ -71,4 +71,28 @@ internal sealed class CategoryProvider
 
         return result;
     }
+
+    /// <summary>
+    /// Read the "services" array (injected service type names). Returns an empty list
+    /// when docs.json or the section is missing.
+    /// </summary>
+    public List<string> ParseServices()
+    {
+        var result = new List<string>();
+        if (!File.Exists(_docsFile))
+        {
+            return result;
+        }
+
+        using var doc = JsonDocument.Parse(File.ReadAllText(_docsFile));
+        if (doc.RootElement.TryGetProperty("services", out var services) &&
+            services.ValueKind == JsonValueKind.Array)
+        {
+            result.AddRange(services.EnumerateArray()
+                .Where(e => e.ValueKind == JsonValueKind.String)
+                .Select(e => e.GetString()!));
+        }
+
+        return result;
+    }
 }

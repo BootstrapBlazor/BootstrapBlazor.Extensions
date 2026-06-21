@@ -87,7 +87,7 @@ internal static partial class MarkdownBuilder
     [GeneratedRegex("\\s+")]
     private static partial Regex WhitespaceRegex();
 
-    public static string BuildIndexDoc(List<ComponentInfo> components, List<ComponentCategory> categories, string lang)
+    public static string BuildIndexDoc(List<ComponentInfo> components, List<ComponentCategory> categories, List<ComponentInfo> services, string lang)
     {
         var _sb = new StringBuilder();
         _sb.AppendLine("# BootstrapBlazor");
@@ -173,6 +173,22 @@ internal static partial class MarkdownBuilder
             foreach (var component in others)
             {
                 AppendComponentLink(component);
+            }
+            _sb.AppendLine();
+        }
+
+        // Injected services
+        if (services.Count > 0)
+        {
+            _sb.AppendLine("## 内置服务");
+            _sb.AppendLine();
+            _sb.AppendLine("通过依赖注入使用的服务，每个服务在 `components/` 目录下都有独立的文档文件。");
+            _sb.AppendLine();
+            foreach (var service in services)
+            {
+                var localized = Localize(service.Summary, lang);
+                var summary = !string.IsNullOrEmpty(localized) ? $" - {TruncateSummary(localized, 60)}" : "";
+                _sb.AppendLine($"- [{service.Name}](components/{service.Name}.txt){summary}");
             }
             _sb.AppendLine();
         }

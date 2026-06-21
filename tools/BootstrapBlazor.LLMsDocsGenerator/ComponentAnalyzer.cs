@@ -107,6 +107,40 @@ public partial class ComponentAnalyzer
     }
 
     /// <summary>
+    /// Analyze injected service types (by name) into ComponentInfo records carrying the
+    /// summary, public methods and source path. Services are not Razor components, so
+    /// they are resolved by type name from the compilation (classes or interfaces).
+    /// </summary>
+    public async Task<List<ComponentInfo>> AnalyzeServicesAsync(IEnumerable<string> serviceNames)
+    {
+        await EnsureCompilationAsync();
+
+        var services = new List<ComponentInfo>();
+        foreach (var name in serviceNames)
+        {
+            var symbol = _compilation!.GetSymbolsWithName(name, SymbolFilter.Type)
+                .OfType<INamedTypeSymbol>()
+                .FirstOrDefault();
+            var syntax = symbol?.DeclaringSyntaxReferences.FirstOrDefault()?.GetSyntax();
+            if (symbol == null || syntax == null)
+            {
+                continue;
+            }
+
+            services.Add(new ComponentInfo
+            {
+                Name = symbol.Name,
+                FullName = symbol.ToDisplayString(FullNameFormat),
+                Summary = ExtractXmlSummary(syntax),
+                SourcePath = GetRelativePath(syntax.SyntaxTree.FilePath),
+                PublicMethods = CollectMethods(symbol)
+            });
+        }
+
+        return services;
+    }
+
+    /// <summary>
     /// Build a single compilation from every source file in the library so that
     /// base types declared in source can be resolved as symbols. No external metadata
     /// references are added: attributes are matched by name, which tolerates the
