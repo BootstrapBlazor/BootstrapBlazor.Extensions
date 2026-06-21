@@ -29,12 +29,17 @@ internal static class DocsGenerator
         var components = await _analyzer.AnalyzeAllComponentsAsync();
         Logger($"Found {components.Count} components");
 
+        // Derive index categories from the demo site's docs.json "category" section.
+        var serverPath = Path.Combine(Path.GetDirectoryName(Path.GetFullPath(_sourcePath))!, "BootstrapBlazor.Server");
+        var categories = new CategoryProvider(serverPath).Parse();
+        Logger($"Found {categories.Count} categories");
+
         // Chinese documentation only: the index at the docs root and one file per
         // component (Chinese text extracted from the bilingual <para> blocks) under
         // the components/ directory.
         Directory.CreateDirectory(_outputPath);
         var indexPath = Path.Combine(_outputPath, "llms.txt");
-        await File.WriteAllTextAsync(indexPath, MarkdownBuilder.BuildIndexDoc(components, "zh"));
+        await File.WriteAllTextAsync(indexPath, MarkdownBuilder.BuildIndexDoc(components, categories, "zh"));
         Logger($"Generated: {indexPath}");
 
         var componentsOutputPath = Path.Combine(_outputPath, "components");

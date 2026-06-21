@@ -87,7 +87,7 @@ internal static partial class MarkdownBuilder
     [GeneratedRegex("\\s+")]
     private static partial Regex WhitespaceRegex();
 
-    public static string BuildIndexDoc(List<ComponentInfo> components, string lang)
+    public static string BuildIndexDoc(List<ComponentInfo> components, List<ComponentCategory> categories, string lang)
     {
         var _sb = new StringBuilder();
         _sb.AppendLine("# BootstrapBlazor");
@@ -128,41 +128,51 @@ internal static partial class MarkdownBuilder
         _sb.AppendLine("使用 `components/{ComponentName}.txt` 获取详细的 API 信息。");
         _sb.AppendLine();
 
-        // Group components by category for the index
-        var categorized = CategorizeComponents(components);
+        // Group components using the docs.json categories. Each category lists its
+        // component type names directly, so a name lookup is all that is needed.
+        var byName = components
+            .GroupBy(c => c.Name, StringComparer.Ordinal)
+            .ToDictionary(g => g.Key, g => g.First(), StringComparer.Ordinal);
+        var used = new HashSet<string>(StringComparer.Ordinal);
 
-        var categoryDescriptions = new Dictionary<string, (string Title, string Description)>
+        void AppendComponentLink(ComponentInfo component)
         {
-            ["table"] = ("数据展示 - 表格", "支持排序、筛选、分页、编辑的复杂数据表格"),
-            ["input"] = ("表单输入", "文本框、数字框、多行文本、日期选择器"),
-            ["select"] = ("选择组件", "下拉选择、多选、自动完成、级联、穿梭框"),
-            ["button"] = ("按钮", "按钮、按钮组、下拉按钮、分裂按钮"),
-            ["dialog"] = ("对话框与反馈", "模态框、抽屉、对话框服务、消息、轻提示"),
-            ["nav"] = ("导航", "菜单、标签页、面包屑、步骤条、分页"),
-            ["card"] = ("容器", "卡片、折叠面板、分组框、分隔面板、布局"),
-            ["treeview"] = ("树形组件", "树形控件、树形选择"),
-            ["form"] = ("表单验证", "验证表单、编辑表单、验证规则"),
-            ["other"] = ("其他组件", "杂项组件")
-        };
+            var localized = Localize(component.Summary, lang);
+            var summary = !string.IsNullOrEmpty(localized)
+                ? $" - {TruncateSummary(localized, 60)}"
+                : "";
+            _sb.AppendLine($"- [{component.Name}](components/{component.Name}.txt){summary}");
+        }
 
-        foreach (var (category, categoryComponents) in categorized.OrderBy(c => c.Key))
+        foreach (var category in categories)
         {
-            if (categoryComponents.Count == 0) continue;
-
-            var (title, description) = categoryDescriptions.GetValueOrDefault(category, (category, ""));
-            _sb.AppendLine($"### {title}");
-            _sb.AppendLine();
-            _sb.AppendLine($"{description}");
-            _sb.AppendLine();
-
-            // List components with links to their individual docs
-            foreach (var component in categoryComponents.OrderBy(c => c.Name))
+            var items = category.ComponentNames
+                .Where(n => byName.ContainsKey(n) && used.Add(n))
+                .Select(n => byName[n])
+                .ToList();
+            if (items.Count == 0)
             {
-                var localized = Localize(component.Summary, lang);
-                var summary = !string.IsNullOrEmpty(localized)
-                    ? $" - {TruncateSummary(localized, 60)}"
-                    : "";
-                _sb.AppendLine($"- [{component.Name}](components/{component.Name}.txt){summary}");
+                continue;
+            }
+
+            _sb.AppendLine($"### {category.Title}");
+            _sb.AppendLine();
+            foreach (var component in items)
+            {
+                AppendComponentLink(component);
+            }
+            _sb.AppendLine();
+        }
+
+        // Anything not listed in docs.json falls back to "Other".
+        var others = components.Where(c => !used.Contains(c.Name)).OrderBy(c => c.Name).ToList();
+        if (others.Count > 0)
+        {
+            _sb.AppendLine(lang == "zh" ? "### 其他组件" : "### Other Components");
+            _sb.AppendLine();
+            foreach (var component in others)
+            {
+                AppendComponentLink(component);
             }
             _sb.AppendLine();
         }
@@ -211,67 +221,6 @@ internal static partial class MarkdownBuilder
         _sb.AppendLine($"仓库地址: {GitHubRepositoryUrl}");
 
         return _sb.ToString();
-    }
-
-    private static Dictionary<string, List<ComponentInfo>> CategorizeComponents(List<ComponentInfo> components)
-    {
-        var categories = new Dictionary<string, List<ComponentInfo>>
-        {
-            ["table"] = [],
-            ["input"] = [],
-            ["select"] = [],
-            ["button"] = [],
-            ["dialog"] = [],
-            ["nav"] = [],
-            ["card"] = [],
-            ["treeview"] = [],
-            ["form"] = [],
-            ["other"] = []
-        };
-
-        foreach (var component in components)
-        {
-            var category = GetComponentCategory(component.Name);
-            if (categories.TryGetValue(category, out var list))
-            {
-                list.Add(component);
-            }
-            else
-            {
-                categories["other"].Add(component);
-            }
-        }
-
-        // Remove empty categories
-        return categories.Where(c => c.Value.Count > 0)
-                        .ToDictionary(c => c.Key, c => c.Value);
-    }
-
-    private static string GetComponentCategory(string componentName)
-    {
-        return componentName.ToLowerInvariant() switch
-        {
-            var n when n.Contains("table") => "table",
-            var n when n.Contains("input") || n.Contains("textarea") ||
-                       n.Contains("password") || n == "otpinput" => "input",
-            var n when n.Contains("select") || n.Contains("dropdown") ||
-                       n.Contains("autocomplete") || n.Contains("cascader") ||
-                       n.Contains("transfer") || n.Contains("multiselect") => "select",
-            var n when n.Contains("button") || n == "gotop" ||
-                       n.Contains("popconfirm") => "button",
-            var n when n.Contains("dialog") || n.Contains("modal") ||
-                       n.Contains("drawer") || n.Contains("swal") ||
-                       n.Contains("toast") || n.Contains("message") => "dialog",
-            var n when n.Contains("menu") || n.Contains("tab") ||
-                       n.Contains("breadcrumb") || n.Contains("step") ||
-                       n.Contains("anchor") || n.Contains("nav") => "nav",
-            var n when n.Contains("card") || n.Contains("collapse") ||
-                       n.Contains("groupbox") || n.Contains("panel") => "card",
-            var n when n.Contains("tree") => "treeview",
-            var n when n.Contains("validateform") || n.Contains("editorform") ||
-                       n.Contains("validator") => "form",
-            _ => "other"
-        };
     }
 
     private static string TruncateSummary(string summary, int maxLength)
