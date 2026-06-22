@@ -4,32 +4,107 @@
 // Maintainer: Argo Zhang(argo@live.ca) Website: https://www.blazor.zone
 
 using System.Text;
+using System.Text.RegularExpressions;
 
 namespace BootstrapBlazorLLMsDocsGenerator;
 
 /// <summary>
 /// Builds Markdown documentation for components
 /// </summary>
-internal static class MarkdownBuilder
+internal static partial class MarkdownBuilder
 {
-    private const string GitHubBaseUrl = "https://github.com/dotnetcore/BootstrapBlazor/blob/main/";
+    private const string GitHubRawBaseUrl = "https://raw.githubusercontent.com/dotnetcore/BootstrapBlazor/refs/heads/main/";
+    private const string GitHubRepositoryUrl = "https://github.com/dotnetcore/BootstrapBlazor";
+    private const string GitHubExtensionsRawUrl = "https://raw.githubusercontent.com/dotnetcore/BootstrapBlazor.Extensions/refs/heads/main/";
+    private const string GitHubExtensionsRepositoryUrl = "https://github.com/BootstrapBlazor/BootstrapBlazor.Extensions";
 
-    public static string BuildIndexDoc(List<ComponentInfo> components)
+    /// <summary>
+    /// Extract the text for a single language from a doc string that may contain
+    /// bilingual <c>&lt;para lang="zh"&gt;…&lt;/para&gt;&lt;para lang="en"&gt;…&lt;/para&gt;</c> blocks.
+    /// Falls back to the raw text when there are no para tags, and to the other
+    /// language's content when the requested one is missing.
+    /// </summary>
+    private static string? Localize(string? text, string lang)
+    {
+        if (string.IsNullOrEmpty(text))
+        {
+            return text;
+        }
+
+        var matches = ParaRegex().Matches(text);
+        string result;
+        if (matches.Count == 0)
+        {
+            result = text;
+        }
+        else
+        {
+            var wanted = string.Join(" ", matches
+                .Where(m => string.Equals(m.Groups["lang"].Value, lang, StringComparison.OrdinalIgnoreCase))
+                .Select(m => m.Groups["text"].Value.Trim()));
+
+            // Requested language absent: fall back to whatever para content exists.
+            result = string.IsNullOrEmpty(wanted)
+                ? string.Join(" ", matches.Select(m => m.Groups["text"].Value.Trim()))
+                : wanted;
+        }
+
+        return CleanInlineMarkup(result);
+    }
+
+    /// <summary>
+    /// Strip residual XML doc markup left inside a localized string — nested
+    /// <c>&lt;para&gt;</c>, <c>&lt;see&gt;</c>, <c>&lt;paramref&gt;</c>, <c>&lt;c&gt;</c>, etc. —
+    /// keeping the meaningful text so the output is plain text.
+    /// </summary>
+    private static string CleanInlineMarkup(string text)
+    {
+        if (string.IsNullOrEmpty(text))
+        {
+            return text;
+        }
+
+        text = SeeCrefRegex().Replace(text, "${v}");
+        text = SeeLangwordRegex().Replace(text, "${v}");
+        text = ParamRefRegex().Replace(text, "${v}");
+        text = AnyTagRegex().Replace(text, " ");
+        return WhitespaceRegex().Replace(text, " ").Trim();
+    }
+
+    [GeneratedRegex("<para\\s+lang=\"(?<lang>[^\"]+)\"\\s*>(?<text>.*?)</para>", RegexOptions.Singleline)]
+    private static partial Regex ParaRegex();
+
+    [GeneratedRegex("<see\\s+cref=\"(?:[A-Za-z]:)?(?:[^\".]+\\.)*(?<v>[^\".]+)\"\\s*/?>", RegexOptions.Singleline)]
+    private static partial Regex SeeCrefRegex();
+
+    [GeneratedRegex("<see\\s+langword=\"(?<v>[^\"]+)\"\\s*/?>", RegexOptions.Singleline)]
+    private static partial Regex SeeLangwordRegex();
+
+    [GeneratedRegex("<paramref\\s+name=\"(?<v>[^\"]+)\"\\s*/?>", RegexOptions.Singleline)]
+    private static partial Regex ParamRefRegex();
+
+    [GeneratedRegex("</?[a-zA-Z][^>]*>", RegexOptions.Singleline)]
+    private static partial Regex AnyTagRegex();
+
+    [GeneratedRegex("\\s+")]
+    private static partial Regex WhitespaceRegex();
+
+    public static string BuildIndexDoc(List<ComponentInfo> components, List<ComponentCategory> categories, List<ComponentInfo> services, List<ComponentInfo> extensionComponents, List<ComponentInfo> extensionServices, List<ExtensionPackage> extensionPackages, string lang)
     {
         var _sb = new StringBuilder();
         _sb.AppendLine("# BootstrapBlazor");
         _sb.AppendLine();
-        _sb.AppendLine("> Enterprise-class Blazor UI component library based on Bootstrap 5");
+        _sb.AppendLine("> 基于 Bootstrap 5 的企业级 Blazor UI 组件库");
         _sb.AppendLine();
 
         // Quick Start section
-        _sb.AppendLine("## Quick Start");
+        _sb.AppendLine("## 快速开始");
         _sb.AppendLine();
         _sb.AppendLine("```bash");
         _sb.AppendLine("dotnet add package BootstrapBlazor");
         _sb.AppendLine("```");
         _sb.AppendLine();
-        _sb.AppendLine("### Configuration");
+        _sb.AppendLine("### 配置");
         _sb.AppendLine();
         _sb.AppendLine("```csharp");
         _sb.AppendLine("// Program.cs");
@@ -49,81 +124,163 @@ internal static class MarkdownBuilder
         _sb.AppendLine();
 
         // Component List - grouped by category for easy navigation
-        _sb.AppendLine("## Components");
+        _sb.AppendLine("## 组件");
         _sb.AppendLine();
-        _sb.AppendLine("Each component has its own documentation file in the `components/` directory.");
-        _sb.AppendLine("Use `components/{ComponentName}.txt` to get detailed API information.");
+        _sb.AppendLine("每个组件在 `components/` 目录下都有独立的文档文件。");
+        _sb.AppendLine("使用 `components/{ComponentName}.txt` 获取详细的 API 信息。");
         _sb.AppendLine();
 
-        // Group components by category for the index
-        var categorized = CategorizeComponents(components);
+        // Group components using the docs.json categories. Each category lists its
+        // component type names directly, so a name lookup is all that is needed.
+        var byName = components
+            .GroupBy(c => c.Name, StringComparer.Ordinal)
+            .ToDictionary(g => g.Key, g => g.First(), StringComparer.Ordinal);
+        var used = new HashSet<string>(StringComparer.Ordinal);
 
-        var categoryDescriptions = new Dictionary<string, (string Title, string Description)>
+        void AppendComponentLink(ComponentInfo component)
         {
-            ["table"] = ("Data Display - Table", "Complex data table with sorting, filtering, paging, editing"),
-            ["input"] = ("Form Inputs", "Text input, number input, textarea, date picker"),
-            ["select"] = ("Selection Components", "Select, multi-select, autocomplete, cascader, transfer"),
-            ["button"] = ("Buttons", "Button, button group, dropdown button, split button"),
-            ["dialog"] = ("Dialogs & Feedback", "Modal, drawer, dialog service, message, toast"),
-            ["nav"] = ("Navigation", "Menu, tabs, breadcrumb, steps, pagination"),
-            ["card"] = ("Containers", "Card, collapse, group box, split, layout"),
-            ["treeview"] = ("Tree Components", "TreeView, tree select"),
-            ["form"] = ("Form Validation", "ValidateForm, editor form, validation rules"),
-            ["other"] = ("Other Components", "Miscellaneous components")
-        };
+            var localized = Localize(component.Summary, lang);
+            var summary = !string.IsNullOrEmpty(localized)
+                ? $" - {TruncateSummary(localized, 60)}"
+                : "";
+            _sb.AppendLine($"- [{component.Name}](components/{component.Name}.txt){summary}");
+        }
 
-        foreach (var (category, categoryComponents) in categorized.OrderBy(c => c.Key))
+        foreach (var category in categories)
         {
-            if (categoryComponents.Count == 0) continue;
-
-            var (title, description) = categoryDescriptions.GetValueOrDefault(category, (category, ""));
-            _sb.AppendLine($"### {title}");
-            _sb.AppendLine();
-            _sb.AppendLine($"{description}");
-            _sb.AppendLine();
-
-            // List components with links to their individual docs
-            foreach (var component in categoryComponents.OrderBy(c => c.Name))
+            var items = category.ComponentNames
+                .Where(n => byName.ContainsKey(n) && used.Add(n))
+                .Select(n => byName[n])
+                .ToList();
+            if (items.Count == 0)
             {
-                var summary = !string.IsNullOrEmpty(component.Summary)
-                    ? $" - {TruncateSummary(component.Summary, 60)}"
-                    : "";
-                _sb.AppendLine($"- [{component.Name}](components/{component.Name}.txt){summary}");
+                continue;
+            }
+
+            _sb.AppendLine($"### {category.Title}");
+            _sb.AppendLine();
+            foreach (var component in items)
+            {
+                AppendComponentLink(component);
             }
             _sb.AppendLine();
         }
 
+        // Anything not listed in docs.json falls back to "Other".
+        var others = components.Where(c => !used.Contains(c.Name)).OrderBy(c => c.Name).ToList();
+        if (others.Count > 0)
+        {
+            _sb.AppendLine(lang == "zh" ? "### 其他组件" : "### Other Components");
+            _sb.AppendLine();
+            foreach (var component in others)
+            {
+                AppendComponentLink(component);
+            }
+            _sb.AppendLine();
+        }
+
+        // Injected services
+        if (services.Count > 0)
+        {
+            _sb.AppendLine("## 内置服务");
+            _sb.AppendLine();
+            _sb.AppendLine("通过依赖注入使用的服务，每个服务在 `components/` 目录下都有独立的文档文件。");
+            _sb.AppendLine();
+            foreach (var service in services)
+            {
+                var localized = Localize(service.Summary, lang);
+                var summary = !string.IsNullOrEmpty(localized) ? $" - {TruncateSummary(localized, 60)}" : "";
+                _sb.AppendLine($"- [{service.Name}](components/{service.Name}.txt){summary}");
+            }
+            _sb.AppendLine();
+        }
+
+        // Extension components & services (from BootstrapBlazor.Extensions)
+        void AppendExtensionLink(ComponentInfo item)
+        {
+            var localized = Localize(item.Summary, lang);
+            var s = !string.IsNullOrEmpty(localized) ? $" - {TruncateSummary(localized, 60)}" : "";
+            _sb.AppendLine($"- [{item.Name}](extensions/{item.Name}.txt){s}");
+        }
+
+        // Group extension items under their owning package (docs.json "extensions"
+        // order), so the index mirrors the per-package layout of the source repo.
+        void AppendExtensionByPackage(List<ComponentInfo> items, Func<ExtensionPackage, List<string>> selector)
+        {
+            var byName = items
+                .GroupBy(c => c.Name, StringComparer.Ordinal)
+                .ToDictionary(g => g.Key, g => g.First(), StringComparer.Ordinal);
+
+            foreach (var pkg in extensionPackages)
+            {
+                var members = selector(pkg)
+                    .Where(byName.ContainsKey)
+                    .Select(n => byName[n])
+                    .ToList();
+                if (members.Count == 0)
+                {
+                    continue;
+                }
+
+                _sb.AppendLine($"### {pkg.Name}");
+                _sb.AppendLine();
+                foreach (var item in members)
+                {
+                    AppendExtensionLink(item);
+                }
+                _sb.AppendLine();
+            }
+        }
+
+        if (extensionComponents.Count > 0)
+        {
+            _sb.AppendLine("## 扩展组件");
+            _sb.AppendLine();
+            _sb.AppendLine("来自 BootstrapBlazor.Extensions 扩展库的组件，按扩展包分组，每个在 `extensions/` 目录下都有独立的文档文件。");
+            _sb.AppendLine();
+            AppendExtensionByPackage(extensionComponents, p => p.Components);
+        }
+
+        if (extensionServices.Count > 0)
+        {
+            _sb.AppendLine("## 扩展服务");
+            _sb.AppendLine();
+            _sb.AppendLine("来自 BootstrapBlazor.Extensions 扩展库的服务，按扩展包分组，每个在 `extensions/` 目录下都有独立的文档文件。");
+            _sb.AppendLine();
+            AppendExtensionByPackage(extensionServices, p => p.Services);
+        }
+
         // Source Code Reference
-        _sb.AppendLine("## Source Code Reference");
+        _sb.AppendLine("## 源码参考");
         _sb.AppendLine();
-        _sb.AppendLine("GitHub Repository: https://github.com/dotnetcore/BootstrapBlazor");
+        _sb.AppendLine($"GitHub 仓库: {GitHubRepositoryUrl}");
         _sb.AppendLine();
-        _sb.AppendLine("When documentation is insufficient, consult the source code:");
+        _sb.AppendLine("当文档不足时，请查阅源码：");
         _sb.AppendLine();
-        _sb.AppendLine("### File Structure");
-        _sb.AppendLine();
-        _sb.AppendLine("```");
-        _sb.AppendLine($"{GitHubBaseUrl}src/BootstrapBlazor/Components/{{ComponentName}}/");
-        _sb.AppendLine("├── {Component}.razor          # Razor template");
-        _sb.AppendLine("├── {Component}.razor.cs       # Component logic & parameters");
-        _sb.AppendLine("├── {Component}Base.cs         # Base class (if exists)");
-        _sb.AppendLine("├── {Component}Option.cs       # Configuration options");
-        _sb.AppendLine("└── {Component}Service.cs      # Service class (Dialog, Toast, etc.)");
-        _sb.AppendLine("```");
-        _sb.AppendLine();
-        _sb.AppendLine("### Examples");
+        _sb.AppendLine("### 文件结构");
         _sb.AppendLine();
         _sb.AppendLine("```");
-        _sb.AppendLine($"{GitHubBaseUrl}src/BootstrapBlazor.Server/Components/Samples/{{ComponentName}}s.razor");
+        _sb.AppendLine($"{GitHubRawBaseUrl}/src/BootstrapBlazor/Components/{{ComponentName}}/");
+        _sb.AppendLine("├── {Component}.razor          # Razor 模板");
+        _sb.AppendLine("├── {Component}.razor.cs       # 组件逻辑与参数");
+        _sb.AppendLine("├── {Component}Base.cs         # 基类（如果存在）");
+        _sb.AppendLine("├── {Component}Option.cs       # 配置选项");
+        _sb.AppendLine("└── {Component}Service.cs      # 服务类（Dialog、Toast 等）");
         _sb.AppendLine("```");
         _sb.AppendLine();
-        _sb.AppendLine("### Reading Component Parameters");
+        _sb.AppendLine("### 示例");
         _sb.AppendLine();
-        _sb.AppendLine("Look for properties with `[Parameter]` attribute:");
+        _sb.AppendLine("```");
+        _sb.AppendLine($"{GitHubRawBaseUrl}src/BootstrapBlazor.Server/Components/Samples/{{ComponentName}}s.razor");
+        _sb.AppendLine("```");
+        _sb.AppendLine();
+        _sb.AppendLine("### 读取组件参数");
+        _sb.AppendLine();
+        _sb.AppendLine("查找带有 `[Parameter]` 特性的属性：");
         _sb.AppendLine();
         _sb.AppendLine("```csharp");
         _sb.AppendLine("/// <summary>");
-        _sb.AppendLine("/// Gets or sets whether to show the toolbar");
+        _sb.AppendLine("/// 获得/设置 是否显示工具栏");
         _sb.AppendLine("/// </summary>");
         _sb.AppendLine("[Parameter]");
         _sb.AppendLine("public bool ShowToolbar { get; set; }");
@@ -132,73 +289,23 @@ internal static class MarkdownBuilder
 
         // Footer
         _sb.AppendLine("---");
-        _sb.AppendLine($"Generated: {DateTime.UtcNow:yyyy-MM-dd}");
-        _sb.AppendLine($"Total Components: {components.Count}");
-        _sb.AppendLine($"Repository: {GitHubBaseUrl}");
+        _sb.AppendLine($"生成时间: {DateTime.UtcNow:yyyy-MM-dd}");
+        _sb.AppendLine($"组件总数: {components.Count}");
+        _sb.AppendLine($"服务总数: {services.Count}");
+        _sb.AppendLine($"仓库地址: {GitHubRepositoryUrl}");
 
         return _sb.ToString();
     }
 
-    private static Dictionary<string, List<ComponentInfo>> CategorizeComponents(List<ComponentInfo> components)
-    {
-        var categories = new Dictionary<string, List<ComponentInfo>>
-        {
-            ["table"] = [],
-            ["input"] = [],
-            ["select"] = [],
-            ["button"] = [],
-            ["dialog"] = [],
-            ["nav"] = [],
-            ["card"] = [],
-            ["treeview"] = [],
-            ["form"] = [],
-            ["other"] = []
-        };
-
-        foreach (var component in components)
-        {
-            var category = GetComponentCategory(component.Name);
-            if (categories.TryGetValue(category, out var list))
-            {
-                list.Add(component);
-            }
-            else
-            {
-                categories["other"].Add(component);
-            }
-        }
-
-        // Remove empty categories
-        return categories.Where(c => c.Value.Count > 0)
-                        .ToDictionary(c => c.Key, c => c.Value);
-    }
-
-    private static string GetComponentCategory(string componentName)
-    {
-        return componentName.ToLowerInvariant() switch
-        {
-            var n when n.Contains("table") => "table",
-            var n when n.Contains("input") || n.Contains("textarea") ||
-                       n.Contains("password") || n == "otpinput" => "input",
-            var n when n.Contains("select") || n.Contains("dropdown") ||
-                       n.Contains("autocomplete") || n.Contains("cascader") ||
-                       n.Contains("transfer") || n.Contains("multiselect") => "select",
-            var n when n.Contains("button") || n == "gotop" ||
-                       n.Contains("popconfirm") => "button",
-            var n when n.Contains("dialog") || n.Contains("modal") ||
-                       n.Contains("drawer") || n.Contains("swal") ||
-                       n.Contains("toast") || n.Contains("message") => "dialog",
-            var n when n.Contains("menu") || n.Contains("tab") ||
-                       n.Contains("breadcrumb") || n.Contains("step") ||
-                       n.Contains("anchor") || n.Contains("nav") => "nav",
-            var n when n.Contains("card") || n.Contains("collapse") ||
-                       n.Contains("groupbox") || n.Contains("panel") => "card",
-            var n when n.Contains("tree") => "treeview",
-            var n when n.Contains("validateform") || n.Contains("editorform") ||
-                       n.Contains("validator") => "form",
-            _ => "other"
-        };
-    }
+    /// <summary>
+    /// Suggested injection property name for a service type: drops a leading <c>I</c>
+    /// interface prefix (e.g. <c>IBaiduOcr</c> -> <c>BaiduOcr</c>), otherwise keeps the
+    /// type name (e.g. <c>WinBoxService</c>).
+    /// </summary>
+    private static string InjectPropertyName(string typeName) =>
+        typeName.Length > 1 && typeName[0] == 'I' && char.IsUpper(typeName[1])
+            ? typeName[1..]
+            : typeName;
 
     private static string TruncateSummary(string summary, int maxLength)
     {
@@ -207,19 +314,20 @@ internal static class MarkdownBuilder
         return summary.Length <= maxLength ? summary : summary[..(maxLength - 3)] + "...";
     }
 
-    public static string BuildComponentDoc(ComponentInfo component)
+    public static string BuildComponentDoc(ComponentInfo component, string lang)
     {
         var _sb = new StringBuilder();
         _sb.AppendLine($"# BootstrapBlazor {component.Name}");
         _sb.AppendLine();
 
-        if (!string.IsNullOrEmpty(component.Summary))
+        var summary = Localize(component.Summary, lang);
+        if (!string.IsNullOrEmpty(summary))
         {
-            _sb.AppendLine($"> {component.Summary}");
+            _sb.AppendLine(summary);
             _sb.AppendLine();
         }
 
-        BuildComponentSection(_sb, component, includeHeader: false);
+        BuildComponentSection(_sb, component, lang, includeHeader: false);
 
         // Footer
         _sb.AppendLine("---");
@@ -228,28 +336,55 @@ internal static class MarkdownBuilder
         return _sb.ToString();
     }
 
-    private static void BuildComponentSection(StringBuilder _sb, ComponentInfo component, bool includeHeader = true)
+    private static void BuildComponentSection(StringBuilder _sb, ComponentInfo component, string lang, bool includeHeader = true)
     {
         if (includeHeader)
         {
             _sb.AppendLine($"## {component.Name}");
             _sb.AppendLine();
 
-            if (!string.IsNullOrEmpty(component.Summary))
+            var summary = Localize(component.Summary, lang);
+            if (!string.IsNullOrEmpty(summary))
             {
-                _sb.AppendLine(component.Summary);
+                _sb.AppendLine(summary);
                 _sb.AppendLine();
             }
+        }
+
+        // Service registration (DI): extension services must be registered before use.
+        if (component.Registration != null)
+        {
+            var reg = component.Registration;
+            _sb.AppendLine("### 服务注册");
+            _sb.AppendLine();
+            _sb.AppendLine("该服务需要先注册到容器，在 `Program.cs` 中添加：");
+            _sb.AppendLine();
+            _sb.AppendLine("```csharp");
+            _sb.AppendLine($"builder.Services.{reg.MethodName}();");
+            if (!string.IsNullOrEmpty(reg.Parameters))
+            {
+                _sb.AppendLine($"// 可选配置参数：{reg.MethodName}({reg.Parameters})");
+            }
+            _sb.AppendLine("```");
+            _sb.AppendLine();
+            _sb.AppendLine("在组件或页面中注入使用：");
+            _sb.AppendLine();
+            _sb.AppendLine("```csharp");
+            _sb.AppendLine("[Inject]");
+            _sb.AppendLine("[NotNull]");
+            _sb.AppendLine($"private {component.Name}? {InjectPropertyName(component.Name)} {{ get; set; }}");
+            _sb.AppendLine("```");
+            _sb.AppendLine();
         }
 
         // Type parameters
         if (component.TypeParameters.Count > 0)
         {
-            _sb.AppendLine("### Type Parameters");
+            _sb.AppendLine("### 类型参数");
             _sb.AppendLine();
             foreach (var tp in component.TypeParameters)
             {
-                _sb.AppendLine($"- `{tp}` - Generic type parameter");
+                _sb.AppendLine($"- `{tp}` - 泛型类型参数");
             }
             _sb.AppendLine();
         }
@@ -257,30 +392,32 @@ internal static class MarkdownBuilder
         // Base class info
         if (!string.IsNullOrEmpty(component.BaseClass))
         {
-            _sb.AppendLine($"**Inherits from**: `{component.BaseClass}`");
+            _sb.AppendLine($"**继承自**: `{component.BaseClass}`");
             _sb.AppendLine();
         }
 
         // Parameters table
         if (component.Parameters.Count > 0)
         {
-            _sb.AppendLine("### Parameters");
+            _sb.AppendLine("### 参数");
             _sb.AppendLine();
             _sb.AppendLine("<!-- AUTO-GENERATED-PARAMETERS-START -->");
             _sb.AppendLine();
-            _sb.AppendLine("| Parameter | Type | Default | Description |");
-            _sb.AppendLine("|-----------|------|---------|-------------|");
+            _sb.AppendLine("| 参数 | 类型 | 默认值 | 描述 |");
+            _sb.AppendLine("|------|------|--------|------|");
 
-            // Sort: required first, then events, then alphabetically
+            // Sort: active params first (obsolete sink to the bottom), then required,
+            // then events, then alphabetically.
             var sortedParams = component.Parameters
-                .OrderByDescending(p => p.IsRequired)
+                .OrderBy(p => p.IsObsolete)
+                .ThenByDescending(p => p.IsRequired)
                 .ThenBy(p => p.IsEventCallback)
                 .ThenBy(p => p.Name);
 
             foreach (var param in sortedParams)
             {
-                var required = param.IsRequired ? " **[Required]**" : "";
-                var description = EscapeMarkdownCell(param.Description ?? "") + required;
+                var required = param.IsRequired ? " **[必填]**" : "";
+                var description = EscapeMarkdownCell(Localize(param.Description, lang) ?? "") + required + FormatObsolete(param);
                 var defaultVal = param.DefaultValue ?? "-";
                 var type = EscapeMarkdownCell(param.Type);
 
@@ -296,14 +433,14 @@ internal static class MarkdownBuilder
         var eventCallbacks = component.Parameters.Where(p => p.IsEventCallback).ToList();
         if (eventCallbacks.Count > 0)
         {
-            _sb.AppendLine("### Event Callbacks");
+            _sb.AppendLine("### 事件回调");
             _sb.AppendLine();
-            _sb.AppendLine("| Event | Type | Description |");
-            _sb.AppendLine("|-------|------|-------------|");
+            _sb.AppendLine("| 事件 | 类型 | 描述 |");
+            _sb.AppendLine("|------|------|------|");
 
-            foreach (var evt in eventCallbacks.OrderBy(e => e.Name))
+            foreach (var evt in eventCallbacks.OrderBy(e => e.IsObsolete).ThenBy(e => e.Name))
             {
-                var description = EscapeMarkdownCell(evt.Description ?? "");
+                var description = EscapeMarkdownCell(Localize(evt.Description, lang) ?? "") + FormatObsolete(evt);
                 var type = EscapeMarkdownCell(evt.Type);
                 _sb.AppendLine($"| {evt.Name} | `{type}` | {description} |");
             }
@@ -314,16 +451,17 @@ internal static class MarkdownBuilder
         // Public methods
         if (component.PublicMethods.Count > 0)
         {
-            _sb.AppendLine("### Public Methods");
+            _sb.AppendLine("### 公共方法");
             _sb.AppendLine();
 
             foreach (var method in component.PublicMethods.OrderBy(m => m.Name))
             {
                 var paramStr = string.Join(", ", method.Parameters.Select(p => $"{p.Item1} {p.Item2}"));
                 _sb.AppendLine($"- `{method.ReturnType} {method.Name}({paramStr})`");
-                if (!string.IsNullOrEmpty(method.Description))
+                var methodDescription = Localize(method.Description, lang);
+                if (!string.IsNullOrEmpty(methodDescription))
                 {
-                    _sb.AppendLine($"  - {method.Description}");
+                    _sb.AppendLine($"  - {methodDescription}");
                 }
                 if (method.IsJSInvokable)
                 {
@@ -337,14 +475,15 @@ internal static class MarkdownBuilder
         // Source reference with GitHub URLs
         if (!string.IsNullOrEmpty(component.SourcePath))
         {
-            _sb.AppendLine("### Source");
+            _sb.AppendLine("### 源码");
             _sb.AppendLine();
-            var sourceUrl = $"{GitHubBaseUrl}{component.SourcePath}";
-            _sb.AppendLine($"- Component: [{component.SourcePath}]({sourceUrl})");
+            var rawBase = component.IsExtension ? GitHubExtensionsRawUrl : GitHubRawBaseUrl;
+            var sourceUrl = $"{rawBase}{component.SourcePath}";
+            _sb.AppendLine($"- 组件: [{component.SourcePath}]({sourceUrl})");
             if (!string.IsNullOrEmpty(component.SamplePath))
             {
-                var sampleUrl = $"{GitHubBaseUrl}{component.SamplePath}";
-                _sb.AppendLine($"- Examples: [{component.SamplePath}]({sampleUrl})");
+                var sampleUrl = $"{rawBase}{component.SamplePath}";
+                _sb.AppendLine($"- 示例: [{component.SamplePath}]({sampleUrl})");
             }
             _sb.AppendLine();
         }
@@ -377,6 +516,23 @@ internal static class MarkdownBuilder
 
     //    return _sb.ToString();
     //}
+
+    /// <summary>
+    /// Render the deprecation flag for a parameter/event table cell: a bold
+    /// <c>[已弃用]</c> marker followed by the migration hint from <c>[Obsolete("…")]</c>
+    /// when present. Empty for active parameters.
+    /// </summary>
+    private static string FormatObsolete(ParameterInfo param)
+    {
+        if (!param.IsObsolete)
+        {
+            return "";
+        }
+
+        return string.IsNullOrEmpty(param.ObsoleteMessage)
+            ? " **[已弃用]**"
+            : $" **[已弃用]** {EscapeMarkdownCell(param.ObsoleteMessage)}";
+    }
 
     private static string EscapeMarkdownCell(string text)
     {

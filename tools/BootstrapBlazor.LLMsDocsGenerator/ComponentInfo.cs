@@ -59,6 +59,38 @@ public class ComponentInfo
     /// Related sample file path (if exists)
     /// </summary>
     public string? SamplePath { get; set; }
+
+    /// <summary>
+    /// Whether this type comes from a BootstrapBlazor.Extensions package; affects which
+    /// GitHub repository the source link points to.
+    /// </summary>
+    public bool IsExtension { get; set; }
+
+    /// <summary>
+    /// Dependency-injection registration for an extension service, resolved from the
+    /// <c>AddXxx(this IServiceCollection)</c> extension method that registers this type.
+    /// Null for components and for services with no discoverable registration method.
+    /// </summary>
+    public ServiceRegistration? Registration { get; set; }
+}
+
+/// <summary>
+/// Describes how an extension service is added to the DI container, so the docs can
+/// show the registration call required before the service can be injected.
+/// </summary>
+public class ServiceRegistration
+{
+    /// <summary>
+    /// Registration extension method name, e.g. <c>AddBootstrapBlazorWinBoxService</c>.
+    /// </summary>
+    public string MethodName { get; set; } = string.Empty;
+
+    /// <summary>
+    /// Optional extra parameters (excluding the <c>this IServiceCollection</c> receiver),
+    /// e.g. <c>Action&lt;BaiduOcrOption&gt;? configOptions = null</c>. Null when the method
+    /// takes no configuration arguments.
+    /// </summary>
+    public string? Parameters { get; set; }
 }
 
 /// <summary>
@@ -105,6 +137,12 @@ public class ParameterInfo
     /// Whether this is an EventCallback
     /// </summary>
     public bool IsEventCallback { get; set; }
+
+    /// <summary>
+    /// Name of the type that declares this parameter. Differs from the component
+    /// name when the parameter is inherited from a base class.
+    /// </summary>
+    public string? DeclaringType { get; set; }
 }
 
 /// <summary>
