@@ -68,7 +68,7 @@ DockviewComponent.prototype.removeGroup = function (...args) {
 
 const closePanel = DockviewGroupPanelModel.prototype.closePanel;
 DockviewGroupPanelModel.prototype.closePanel = function (panel, triggerVisibleChangedCallback = true, moveToTemplate = true) {
-    if (!panel.group.locked) {
+    if (!panel.group?.locked) {
         closePanel.call(this, panel);
         if (triggerVisibleChangedCallback) {
             this.accessor._panelVisibleChanged?.fire({ key: panel.params.key, status: false });
