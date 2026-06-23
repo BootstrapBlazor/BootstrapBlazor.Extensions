@@ -21,8 +21,28 @@ const cerateDockview = (el, options) => {
         createComponent: option => new DockviewPanelContent(option)
     });
     guardCollapsedSaveProportions(dockview);
+    guardMaximizeExit(dockview);
     initDockview(dockview, options, template);
     return dockview;
+}
+
+// Carry the `maximizing` flag on EVERY exit-maximize, not just the toggle button: the core also exits
+// maximize when a group is removed/hidden/moved/added, and without the flag the restored siblings blank.
+const guardMaximizeExit = dockview => {
+    const gridview = dockview.gridview;
+    if (!gridview) return;
+    const proto = Object.getPrototypeOf(gridview);
+    if (proto.__bbMaximizeExitGuard) return;
+    proto.__bbMaximizeExitGuard = true;
+    const original = proto.exitMaximizedView;
+    proto.exitMaximizedView = function () {
+        const dv = this._maximizedNode?.leaf?.view?.api?.accessor;
+        if (!dv) return original.call(this);
+        const prev = dv.params.maximizing;
+        dv.params.maximizing = true;
+        try { return original.call(this); }
+        finally { dv.params.maximizing = prev; }
+    };
 }
 
 // Fix "groups evenly split after refresh": while collapsed (size 0) skip overwriting existing
