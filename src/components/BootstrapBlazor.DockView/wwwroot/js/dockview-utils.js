@@ -20,8 +20,26 @@ const cerateDockview = (el, options) => {
         disableTabsOverflowList: true,
         createComponent: option => new DockviewPanelContent(option)
     });
+    guardCollapsedSaveProportions(dockview);
     initDockview(dockview, options, template);
     return dockview;
+}
+
+// Fix "groups evenly split after refresh": while collapsed (size 0) skip overwriting existing
+// proportions, else saveProportions freezes the collapsed equal-minimums as the split. _proportions is
+// undefined only on the first deserialize save — let that through. Upstream fix: add `size > 0` to
+// dockview-core's Splitview.saveProportions, then drop this patch.
+const guardCollapsedSaveProportions = dockview => {
+    const splitview = dockview.gridview?.root?.splitview;
+    if (!splitview) return;
+    const proto = Object.getPrototypeOf(splitview);
+    if (proto.__bbCollapseGuard) return;          // Splitview.prototype is shared by all instances; patch once
+    proto.__bbCollapseGuard = true;
+    const original = proto.saveProportions;
+    proto.saveProportions = function () {
+        if (this.size === 0 && this._proportions) return;
+        original.call(this);
+    };
 }
 
 const initDockview = (dockview, options, template) => {

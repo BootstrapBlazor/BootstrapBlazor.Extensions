@@ -659,7 +659,7 @@ const down = (group, actionContainer) => {
     saveConfig(group.api.accessor)
 }
 
-close = group => {
+const close = group => {
     if (!group.locked) {
         group.api.close()
     }

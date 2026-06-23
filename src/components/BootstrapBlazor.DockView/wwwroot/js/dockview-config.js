@@ -260,6 +260,13 @@ const saveConfig = dockview => {
         return;
     }
 
+    // Don't persist a collapsed/unmeasured layout: while collapsed toJSON() serializes size:100, which
+    // makes the even-split sticky across refreshes. Real layouts are measured (width>0), so this only
+    // drops a degenerate save the next change re-saves.
+    if (!dockview.width || !dockview.height) {
+        return;
+    }
+
     dockview.panels.forEach(panel => {
         panel.params.isActive = panel.api.isActive || panel.group.activePanel === panel
     })
