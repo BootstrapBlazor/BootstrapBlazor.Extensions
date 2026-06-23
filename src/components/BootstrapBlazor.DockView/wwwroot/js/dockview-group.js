@@ -175,11 +175,12 @@ const disposeGroup = group => {
 
 const resetActionStates = (group, actionContainer, groupType) => {
     const dockview = group.api.accessor;
+    // bb-show-lock only gates the button; apply the lock STATE regardless so a locked group stays locked when showLock=false.
     if (showLock(dockview, group)) {
         actionContainer.classList.add('bb-show-lock');
-        if (getLockState(dockview, group)) {
-            toggleLock(group, actionContainer, true)
-        }
+    }
+    if (getLockState(dockview, group)) {
+        toggleLock(group, actionContainer, true, false)
     }
     if (showPin(dockview, group) && showFloat(dockview, group)) {
         actionContainer.classList.add('bb-show-pin');
@@ -438,7 +439,7 @@ const removeActionEvent = group => {
     EventHandler.off(actionContainer, 'click', '.bb-dockview-control-icon');
 }
 
-const toggleLock = (group, actionContainer, isLock) => {
+const toggleLock = (group, actionContainer, isLock, persist = true) => {
     group.locked = isLock ? 'no-drop-target' : isLock
     group.panels.forEach(panel => panel.params.isLock = isLock);
     if (isLock) {
@@ -447,7 +448,10 @@ const toggleLock = (group, actionContainer, isLock) => {
     else {
         actionContainer.classList.remove('bb-lock')
     }
-    saveConfig(group.api.accessor)
+    // persist=false: init-time restore renders the lock without saving; real changes (click / options.lock) keep the default.
+    if (persist) {
+        saveConfig(group.api.accessor)
+    }
 }
 
 const setGroupMaximizeClass = (group, maximized) => {
