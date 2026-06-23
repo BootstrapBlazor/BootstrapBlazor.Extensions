@@ -175,7 +175,6 @@ const disposeGroup = group => {
 
 const resetActionStates = (group, actionContainer, groupType) => {
     const dockview = group.api.accessor;
-    // bb-show-lock only gates the button; apply the lock STATE regardless so a locked group stays locked when showLock=false.
     if (showLock(dockview, group)) {
         actionContainer.classList.add('bb-show-lock');
     }
@@ -190,7 +189,6 @@ const resetActionStates = (group, actionContainer, groupType) => {
     }
     if (showMaximize(dockview, group)) {
         actionContainer.classList.add('bb-show-maximize');
-        // restore icon state when actions are rebuilt
         if (getMaximizeState(group)) {
             setGroupMaximizeClass(group, true);
         }
@@ -223,7 +221,6 @@ const getPinState = (dockview, group, groupType) => {
 }
 
 const getLockState = (dockview, group) => {
-    // group.locked (core-persisted) is the reliable truth; else fall back to isLock(3-state) / options.lock
     if (group.locked) return true;
     const { options } = dockview.params;
     return group.panels.every(p => p.params.isLock == null)
@@ -316,7 +313,6 @@ const autoHide = group => {
     }
     if (type == 'grid') {
         if (!canFloat(group)) return;
-        // 1、点击图标创建浮动窗口并隐藏
         const { drawer = { width: 300, visible: true } } = group.getParams()
 
         const left = getOffsetFromDockview(group.element)
@@ -448,7 +444,6 @@ const toggleLock = (group, actionContainer, isLock, persist = true) => {
     else {
         actionContainer.classList.remove('bb-lock')
     }
-    // persist=false: init-time restore renders the lock without saving; real changes (click / options.lock) keep the default.
     if (persist) {
         saveConfig(group.api.accessor)
     }
@@ -460,7 +455,6 @@ const setGroupMaximizeClass = (group, maximized) => {
     group.element.parentElement?.classList.toggle('bb-maximize', maximized);
 }
 
-// Sync grid groups' bb-maximize icon from the core's authoritative maximize state.
 const onMaximizedGroupChange = event => {
     const dockview = event.group.api.accessor;
     dockview.groups.forEach(group => {
@@ -476,18 +470,12 @@ const onMaximizedGroupChange = event => {
 const toggleFull = (group, maximize) => {
     const dockview = group.api.accessor;
     const type = group.model.location.type;
-    // `maximizing` suppresses sibling content moves while toggling; finally resets it even on throw
-    // so a stuck flag can't silently disable saveConfig.
     dockview.params.maximizing = true;
     try {
         if (type === 'grid') {
-            // exitMaximizedGroup() exits unconditionally, bypassing exitMaximized()'s isMaximized()
-            // guard (after a tab switch the core's maximized instance may differ from this group).
-            // grid icon is synced by onMaximizedGroupChange.
             maximize ? dockview.exitMaximizedGroup() : group.api.maximize();
         }
         else {
-            // floating maximize is pure CSS; maintain its icon here
             maximize ? floatingExitMaximized(group) : floatingMaximize(group);
             setGroupMaximizeClass(group, !maximize);
         }
@@ -508,7 +496,6 @@ const float = group => {
     const floatingGroupRect = rect || {
         width, height: packup?.isPackup ? packup.height : height, position: { left, top }
     }
-    // finally resets `maximizing` even on throw so a stuck flag can't silently disable saveConfig
     dockview.params.maximizing = true;
     try {
         group.api.isMaximized() && group.api.exitMaximized()
