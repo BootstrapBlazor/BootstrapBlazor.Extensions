@@ -39,6 +39,8 @@ const addGroupWithPanel = (dockview, panel, panels, index) => {
 
 const addPanelWidthGroupId = (dockview, panel, index) => {
     let group = dockview.api.getGroup(panel.groupId)
+    // Empty pre-existing group = deleted-side placeholder (deferred actions + collapsed branch); a populated one is healthy.
+    const reusedEmptyGroup = !!group && group.panels.length === 0;
     let { rect = {}, packup, floatType, drawer, direction = 'left' } = panel.params || {}
     if (!group) {
         group = dockview.createGroup({ id: panel.groupId })
@@ -73,6 +75,10 @@ const addPanelWidthGroupId = (dockview, panel, index) => {
         }
     }
 
+    // Placeholder branch collapsed to width 0 in the saved layout; restore the pre-delete width (currentPosition)
+    // via initialWidth → setSize, else it re-shows at min ~100.
+    const restoreWidth = reusedEmptyGroup && group.api.location.type === 'grid'
+        ? panel.params?.currentPosition?.width : undefined;
     dockview.addPanel({
         id: panel.id,
         title: panel.title,
@@ -80,8 +86,15 @@ const addPanelWidthGroupId = (dockview, panel, index) => {
         renderer: panel.renderer,
         component: panel.component,
         position: { referenceGroup: group, index: index || 0 },
+        initialWidth: restoreWidth > 0 ? restoreWidth : undefined,
         params: { ...panel.params, rect, packup, visible: true }
     })
+
+    // Placeholder deferred its action states while empty (see resetActionStates); re-render now it has a panel.
+    if (reusedEmptyGroup && group.api.location.type === 'grid') {
+        const actionContainer = group.header.element.querySelector('.dv-right-actions-container');
+        if (actionContainer) resetActionStates(group, actionContainer);
+    }
 }
 
 const addPanelWidthCreatGroup = (dockview, panel, panels) => {
@@ -175,6 +188,10 @@ const disposeGroup = group => {
 
 const resetActionStates = (group, actionContainer, groupType) => {
     const dockview = group.api.accessor;
+    // Empty group: `[].every()` is vacuously true so every show*() falls back to options defaults, wrongly showing
+    // buttons that stick once re-filled. Defer until it has panels (re-rendered on insert in addPanelWidthGroupId).
+    if (group.panels.length === 0) return;
+    // bb-show-lock only gates the button; apply the lock STATE regardless so a locked group stays locked when showLock=false.
     if (showLock(dockview, group)) {
         actionContainer.classList.add('bb-show-lock');
     }
