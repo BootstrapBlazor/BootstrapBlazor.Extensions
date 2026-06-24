@@ -102,6 +102,8 @@ const addPanelWidthGroupId = (dockview, panel, index) => {
     // Placeholder deferred its action states while empty (see resetActionStates); re-render now it has a panel.
     if (reusedEmptyGroup && group.api.location.type === 'grid') {
         reRenderActionStates(group);
+        // initialWidth left a _pendingSize; clear it so a later setVisible(true) (float->dock) won't replay this stale width.
+        if (restoreWidth > 0) group.api._pendingSize = undefined;
     }
 }
 
