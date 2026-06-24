@@ -21,8 +21,28 @@ const cerateDockview = (el, options) => {
         createComponent: option => new DockviewPanelContent(option)
     });
     guardCollapsedSaveProportions(dockview);
+    guardMaximizeExit(dockview);
     initDockview(dockview, options, template);
     return dockview;
+}
+
+// Carry the `maximizing` flag on EVERY exit-maximize, not just the toggle button: the core also exits
+// maximize when a group is removed/hidden/moved/added, and without the flag the restored siblings blank.
+const guardMaximizeExit = dockview => {
+    const gridview = dockview.gridview;
+    if (!gridview) return;
+    const proto = Object.getPrototypeOf(gridview);
+    if (proto.__bbMaximizeExitGuard) return;
+    proto.__bbMaximizeExitGuard = true;
+    const original = proto.exitMaximizedView;
+    proto.exitMaximizedView = function () {
+        const dv = this._maximizedNode?.leaf?.view?.api?.accessor;
+        if (!dv) return original.call(this);
+        const prev = dv.params.maximizing;
+        dv.params.maximizing = true;
+        try { return original.call(this); }
+        finally { dv.params.maximizing = prev; }
+    };
 }
 
 // Fix "groups evenly split after refresh": while collapsed (size 0) skip overwriting existing
@@ -201,8 +221,21 @@ const setWidth = (target, dockview) => {
     let dropdown = header.querySelector('.dv-right-actions-container>.dropdown')
     if (!dropdown) return
     let dropMenu = dropdown.querySelector('.dropdown-menu')
+    // `shrinking` (a strict width drop) gates the active-panel switch below — it must NOT fire during the
+    // transient expand a group goes through when a hidden view becomes visible (would switch + blank it).
+    const group = dockview.params.inited ? dockview.groups.find(g => g.element === header.parentElement) : null
+    const shrinking = group && group._lastHeaderWidth !== undefined && header.offsetWidth < group._lastHeaderWidth
+    if (group) group._lastHeaderWidth = header.offsetWidth
+
     if (voidWidth === 0) {
         if (tabsContainer.children.length <= 1) return
+        // On shrink, if the active tab would overflow, switch to the first panel before tucking it away.
+        if (shrinking) {
+            const activeTab = tabsContainer.querySelector('.dv-tab.dv-active-tab')
+            if (activeTab && activeTab.offsetLeft + activeTab.offsetWidth > tabsContainer.offsetWidth) {
+                group.panels[0]?.api.setActive()
+            }
+        }
         const tabs = tabsContainer.querySelectorAll('.dv-tab')
         for (let i = tabs.length - 1; i >= 0; i--) {
             const lastTab = tabs[i]
@@ -227,9 +260,9 @@ const setWidth = (target, dockview) => {
             }
         }
     }
-    if (dockview.params.inited && [...tabsContainer.children].every(tab => tab.classList.contains('dv-inactive-tab'))) {
-        const group = dockview.groups.find(g => g.element === header.parentElement)
-        group.panels[0] && group.panels[0].api.setActive()
+    // Fallback: keep an active panel when the group has none (e.g. the active one was closed).
+    if (group && !group.activePanel) {
+        group.panels[0]?.api.setActive()
     }
 }
 
