@@ -92,8 +92,7 @@ const addPanelWidthGroupId = (dockview, panel, index) => {
 
     // Placeholder deferred its action states while empty (see resetActionStates); re-render now it has a panel.
     if (reusedEmptyGroup && group.api.location.type === 'grid') {
-        const actionContainer = group.header.element.querySelector('.dv-right-actions-container');
-        if (actionContainer) resetActionStates(group, actionContainer);
+        reRenderActionStates(group);
     }
 }
 
@@ -219,6 +218,12 @@ const resetActionStates = (group, actionContainer, groupType) => {
     if (showUp(group) && !getUpState(group)) {
         actionContainer.classList.add('bb-up')
     }
+}
+
+// Re-render action buttons after an empty placeholder gains a panel (its actions were deferred while empty).
+const reRenderActionStates = group => {
+    const actionContainer = group.header.element.querySelector('.dv-right-actions-container');
+    if (actionContainer) resetActionStates(group, actionContainer);
 }
 
 const showLock = (dockview, group) => {
@@ -638,6 +643,8 @@ const dock = (group, floatType) => {
         from: { group: group },
         to: { group: originGroup, position: 'center' }
     })
+    // originGroup was an empty placeholder while floated; its deferred action buttons need re-rendering now it is filled.
+    reRenderActionStates(originGroup)
     saveConfig(dockview)
 }
 
