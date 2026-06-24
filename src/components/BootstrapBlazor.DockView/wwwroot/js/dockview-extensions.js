@@ -62,7 +62,12 @@ DockviewComponent.prototype.removeGroup = function (...args) {
     }
     else if (type == 'floating') {
         removeDrawerBtn(group)
-        return removeGroup.apply(this, args)
+        // Close panels (like the grid path) so each fires _panelVisibleChanged; the last close re-enters empty and removes the group.
+        const panels = [...group.panels]
+        if (panels.length === 0) {
+            return removeGroup.apply(this, args)
+        }
+        panels.forEach(panel => panel.api.close())
     }
 }
 
