@@ -39,6 +39,11 @@ const addGroupWithPanel = (dockview, panel, panels, index) => {
 
 const addPanelWidthGroupId = (dockview, panel, index) => {
     let group = dockview.api.getGroup(panel.groupId)
+    // Group is floated: this grid entry is a hidden placeholder; route the re-opened panel into the floating counterpart.
+    if (group && group.panels.length === 0 && group.api.location.type === 'grid') {
+        const floated = dockview.api.getGroup(getFloatingId(group.id))
+        if (floated?.api.location.type === 'floating') group = floated
+    }
     // Empty pre-existing group = deleted-side placeholder (deferred actions + collapsed branch); a populated one is healthy.
     const reusedEmptyGroup = !!group && group.panels.length === 0;
     const isNewFloatingGroup = !group;
