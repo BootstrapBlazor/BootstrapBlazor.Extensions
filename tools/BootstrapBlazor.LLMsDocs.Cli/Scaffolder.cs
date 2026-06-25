@@ -1,3 +1,6 @@
+using System.Reflection;
+using System.Text;
+
 namespace BootstrapBlazor.LLMsDocs.Cli;
 
 /// <summary>
@@ -5,83 +8,32 @@ namespace BootstrapBlazor.LLMsDocs.Cli;
 /// <c>bb-llms</c> CLI exists and when to use it. A plain CLI on PATH is
 /// invisible to an agent unless an instruction file points at it; these
 /// templates recover the auto-discovery that an MCP server would provide.
+///
+/// The template bodies are maintained as editable Markdown files under
+/// <c>Templates/</c> and embedded into the assembly (see the .csproj), so they
+/// can be edited like normal docs instead of inline C# string literals while
+/// still being available to the globally-installed tool at runtime.
 /// </summary>
 internal static class Scaffolder
 {
     /// <summary>Snippet to paste into a project's CLAUDE.md / AGENTS.md.</summary>
-    public const string GenericSnippet = """
-## BootstrapBlazor 组件文档
+    public static string GenericSnippet => ReadTemplate("instructions.md");
 
-需要 BootstrapBlazor 组件的参数 / 事件 / 公开方法时，使用 `bb-llms` CLI 获取官方文档，不要凭记忆臆造 API：
-
-- 查找组件名：`bb-llms search <关键词>`
-- 获取组件文档：`bb-llms get <ComponentName>`（例：`bb-llms get Table`）
-- 列出全部组件：`bb-llms list`
-
-文档源默认 https://www.blazor.zone/llms ，按需联网拉取并本地缓存；可用环境变量 `BB_LLMS_BASE_URL` 或 `--base-url` 指向自建/本地源。
-""";
-
-    /// <summary>Claude Code skill (.claude/skills/bootstrapblazor/SKILL.md).</summary>
-    public const string SkillMarkdown = """
----
-name: bootstrapblazor
-description: 涉及 BootstrapBlazor 组件（参数、事件回调、公开方法、用法）时使用，通过 bb-llms CLI 获取官方组件 API 文档，避免臆造参数。
----
-
-# BootstrapBlazor 组件文档查询
-
-当任务涉及 BootstrapBlazor 组件（编写或修改 .razor、配置组件参数、调用组件方法等）时，优先用 `bb-llms` 获取**权威**组件 API。
-
-## 用法
-
-1. 不确定组件名时先搜索：
-   ```bash
-   bb-llms search <关键词>
-   ```
-2. 获取某组件的参数 / 事件 / 方法文档：
-   ```bash
-   bb-llms get <ComponentName>     # 例：bb-llms get Table
-   ```
-3. 浏览全部组件：
-   ```bash
-   bb-llms list
-   ```
-
-输出为 Markdown（参数表、事件回调、公开方法、GitHub 源码链接）。文档源默认 https://www.blazor.zone/llms ，自动本地缓存；可用环境变量 `BB_LLMS_BASE_URL` 或 `--base-url` 指向自建/本地源。
-
-## 前置条件
-
-需已安装该工具（命令名 `bb-llms`）：
-
-```bash
-dotnet tool install -g BootstrapBlazor.LLMsDocs.Cli
-```
-""";
+    /// <summary>
+    /// Skill manifest shared by Claude Code (.claude/skills/bootstrapblazor/SKILL.md)
+    /// and Trae (.trae/skills/bootstrapblazor/SKILL.md): both use the same SKILL.md
+    /// layout with name/description frontmatter, auto-matched by description.
+    /// </summary>
+    public static string SkillMarkdown => ReadTemplate("SKILL.md");
 
     /// <summary>Cursor project rule (.cursor/rules/bootstrapblazor.mdc).</summary>
-    public const string CursorRule = """
----
-description: 涉及 BootstrapBlazor 组件时，用 bb-llms CLI 获取官方组件 API 文档
-globs: ["**/*.razor", "**/*.razor.cs"]
-alwaysApply: false
----
-
-# BootstrapBlazor 组件文档
-
-编写或修改 BootstrapBlazor 组件代码时，用 `bb-llms` 获取权威组件 API，避免臆造参数：
-
-- 搜索组件：`bb-llms search <关键词>`
-- 获取文档：`bb-llms get <ComponentName>`（例：`bb-llms get Table`）
-- 列出全部：`bb-llms list`
-
-文档源默认 https://www.blazor.zone/llms ，可用 `BB_LLMS_BASE_URL` / `--base-url` 覆盖。
-安装：`dotnet tool install -g BootstrapBlazor.LLMsDocs.Cli`。
-""";
+    public static string CursorRule => ReadTemplate("bootstrapblazor.mdc");
 
     /// <summary>Print the generic snippet to stdout.</summary>
     public static int Instructions()
     {
-        Console.WriteLine(GenericSnippet);
+        // The template is normalized to end with a single newline, so use Write.
+        Console.Write(GenericSnippet);
         return 0;
     }
 
@@ -90,10 +42,12 @@ alwaysApply: false
     {
         var clients = client.ToLowerInvariant() switch
         {
-            "all" => new[] { "claude", "cursor" },
+            "all" => new[] { "claude", "cursor", "trae", "codex" },
             "claude" => ["claude"],
             "cursor" => ["cursor"],
-            _ => throw new ArgumentException($"Unknown client: {client} (expected claude|cursor|all)")
+            "trae" => ["trae"],
+            "codex" => ["codex"],
+            _ => throw new ArgumentException($"Unknown client: {client} (expected claude|cursor|trae|codex|all)")
         };
 
         var scopeKey = scope.ToLowerInvariant();
@@ -110,9 +64,23 @@ alwaysApply: false
         var written = 0;
         foreach (var c in clients)
         {
-            var (path, content) = c == "claude"
-                ? (Path.Combine(baseDir, ".claude", "skills", "bootstrapblazor", "SKILL.md"), SkillMarkdown)
-                : (Path.Combine(baseDir, ".cursor", "rules", "bootstrapblazor.mdc"), CursorRule);
+            var (path, content) = c switch
+            {
+                "claude" => (Path.Combine(baseDir, ".claude", "skills", "bootstrapblazor", "SKILL.md"), SkillMarkdown),
+                "cursor" => (Path.Combine(baseDir, ".cursor", "rules", "bootstrapblazor.mdc"), CursorRule),
+                // Trae skills mirror Claude skills (.trae/skills/<name>/SKILL.md, same
+                // name/description frontmatter, auto-matched by description), so the
+                // Claude skill template is reused verbatim.
+                "trae" => (Path.Combine(baseDir, ".trae", "skills", "bootstrapblazor", "SKILL.md"), SkillMarkdown),
+                // Codex has no dedicated skill/rule format — it reads AGENTS.md: the
+                // repo-root AGENTS.md for project scope, ~/.codex/AGENTS.md for user scope.
+                // It reuses the generic snippet (same content as `bb-llms instructions`).
+                // NOTE: AGENTS.md is a shared, hand-maintained file, so this only creates it
+                // when absent; --force overwrites it wholesale (existing content is lost).
+                _ => (scopeKey == "user"
+                        ? Path.Combine(baseDir, ".codex", "AGENTS.md")
+                        : Path.Combine(baseDir, "AGENTS.md"), GenericSnippet)
+            };
 
             if (File.Exists(path) && !force)
             {
@@ -127,5 +95,19 @@ alwaysApply: false
         }
 
         return written > 0 ? 0 : 1;
+    }
+
+    /// <summary>
+    /// Read an embedded template by its <c>LogicalName</c> (see the .csproj).
+    /// Trailing whitespace/newlines are normalized to a single trailing newline
+    /// so output stays stable regardless of how the source file was saved.
+    /// </summary>
+    private static string ReadTemplate(string logicalName)
+    {
+        var assembly = typeof(Scaffolder).Assembly;
+        using var stream = assembly.GetManifestResourceStream(logicalName)
+            ?? throw new InvalidOperationException($"Embedded template not found: {logicalName}");
+        using var reader = new StreamReader(stream, Encoding.UTF8);
+        return reader.ReadToEnd().TrimEnd() + "\n";
     }
 }

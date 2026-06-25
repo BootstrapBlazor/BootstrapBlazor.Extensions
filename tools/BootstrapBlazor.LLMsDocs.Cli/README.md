@@ -2,7 +2,7 @@
 
 一个轻量命令行工具，用于从 [www.blazor.zone/llms](https://www.blazor.zone/llms)
 拉取 BootstrapBlazor 组件的**官方 API 文档**（参数、事件回调、公开方法、源码链接），
-供 AI agent（Claude Code / Cursor 等经 Bash 调用）和开发者查询。
+供 AI agent（Claude Code / Cursor / Trae / Codex 等经 Bash 调用）和开发者查询。
 
 组件文档由官网的 `BootstrapBlazor.LLMsDocsGenerator`（生产者，CI 侧用 Roslyn 生成并发布）产出，
 本工具是**消费者**：只负责按需 HTTP 拉取已生成的 `.txt` 文档并本地缓存，
@@ -132,24 +132,34 @@ bb-llms get Button --base-url ./wwwroot/llms
 bb-llms instructions                 # 打印可粘贴进 CLAUDE.md / AGENTS.md 的通用片段
 bb-llms install --client claude      # 写 .claude/skills/bootstrapblazor/SKILL.md
 bb-llms install --client cursor      # 写 .cursor/rules/bootstrapblazor.mdc
-bb-llms install --client all         # 两者都写（默认）
+bb-llms install --client trae        # 写 .trae/skills/bootstrapblazor/SKILL.md
+bb-llms install --client codex       # 写 AGENTS.md（user scope 为 ~/.codex/AGENTS.md）
+bb-llms install --client all         # 四者都写（默认）
 ```
 
 `install` 选项：
 
 ```
---client claude|cursor|all   目标客户端（默认 all）
+--client claude|cursor|trae|codex|all   目标客户端（默认 all）
 --scope  project|user        project=当前目录（默认），user=用户主目录
 --target <dir>               覆盖写入的根目录
 --force                      覆盖已存在的文件（默认存在则跳过）
 ```
 
-三套生态接入方式：
+五套生态接入方式：
 
 - **Claude Code**：`bb-llms install --client claude` 写入一个 skill，Claude Code 会根据其
   `description` 在任务涉及 BootstrapBlazor 组件时**自动加载**并调用 `bb-llms`，
   等效于 MCP server 的自动发现。
 - **Cursor**：`bb-llms install --client cursor` 写入项目规则（匹配 `*.razor` / `*.razor.cs`）。
+- **Trae**：`bb-llms install --client trae` 写入一个 skill（`.trae/skills/bootstrapblazor/SKILL.md`）。
+  Trae 的 skill 与 Claude 同构（同样的 `SKILL.md` + name/description frontmatter，按描述**自动匹配**），
+  因此复用同一套模板。
+- **Codex**：`bb-llms install --client codex` 写入 `AGENTS.md`（project scope 为仓库根目录的
+  `AGENTS.md`，user scope 为 `~/.codex/AGENTS.md`）。Codex 没有独立的 skill/规则机制，统一读 `AGENTS.md`，
+  因此复用 `instructions` 的通用片段。
+  > ⚠️ `AGENTS.md` 是手工维护的共享文件，**默认存在则跳过**；`--force` 会整文件覆盖，原有内容会丢失。
+  > 已有 `AGENTS.md` 时，建议改用 `bb-llms instructions` 把片段手动粘进去。
 - **通用 / 其他 agent**：把 `bb-llms instructions` 的输出粘进项目的 `CLAUDE.md` / `AGENTS.md`。
 
 典型流程（在你的 Blazor 项目根目录）：
@@ -179,6 +189,18 @@ dotnet pack -c Release
 dotnet tool install -g --add-source ./bin/Release BootstrapBlazor.LLMsDocs.Cli
 bb-llms get Table
 ```
+
+### 修改发现层模板
+
+`instructions` / `install` 输出的模板正文是 `Templates/` 下的独立文件，**直接编辑这些文件即可**，无需改 C# 代码：
+
+| 文件 | 对应命令 |
+|---|---|
+| `Templates/instructions.md` | `bb-llms instructions`（粘进 CLAUDE.md / AGENTS.md 的片段）、`bb-llms install --client codex`（写 AGENTS.md） |
+| `Templates/SKILL.md` | `bb-llms install --client claude` / `--client trae`（Claude / Trae skill） |
+| `Templates/bootstrapblazor.mdc` | `bb-llms install --client cursor`（Cursor 规则） |
+
+这些文件以**嵌入资源**编入程序集（见 `.csproj`），因此全局安装后工具仍能在运行时读取到，无需依赖项目源码目录。改完重新 `dotnet build` / `dotnet pack` 即生效。
 
 ---
 

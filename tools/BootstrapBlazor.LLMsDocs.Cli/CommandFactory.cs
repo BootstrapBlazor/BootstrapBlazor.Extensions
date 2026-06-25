@@ -153,11 +153,11 @@ internal static class CommandFactory
 
     private static Command BuildInstallCommand()
     {
-        var client = new Option<string?>("--client") { Description = "Target client: claude | cursor | all (default all)." };
+        var client = new Option<string?>("--client") { Description = "Target client: claude | cursor | trae | codex | all (default all)." };
         var scope = new Option<string?>("--scope") { Description = "Where to write: project (cwd, default) or user (home)." };
         var target = new Option<string?>("--target") { Description = "Override base directory to write into." };
         var force = new Option<bool>("--force") { Description = "Overwrite existing files." };
-        var cmd = new Command("install", "Install agent discovery artifacts (Claude Code skill / Cursor rules).")
+        var cmd = new Command("install", "Install agent discovery artifacts (Claude Code skill / Cursor rules / Trae skill / Codex AGENTS.md).")
         {
             client, scope, target, force
         };
