@@ -21,7 +21,11 @@ internal static class Scaffolder
 文档源默认 https://www.blazor.zone/llms ，按需联网拉取并本地缓存；可用环境变量 `BB_LLMS_BASE_URL` 或 `--base-url` 指向自建/本地源。
 """;
 
-    /// <summary>Claude Code skill (.claude/skills/bootstrapblazor/SKILL.md).</summary>
+    /// <summary>
+    /// Skill manifest shared by Claude Code (.claude/skills/bootstrapblazor/SKILL.md)
+    /// and Trae (.trae/skills/bootstrapblazor/SKILL.md): both use the same SKILL.md
+    /// layout with name/description frontmatter, auto-matched by description.
+    /// </summary>
     public const string SkillMarkdown = """
 ---
 name: bootstrapblazor
@@ -90,10 +94,11 @@ alwaysApply: false
     {
         var clients = client.ToLowerInvariant() switch
         {
-            "all" => new[] { "claude", "cursor" },
+            "all" => new[] { "claude", "cursor", "trae" },
             "claude" => ["claude"],
             "cursor" => ["cursor"],
-            _ => throw new ArgumentException($"Unknown client: {client} (expected claude|cursor|all)")
+            "trae" => ["trae"],
+            _ => throw new ArgumentException($"Unknown client: {client} (expected claude|cursor|trae|all)")
         };
 
         var scopeKey = scope.ToLowerInvariant();
@@ -110,9 +115,15 @@ alwaysApply: false
         var written = 0;
         foreach (var c in clients)
         {
-            var (path, content) = c == "claude"
-                ? (Path.Combine(baseDir, ".claude", "skills", "bootstrapblazor", "SKILL.md"), SkillMarkdown)
-                : (Path.Combine(baseDir, ".cursor", "rules", "bootstrapblazor.mdc"), CursorRule);
+            var (path, content) = c switch
+            {
+                "claude" => (Path.Combine(baseDir, ".claude", "skills", "bootstrapblazor", "SKILL.md"), SkillMarkdown),
+                "cursor" => (Path.Combine(baseDir, ".cursor", "rules", "bootstrapblazor.mdc"), CursorRule),
+                // Trae skills mirror Claude skills (.trae/skills/<name>/SKILL.md, same
+                // name/description frontmatter, auto-matched by description), so the
+                // Claude skill template is reused verbatim.
+                _ => (Path.Combine(baseDir, ".trae", "skills", "bootstrapblazor", "SKILL.md"), SkillMarkdown)
+            };
 
             if (File.Exists(path) && !force)
             {

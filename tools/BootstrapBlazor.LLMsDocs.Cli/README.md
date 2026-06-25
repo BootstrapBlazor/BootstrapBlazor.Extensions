@@ -132,24 +132,28 @@ bb-llms get Button --base-url ./wwwroot/llms
 bb-llms instructions                 # 打印可粘贴进 CLAUDE.md / AGENTS.md 的通用片段
 bb-llms install --client claude      # 写 .claude/skills/bootstrapblazor/SKILL.md
 bb-llms install --client cursor      # 写 .cursor/rules/bootstrapblazor.mdc
-bb-llms install --client all         # 两者都写（默认）
+bb-llms install --client trae        # 写 .trae/skills/bootstrapblazor/SKILL.md
+bb-llms install --client all         # 三者都写（默认）
 ```
 
 `install` 选项：
 
 ```
---client claude|cursor|all   目标客户端（默认 all）
+--client claude|cursor|trae|all   目标客户端（默认 all）
 --scope  project|user        project=当前目录（默认），user=用户主目录
 --target <dir>               覆盖写入的根目录
 --force                      覆盖已存在的文件（默认存在则跳过）
 ```
 
-三套生态接入方式：
+四套生态接入方式：
 
 - **Claude Code**：`bb-llms install --client claude` 写入一个 skill，Claude Code 会根据其
   `description` 在任务涉及 BootstrapBlazor 组件时**自动加载**并调用 `bb-llms`，
   等效于 MCP server 的自动发现。
 - **Cursor**：`bb-llms install --client cursor` 写入项目规则（匹配 `*.razor` / `*.razor.cs`）。
+- **Trae**：`bb-llms install --client trae` 写入一个 skill（`.trae/skills/bootstrapblazor/SKILL.md`）。
+  Trae 的 skill 与 Claude 同构（同样的 `SKILL.md` + name/description frontmatter，按描述**自动匹配**），
+  因此复用同一套模板。
 - **通用 / 其他 agent**：把 `bb-llms instructions` 的输出粘进项目的 `CLAUDE.md` / `AGENTS.md`。
 
 典型流程（在你的 Blazor 项目根目录）：
