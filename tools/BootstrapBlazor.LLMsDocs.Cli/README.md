@@ -184,6 +184,18 @@ dotnet tool install -g --add-source ./bin/Release BootstrapBlazor.LLMsDocs.Cli
 bb-llms get Table
 ```
 
+### 修改发现层模板
+
+`instructions` / `install` 输出的模板正文是 `Templates/` 下的独立文件，**直接编辑这些文件即可**，无需改 C# 代码：
+
+| 文件 | 对应命令 |
+|---|---|
+| `Templates/instructions.md` | `bb-llms instructions`（粘进 CLAUDE.md / AGENTS.md 的片段） |
+| `Templates/SKILL.md` | `bb-llms install --client claude` / `--client trae`（Claude / Trae skill） |
+| `Templates/bootstrapblazor.mdc` | `bb-llms install --client cursor`（Cursor 规则） |
+
+这些文件以**嵌入资源**编入程序集（见 `.csproj`），因此全局安装后工具仍能在运行时读取到，无需依赖项目源码目录。改完重新 `dotnet build` / `dotnet pack` 即生效。
+
 ---
 
 ## 设计说明：运行时 vs 数据
