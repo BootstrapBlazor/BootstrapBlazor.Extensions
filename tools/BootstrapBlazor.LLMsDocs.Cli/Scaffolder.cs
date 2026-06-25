@@ -12,7 +12,7 @@ internal static class Scaffolder
     public const string GenericSnippet = """
 ## BootstrapBlazor 组件文档
 
-需要 BootstrapBlazor 组件的参数 / 事件 / 公开方法时，使用 `bb-llms` CLI 获取官方文档，不要凭记忆臆造 API：
+需要 BootstrapBlazor（简称 BB / bb）组件的参数 / 事件 / 公开方法时，使用 `bb-llms` CLI 获取官方文档，不要凭记忆臆造 API：
 
 - 查找组件名：`bb-llms search <关键词>`
 - 获取组件文档：`bb-llms get <ComponentName>`（例：`bb-llms get Table`）
@@ -29,12 +29,14 @@ internal static class Scaffolder
     public const string SkillMarkdown = """
 ---
 name: bootstrapblazor
-description: 涉及 BootstrapBlazor 组件（参数、事件回调、公开方法、用法）时使用，通过 bb-llms CLI 获取官方组件 API 文档，避免臆造参数。
+description: 涉及 BootstrapBlazor（简称 BB / bb，如“BB 组件”“bb 的 Table”“用 bb 写表格”）的组件参数、事件回调、公开方法、用法时使用，通过 bb-llms CLI 获取官方组件 API 文档，避免臆造参数。
 ---
 
 # BootstrapBlazor 组件文档查询
 
-当任务涉及 BootstrapBlazor 组件（编写或修改 .razor、配置组件参数、调用组件方法等）时，优先用 `bb-llms` 获取**权威**组件 API。
+当任务涉及 BootstrapBlazor（简称 **BB** / **bb**，下同）组件（编写或修改 .razor、配置组件参数、调用组件方法等）时，优先用 `bb-llms` 获取**权威**组件 API。
+
+> 用户说“BB 组件”“bb 的 Table”“用 bb 写个表格”等时，BB / bb 均指 BootstrapBlazor，按本流程查询。
 
 ## 用法
 
@@ -65,14 +67,14 @@ dotnet tool install -g BootstrapBlazor.LLMsDocs.Cli
     /// <summary>Cursor project rule (.cursor/rules/bootstrapblazor.mdc).</summary>
     public const string CursorRule = """
 ---
-description: 涉及 BootstrapBlazor 组件时，用 bb-llms CLI 获取官方组件 API 文档
+description: 涉及 BootstrapBlazor（简称 BB / bb）组件时，用 bb-llms CLI 获取官方组件 API 文档
 globs: ["**/*.razor", "**/*.razor.cs"]
 alwaysApply: false
 ---
 
 # BootstrapBlazor 组件文档
 
-编写或修改 BootstrapBlazor 组件代码时，用 `bb-llms` 获取权威组件 API，避免臆造参数：
+编写或修改 BootstrapBlazor（简称 BB / bb）组件代码时，用 `bb-llms` 获取权威组件 API，避免臆造参数：
 
 - 搜索组件：`bb-llms search <关键词>`
 - 获取文档：`bb-llms get <ComponentName>`（例：`bb-llms get Table`）
