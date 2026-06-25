@@ -42,11 +42,12 @@ internal static class Scaffolder
     {
         var clients = client.ToLowerInvariant() switch
         {
-            "all" => new[] { "claude", "cursor", "trae" },
+            "all" => new[] { "claude", "cursor", "trae", "codex" },
             "claude" => ["claude"],
             "cursor" => ["cursor"],
             "trae" => ["trae"],
-            _ => throw new ArgumentException($"Unknown client: {client} (expected claude|cursor|trae|all)")
+            "codex" => ["codex"],
+            _ => throw new ArgumentException($"Unknown client: {client} (expected claude|cursor|trae|codex|all)")
         };
 
         var scopeKey = scope.ToLowerInvariant();
@@ -70,7 +71,15 @@ internal static class Scaffolder
                 // Trae skills mirror Claude skills (.trae/skills/<name>/SKILL.md, same
                 // name/description frontmatter, auto-matched by description), so the
                 // Claude skill template is reused verbatim.
-                _ => (Path.Combine(baseDir, ".trae", "skills", "bootstrapblazor", "SKILL.md"), SkillMarkdown)
+                "trae" => (Path.Combine(baseDir, ".trae", "skills", "bootstrapblazor", "SKILL.md"), SkillMarkdown),
+                // Codex has no dedicated skill/rule format — it reads AGENTS.md: the
+                // repo-root AGENTS.md for project scope, ~/.codex/AGENTS.md for user scope.
+                // It reuses the generic snippet (same content as `bb-llms instructions`).
+                // NOTE: AGENTS.md is a shared, hand-maintained file, so this only creates it
+                // when absent; --force overwrites it wholesale (existing content is lost).
+                _ => (scopeKey == "user"
+                        ? Path.Combine(baseDir, ".codex", "AGENTS.md")
+                        : Path.Combine(baseDir, "AGENTS.md"), GenericSnippet)
             };
 
             if (File.Exists(path) && !force)
