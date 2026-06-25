@@ -39,14 +39,26 @@ const addGroupWithPanel = (dockview, panel, panels, index) => {
 
 const addPanelWidthGroupId = (dockview, panel, index) => {
     let group = dockview.api.getGroup(panel.groupId)
-    let { rect = {}, packup, floatType, drawer, direction = 'left' } = panel.params || {}
+    // The group may have moved (floated/docked) since this panel was closed; getFloatingId toggles its grid<->floating
+    // id. If our entry is empty/gone but the counterpart holds the panels, route there so the panel rejoins the group.
+    if (!group || group.panels.length === 0) {
+        const counterpart = dockview.api.getGroup(getFloatingId(panel.groupId))
+        if (counterpart && counterpart.panels.length > 0) group = counterpart
+    }
+    // Empty pre-existing group = deleted-side placeholder (deferred actions + collapsed branch); a populated one is healthy.
+    const reusedEmptyGroup = !!group && group.panels.length === 0;
+    const isNewFloatingGroup = !group;
+    let { rect = {}, packup, floatType, drawer, direction = 'left', currentPosition } = panel.params || {}
     if (!group) {
         group = dockview.createGroup({ id: panel.groupId })
         const width = dockview.width > 500 ? 500 : (dockview.width - 10)
         const height = dockview.height > 460 ? 460 : (dockview.height - 10)
         const left = (dockview.width - width) / 2
         const top = (dockview.height - height) / 2
-        let floatingGroupRect = rect || {
+        // Prefer currentPosition (saved on hide) over rect (only refreshed on un-float) to keep last size & position.
+        let floatingGroupRect = (currentPosition?.width > 0
+            ? { width: currentPosition.width, height: currentPosition.height, position: { top: currentPosition.top, left: currentPosition.left } }
+            : rect) || {
             width, height: packup?.isPackup ? packup.height : height, position: { left, top }
         }
         if (floatType == 'drawer') {
@@ -73,6 +85,10 @@ const addPanelWidthGroupId = (dockview, panel, index) => {
         }
     }
 
+    // Placeholder branch collapsed to width 0 in the saved layout; restore the pre-delete width (currentPosition)
+    // via initialWidth → setSize, else it re-shows at min ~100.
+    const restoreWidth = reusedEmptyGroup && group.api.location.type === 'grid'
+        ? panel.params?.currentPosition?.width : undefined;
     dockview.addPanel({
         id: panel.id,
         title: panel.title,
@@ -80,8 +96,21 @@ const addPanelWidthGroupId = (dockview, panel, index) => {
         renderer: panel.renderer,
         component: panel.component,
         position: { referenceGroup: group, index: index || 0 },
+        initialWidth: restoreWidth > 0 ? restoreWidth : undefined,
         params: { ...panel.params, rect, packup, visible: true }
     })
+
+    // addPanel is inactive; activate so a freshly created floating group isn't blank.
+    if (isNewFloatingGroup) {
+        group.panels.find(p => p.id === panel.id)?.api.setActive();
+    }
+
+    // Placeholder deferred its action states while empty (see resetActionStates); re-render now it has a panel.
+    if (reusedEmptyGroup && group.api.location.type === 'grid') {
+        reRenderActionStates(group);
+        // initialWidth left a _pendingSize; clear it so a later setVisible(true) (float->dock) won't replay this stale width.
+        if (restoreWidth > 0) group.api._pendingSize = undefined;
+    }
 }
 
 const addPanelWidthCreatGroup = (dockview, panel, panels) => {
@@ -175,6 +204,10 @@ const disposeGroup = group => {
 
 const resetActionStates = (group, actionContainer, groupType) => {
     const dockview = group.api.accessor;
+    // Empty group: `[].every()` is vacuously true so every show*() falls back to options defaults, wrongly showing
+    // buttons that stick once re-filled. Defer until it has panels (re-rendered on insert in addPanelWidthGroupId).
+    if (group.panels.length === 0) return;
+    // bb-show-lock only gates the button; apply the lock STATE regardless so a locked group stays locked when showLock=false.
     if (showLock(dockview, group)) {
         actionContainer.classList.add('bb-show-lock');
     }
@@ -202,6 +235,12 @@ const resetActionStates = (group, actionContainer, groupType) => {
     if (showUp(group) && !getUpState(group)) {
         actionContainer.classList.add('bb-up')
     }
+}
+
+// Re-render action buttons after an empty placeholder gains a panel (its actions were deferred while empty).
+const reRenderActionStates = group => {
+    const actionContainer = group.header.element.querySelector('.dv-right-actions-container');
+    if (actionContainer) resetActionStates(group, actionContainer);
 }
 
 const showLock = (dockview, group) => {
@@ -621,6 +660,8 @@ const dock = (group, floatType) => {
         from: { group: group },
         to: { group: originGroup, position: 'center' }
     })
+    // originGroup was an empty placeholder while floated; its deferred action buttons need re-rendering now it is filled.
+    reRenderActionStates(originGroup)
     saveConfig(dockview)
 }
 

@@ -65,8 +65,9 @@ const onRemovePanel = event => {
             currentPosition: {
                 width: event.group.element.parentElement.offsetWidth,
                 height: event.group.element.parentElement.offsetHeight,
-                top: parseFloat(event.group.element.parentElement.style.top || 0),
-                left: parseFloat(event.group.element.parentElement.style.left || 0)
+                // offsetTop/Left, not style.top/left which can be 'auto' -> parseFloat NaN -> lost position.
+                top: event.group.element.parentElement.offsetTop,
+                left: event.group.element.parentElement.offsetLeft
             },
             index: event.group.delPanelIndex
         }
