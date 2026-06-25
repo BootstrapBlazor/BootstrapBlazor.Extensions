@@ -85,10 +85,15 @@ const addPanelWidthGroupId = (dockview, panel, index) => {
         }
     }
 
-    // Placeholder branch collapsed to width 0 in the saved layout; restore the pre-delete width (currentPosition)
-    // via initialWidth → setSize, else it re-shows at min ~100.
-    const restoreWidth = reusedEmptyGroup && group.api.location.type === 'grid'
-        ? panel.params?.currentPosition?.width : undefined;
+    // Restore a saved dimension only when the group collapsed to its minimum; if the structure already gave it a real
+    // size, restoring a stale saved value would shrink it and squeeze/blank a sibling.
+    let initialWidth, initialHeight;
+    if (reusedEmptyGroup && group.api.location.type === 'grid' && group.element.parentElement) {
+        const cp = panel.params?.currentPosition;
+        const { offsetWidth, offsetHeight } = group.element.parentElement;
+        if (cp?.width > offsetWidth && offsetWidth <= group.minimumWidth + 2) initialWidth = cp.width;
+        if (cp?.height > offsetHeight && offsetHeight <= group.minimumHeight + 2) initialHeight = cp.height;
+    }
     dockview.addPanel({
         id: panel.id,
         title: panel.title,
@@ -96,7 +101,8 @@ const addPanelWidthGroupId = (dockview, panel, index) => {
         renderer: panel.renderer,
         component: panel.component,
         position: { referenceGroup: group, index: index || 0 },
-        initialWidth: restoreWidth > 0 ? restoreWidth : undefined,
+        initialWidth,
+        initialHeight,
         params: { ...panel.params, rect, packup, visible: true }
     })
 
@@ -108,8 +114,8 @@ const addPanelWidthGroupId = (dockview, panel, index) => {
     // Placeholder deferred its action states while empty (see resetActionStates); re-render now it has a panel.
     if (reusedEmptyGroup && group.api.location.type === 'grid') {
         reRenderActionStates(group);
-        // initialWidth left a _pendingSize; clear it so a later setVisible(true) (float->dock) won't replay this stale width.
-        if (restoreWidth > 0) group.api._pendingSize = undefined;
+        // The restore left a _pendingSize; clear it so a later setVisible(true) (float->dock) won't replay this stale size.
+        if (initialWidth > 0 || initialHeight > 0) group.api._pendingSize = undefined;
     }
 }
 
