@@ -38,7 +38,12 @@ internal static class Scaffolder
     }
 
     /// <summary>Write discovery artifacts for the requested client(s).</summary>
-    public static int Install(string client, string scope, string? target, bool force)
+    /// <param name="scope">
+    /// <c>user</c> (home, the default) or <c>project</c> (cwd). Defaulting to the user
+    /// home keeps every client's discovery artifact alongside the globally-installed
+    /// tool, so it is auto-discovered in every project without re-running install per repo.
+    /// </param>
+    public static int Install(string client, string? scope, string? target, bool force)
     {
         var clients = client.ToLowerInvariant() switch
         {
@@ -50,7 +55,9 @@ internal static class Scaffolder
             _ => throw new ArgumentException($"Unknown client: {client} (expected claude|cursor|trae|codex|all)")
         };
 
-        var scopeKey = scope.ToLowerInvariant();
+        // No explicit --scope defaults to the user home: the tool is installed globally,
+        // so its discovery artifacts live in the user home and work in every project.
+        var scopeKey = (scope ?? "user").ToLowerInvariant();
         if (scopeKey is not ("project" or "user"))
         {
             throw new ArgumentException($"Unknown scope: {scope} (expected project|user)");
