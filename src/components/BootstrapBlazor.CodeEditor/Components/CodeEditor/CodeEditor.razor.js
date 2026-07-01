@@ -1,4 +1,4 @@
-﻿import { addLink, addScript } from '../../../BootstrapBlazor/modules/utility.js'
+import { addLink, addScript } from '../../../BootstrapBlazor/modules/utility.js'
 import Data from '../../../BootstrapBlazor/modules/data.js'
 import EventHandler from "../../../BootstrapBlazor/modules/event-handler.js"
 
@@ -76,7 +76,22 @@ export async function init(id, interop, options) {
     });
 }
 
-// Update the editor options
+export function insertText(id, insertData) {
+    const wrapper = Data.get(id);
+    if (!wrapper) return;
+
+    const editor = wrapper.editor;
+    const selection = editor.getSelection();
+    editor.executeEdits('insert-custom-text', [
+        {
+            range: selection,
+            text: insertData,
+            forceMoveMarkers: true
+        }
+    ]);
+    editor.focus();
+}
+
 export function monacoSetOptions(id, options) {
     var editor = Data.get(id);
     if (editor) {
