@@ -17,6 +17,15 @@ if (window.BootstrapBlazor.Chart === void 0) {
             if (!elementMap.has(element)) {
                 elementMap.set(element, instance)
             }
+            else {
+                deepMerge(elementMap.get(element), instance)
+            }
+
+            const data = Data.get(element);
+            if (data && data.chart) {
+                deepMerge(data.chart.config._config, instance);
+                data.chart.update();
+            }
         }
 
         getOptionsById(element) {
