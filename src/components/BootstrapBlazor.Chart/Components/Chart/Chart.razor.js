@@ -371,6 +371,11 @@ const getChartOption = function (option) {
         }
     }
 
+    let showDataLabel = option.options.showDataLabel;
+    if (showDataLabel === true && option.options.x.stacked) {
+        showDataLabel = context => Number(context.dataset?.data[context.dataIndex]) !== 0;
+    }
+
     return {
         ...config,
         ...{
@@ -395,7 +400,7 @@ const getChartOption = function (option) {
                         anchor: option.options.anchor,
                         align: option.options.align,
                         formatter: option.options.formatter,
-                        display: option.options.showDataLabel,
+                        display: showDataLabel,
                         color: option.options.chartDataLabelColor,
                         font: {
                             weight: 'bold'
