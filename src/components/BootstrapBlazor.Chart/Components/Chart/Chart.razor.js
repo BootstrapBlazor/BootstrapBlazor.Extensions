@@ -392,6 +392,39 @@ const getChartOption = function (option) {
         showDataLabel = context => Number(context.dataset?.data[context.dataIndex]) !== 0;
     }
 
+    const datalabels = {
+        anchor: option.options.anchor,
+        align: option.options.align,
+        formatter: option.options.formatter,
+        display: showDataLabel,
+        color: option.options.chartDataLabelColor,
+        font: {
+            weight: 'bold'
+        }
+    };
+
+    if (option.options.showTotalDataLabel && option.options.x.stacked) {
+        const lastVisibleIndex = chart => {
+            let last = -1;
+            chart.data.datasets.forEach((v, index) => {
+                if (chart.isDatasetVisible(index)) {
+                    last = index;
+                }
+            });
+            return last;
+        };
+        datalabels.labels = {
+            value: {},
+            total: {
+                anchor: 'end',
+                align: 'end',
+                display: context => context.datasetIndex === lastVisibleIndex(context.chart),
+                formatter: (value, context) => context.chart.data.datasets.reduce(
+                    (total, v, index) => context.chart.isDatasetVisible(index) ? total + (Number(v.data[context.dataIndex]) || 0) : total, 0)
+            }
+        };
+    }
+
     return {
         ...config,
         ...{
@@ -412,16 +445,7 @@ const getChartOption = function (option) {
                         display: option.options.title != null,
                         text: option.options.title
                     },
-                    datalabels: {
-                        anchor: option.options.anchor,
-                        align: option.options.align,
-                        formatter: option.options.formatter,
-                        display: showDataLabel,
-                        color: option.options.chartDataLabelColor,
-                        font: {
-                            weight: 'bold'
-                        }
-                    },
+                    datalabels: datalabels,
                     customCanvasBackgroundColor: {
                         color: option.options.canvasBackgroundColor,
                     }
