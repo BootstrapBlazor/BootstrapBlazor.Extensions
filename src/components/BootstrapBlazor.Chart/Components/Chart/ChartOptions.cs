@@ -219,6 +219,11 @@ public class ChartOptions
     public bool ShowDataLabel { get; set; }
 
     /// <summary>
+    /// 获得/设置 堆叠模式下是否在每个柱条顶部显示总计数据标签 默认 false
+    /// </summary>
+    public bool ShowTotalDataLabel { get; set; }
+
+    /// <summary>
     /// 获得/设置 是否单独设置柱状图颜色
     /// </summary>
     public bool BarColorSeparately { get; set; }
