@@ -127,6 +127,9 @@ const getChartOption = function (option) {
                 text: option.options.x.title
             },
             stacked: option.options.x.stacked,
+            ticks: {
+                autoSkip: option.options.x.autoSkip
+            },
             grid: {
                 display: option.options.showXLine
             }
@@ -139,6 +142,9 @@ const getChartOption = function (option) {
             },
             stacked: option.options.x.stacked,
             position: option.options.y.position,
+            ticks: {
+                autoSkip: option.options.y.autoSkip
+            },
             grid: {
                 display: option.options.showYLine
             }
@@ -359,6 +365,7 @@ const getChartOption = function (option) {
             stacked: option.options.x.stacked,
             position: option.options.y2.position,
             ticks: {
+                autoSkip: option.options.y2.autoSkip,
                 max: option.options.y2.TicksMax,
                 min: option.options.y2.TicksMin
             }
