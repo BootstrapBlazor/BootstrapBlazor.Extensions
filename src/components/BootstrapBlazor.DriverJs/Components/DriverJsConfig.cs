@@ -22,6 +22,12 @@ public class DriverJsConfig
     public bool? Animate { get; set; }
 
     /// <summary>
+    /// Duration of the animation in milliseconds. (default: 400)
+    /// </summary>
+    [JsonIgnore(Condition = JsonIgnoreCondition.WhenWritingNull)]
+    public int? Duration { get; set; }
+
+    /// <summary>
     /// Overlay color. (default: black)
     /// </summary>
     [JsonIgnore(Condition = JsonIgnoreCondition.WhenWritingNull)]
@@ -38,6 +44,18 @@ public class DriverJsConfig
     /// </summary>
     [JsonIgnore(Condition = JsonIgnoreCondition.WhenWritingNull)]
     public bool? AllowClose { get; set; }
+
+    /// <summary>
+    /// Whether to allow scrolling the page while the tour is active. (default: true)
+    /// </summary>
+    [JsonIgnore(Condition = JsonIgnoreCondition.WhenWritingNull)]
+    public bool? AllowScroll { get; set; }
+
+    /// <summary>
+    /// Whether to skip the step when the target element is missing. (default: false)
+    /// </summary>
+    [JsonIgnore(Condition = JsonIgnoreCondition.WhenWritingNull)]
+    public bool? SkipMissingElement { get; set; }
 
     /// <summary>
     /// Opacity of the backdrop. (default: 0.5)
