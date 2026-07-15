@@ -1,4 +1,4 @@
-﻿// Copyright (c) Argo Zhang (argo@163.com). All rights reserved.
+// Copyright (c) Argo Zhang (argo@163.com). All rights reserved.
 // Licensed under the Apache License, Version 2.0. See License.txt in the project root for license information.
 // Website: https://www.blazor.zone or https://argozhang.github.io/
 
@@ -7,40 +7,46 @@ using Microsoft.AspNetCore.Components.Rendering;
 namespace BootstrapBlazor.Components;
 
 /// <summary>
-/// FocusGuide 组件步骤组件
+/// <para lang="zh">FocusGuide 组件步骤组件</para>
+/// <para lang="en">FocusGuide step component</para>
 /// </summary>
 public class DriverJsStep : ComponentBase, IDisposable
 {
     /// <summary>
-    /// 获得/设置 当前步骤目标元素选择器 默认 null 必须设置
+    /// <para lang="zh">获得/设置 当前步骤目标元素选择器，默认为 null 必须设置</para>
+    /// <para lang="en">Gets or sets the target element selector of the current step. Default is null. Required</para>
     /// </summary>
     [Parameter]
     [JsonPropertyName("element")]
     public string? Selector { get; set; }
 
     /// <summary>
-    /// Title shown in the popover.
+    /// <para lang="zh">获得/设置 弹窗标题</para>
+    /// <para lang="en">Gets or sets the title shown in the popover</para>
     /// </summary>
     [Parameter]
     [JsonIgnore(Condition = JsonIgnoreCondition.WhenWritingNull)]
     public string? Title { get; set; }
 
     /// <summary>
-    /// Descriptions shown in the popover.
+    /// <para lang="zh">获得/设置 弹窗描述文本</para>
+    /// <para lang="en">Gets or sets the description shown in the popover</para>
     /// </summary>
     [Parameter]
     [JsonIgnore(Condition = JsonIgnoreCondition.WhenWritingNull)]
     public string? Description { get; set; }
 
     /// <summary>
-    /// Whether to skip this step when the target element is missing. (default: false)
+    /// <para lang="zh">获得/设置 目标元素不存在时是否跳过该步骤，默认为 false</para>
+    /// <para lang="en">Gets or sets whether to skip this step when the target element is missing. Default is false</para>
     /// </summary>
     [Parameter]
     [JsonIgnore(Condition = JsonIgnoreCondition.WhenWritingNull)]
     public bool? SkipMissingElement { get; set; }
 
     /// <summary>
-    /// 获得/设置 子组件内容
+    /// <para lang="zh">获得/设置 子组件内容</para>
+    /// <para lang="en">Gets or sets the child content</para>
     /// </summary>
     [Parameter]
     [JsonIgnore]
@@ -89,7 +95,8 @@ public class DriverJsStep : ComponentBase, IDisposable
     }
 
     /// <summary>
-    /// 更新 FocusGuidePopover 实例方法
+    /// <para lang="zh">更新 FocusGuidePopover 实例方法</para>
+    /// <para lang="en">Updates the FocusGuidePopover instance</para>
     /// </summary>
     /// <param name="popover"></param>
     public void UpdatePopover(IDriverJsPopover? popover)
