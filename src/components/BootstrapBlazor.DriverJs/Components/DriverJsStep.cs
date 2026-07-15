@@ -33,6 +33,13 @@ public class DriverJsStep : ComponentBase, IDisposable
     public string? Description { get; set; }
 
     /// <summary>
+    /// Whether to skip this step when the target element is missing. (default: false)
+    /// </summary>
+    [Parameter]
+    [JsonIgnore(Condition = JsonIgnoreCondition.WhenWritingNull)]
+    public bool? SkipMissingElement { get; set; }
+
+    /// <summary>
     /// 获得/设置 子组件内容
     /// </summary>
     [Parameter]
