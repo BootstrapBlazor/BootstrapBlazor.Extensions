@@ -7,12 +7,14 @@ using BootstrapBlazor.Components;
 namespace Microsoft.Extensions.DependencyInjection;
 
 /// <summary>
-/// BootstrapBlazor 服务扩展类
+/// <para lang="zh">BootstrapBlazor 服务扩展类</para>
+/// <para lang="en">BootstrapBlazor service extensions class</para>
 /// </summary>
 public static class ServiceCollectionExtensions
 {
     /// <summary>
-    /// 添加 IP2RegionService 服务
+    /// <para lang="zh">添加 IP2RegionService 服务</para>
+    /// <para lang="en">Adds the IP2RegionService service</para>
     /// </summary>
     /// <param name="services"></param>
     /// <param name="configureOptions"></param>
