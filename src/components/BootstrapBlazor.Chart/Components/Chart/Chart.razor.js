@@ -107,6 +107,17 @@ const genericOptions = {
     radius: 0
 }
 
+const formatChartText = (format, values) => {
+    if (!format) {
+        return null;
+    }
+
+    return Object.keys(values).reduce((text, key) => text.replaceAll(`{${key}}`, values[key] ?? ''), format);
+}
+
+const getStackedTotal = context => context.chart.data.datasets.reduce(
+    (total, v, index) => context.chart.isDatasetVisible(index) ? total + (Number(v.data[context.dataIndex]) || 0) : total, 0)
+
 const getChartOption = function (option) {
     const appendData = option.appendData;
     delete option.appendData;
@@ -148,6 +159,15 @@ const getChartOption = function (option) {
             grid: {
                 display: option.options.showYLine
             }
+        }
+    }
+
+    if (option.options.categoryLabelFormatter) {
+        scale.x.ticks.callback = function (value) {
+            return formatChartText(option.options.categoryLabelFormatter, {
+                value,
+                label: this.getLabelForValue(value)
+            });
         }
     }
 
@@ -413,15 +433,67 @@ const getChartOption = function (option) {
             });
             return last;
         };
+        const totalLabel = {
+            anchor: 'end',
+            align: 'end',
+            display: context => context.datasetIndex === lastVisibleIndex(context.chart),
+            formatter: (value, context) => {
+                const total = getStackedTotal(context);
+                return formatChartText(option.options.totalDataLabelFormatter, { total, value: total }) ?? total;
+            }
+        };
+
+        if (option.options.totalDataLabelColor) {
+            totalLabel.color = option.options.totalDataLabelColor;
+        }
+        if (option.options.totalDataLabelBackgroundColor) {
+            totalLabel.backgroundColor = option.options.totalDataLabelBackgroundColor;
+        }
+        if (option.options.totalDataLabelBorderRadius !== null) {
+            totalLabel.borderRadius = option.options.totalDataLabelBorderRadius;
+        }
+        if (option.options.totalDataLabelPadding !== null) {
+            totalLabel.padding = option.options.totalDataLabelPadding;
+        }
+        if (option.options.totalDataLabelFontWeight) {
+            totalLabel.font = {
+                weight: option.options.totalDataLabelFontWeight
+            };
+        }
+
         datalabels.labels = {
             value: {},
-            total: {
-                anchor: 'end',
-                align: 'end',
-                display: context => context.datasetIndex === lastVisibleIndex(context.chart),
-                formatter: (value, context) => context.chart.data.datasets.reduce(
-                    (total, v, index) => context.chart.isDatasetVisible(index) ? total + (Number(v.data[context.dataIndex]) || 0) : total, 0)
+            total: totalLabel
+        };
+    }
+
+    const tooltip = {};
+    if (option.options.tooltipTitleFormatter) {
+        tooltip.callbacks = {
+            ...tooltip.callbacks,
+            title: tooltipItems => {
+                const item = tooltipItems[0];
+                return formatChartText(option.options.tooltipTitleFormatter, {
+                    label: item.label,
+                    value: item.formattedValue,
+                    datasetLabel: item.dataset.label,
+                    dataIndex: item.dataIndex,
+                    datasetIndex: item.datasetIndex
+                });
             }
+        };
+    }
+
+    if (option.options.tooltipLabelFormatter) {
+        tooltip.callbacks = {
+            ...tooltip.callbacks,
+            label: context => formatChartText(option.options.tooltipLabelFormatter, {
+                label: context.label,
+                value: context.formattedValue,
+                datasetLabel: context.dataset.label,
+                dataIndex: context.dataIndex,
+                datasetIndex: context.datasetIndex
+            })
         };
     }
 
@@ -446,6 +518,7 @@ const getChartOption = function (option) {
                         text: option.options.title
                     },
                     datalabels: datalabels,
+                    ...(tooltip.callbacks ? { tooltip } : {}),
                     customCanvasBackgroundColor: {
                         color: option.options.canvasBackgroundColor,
                     }

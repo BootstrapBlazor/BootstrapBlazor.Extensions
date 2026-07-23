@@ -224,6 +224,51 @@ public class ChartOptions
     public bool ShowTotalDataLabel { get; set; }
 
     /// <summary>
+    /// 获得/设置 堆叠模式下总计数据标签格式化字符串 默认为 null 可使用 {total} 占位符
+    /// </summary>
+    public string? TotalDataLabelFormatter { get; set; }
+
+    /// <summary>
+    /// 获得/设置 堆叠模式下总计数据标签颜色 默认为 null
+    /// </summary>
+    public string? TotalDataLabelColor { get; set; }
+
+    /// <summary>
+    /// 获得/设置 堆叠模式下总计数据标签背景颜色 默认为 null
+    /// </summary>
+    public string? TotalDataLabelBackgroundColor { get; set; }
+
+    /// <summary>
+    /// 获得/设置 堆叠模式下总计数据标签边框圆角 默认 null
+    /// </summary>
+    public int? TotalDataLabelBorderRadius { get; set; }
+
+    /// <summary>
+    /// 获得/设置 堆叠模式下总计数据标签内边距 默认 null
+    /// </summary>
+    public int? TotalDataLabelPadding { get; set; }
+
+    /// <summary>
+    /// 获得/设置 堆叠模式下总计数据标签字体粗细 默认为 null
+    /// </summary>
+    public string? TotalDataLabelFontWeight { get; set; }
+
+    /// <summary>
+    /// 获得/设置 X 轴分类标签格式化字符串 默认为 null 可使用 {label} {value} 占位符
+    /// </summary>
+    public string? CategoryLabelFormatter { get; set; }
+
+    /// <summary>
+    /// 获得/设置 Tooltip 标题格式化字符串 默认为 null 可使用 {label} {value} {datasetLabel} {dataIndex} {datasetIndex} 占位符
+    /// </summary>
+    public string? TooltipTitleFormatter { get; set; }
+
+    /// <summary>
+    /// 获得/设置 Tooltip 标签格式化字符串 默认为 null 可使用 {label} {value} {datasetLabel} {dataIndex} {datasetIndex} 占位符
+    /// </summary>
+    public string? TooltipLabelFormatter { get; set; }
+
+    /// <summary>
     /// 获得/设置 是否单独设置柱状图颜色
     /// </summary>
     public bool BarColorSeparately { get; set; }
