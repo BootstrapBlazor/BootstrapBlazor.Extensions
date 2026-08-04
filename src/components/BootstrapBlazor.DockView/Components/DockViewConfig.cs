@@ -129,4 +129,10 @@ class DockViewConfig
     /// <para lang="en">Gets or sets the layout configuration. Default is null</para>
     /// </summary>
     public string? LayoutConfig { get; set; }
+
+    /// <summary>
+    /// <para lang="zh">获得/设置 布局名称，默认为 null</para>
+    /// <para lang="en">Gets or sets the layout name. Default is null</para>
+    /// </summary>
+    public string? LayoutName { get; set; }
 }

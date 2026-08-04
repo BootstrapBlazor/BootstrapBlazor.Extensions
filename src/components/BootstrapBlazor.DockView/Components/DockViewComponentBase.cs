@@ -46,7 +46,6 @@ public abstract class DockViewComponentBase : IdComponentBase, IDisposable
     /// <para lang="zh">获得/设置 名称</para>
     /// <para lang="en">Gets or sets the name</para>
     /// </summary>
-    [JsonIgnore]
     [Parameter]
     public string? LayoutName { get; set; }
 

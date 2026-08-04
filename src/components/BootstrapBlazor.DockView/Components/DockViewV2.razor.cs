@@ -156,6 +156,13 @@ public partial class DockViewV2
     public DockViewTheme Theme { get; set; } = DockViewTheme.Light;
 
     /// <summary>
+    /// <para lang="zh">获得/设置 布局名称，默认为 null</para>
+    /// <para lang="en">Gets or sets the layout name. Default is null</para>
+    /// </summary>
+    [Parameter]
+    public string? LayoutName { get; set; }
+
+    /// <summary>
     /// 嵌套 DockView 时生效防止生成冗余的 DOM 结构
     /// </summary>
     [CascadingParameter]
@@ -284,7 +291,8 @@ public partial class DockViewV2
             SplitterCallback = nameof(SplitterCallbackAsync),
             SaveConfigCallback = nameof(SaveConfigCallbackAsync),
             Contents = _components,
-            LoadTabs = nameof(LoadTabs)
+            LoadTabs = nameof(LoadTabs),
+            LayoutName = LayoutName
         };
     }
 
