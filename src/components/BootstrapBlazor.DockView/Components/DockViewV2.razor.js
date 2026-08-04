@@ -60,6 +60,14 @@ export function update(id, options) {
     }
 }
 
+export function setLayout(id, name) {
+    const dock = Data.get(id)
+    if (dock) {
+        const { dockview } = dock;
+        dockview.setLayout(name);
+    }
+}
+
 export function reset(id, options) {
     const dock = Data.get(id)
     if (dock) {
