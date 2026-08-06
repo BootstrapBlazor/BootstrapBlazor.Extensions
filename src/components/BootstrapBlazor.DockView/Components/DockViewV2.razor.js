@@ -3,6 +3,19 @@ import { cerateDockview } from '../js/dockview-utils.js'
 import Data from '../../BootstrapBlazor/modules/data.js'
 import EventHandler from "../../BootstrapBlazor/modules/event-handler.js"
 
+const getLayoutOptions = options => {
+    const contents = options?.content;
+    if (!Array.isArray(contents) || contents.length === 0) {
+        return options;
+    }
+
+    const content = options.layoutName
+        ? contents.find(item => item.layoutName === options.layoutName)
+        : contents[0];
+
+    return content ? { ...options, content: [content] } : options;
+}
+
 export async function init(id, invoke, options) {
     await addLink("./_content/BootstrapBlazor.DockView/css/dockview-bb.css")
     const el = document.getElementById(id);
@@ -16,6 +29,7 @@ export async function init(id, invoke, options) {
             options.theme = `dockview-theme-dark`;
         }
     }
+    options = getLayoutOptions(options);
     const dockview = cerateDockview(el, options);
     if (options.layoutName) {
         dockview.layoutName = options.layoutName;
@@ -80,7 +94,7 @@ export function reset(id, options) {
     const dock = Data.get(id)
     if (dock) {
         const { dockview } = dock;
-        dockview.reset(options);
+        dockview.reset(getLayoutOptions(options));
     }
 }
 
