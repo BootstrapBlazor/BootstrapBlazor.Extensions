@@ -17,6 +17,9 @@ export async function init(id, invoke, options) {
         }
     }
     const dockview = cerateDockview(el, options);
+    if (options.layoutName) {
+        dockview.layoutName = options.layoutName;
+    }
     dockview.params.invisiblePanels?.forEach(invisiblePanel => {
         invoke.invokeMethodAsync(options.panelVisibleChangedCallback, invisiblePanel.params.key, false);
     })
@@ -56,7 +59,12 @@ export function update(id, options) {
     const dock = Data.get(id)
     if (dock) {
         const { dockview } = dock;
-        dockview.update(options);
+        if (dockview.layoutName !== options.layoutName) {
+            console.log(`DockViewV2: layoutName changed from ${dockview.layoutName} to ${options.layoutName}`);
+        }
+        else {
+            dockview.update(options);
+        }
     }
 }
 
