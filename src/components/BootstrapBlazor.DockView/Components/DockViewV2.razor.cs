@@ -290,10 +290,25 @@ public partial class DockViewV2
             LockChangedCallback = nameof(LockChangedCallbackAsync),
             SplitterCallback = nameof(SplitterCallbackAsync),
             SaveConfigCallback = nameof(SaveConfigCallbackAsync),
-            Contents = _components,
+            Contents = GetLayoutContents(),
             LoadTabs = nameof(LoadTabs),
             LayoutName = LayoutName
         };
+    }
+
+    /// <summary>
+    /// <para lang="zh">根据 <see cref="LayoutName"/> 在服务器端过滤出匹配的布局，避免将所有布局序列化到客户端</para>
+    /// <para lang="en">Filters the matching layout on the server side by <see cref="LayoutName"/> to avoid serializing all layouts to the client</para>
+    /// </summary>
+    private List<DockViewComponentBase> GetLayoutContents()
+    {
+        var content = _components[0];
+        if (string.IsNullOrEmpty(LayoutName))
+        {
+            return [content];
+        }
+
+        return [_components.Find(item => item.LayoutName == LayoutName) ?? content];
     }
 
     private bool IsEnableLocalStorage => EnableLocalStorage ?? _options.EnableLocalStorage ?? false;
