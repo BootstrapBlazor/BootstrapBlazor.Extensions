@@ -61,18 +61,11 @@ export function update(id, options) {
         const { dockview } = dock;
         if (dockview.layoutName !== options.layoutName) {
             console.log(`DockViewV2: layoutName changed from ${dockview.layoutName} to ${options.layoutName}`);
+            //dockview.setLayout(options);
         }
         else {
             dockview.update(options);
         }
-    }
-}
-
-export function setLayout(id, name) {
-    const dock = Data.get(id)
-    if (dock) {
-        const { dockview } = dock;
-        dockview.setLayout(name);
     }
 }
 
@@ -92,14 +85,6 @@ export function save(id) {
         ret = JSON.stringify(dockview.toJSON());
     }
     return ret;
-}
-
-export function switchLayout(id, options) {
-    const dock = Data.get(id)
-    if (dock) {
-        const { dockview } = dock;
-        dockview.switchLayout(options);
-    }
 }
 
 export function dispose(id) {
