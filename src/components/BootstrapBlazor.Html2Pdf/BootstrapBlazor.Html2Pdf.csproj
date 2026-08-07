@@ -1,7 +1,7 @@
 ﻿<Project Sdk="Microsoft.NET.Sdk.Razor">
 
   <PropertyGroup>
-    <Version>10.0.12</Version>
+    <Version>10.0.13</Version>
   </PropertyGroup>
 
   <PropertyGroup>
@@ -22,15 +22,15 @@
   </ItemGroup>
 
   <ItemGroup Condition="'$(TargetFramework)' == 'net8.0'">
-    <PackageReference Include="PuppeteerSharp" Version="25.4.0" />
+    <PackageReference Include="PuppeteerSharp" Version="25.5.0" />
   </ItemGroup>
 
   <ItemGroup Condition="'$(TargetFramework)' == 'net9.0'">
-    <PackageReference Include="PuppeteerSharp" Version="25.4.0" />
+    <PackageReference Include="PuppeteerSharp" Version="25.5.0" />
   </ItemGroup>
 
   <ItemGroup Condition="'$(TargetFramework)' == 'net10.0'">
-    <PackageReference Include="PuppeteerSharp" Version="25.4.0" />
+    <PackageReference Include="PuppeteerSharp" Version="25.5.0" />
   </ItemGroup>
 
 </Project>
