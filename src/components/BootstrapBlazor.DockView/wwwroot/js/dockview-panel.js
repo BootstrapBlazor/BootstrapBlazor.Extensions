@@ -120,8 +120,10 @@ const updateTitle = panel => {
     }
 }
 
+// 按 layoutName 选取布局根 content。唯一定义在此：config 建 grid、本文件取 panels，两者须选同一套布局
+export const getRootContent = options => options.content.find(c => c.layoutName === options.layoutName) || options.content[0]
 const getPanelsFromOptions = options => {
-    return getPanels(options.content[0], options)
+    return getPanels(getRootContent(options), options)
 }
 
 const getPanels = (contentItem, options, parent = {}, panels = []) => {

@@ -9,6 +9,7 @@ export class DockviewPanelContent {
         const { tab, content } = panel.view
 
         if (template) {
+            // DockViewComponent.razor 仅在有 ChildContent 时渲染外壳，故每个 key 在 template 下唯一
             this._element = key
                 ? template.querySelector(`[data-bb-key="${key}"]`)
                 : (template.querySelector(`#${this.option.id}`) ?? template.querySelector(`[data-bb-title="${title}"]`))

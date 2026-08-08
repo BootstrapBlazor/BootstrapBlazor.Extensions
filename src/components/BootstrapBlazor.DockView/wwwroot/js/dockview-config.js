@@ -1,4 +1,4 @@
-import { getPanelsFromOptions } from "./dockview-panel.js"
+import { getPanelsFromOptions, getRootContent } from "./dockview-panel.js"
 
 const initDockviewFromConfig = (dockview, options) => {
     const { layoutConfig, enableLocalStorage } = options;
@@ -58,17 +58,35 @@ const initDockviewFromConfig = (dockview, options) => {
     else {
         dockview.fromJSON(getConfigFromContent(options));
         dockview.params.invisiblePanels = [];
+        dockview.params.floatingGroups = [];
     }
 
+    // fromJSON 用 dockview.width/height 定稿；该值为 0 时整网塌缩(group 被 clamp 到 100)。
+    // 刷新有 ResizeObserver 兜底，切换布局时容器尺寸未变不会触发，故主动按实测尺寸校正一次。
+    syncLayoutToContainer(dockview);
 }
+
+const syncLayoutToContainer = dockview => {
+    const el = dockview.gridview?.element?.parentElement ?? dockview.element;
+    if (!el) return;
+    const width = el.clientWidth;
+    const height = el.clientHeight;
+    // 尺寸不可用(隐藏 Tab/未挂载)时不动，交回 ResizeObserver 按原机制处理
+    if (!width || !height) return;
+    if (width === dockview.width && height === dockview.height) return;
+    dockview.layout(width, height, true);
+}
+
 
 const getConfigFromContent = options => {
     const { width, height } = { width: 800, height: 600 };
     const getGroupId = getGroupIdFunc()
     options = filterEmptyContent(options)
-    const panels = {}, rootType = options.content[0].type
+    const rootContent = getRootContent(options)
+    const rootParent = { content: [rootContent] }
+    const panels = {}, rootType = rootContent.type
     const orientation = rootType === 'column' ? 'VERTICAL' : 'HORIZONTAL';
-    const root = getTree(options.content[0], { width, height, orientation }, options, panels, getGroupId, options)
+    const root = getTree(rootContent, { width, height, orientation }, rootParent, panels, getGroupId, options)
     return {
         activeGroup: '1',
         grid: { width, height, orientation, root },

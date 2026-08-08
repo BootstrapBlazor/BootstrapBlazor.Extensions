@@ -1,18 +1,22 @@
 @inherits DockViewComponentBase
 
-<div id="@Id" class="bb-dockview-panel" data-bb-key="@Key" data-bb-title="@Title">
-    @if (TitleTemplate != null)
-    {
-        <div class="bb-dockview-item-title">
-            @TitleTemplate
-        </div>
-    }
-    else if (ShowTitleBar)
-    {
-        <DockViewTitleBar BarIcon="@TitleBarIcon" BarIconUrl="@TitleBarIconUrl" OnClickBarCallback="OnClickBar"></DockViewTitleBar>
-    }
-    @if (IsRender())
-    {
-        @ChildContent
-    }
-</div>
+@* 多布局下同一组件会在各布局重复声明(仅一处有内容)；无条件渲染外壳会产生同 key 空 div，导致 querySelector 命中空壳 *@
+@if (ChildContent != null)
+{
+    <div id="@Id" class="bb-dockview-panel" data-bb-key="@Key" data-bb-title="@Title">
+        @if (TitleTemplate != null)
+        {
+            <div class="bb-dockview-item-title">
+                @TitleTemplate
+            </div>
+        }
+        else if (ShowTitleBar)
+        {
+            <DockViewTitleBar BarIcon="@TitleBarIcon" BarIconUrl="@TitleBarIconUrl" OnClickBarCallback="OnClickBar"></DockViewTitleBar>
+        }
+        @if (IsRender())
+        {
+            @ChildContent
+        }
+    </div>
+}

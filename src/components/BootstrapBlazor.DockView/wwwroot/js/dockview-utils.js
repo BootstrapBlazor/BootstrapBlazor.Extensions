@@ -63,7 +63,7 @@ const guardCollapsedSaveProportions = dockview => {
 }
 
 const initDockview = (dockview, options, template) => {
-    dockview.params = { panels: [], options, template, observer: null };
+    dockview.params = { panels: [], options, template, observer: null, layoutSeq: 0 };
     dockview.init = function (options) {
         initDockviewFromConfig(this, options);
     }
@@ -87,8 +87,11 @@ const initDockview = (dockview, options, template) => {
             dockview.updateTheme();
         }
 
-        if (options.layoutConfig) {
-            dockview.reset(options);
+        // layoutName 变更即切换布局：各布局存档结构不同，须整体重建而非增量调整。
+        // 比对放在 JS 侧：这里本就持有旧值 params.options，C# 无需再跟踪 _layoutName。
+        const layoutNameChanged = oldOptions.layoutName !== options.layoutName;
+        if (options.layoutConfig || layoutNameChanged) {
+            dockview.reset(dockview.params.options);   // 传已规范化的 options（含 renderer 兜底）
         }
         else {
             toggleComponent(dockview, options);
@@ -98,8 +101,15 @@ const initDockview = (dockview, options, template) => {
     dockview.reset = options => {
         dockview.params.inited = false;
         dockview.params.reset = true;
-        dockview.init(options);
-        dockview.params.reset = false;
+        // 递增布局序号，作废上一次 reset 遗留的异步尾巴(见 onDidLayoutFromJSON 内的校验)
+        dockview.params.layoutSeq++;
+        try {
+            dockview.init(options);
+        }
+        finally {
+            // 放 finally：init 抛错时若标记不复位，会影响后续正常的面板关闭流程
+            dockview.params.reset = false;
+        }
     }
 
     dockview.onDidRemovePanel(onRemovePanel);
@@ -123,6 +133,8 @@ const initDockview = (dockview, options, template) => {
     })
 
     dockview.onDidLayoutFromJSON(() => {
+        // 捕获本次布局序号，用于在异步回调里识别自己是否已被后续切换作废
+        const layoutToken = dockview.params.layoutSeq;
         dockview.groups.forEach(group => {
             markFirstVisibleElement(group);
         })
@@ -132,8 +144,14 @@ const initDockview = (dockview, options, template) => {
                 dockview = null;
                 return;
             }
+            // 已被后续 reset 作废：此时 panels/floatingGroups 属于新布局，继续执行会关错面板、
+            // 且 floatingGroups 匹配不到而抛错中断，导致 inited 永不置 true → saveConfig 静默失效
+            if (dockview.params.layoutSeq !== layoutToken) {
+                return;
+            }
             const panels = dockview.panels;
             const groups = dockview.groups;
+
 
             panels.forEach(panel => {
                 const visible = panel.params.visible
@@ -145,13 +163,17 @@ const initDockview = (dockview, options, template) => {
                 }
             })
 
+
             if (options.renderer === 'onlyWhenVisible') {
                 const visiblePanels = groups.filter(g => g.isVisible).map(g => g.panels.find(p => p.params.isActive) || g.panels.find(p => p.api.isVisible))
                 dockview._loadTabs?.fire(visiblePanels.filter(p => p.params.key).map(p => p.params.key));
             }
             const { floatingGroups } = dockview.params
             dockview.floatingGroups.forEach(fg => {
-                const { top, right, bottom, left } = floatingGroups.find(g => g.data.id == fg.group.id).position
+                // 存档中无对应浮动组时跳过(布局切换/存档陈旧)，避免解构 undefined 抛错中断整个回调
+                const saved = floatingGroups.find(g => g.data.id == fg.group.id);
+                if (!saved?.position) return;
+                const { top, right, bottom, left } = saved.position;
 
                 fg.group.element.parentElement.style.inset = [top, right, bottom, left]
                     .map(item => typeof item == 'number' ? (item + 'px') : 'auto').join(' ')

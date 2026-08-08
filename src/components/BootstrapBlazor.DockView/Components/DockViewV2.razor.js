@@ -59,13 +59,7 @@ export function update(id, options) {
     const dock = Data.get(id)
     if (dock) {
         const { dockview } = dock;
-        if (dockview.layoutName !== options.layoutName) {
-            console.log(`DockViewV2: layoutName changed from ${dockview.layoutName} to ${options.layoutName}`);
-            //dockview.setLayout(options);
-        }
-        else {
-            dockview.update(options);
-        }
+        dockview.update(options);
     }
 }
 
