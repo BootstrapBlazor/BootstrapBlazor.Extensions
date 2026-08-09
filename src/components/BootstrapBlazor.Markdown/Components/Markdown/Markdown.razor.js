@@ -53,6 +53,7 @@ export function dispose(id) {
 
 function disposeEditor(id) {
     const md = Data.get(id)
+    if (!md) return;
     if (md._modal && md._modalHideHandler) {
         md._modal.removeEventListener('hide.bs.modal', md._modalHideHandler)
     }
