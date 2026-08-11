@@ -3,6 +3,7 @@ import '../../lib/tui.editor/zh-cn.min.js'
 import '../../lib/tui.highlight/toastui-editor-plugin-code-syntax-highlight-all.min.js'
 import { addLink } from '../../../BootstrapBlazor/modules/utility.js'
 import Data from '../../../BootstrapBlazor/modules/data.js'
+import EventHandler from '../../../BootstrapBlazor/modules/event-handler.js'
 
 export async function init(id, invoker, options, callback) {
     await addLink('./_content/BootstrapBlazor.Markdown/css/bootstrap.blazor.markdown.min.css')
@@ -29,8 +30,8 @@ export async function init(id, invoker, options, callback) {
 
     md._modal = el.closest('.modal')
     if (md._modal) {
-        md._modalHideHandler = () => disposeEditor(id)
-        md._modal.addEventListener('hide.bs.modal', md._modalHideHandler)
+        md._modalHideHandler = () => dispose(id)
+        EventHandler.on(md._modal, 'hide.bs.modal', md._modalHideHandler)
     }
 }
 
@@ -48,16 +49,14 @@ export function invoke(id, method, parameters) {
 }
 
 export function dispose(id) {
-    disposeEditor(id)
-}
-
-function disposeEditor(id) {
     const md = Data.get(id)
-    if (!md) return;
-    if (md._modal && md._modalHideHandler) {
-        md._modal.removeEventListener('hide.bs.modal', md._modalHideHandler)
-    }
     Data.remove(id)
-    md._editor.off('blur')
-    md._editor.destroy()
+    if (md) {
+        const { _modal, _modalHideHandler, _editor } = md;
+        if (_modal && _modalHideHandler) {
+            EventHandler.off(_modal, 'hide.bs.modal', _modalHideHandler)
+        }
+        _editor.off('blur')
+        _editor.destroy()
+    }
 }
