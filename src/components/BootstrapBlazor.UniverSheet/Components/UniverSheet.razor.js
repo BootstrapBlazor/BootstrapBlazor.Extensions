@@ -4,7 +4,9 @@ import Data from '../../BootstrapBlazor/modules/data.js'
 import EventHandler from "../../BootstrapBlazor/modules/event-handler.js"
 
 export async function init(id, invoke, options) {
-    await addLink('./_content/BootstrapBlazor.UniverSheet/css/univer-sheet.bundle.css');
+    const { univerBundleStyleUrl, univerSheetStyleUrl } = options;
+    await addLink(univerBundleStyleUrl);
+    await addLink(univerSheetStyleUrl);
 
     const el = document.getElementById(id);
     if (el === null) {
