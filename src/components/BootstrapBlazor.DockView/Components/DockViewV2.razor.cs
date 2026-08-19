@@ -186,6 +186,7 @@ public partial class DockViewV2
     private DockViewOptions? _options = null;
     private ConcurrentDictionary<string, DockViewComponentState> _componentStates = new();
     private string? _layoutConfig;
+    private string? _layoutName;
     private bool _disposed;
 
     /// <summary>
@@ -231,6 +232,12 @@ public partial class DockViewV2
         if (firstRender)
         {
             _layoutConfig = LayoutConfig;
+            _layoutName = LayoutName;
+        }
+        else if (_layoutName != LayoutName)
+        {
+            _layoutName = LayoutName;
+            await InvokeVoidAsync("switchLayout", Id, GetDockViewConfig());
         }
         else if (!_triggerLoadTabs)
         {
