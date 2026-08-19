@@ -101,15 +101,21 @@ const initDockview = (dockview, options, template) => {
     dockview.reset = options => {
         dockview.params.inited = false;
         dockview.params.reset = true;
-        // 递增布局序号，作废上一次 reset 遗留的异步尾巴(见 onDidLayoutFromJSON 内的校验)
         dockview.params.layoutSeq++;
         try {
             dockview.init(options);
         }
         finally {
-            // 放 finally：init 抛错时若标记不复位，会影响后续正常的面板关闭流程
             dockview.params.reset = false;
         }
+        dockview.params.invisiblePanels?.forEach(p => {
+            dockview._panelVisibleChanged?.fire({ key: p.params.key, status: false });
+        });
+    }
+
+    dockview.switchLayout = options => {
+        dockview.params.options = { ...options, renderer: options.renderer || 'onlyWhenVisible' };
+        dockview.reset(dockview.params.options);
     }
 
     dockview.onDidRemovePanel(onRemovePanel);
