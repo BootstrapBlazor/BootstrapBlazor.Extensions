@@ -1,0 +1,17 @@
+﻿<Project Sdk="Microsoft.NET.Sdk.Razor">
+
+  <PropertyGroup>
+    <Version>10.0.0</Version>
+  </PropertyGroup>
+
+  <PropertyGroup>
+    <PackageTags>Bootstrap Blazor WebAssembly wasm UI Components Fluent Theme</PackageTags>
+    <Description>Bootstrap UI components extensions of Fluent Theme</Description>
+  </PropertyGroup>
+
+  <ItemGroup>
+    <Content Remove="wwwroot\fluent.css" />
+    <None Include="wwwroot\fluent.css" />
+  </ItemGroup>
+
+</Project>
