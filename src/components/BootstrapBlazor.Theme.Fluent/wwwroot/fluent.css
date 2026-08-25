@@ -1456,6 +1456,14 @@ fieldset:disabled .btn {
     margin-inline-start: 0;
 }
 
+/* Input-group checkbox (BootstrapInputGroup) — the library lays these out as a centered
+ * flex cell (.input-group > .form-check) with its own padding, so the standalone
+ * negative-margin indicator offset above would drag the box over the cell border;
+ * restore the library margins here (higher specificity, loads later) */
+.input-group > .form-check .form-check-input {
+    margin: 3px 0 1px 0; /* same as library Checkbox.razor.scss */
+}
+
 .form-check .form-check-input {
     border-color: #616161; /* colorNeutralStrokeAccessible */
 }
