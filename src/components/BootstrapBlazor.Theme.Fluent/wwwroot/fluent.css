@@ -1016,6 +1016,17 @@
     --bs-btn-padding-y: 8px;
 }
 
+/* BootstrapBlazor extra-small button (TableCellButton) — the .btn rule above has
+ * equal specificity and loads later, so it would otherwise override .btn-xs sizing;
+ * restore the library defaults ($bs-btn-xs-*, Bootstrap line-height 1.5) */
+.btn-xs,
+.btn-group-xs > .btn {
+    --bs-btn-padding-x: .3125rem; /* $bs-btn-xs-padding-x */
+    --bs-btn-padding-y: .0625rem; /* $bs-btn-xs-padding-y */
+    --bs-btn-font-size: .75rem; /* $bs-btn-xs-font-size */
+    --bs-btn-line-height: 1.5; /* Bootstrap default, library .btn-xs does not override it */
+}
+
 /* Button groups — bundle targets .btn-group-sm/lg > .btn directly at higher specificity */
 .btn-group-sm > .btn {
     --bs-btn-font-size: .75rem; /* fontSizeBase200 */
