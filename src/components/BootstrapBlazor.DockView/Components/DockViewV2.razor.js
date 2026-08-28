@@ -17,9 +17,6 @@ export async function init(id, invoke, options) {
         }
     }
     const dockview = cerateDockview(el, options);
-    if (options.layoutName) {
-        dockview.layoutName = options.layoutName;
-    }
     dockview.params.invisiblePanels?.forEach(invisiblePanel => {
         invoke.invokeMethodAsync(options.panelVisibleChangedCallback, invisiblePanel.params.key, false);
     })

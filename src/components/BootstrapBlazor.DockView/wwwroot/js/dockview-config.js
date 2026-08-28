@@ -83,6 +83,14 @@ const getConfigFromContent = options => {
     const getGroupId = getGroupIdFunc()
     options = filterEmptyContent(options)
     const rootContent = getRootContent(options)
+    // 无 content（纯 layoutConfig 且存档缺失/损坏）时兜底空网格，防解构抛错
+    if (!rootContent) {
+        return {
+            activeGroup: '1',
+            grid: { width, height, orientation: 'HORIZONTAL', root: { type: 'branch', size: 0, data: [] } },
+            panels: {}
+        }
+    }
     const rootParent = { content: [rootContent] }
     const panels = {}, rootType = rootContent.type
     const orientation = rootType === 'column' ? 'VERTICAL' : 'HORIZONTAL';
@@ -278,9 +286,7 @@ const saveConfig = dockview => {
         return;
     }
 
-    // Don't persist a collapsed/unmeasured layout: while collapsed toJSON() serializes size:100, which
-    // makes the even-split sticky across refreshes. Real layouts are measured (width>0), so this only
-    // drops a degenerate save the next change re-saves.
+    // 折叠/未测量时 toJSON 会把 size 定格为 100，导致均分比例刷新后粘滞，不落档
     if (!dockview.width || !dockview.height) {
         return;
     }
@@ -289,10 +295,7 @@ const saveConfig = dockview => {
         panel.params.isActive = panel.api.isActive || panel.group.activePanel === panel
     })
 
-    // While maximized, toJSON()'s serialize() toggles sibling visibility once; guard it with
-    // `maximizing` so the onlyWhenVisible handler doesn't move sibling content into the template
-    // (which would blank it after exit). finally resets the flag even on throw, otherwise a stuck
-    // `maximizing` would make every later saveConfig bail at the top guard.
+    // toJSON 在最大化时会切换兄弟面板可见性，以 maximizing 防护避免内容被搬进 template；finally 复位防卡死
     let gridJson;
     dockview.params.maximizing = true;
     try {
@@ -358,6 +361,11 @@ const syncLayoutWithOptions = (layout, options, invisiblePanels = []) => {
     Object.values(layout.panels).forEach(p => {
         if (p.params?.key) localIdByKey.set(p.params.key, p.id);
     });
+
+    // 无面板可同步时存档即全部事实，原样返回（getConfigFromContent 需要非空 content）
+    if (optionPanels.length === 0) {
+        return layout;
+    }
 
     const matchCount = [...optionPanelByKey.keys()].filter(key => localIdByKey.has(key)).length;
     if (matchCount === 0) {

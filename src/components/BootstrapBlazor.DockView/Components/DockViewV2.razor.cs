@@ -309,6 +309,12 @@ public partial class DockViewV2
     /// </summary>
     private List<DockViewComponentBase> GetLayoutContents()
     {
+        // 纯 LayoutConfig 驱动（未声明子组件）时集合为空，此用法由 GetDockViewConfig 的守卫显式允许
+        if (_components.Count == 0)
+        {
+            return [];
+        }
+
         var content = _components[0];
         if (string.IsNullOrEmpty(LayoutName))
         {

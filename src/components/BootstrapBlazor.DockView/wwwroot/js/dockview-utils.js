@@ -62,6 +62,13 @@ const guardCollapsedSaveProportions = dockview => {
     };
 }
 
+// reset 路径的 removeGroup 提前返回、跳过 removeDrawerBtn，须在此整体清空抽屉按钮容器，
+// 否则 onDidLayoutFromJSON 按新存档重建后按钮累积，残留闭包指向已销毁 group。
+// :scope > 限定直接子元素，不波及嵌套 dockview。
+const removeDrawerButtons = dockview => {
+    dockview.element?.querySelectorAll(':scope > .bb-dockview-aside').forEach(el => el.remove());
+}
+
 const initDockview = (dockview, options, template) => {
     dockview.params = { panels: [], options, template, observer: null, layoutSeq: 0 };
     dockview.init = function (options) {
@@ -87,10 +94,8 @@ const initDockview = (dockview, options, template) => {
             dockview.updateTheme();
         }
 
-        // layoutName 变更即切换布局：各布局存档结构不同，须整体重建而非增量调整。
-        // 比对放在 JS 侧：这里本就持有旧值 params.options，C# 无需再跟踪 _layoutName。
-        const layoutNameChanged = oldOptions.layoutName !== options.layoutName;
-        if (options.layoutConfig || layoutNameChanged) {
+        // 布局切换由 C# 侧显式调用 switchLayout，update 只做增量更新
+        if (options.layoutConfig) {
             dockview.reset(dockview.params.options);   // 传已规范化的 options（含 renderer 兜底）
         }
         else {
@@ -102,6 +107,7 @@ const initDockview = (dockview, options, template) => {
         dockview.params.inited = false;
         dockview.params.reset = true;
         dockview.params.layoutSeq++;
+        removeDrawerButtons(dockview);
         try {
             dockview.init(options);
         }
@@ -150,8 +156,7 @@ const initDockview = (dockview, options, template) => {
                 dockview = null;
                 return;
             }
-            // 已被后续 reset 作废：此时 panels/floatingGroups 属于新布局，继续执行会关错面板、
-            // 且 floatingGroups 匹配不到而抛错中断，导致 inited 永不置 true → saveConfig 静默失效
+            // 已被后续 reset 作废，继续执行会操作新布局的面板并中断 inited 置位
             if (dockview.params.layoutSeq !== layoutToken) {
                 return;
             }
@@ -176,13 +181,14 @@ const initDockview = (dockview, options, template) => {
             }
             const { floatingGroups } = dockview.params
             dockview.floatingGroups.forEach(fg => {
-                // 存档中无对应浮动组时跳过(布局切换/存档陈旧)，避免解构 undefined 抛错中断整个回调
+                // 位置缺失时跳过防解构抛错；抽屉重建与位置无关，须无条件执行（reset 已清空按钮容器）
                 const saved = floatingGroups.find(g => g.data.id == fg.group.id);
-                if (!saved?.position) return;
-                const { top, right, bottom, left } = saved.position;
+                if (saved?.position) {
+                    const { top, right, bottom, left } = saved.position;
 
-                fg.group.element.parentElement.style.inset = [top, right, bottom, left]
-                    .map(item => typeof item == 'number' ? (item + 'px') : 'auto').join(' ')
+                    fg.group.element.parentElement.style.inset = [top, right, bottom, left]
+                        .map(item => typeof item == 'number' ? (item + 'px') : 'auto').join(' ')
+                }
 
                 observeOverlayChange(fg.overlay, fg.group)
                 const { floatType, direction } = fg.group.getParams();
