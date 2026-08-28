@@ -83,7 +83,7 @@ const getConfigFromContent = options => {
     const getGroupId = getGroupIdFunc()
     options = filterEmptyContent(options)
     const rootContent = getRootContent(options)
-    // 无 content（纯 layoutConfig 且存档缺失/损坏）时兜底空网格，防解构抛错
+    // Fallback empty grid when no content (pure layoutConfig with a missing/corrupt archive), to avoid destructuring throws
     if (!rootContent) {
         return {
             activeGroup: '1',
@@ -286,7 +286,7 @@ const saveConfig = dockview => {
         return;
     }
 
-    // 折叠/未测量时 toJSON 会把 size 定格为 100，导致均分比例刷新后粘滞，不落档
+    // Don't persist a collapsed/unmeasured layout: toJSON freezes size to 100, making even splits sticky across reloads
     if (!dockview.width || !dockview.height) {
         return;
     }
@@ -295,7 +295,8 @@ const saveConfig = dockview => {
         panel.params.isActive = panel.api.isActive || panel.group.activePanel === panel
     })
 
-    // toJSON 在最大化时会切换兄弟面板可见性，以 maximizing 防护避免内容被搬进 template；finally 复位防卡死
+    // toJSON toggles sibling visibility while maximized; guard with `maximizing` so content isn't moved
+    // into the template. finally resets the flag even on throw so later saves don't bail out.
     let gridJson;
     dockview.params.maximizing = true;
     try {
@@ -362,7 +363,7 @@ const syncLayoutWithOptions = (layout, options, invisiblePanels = []) => {
         if (p.params?.key) localIdByKey.set(p.params.key, p.id);
     });
 
-    // 无面板可同步时存档即全部事实，原样返回（getConfigFromContent 需要非空 content）
+    // Nothing to sync: the archive is the whole truth (getConfigFromContent requires non-empty content)
     if (optionPanels.length === 0) {
         return layout;
     }

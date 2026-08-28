@@ -62,9 +62,9 @@ const guardCollapsedSaveProportions = dockview => {
     };
 }
 
-// reset 路径的 removeGroup 提前返回、跳过 removeDrawerBtn，须在此整体清空抽屉按钮容器，
-// 否则 onDidLayoutFromJSON 按新存档重建后按钮累积，残留闭包指向已销毁 group。
-// :scope > 限定直接子元素，不波及嵌套 dockview。
+// The patched removeGroup returns early on the reset path, skipping removeDrawerBtn; clear the
+// drawer-button container here or onDidLayoutFromJSON rebuilds on top of stale ones whose closures
+// point to destroyed groups. ":scope >" keeps nested dockviews untouched.
 const removeDrawerButtons = dockview => {
     dockview.element?.querySelectorAll(':scope > .bb-dockview-aside').forEach(el => el.remove());
 }
@@ -94,7 +94,7 @@ const initDockview = (dockview, options, template) => {
             dockview.updateTheme();
         }
 
-        // 布局切换由 C# 侧显式调用 switchLayout，update 只做增量更新
+        // Layout switching is an explicit switchLayout call from C#; update stays incremental
         if (options.layoutConfig) {
             dockview.reset(dockview.params.options);   // 传已规范化的 options（含 renderer 兜底）
         }
@@ -156,7 +156,7 @@ const initDockview = (dockview, options, template) => {
                 dockview = null;
                 return;
             }
-            // 已被后续 reset 作废，继续执行会操作新布局的面板并中断 inited 置位
+            // Superseded by a later reset: proceeding would touch the new layout's panels and skip setting inited
             if (dockview.params.layoutSeq !== layoutToken) {
                 return;
             }
@@ -181,7 +181,8 @@ const initDockview = (dockview, options, template) => {
             }
             const { floatingGroups } = dockview.params
             dockview.floatingGroups.forEach(fg => {
-                // 位置缺失时跳过防解构抛错；抽屉重建与位置无关，须无条件执行（reset 已清空按钮容器）
+                // Skip missing positions to avoid destructuring throws; drawer rebuild is
+                // position-independent and must always run (reset already cleared the container)
                 const saved = floatingGroups.find(g => g.data.id == fg.group.id);
                 if (saved?.position) {
                     const { top, right, bottom, left } = saved.position;

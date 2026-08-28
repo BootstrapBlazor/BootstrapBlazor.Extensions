@@ -309,7 +309,7 @@ public partial class DockViewV2
     /// </summary>
     private List<DockViewComponentBase> GetLayoutContents()
     {
-        // 纯 LayoutConfig 驱动（未声明子组件）时集合为空，此用法由 GetDockViewConfig 的守卫显式允许
+        // Pure LayoutConfig mode declares no child components; allowed by GetDockViewConfig's guard
         if (_components.Count == 0)
         {
             return [];

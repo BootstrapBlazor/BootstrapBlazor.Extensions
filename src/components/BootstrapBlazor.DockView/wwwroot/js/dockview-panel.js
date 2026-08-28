@@ -120,11 +120,11 @@ const updateTitle = panel => {
     }
 }
 
-// 按 layoutName 选取布局根 content。唯一定义在此：config 建 grid、本文件取 panels，两者须选同一套布局
+// Pick the layout root by layoutName. Single definition: config grid-building and panel extraction here must select the same layout
 export const getRootContent = options => options.content.find(c => c.layoutName === options.layoutName) || options.content[0]
 const getPanelsFromOptions = options => {
     const rootContent = getRootContent(options)
-    // 纯 layoutConfig 驱动（未声明子组件）时无 content，返回空面板集
+    // Pure layoutConfig mode declares no content; return an empty panel set
     return rootContent ? getPanels(rootContent, options) : []
 }
 

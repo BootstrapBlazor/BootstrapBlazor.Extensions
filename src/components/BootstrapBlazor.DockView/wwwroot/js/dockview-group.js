@@ -463,7 +463,7 @@ const createDrawerBtn = (floatingGroup, isRight) => {
 const removeDrawerBtn = group => {
     const parentEle = group.api.accessor.element.parentElement.parentElement
     const btnList = parentEle?.querySelectorAll(`[groupid="${group.api.accessor.id}_${group.id}"]`)
-    // parentEle 为空时 btnList 为 undefined
+    // btnList is undefined when parentEle is null
     btnList?.forEach(btn => btn.remove())
 }
 
