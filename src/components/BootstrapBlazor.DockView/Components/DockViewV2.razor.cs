@@ -179,6 +179,7 @@ public partial class DockViewV2
     private DockViewOptions? _options = null;
     private ConcurrentDictionary<string, DockViewComponentState> _componentStates = new();
     private string? _layoutConfig;
+    private bool _disposed;
 
     /// <summary>
     /// <inheritdoc/>
@@ -215,6 +216,11 @@ public partial class DockViewV2
     {
         await base.OnAfterRenderAsync(firstRender);
 
+        if (_disposed)
+        {
+            return;
+        }
+
         if (firstRender)
         {
             _layoutConfig = LayoutConfig;
@@ -232,7 +238,15 @@ public partial class DockViewV2
     /// <summary>
     /// <inheritdoc />
     /// </summary>
-    protected override Task InvokeInitAsync() => InvokeVoidAsync("init", Id, Interop, GetDockViewConfig());
+    protected override Task InvokeInitAsync()
+    {
+        if (_disposed)
+        {
+            return Task.CompletedTask;
+        }
+
+        return InvokeVoidAsync("init", Id, Interop, GetDockViewConfig());
+    }
 
     private DockViewConfig GetDockViewConfig()
     {
@@ -494,6 +508,7 @@ public partial class DockViewV2
     {
         if (disposing)
         {
+            _disposed = true;
             ThemeProviderService.ThemeChangedAsync -= OnThemeChangedAsync;
         }
 

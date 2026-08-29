@@ -14,6 +14,10 @@ namespace BootstrapBlazor.Components;
 /// </summary>
 public partial class UniverSheet
 {
+    private const string UniverBundleStylePath = "_content/BootstrapBlazor.UniverSheet/css/univer-bundle.css";
+
+    private const string UniverSheetStylePath = "_content/BootstrapBlazor.UniverSheet/css/univer-sheet.bundle.css";
+
     /// <summary>
     /// <para lang="zh">获得/设置 插件集合 默认 null 未设置</para>
     /// <para lang="en">Gets or sets the plugin collection. Default is null.</para>
@@ -132,8 +136,34 @@ public partial class UniverSheet
         Plugins,
         Data,
         DarkMode = IsDarkMode,
-        RibbonType = RibbonType.ToDescriptionString()
+        RibbonType = RibbonType.ToDescriptionString(),
+        UniverBundleStyleUrl,
+        UniverSheetStyleUrl
     });
+
+    private string UniverBundleStyleUrl
+    {
+        get
+        {
+#if NET9_0_OR_GREATER
+            return Assets[UniverBundleStylePath];
+#else
+            return UniverBundleStylePath;
+#endif
+        }
+    }
+
+    private string UniverSheetStyleUrl
+    {
+        get
+        {
+#if NET9_0_OR_GREATER
+            return Assets[UniverSheetStylePath];
+#else
+            return UniverSheetStylePath;
+#endif
+        }
+    }
 
     /// <summary>
     /// <para lang="zh">推送数据方法</para>

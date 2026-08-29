@@ -78,6 +78,14 @@ export function save(id) {
     return ret;
 }
 
+export function switchLayout(id, options) {
+    const dock = Data.get(id)
+    if (dock) {
+        const { dockview } = dock;
+        dockview.switchLayout(options);
+    }
+}
+
 export function dispose(id) {
     const dock = Data.get(id)
     Data.remove(id);
