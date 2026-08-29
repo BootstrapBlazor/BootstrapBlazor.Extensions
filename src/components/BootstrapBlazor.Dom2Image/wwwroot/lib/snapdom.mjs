@@ -1,6 +1,6 @@
 /*
 * SnapDOM
-* v2.24.10
+* v2.24.12
 * Author: Juan Martin Muda
 * License: MIT
 */
