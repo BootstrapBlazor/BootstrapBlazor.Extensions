@@ -77,7 +77,10 @@ export function insertText(id, insertData) {
 export function monacoSetOptions(id, options) {
     const wrapper = Data.get(id);
     if (wrapper?.editor) {
-        wrapper.editor.setValue(options.value);
+        const value = options.value ?? '';
+        if (wrapper.editor.getValue() !== value) {
+            wrapper.editor.setValue(value);
+        }
         wrapper.editor.updateOptions({
             language: options.language,
             theme: options.theme
