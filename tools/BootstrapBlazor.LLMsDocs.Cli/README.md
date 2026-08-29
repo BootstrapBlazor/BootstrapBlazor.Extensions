@@ -130,10 +130,10 @@ bb-llms get Button --base-url ./wwwroot/llms
 
 ```bash
 bb-llms instructions                 # 打印可粘贴进 CLAUDE.md / AGENTS.md 的通用片段
-bb-llms install --client claude      # 写 .claude/skills/bootstrapblazor/SKILL.md
-bb-llms install --client cursor      # 写 .cursor/rules/bootstrapblazor.mdc
-bb-llms install --client trae        # 写 .trae/skills/bootstrapblazor/SKILL.md
-bb-llms install --client codex       # 写 AGENTS.md（user scope 为 ~/.codex/AGENTS.md）
+bb-llms install --client claude      # 写 ~/.claude/skills/bootstrapblazor/SKILL.md
+bb-llms install --client cursor      # 写 ~/.cursor/rules/bootstrapblazor.mdc
+bb-llms install --client trae        # 写 ~/.trae/skills/bootstrapblazor/SKILL.md
+bb-llms install --client codex       # 写 ~/.codex/AGENTS.md
 bb-llms install --client all         # 四者都写（默认）
 ```
 
@@ -141,32 +141,39 @@ bb-llms install --client all         # 四者都写（默认）
 
 ```
 --client claude|cursor|trae|codex|all   目标客户端（默认 all）
---scope  project|user        project=当前目录（默认），user=用户主目录
+--scope  user|project        user=用户主目录（默认），project=当前目录
 --target <dir>               覆盖写入的根目录
 --force                      覆盖已存在的文件（默认存在则跳过）
 ```
 
+> 默认 scope 为 **user（用户主目录）**：四个客户端的发现文件都装到用户主目录
+> （`~/.claude/skills/`、`~/.cursor/rules/`、`~/.trae/skills/`、`~/.codex/AGENTS.md`），
+> 配合全局安装的 `bb-llms`，在任意项目里都能被自动发现，装一次全局生效。
+> 需要只对当前项目生效时，用 `--scope project` 显式覆盖
+> （如 `bb-llms install --client codex --scope project` 写仓库根目录的 `AGENTS.md`）。
+
 五套生态接入方式：
 
-- **Claude Code**：`bb-llms install --client claude` 写入一个 skill，Claude Code 会根据其
-  `description` 在任务涉及 BootstrapBlazor 组件时**自动加载**并调用 `bb-llms`，
-  等效于 MCP server 的自动发现。
-- **Cursor**：`bb-llms install --client cursor` 写入项目规则（匹配 `*.razor` / `*.razor.cs`）。
-- **Trae**：`bb-llms install --client trae` 写入一个 skill（`.trae/skills/bootstrapblazor/SKILL.md`）。
+- **Claude Code**：`bb-llms install --client claude` 在**用户主目录** `~/.claude/skills/`
+  写入一个 skill，Claude Code 会根据其 `description` 在任务涉及 BootstrapBlazor 组件时
+  **自动加载**并调用 `bb-llms`，等效于 MCP server 的自动发现。装一次即对所有项目生效。
+- **Cursor**：`bb-llms install --client cursor` 在**用户主目录** `~/.cursor/rules/`
+  写入规则（匹配 `*.razor` / `*.razor.cs`），全局生效。
+- **Trae**：`bb-llms install --client trae` 在**用户主目录** `~/.trae/skills/` 写入一个 skill。
   Trae 的 skill 与 Claude 同构（同样的 `SKILL.md` + name/description frontmatter，按描述**自动匹配**），
-  因此复用同一套模板。
-- **Codex**：`bb-llms install --client codex` 写入 `AGENTS.md`（project scope 为仓库根目录的
-  `AGENTS.md`，user scope 为 `~/.codex/AGENTS.md`）。Codex 没有独立的 skill/规则机制，统一读 `AGENTS.md`，
+  因此复用同一套模板，同样装一次全局生效。
+- **Codex**：`bb-llms install --client codex` 写入 `~/.codex/AGENTS.md`（用户主目录，默认；
+  `--scope project` 则写仓库根目录的 `AGENTS.md`）。Codex 没有独立的 skill/规则机制，统一读 `AGENTS.md`，
   因此复用 `instructions` 的通用片段。
   > ⚠️ `AGENTS.md` 是手工维护的共享文件，**默认存在则跳过**；`--force` 会整文件覆盖，原有内容会丢失。
   > 已有 `AGENTS.md` 时，建议改用 `bb-llms instructions` 把片段手动粘进去。
 - **通用 / 其他 agent**：把 `bb-llms instructions` 的输出粘进项目的 `CLAUDE.md` / `AGENTS.md`。
 
-典型流程（在你的 Blazor 项目根目录）：
+典型流程：
 
 ```bash
 dotnet tool install -g BootstrapBlazor.LLMsDocs.Cli   # 1. 装工具
-bb-llms install --client claude                       # 2. 装发现层
+bb-llms install --client claude                       # 2. 装发现层（写入用户主目录，全局生效）
 # 之后在 Claude Code 中让它写/改组件代码时，会自动用 bb-llms 查权威 API
 ```
 

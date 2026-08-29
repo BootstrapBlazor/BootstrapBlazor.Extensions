@@ -154,7 +154,7 @@ internal static class CommandFactory
     private static Command BuildInstallCommand()
     {
         var client = new Option<string?>("--client") { Description = "Target client: claude | cursor | trae | codex | all (default all)." };
-        var scope = new Option<string?>("--scope") { Description = "Where to write: project (cwd, default) or user (home)." };
+        var scope = new Option<string?>("--scope") { Description = "Where to write: user (home, default) or project (cwd)." };
         var target = new Option<string?>("--target") { Description = "Override base directory to write into." };
         var force = new Option<bool>("--force") { Description = "Overwrite existing files." };
         var cmd = new Command("install", "Install agent discovery artifacts (Claude Code skill / Cursor rules / Trae skill / Codex AGENTS.md).")
@@ -167,7 +167,7 @@ internal static class CommandFactory
             {
                 return Task.FromResult(Scaffolder.Install(
                     result.GetValue(client) ?? "all",
-                    result.GetValue(scope) ?? "project",
+                    result.GetValue(scope),
                     result.GetValue(target),
                     result.GetValue(force)));
             }
