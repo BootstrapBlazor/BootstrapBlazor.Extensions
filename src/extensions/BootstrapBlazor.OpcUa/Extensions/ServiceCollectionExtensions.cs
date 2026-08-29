@@ -4,6 +4,8 @@
 
 namespace Microsoft.Extensions.DependencyInjection;
 
+using BootstrapBlazor.OpcUa;
+
 /// <summary>
 /// <para lang="zh">OpcUa 服务扩展类</para>
 /// <para lang="en">OpcUa service extension class</para>
@@ -18,6 +20,7 @@ public static class ServiceCollectionExtensions
     /// <returns></returns>
     public static IServiceCollection AddOpcUaServer(this IServiceCollection services)
     {
+        services.AddScoped<IOpcUaServer, OpcUaServer>();
         return services;
     }
 }
