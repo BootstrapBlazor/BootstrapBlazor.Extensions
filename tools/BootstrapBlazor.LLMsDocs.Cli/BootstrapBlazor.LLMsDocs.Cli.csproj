@@ -1,0 +1,37 @@
+<Project Sdk="Microsoft.NET.Sdk">
+
+  <PropertyGroup>
+    <Version>10.0.3</Version>
+    <OutputType>Exe</OutputType>
+    <TargetFramework>net10.0</TargetFramework>
+    <SatelliteResourceLanguages>false</SatelliteResourceLanguages>
+  </PropertyGroup>
+
+  <PropertyGroup>
+    <Title>BootstrapBlazor LLMs Docs CLI</Title>
+    <Description>CLI that fetches BootstrapBlazor component documentation from www.blazor.zone/llms for AI agents and developers.</Description>
+    <PackageId>BootstrapBlazor.LLMsDocs.Cli</PackageId>
+    <PackAsTool>true</PackAsTool>
+    <ToolCommandName>bb-llms</ToolCommandName>
+    <PackageReadmeFile>README.md</PackageReadmeFile>
+  </PropertyGroup>
+
+  <ItemGroup>
+    <PackageReference Include="System.CommandLine" Version="2.0.1" />
+  </ItemGroup>
+
+  <ItemGroup>
+    <SupportedPlatform Remove="browser" />
+  </ItemGroup>
+
+  <ItemGroup>
+    <None Include="README.md" Pack="true" PackagePath="" />
+  </ItemGroup>
+
+  <ItemGroup>
+    <EmbeddedResource Include="Templates\instructions.md" LogicalName="instructions.md" />
+    <EmbeddedResource Include="Templates\SKILL.md" LogicalName="SKILL.md" />
+    <EmbeddedResource Include="Templates\bootstrapblazor.mdc" LogicalName="bootstrapblazor.mdc" />
+  </ItemGroup>
+
+</Project>

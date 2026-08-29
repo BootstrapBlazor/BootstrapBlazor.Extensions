@@ -15,7 +15,7 @@ export async function getStream(selector, options) {
     const el = document.querySelector(selector);
     if (el) {
         const result = await snapdom(el, options || {});
-        data = result.toBlob();
+        data = await result.toBlob();
     }
     return data;
 }

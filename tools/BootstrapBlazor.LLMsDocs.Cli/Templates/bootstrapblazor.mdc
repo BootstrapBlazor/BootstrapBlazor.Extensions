@@ -1,0 +1,16 @@
+---
+description: 涉及 BootstrapBlazor（简称 BB / bb）组件时，用 bb-llms CLI 获取官方组件 API 文档
+globs: ["**/*.razor", "**/*.razor.cs"]
+alwaysApply: false
+---
+
+# BootstrapBlazor 组件文档
+
+编写或修改 BootstrapBlazor（简称 BB / bb）组件代码时，用 `bb-llms` 获取权威组件 API，避免臆造参数：
+
+- 搜索组件：`bb-llms search <关键词>`
+- 获取文档：`bb-llms get <ComponentName>`（例：`bb-llms get Table`）
+- 列出全部：`bb-llms list`
+
+文档源默认 https://www.blazor.zone/llms ，可用 `BB_LLMS_BASE_URL` / `--base-url` 覆盖。
+安装：`dotnet tool install -g BootstrapBlazor.LLMsDocs.Cli`。

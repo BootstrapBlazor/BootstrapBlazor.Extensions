@@ -7,31 +7,35 @@ using System.Runtime.CompilerServices;
 namespace BootstrapBlazor.Components;
 
 /// <summary>
-/// SelectCity 组件
+/// <para lang="zh">SelectCity 组件</para>
+/// <para lang="en">SelectCity component</para>
 /// </summary>
 public partial class SelectCity
 {
     /// <summary>
-    /// 获得/设置 是否可多选 默认 false 单选
+    /// <para lang="zh">获得/设置 是否可多选，默认 false 单选</para>
+    /// <para lang="en">Gets or sets whether multiple selection is enabled. Default is false (single selection)</para>
     /// </summary>
     [Parameter]
     public bool IsMultiple { get; set; }
 
     /// <summary>
-    /// 获得/设置 是否开启搜索功能 默认 true 开启
+    /// <para lang="zh">获得/设置 是否开启搜索功能，默认 true 开启</para>
+    /// <para lang="en">Gets or sets whether search is enabled. Default is true</para>
     /// </summary>
     [Parameter]
     public bool ShowSearch { get; set; } = true;
 
     /// <summary>
-    /// Gets or sets the search icon.
+    /// <para lang="zh">获得/设置 搜索图标</para>
+    /// <para lang="en">Gets or sets the search icon</para>
     /// </summary>
     [Parameter]
     public string? SearchIcon { get; set; }
 
     /// <summary>
-    /// 获得/设置 单选时选择后是否自动关闭 默认 true
-    /// <para><see cref="IsMultiple"/> 值为 true 时，这个参数不生效</para>
+    /// <para lang="zh">获得/设置 单选时选择后是否自动关闭，默认 true <see cref="IsMultiple"/> 值为 true 时，这个参数不生效</para>
+    /// <para lang="en">Gets or sets whether to automatically close after selection when single selection is enabled. Default is true. This parameter does not take effect when <see cref="IsMultiple"/> is true</para>
     /// </summary>
     [Parameter]
     public bool AutoClose { get; set; } = true;
@@ -87,7 +91,6 @@ public partial class SelectCity
     /// <inheritdoc/>
     /// </summary>
     /// <param name="firstRender"></param>
-    /// <returns></returns>
     protected override async Task OnAfterRenderAsync(bool firstRender)
     {
         await base.OnAfterRenderAsync(firstRender);
@@ -107,17 +110,16 @@ public partial class SelectCity
     /// <summary>
     /// <inheritdoc/>
     /// </summary>
-    /// <returns></returns>
     protected override Task InvokeInitAsync() => InvokeVoidAsync("init", Id, Interop, new
     {
         TriggerSearch = nameof(TriggerSearch)
     });
 
     /// <summary>
-    /// 触发过滤方法 由 JavaScript 触发
+    /// <para lang="zh">触发过滤方法，由 JavaScript 触发</para>
+    /// <para lang="en">Trigger filter method, invoked by JavaScript</para>
     /// </summary>
     /// <param name="v"></param>
-    /// <returns></returns>
     [JSInvokable]
     public void TriggerSearch(string v)
     {

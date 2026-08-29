@@ -1,4 +1,4 @@
-﻿export class DockviewPanelContent {
+export class DockviewPanelContent {
     constructor(option) {
         this.option = option
     }

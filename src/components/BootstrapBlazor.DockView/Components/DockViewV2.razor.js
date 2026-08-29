@@ -1,4 +1,4 @@
-﻿import { addLink, getTheme } from '../../BootstrapBlazor/modules/utility.js'
+import { addLink, getTheme } from '../../BootstrapBlazor/modules/utility.js'
 import { cerateDockview } from '../js/dockview-utils.js'
 import Data from '../../BootstrapBlazor/modules/data.js'
 import EventHandler from "../../BootstrapBlazor/modules/event-handler.js"
@@ -17,22 +17,38 @@ export async function init(id, invoke, options) {
         }
     }
     const dockview = cerateDockview(el, options);
+    dockview.params.invisiblePanels?.forEach(invisiblePanel => {
+        invoke.invokeMethodAsync(options.panelVisibleChangedCallback, invisiblePanel.params.key, false);
+    })
+
     const updateTheme = e => dockview.switchTheme(e.theme);
     Data.set(id, { el, dockview, updateTheme });
 
     dockview.on('initialized', () => {
         invoke.invokeMethodAsync(options.initializedCallback);
     });
-    dockview.on('lockChanged', ({ title, isLock }) => {
-        invoke.invokeMethodAsync(options.lockChangedCallback, title, isLock);
+    dockview.on('lockChanged', ({ keys, isLock }) => {
+        invoke.invokeMethodAsync(options.lockChangedCallback, keys, isLock);
     });
-    dockview.on('panelVisibleChanged', ({ title, status }) => {
-        invoke.invokeMethodAsync(options.panelVisibleChangedCallback, title, status);
+    dockview.on('panelVisibleChanged', ({ key, status }) => {
+        invoke.invokeMethodAsync(options.panelVisibleChangedCallback, key, status);
     });
     dockview.on('groupSizeChanged', () => {
         invoke.invokeMethodAsync(options.splitterCallback);
     });
+    dockview.on('loadTabs', tabs => {
+        if (tabs.length === 0) {
+            return;
+        }
+        invoke.invokeMethodAsync(options.loadTabs, tabs);
+    });
+    dockview.on('saveConfig', json => {
+        if (options.enableLocalStorage) {
+            return;
+        }
 
+        invoke.invokeMethodAsync(options.saveConfigCallback, json);
+    });
     EventHandler.on(document, 'changed.bb.theme', updateTheme);
 }
 
@@ -60,6 +76,14 @@ export function save(id) {
         ret = JSON.stringify(dockview.toJSON());
     }
     return ret;
+}
+
+export function switchLayout(id, options) {
+    const dock = Data.get(id)
+    if (dock) {
+        const { dockview } = dock;
+        dockview.switchLayout(options);
+    }
 }
 
 export function dispose(id) {

@@ -7,12 +7,14 @@ using BootstrapBlazor.Components;
 namespace Microsoft.Extensions.DependencyInjection;
 
 /// <summary>
-/// BootstrapBlazor 服务扩展类
+/// <para lang="zh">BootstrapBlazor 服务扩展类</para>
+/// <para lang="en">BootstrapBlazor service extension class</para>
 /// </summary>
 public static class BootstrapBlazorDom2ImageServiceExtensions
 {
     /// <summary>
-    /// 添加 AzureOpenAIService 服务
+    /// <para lang="zh">添加 Dom2ImageService 服务</para>
+    /// <para lang="en">Adds Dom2ImageService service</para>
     /// </summary>
     /// <param name="services"></param>
     public static IServiceCollection AddBootstrapBlazorDom2ImageService(this IServiceCollection services)

@@ -1,6 +1,8 @@
-﻿import { DockviewComponent, DockviewGroupPanel, getGridLocation, getRelativeLocation, DockviewEmitter } from "./dockview-core.esm.js"
-import { getConfigFromStorage, saveConfig } from "./dockview-config.js"
+import { DockviewComponent, DockviewGroupPanel, DockviewGroupPanelModel, getGridLocation, getRelativeLocation, DockviewEmitter } from "./dockview-core.esm.js"
+import { saveConfig } from "./dockview-config.js"
+import { movePanelContentToTemplate } from "./dockview-panel.js"
 import { disposeGroup, removeDrawerBtn } from "./dockview-group.js"
+import { markFirstVisibleElement } from "./dockview-utils.js"
 
 DockviewComponent.prototype.on = function (eventType, callback) {
     this['_' + eventType] = new DockviewEmitter();
@@ -15,7 +17,6 @@ DockviewComponent.prototype.dispose = function () {
             group.mutationObserver.disconnect();
         }
     })
-    saveConfig(this);
     dispose.call(this);
 }
 
@@ -42,48 +43,51 @@ DockviewGroupPanel.prototype.removePropsOfParams = function (keys) {
 
 const removeGroup = DockviewComponent.prototype.removeGroup
 DockviewComponent.prototype.removeGroup = function (...args) {
-    if (this.isClearing) {
-        return removeGroup.apply(this, args)
+    const group = args[0]
+    if (this.params.reset) {
+        const panels = [...group.panels];
+        removeGroup.apply(this, args)
+        panels.forEach(panel => {
+            movePanelContentToTemplate(panel, true);
+        })
+        return
     }
 
-    const group = args[0]
     const type = group.api.location.type;
     if (type == 'grid') {
         [...group.panels].forEach(panel => {
             panel.api.close()
         })
         this.setVisible(group, false)
-
-        // let delPanelsStr = localStorage.getItem(this.params.options.localStorageKey + '-panels')
-        // let delPanels = delPanelsStr ? JSON.parse(delPanelsStr) : delPanelsStr
-        // delPanels = delPanels?.map(panel => {
-        //     if (panel.groupId == group.id) {
-        //         panel.groupInvisible = true
-        //     }
-        //     return panel
-        // })
-        // delPanels && localStorage.setItem(this.params.options.localStorageKey + '-panels', JSON.stringify(delPanels))
     }
     else if (type == 'floating') {
         removeDrawerBtn(group)
-        return removeGroup.apply(this, args)
+        // Close panels (like the grid path) so each fires _panelVisibleChanged; the last close re-enters empty and removes the group.
+        const panels = [...group.panels]
+        if (panels.length === 0) {
+            return removeGroup.apply(this, args)
+        }
+        panels.forEach(panel => panel.api.close())
     }
 }
 
-const removePanel = DockviewComponent.prototype.removePanel
-DockviewComponent.prototype.removePanel = function (...args) {
-    const panel = args[0]
-    if (!panel.group.locked) {
-        removePanel.apply(this, args)
-        if (!this.isClearing) {
-            this._panelVisibleChanged?.fire({ title: panel.title, status: false });
+const closePanel = DockviewGroupPanelModel.prototype.closePanel;
+DockviewGroupPanelModel.prototype.closePanel = function (panel, triggerVisibleChangedCallback = true, moveToTemplate = true) {
+    if (!panel.group?.locked) {
+        closePanel.call(this, panel);
+        if (triggerVisibleChangedCallback) {
+            this.accessor._panelVisibleChanged?.fire({ key: panel.params.key, status: false });
+        }
+        // locked groups keep panels intact — guard moveToTemplate too
+        if (moveToTemplate) {
+            movePanelContentToTemplate(panel, true);
         }
     }
 }
 
 const setVisible = DockviewComponent.prototype.setVisible
 DockviewComponent.prototype.setVisible = function (...args) {
-    setVisible.apply(this, args)
+    setVisible.apply(this, args);
     const branch = getBranchByGroup(args[0])
     const { orientation, splitview: { sashes } } = branch
 
@@ -109,6 +113,7 @@ DockviewComponent.prototype.setVisible = function (...args) {
             }
         });
     }
+    markFirstVisibleElement(args[0])
 }
 function getBranchByGroup(group) {
     const groupEle = group.element
