@@ -1,32 +1,38 @@
-<Project Sdk="Microsoft.NET.Sdk">
+﻿<Project Sdk="Microsoft.NET.Sdk">
 
   <PropertyGroup>
     <PackageTags>Bootstrap Blazor WebAssembly wasm UI Components Opc Ua Client</PackageTags>
     <Description>Bootstrap UI components extensions of OpcUa</Description>
   </PropertyGroup>
 
+  <PropertyGroup>
+    <UA6Version>1.5.376.235</UA6Version>
+    <UA8Version>1.5.378.156</UA8Version>
+  </PropertyGroup>
+
   <ItemGroup Condition="'$(TargetFramework)' == 'net6.0'">
     <PackageReference Include="Microsoft.Extensions.DependencyInjection" Version="$(NET8Version)" />
+    <PackageReference Include="OPCFoundation.NetStandard.Opc.Ua.Client" Version="$(UA6Version)" />
   </ItemGroup>
 
   <ItemGroup Condition="'$(TargetFramework)' == 'net7.0'">
     <PackageReference Include="Microsoft.Extensions.DependencyInjection" Version="$(NET8Version)" />
+    <PackageReference Include="OPCFoundation.NetStandard.Opc.Ua.Client" Version="$(UA6Version)" />
   </ItemGroup>
 
   <ItemGroup Condition="'$(TargetFramework)' == 'net8.0'">
     <PackageReference Include="Microsoft.Extensions.DependencyInjection" Version="$(NET10Version)" />
+    <PackageReference Include="OPCFoundation.NetStandard.Opc.Ua.Client" Version="$(UA8Version)" />
   </ItemGroup>
 
   <ItemGroup Condition="'$(TargetFramework)' == 'net9.0'">
     <PackageReference Include="Microsoft.Extensions.DependencyInjection" Version="$(NET10Version)" />
+    <PackageReference Include="OPCFoundation.NetStandard.Opc.Ua.Client" Version="$(UA8Version)" />
   </ItemGroup>
 
   <ItemGroup Condition="'$(TargetFramework)' == 'net10.0'">
     <PackageReference Include="Microsoft.Extensions.DependencyInjection" Version="$(NET10Version)" />
-  </ItemGroup>
-
-  <ItemGroup>
-    <PackageReference Include="OPCFoundation.NetStandard.Opc.Ua.Client" Version="1.5.376.235" />
+    <PackageReference Include="OPCFoundation.NetStandard.Opc.Ua.Client" Version="$(UA8Version)" />
   </ItemGroup>
 
 </Project>
