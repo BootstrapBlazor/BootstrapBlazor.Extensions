@@ -12,6 +12,10 @@ namespace BootstrapBlazor.Components;
 /// </summary>
 public partial class CodeEditor
 {
+    private const string MonacoStylePath = "_content/BootstrapBlazor.CodeEditor/monaco-editor/monaco.css";
+
+    private const string CodeEditorStylePath = "_content/BootstrapBlazor.CodeEditor/code-editor.bundle.css";
+
     /// <summary>
     /// <para lang="zh">获得/设置 编辑器语言</para>
     /// <para lang="en">Gets or sets the editor language</para>
@@ -109,11 +113,11 @@ public partial class CodeEditor
             StyleSheets = new List<string>()
             {
 #if NET9_0_OR_GREATER
-                Assets["_content/BootstrapBlazor.CodeEditor/monaco-editor/monaco.css"],
-                Assets["_content/BootstrapBlazor.CodeEditor/code-editor.bundle.css"]
+                Assets[MonacoStylePath],
+                Assets[CodeEditorStylePath]
 #else
-                "_content/BootstrapBlazor.CodeEditor/monaco-editor/monaco.css",
-                "_content/BootstrapBlazor.CodeEditor/code-editor.bundle.css"
+                MonacoStylePath,
+                CodeEditorStylePath
 #endif
             }
         };
