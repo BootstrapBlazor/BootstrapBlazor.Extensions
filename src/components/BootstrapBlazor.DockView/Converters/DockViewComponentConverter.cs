@@ -1,4 +1,4 @@
-﻿// Copyright (c) Argo Zhang (argo@163.com). All rights reserved.
+// Copyright (c) Argo Zhang (argo@163.com). All rights reserved.
 // Licensed under the Apache License, Version 2.0. See License.txt in the project root for license information.
 // Website: https://www.blazor.zone or https://argozhang.github.io/
 
@@ -8,7 +8,8 @@ using System.Text.Json.Serialization;
 namespace BootstrapBlazor.Components;
 
 /// <summary>
-/// DockViewComponent 转化器
+/// <para lang="zh">DockViewComponent 转换器</para>
+/// <para lang="en">DockViewComponent converter</para>
 /// </summary>
 class DockViewComponentConverter : JsonConverter<List<DockViewComponentBase>>
 {
@@ -18,7 +19,6 @@ class DockViewComponentConverter : JsonConverter<List<DockViewComponentBase>>
     /// <param name="reader"></param>
     /// <param name="typeToConvert"></param>
     /// <param name="options"></param>
-    /// <returns></returns>
     /// <exception cref="NotImplementedException"></exception>
     public override List<DockViewComponentBase>? Read(ref Utf8JsonReader reader, Type typeToConvert, JsonSerializerOptions options)
     {

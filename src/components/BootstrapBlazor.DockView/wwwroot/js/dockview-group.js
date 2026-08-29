@@ -1,7 +1,7 @@
-﻿import { getIcons, getIcon } from "./dockview-icon.js"
-import { deletePanel, findContentFromPanels, moveAlwaysRenderPanel } from "./dockview-panel.js"
+import { getIcons, getIcon } from "./dockview-icon.js"
+import { deleteInvisiblePanel, findContentFromPanels, moveAlwaysRenderPanel } from "./dockview-panel.js"
 import { saveConfig } from "./dockview-config.js"
-import { observeGroup } from "./dockview-utils.js"
+import { observeGroup, markFirstVisibleElement } from "./dockview-utils.js"
 import EventHandler from '../../BootstrapBlazor/modules/event-handler.js'
 
 const onAddGroup = group => {
@@ -20,10 +20,11 @@ const onAddGroup = group => {
         saveConfig(dockview)
     })
     group.model.contentContainer.dropTarget.onDrop(() => {
-        saveConfig(dockview)
+        saveConfig(dockview);
+        markFirstVisibleElement(group)
     })
     createGroupActions(group);
-    dockview._inited && observeGroup(group)
+    dockview.params.inited && observeGroup(group)
 }
 
 const addGroupWithPanel = (dockview, panel, panels, index) => {
@@ -33,31 +34,31 @@ const addGroupWithPanel = (dockview, panel, panels, index) => {
     else {
         addPanelWidthCreatGroup(dockview, panel, panels)
     }
-    deletePanel(dockview, panel)
+    deleteInvisiblePanel(dockview, panel)
 }
 
 const addPanelWidthGroupId = (dockview, panel, index) => {
     let group = dockview.api.getGroup(panel.groupId)
-    let { rect = {}, packup, floatType, drawer, direction = 'left' } = panel.params || {}
+    // The group may have moved (floated/docked) since this panel was closed; getFloatingId toggles its grid<->floating
+    // id. If our entry is empty/gone but the counterpart holds the panels, route there so the panel rejoins the group.
+    if (!group || group.panels.length === 0) {
+        const counterpart = dockview.api.getGroup(getFloatingId(panel.groupId))
+        if (counterpart && counterpart.panels.length > 0) group = counterpart
+    }
+    // Empty pre-existing group = deleted-side placeholder (deferred actions + collapsed branch); a populated one is healthy.
+    const reusedEmptyGroup = !!group && group.panels.length === 0;
+    const isNewFloatingGroup = !group;
+    let { rect = {}, packup, floatType, drawer, direction = 'left', currentPosition } = panel.params || {}
     if (!group) {
         group = dockview.createGroup({ id: panel.groupId })
-        // const floatingGroupPosition = isMaximized ? {
-        //     x: 0, y: 0,
-        //     width: dockview.width,
-        //     height: dockview.height
-        // } : {
-        //     x: currentPosition?.left || 0,
-        //     y: currentPosition?.top || 0,
-        //     width: currentPosition?.width,
-        //     height: currentPosition?.height
-        // }
-        // dockview.addFloatingGroup(group, floatingGroupPosition, { skipRemoveGroup: true })
-        // createGroupActions(group);
         const width = dockview.width > 500 ? 500 : (dockview.width - 10)
         const height = dockview.height > 460 ? 460 : (dockview.height - 10)
         const left = (dockview.width - width) / 2
         const top = (dockview.height - height) / 2
-        let floatingGroupRect = rect || {
+        // Prefer currentPosition (saved on hide) over rect (only refreshed on un-float) to keep last size & position.
+        let floatingGroupRect = (currentPosition?.width > 0
+            ? { width: currentPosition.width, height: currentPosition.height, position: { top: currentPosition.top, left: currentPosition.left } }
+            : rect) || {
             width, height: packup?.isPackup ? packup.height : height, position: { left, top }
         }
         if (floatType == 'drawer') {
@@ -74,36 +75,52 @@ const addPanelWidthGroupId = (dockview, panel, index) => {
         if (floatType == 'drawer') {
             setTimeout(() => createDrawerHandle(group, direction == 'right'), 0);
         }
-        // const floatingGroup = createFloatingGroup(group, floatingGroupRect)
-        const autoHideBtn = group.header.rightActionsContainer.querySelector('.bb-dockview-control-icon-autohide')
-        if (autoHideBtn) {
-            // autoHideBtn.style.display = 'none'
-        }
-
-        // saveConfig(dockview)
     }
     else {
         if (group.api.location.type === 'grid') {
             let isVisible = dockview.isVisible(group)
             if (isVisible === false) {
                 dockview.setVisible(group, true)
-                // isMaximized && group.api.maximize();
             }
         }
+    }
+
+    // Restore a saved dimension only when the group collapsed to its minimum; if the structure already gave it a real
+    // size, restoring a stale saved value would shrink it and squeeze/blank a sibling.
+    let initialWidth, initialHeight;
+    if (reusedEmptyGroup && group.api.location.type === 'grid' && group.element.parentElement) {
+        const cp = panel.params?.currentPosition;
+        const { offsetWidth, offsetHeight } = group.element.parentElement;
+        if (cp?.width > offsetWidth && offsetWidth <= group.minimumWidth + 2) initialWidth = cp.width;
+        if (cp?.height > offsetHeight && offsetHeight <= group.minimumHeight + 2) initialHeight = cp.height;
     }
     dockview.addPanel({
         id: panel.id,
         title: panel.title,
+        inactive: true,
         renderer: panel.renderer,
         component: panel.component,
         position: { referenceGroup: group, index: index || 0 },
+        initialWidth,
+        initialHeight,
         params: { ...panel.params, rect, packup, visible: true }
     })
-    dockview._panelVisibleChanged?.fire({ title: panel.title, status: true });
+
+    // addPanel is inactive; activate so a freshly created floating group isn't blank.
+    if (isNewFloatingGroup) {
+        group.panels.find(p => p.id === panel.id)?.api.setActive();
+    }
+
+    // Placeholder deferred its action states while empty (see resetActionStates); re-render now it has a panel.
+    if (reusedEmptyGroup && group.api.location.type === 'grid') {
+        reRenderActionStates(group);
+        // The restore left a _pendingSize; clear it so a later setVisible(true) (float->dock) won't replay this stale size.
+        if (initialWidth > 0 || initialHeight > 0) group.api._pendingSize = undefined;
+    }
 }
 
 const addPanelWidthCreatGroup = (dockview, panel, panels) => {
-    let { position = {}, currentPosition, packupHeight, isPackup, isMaximized } = panel.params || {}
+    let { position = {}, packupHeight, isPackup, isMaximized } = panel.params || {}
     let brothers = panels.filter(p => p.params.parentId == panel.params.parentId && p.id != panel.id)
     let group, direction
     if (brothers.length > 0 && brothers[0].params.parentType == 'group') {
@@ -131,6 +148,7 @@ const addPanelWidthCreatGroup = (dockview, panel, panels) => {
     let option = {
         id: panel.id,
         title: panel.title,
+        inactive: true,
         renderer: panel.renderer,
         component: panel.component,
         position: { referenceGroup: group },
@@ -138,7 +156,6 @@ const addPanelWidthCreatGroup = (dockview, panel, panels) => {
     }
     if (direction) option.position.direction = direction
     dockview.addPanel(option);
-    dockview._panelVisibleChanged?.fire({ title: panel.title, status: true });
 }
 
 const getOrientation = function (child, group) {
@@ -178,37 +195,6 @@ const createGroupActions = (group, groupType) => {
     }, 0)
     addActionEvent(group, actionContainer);
 }
-const observeDisplayChange = (icon, group) => {
-    const dockview = group.api.accessor
-    const element = icon.querySelector('.dropdown-menu')
-    const mutationObserver = new MutationObserver((mutations) => {
-        mutations.forEach(mutation => {
-            if (mutation.attributeName == 'class') {
-                if(mutation.target.classList.contains('show')) {
-                    const currentPanelEle = group.activePanel.view.content.element.parentElement
-                    const childEle = currentPanelEle.children[0]
-                    group.element.querySelector('&>.dv-content-container').append(childEle)
-                    currentPanelEle.style.zIndex = -1
-                    childEle.wrapperEle = currentPanelEle
-                }
-                else {
-                    const panelEleList = [...group.element.querySelector('&>.dv-content-container').children].map(item => {
-                        const wrapperEle = item.wrapperEle
-                        delete item.wrapperEle
-                        wrapperEle.append(item)
-                        return wrapperEle
-                    })
-                    group.element.parentElement.parentElement.append(...panelEleList)
-                }
-            }
-        })
-    });
-    group.mutationObserver = mutationObserver
-    mutationObserver.observe(element, {
-        attributes: true,
-        attributeFilter: ["class"],
-    });
-}
 
 const disposeGroup = group => {
     const { observer } = group.api.accessor.params;
@@ -224,11 +210,15 @@ const disposeGroup = group => {
 
 const resetActionStates = (group, actionContainer, groupType) => {
     const dockview = group.api.accessor;
+    // Empty group: `[].every()` is vacuously true so every show*() falls back to options defaults, wrongly showing
+    // buttons that stick once re-filled. Defer until it has panels (re-rendered on insert in addPanelWidthGroupId).
+    if (group.panels.length === 0) return;
+    // bb-show-lock only gates the button; apply the lock STATE regardless so a locked group stays locked when showLock=false.
     if (showLock(dockview, group)) {
         actionContainer.classList.add('bb-show-lock');
-        if (getLockState(dockview, group)) {
-            toggleLock(group, actionContainer, true)
-        }
+    }
+    if (getLockState(dockview, group)) {
+        toggleLock(group, actionContainer, true, false)
     }
     if (showPin(dockview, group) && showFloat(dockview, group)) {
         actionContainer.classList.add('bb-show-pin');
@@ -238,9 +228,9 @@ const resetActionStates = (group, actionContainer, groupType) => {
     }
     if (showMaximize(dockview, group)) {
         actionContainer.classList.add('bb-show-maximize');
-        // if (getMaximizeState(group)) {
-        //     toggleFull(group, actionContainer, true)
-        // }
+        if (getMaximizeState(group)) {
+            setGroupMaximizeClass(group, true);
+        }
     }
     if (showFloat(dockview, group)) {
         actionContainer.classList.add('bb-show-float');
@@ -251,6 +241,12 @@ const resetActionStates = (group, actionContainer, groupType) => {
     if (showUp(group) && !getUpState(group)) {
         actionContainer.classList.add('bb-up')
     }
+}
+
+// Re-render action buttons after an empty placeholder gains a panel (its actions were deferred while empty).
+const reRenderActionStates = group => {
+    const actionContainer = group.header.element.querySelector('.dv-right-actions-container');
+    if (actionContainer) resetActionStates(group, actionContainer);
 }
 
 const showLock = (dockview, group) => {
@@ -270,8 +266,9 @@ const getPinState = (dockview, group, groupType) => {
 }
 
 const getLockState = (dockview, group) => {
+    if (group.locked) return true;
     const { options } = dockview.params;
-    return group.panels.every(p => p.params.isLock === null)
+    return group.panels.every(p => p.params.isLock == null)
         ? options.lock
         : group.panels.some(p => p.params.isLock === true);
 }
@@ -312,17 +309,17 @@ const addActionEvent = group => {
         const ele = e.delegateTarget;
         if (ele.classList.contains('bb-dockview-control-icon-lock')) {
             toggleLock(group, actionContainer, false);
-            group.api.accessor._lockChanged.fire({ title: group.panels.map(panel => panel.title), isLock: false });
+            group.api.accessor._lockChanged.fire({ keys: group.panels.map(panel => panel.params.key), isLock: false });
         }
         else if (ele.classList.contains('bb-dockview-control-icon-unlock')) {
             toggleLock(group, actionContainer, true);
-            group.api.accessor._lockChanged.fire({ title: group.panels.map(panel => panel.title), isLock: true });
+            group.api.accessor._lockChanged.fire({ keys: group.panels.map(panel => panel.params.key), isLock: true });
         }
         else if (ele.classList.contains('bb-dockview-control-icon-restore')) {
-            toggleFull(group, actionContainer, true);
+            toggleFull(group, true);
         }
         else if (ele.classList.contains('bb-dockview-control-icon-full')) {
-            toggleFull(group, actionContainer, false);
+            toggleFull(group, false);
         }
         else if (ele.classList.contains('bb-dockview-control-icon-dock')) {
             dock(group);
@@ -361,7 +358,6 @@ const autoHide = group => {
     }
     if (type == 'grid') {
         if (!canFloat(group)) return;
-        // 1、点击图标创建浮动窗口并隐藏
         const { drawer = { width: 300, visible: true } } = group.getParams()
 
         const left = getOffsetFromDockview(group.element)
@@ -484,7 +480,7 @@ const removeActionEvent = group => {
     EventHandler.off(actionContainer, 'click', '.bb-dockview-control-icon');
 }
 
-const toggleLock = (group, actionContainer, isLock) => {
+const toggleLock = (group, actionContainer, isLock, persist = true) => {
     group.locked = isLock ? 'no-drop-target' : isLock
     group.panels.forEach(panel => panel.params.isLock = isLock);
     if (isLock) {
@@ -493,23 +489,44 @@ const toggleLock = (group, actionContainer, isLock) => {
     else {
         actionContainer.classList.remove('bb-lock')
     }
-    saveConfig(group.api.accessor)
+    if (persist) {
+        saveConfig(group.api.accessor)
+    }
 }
 
-const toggleFull = (group, actionContainer, maximize) => {
+const setGroupMaximizeClass = (group, maximized) => {
+    const actionContainer = group.header.element.querySelector('.dv-right-actions-container');
+    actionContainer?.classList.toggle('bb-maximize', maximized);
+    group.element.parentElement?.classList.toggle('bb-maximize', maximized);
+}
+
+const onMaximizedGroupChange = event => {
+    const dockview = event.group.api.accessor;
+    dockview.groups.forEach(group => {
+        if (group.model.location.type === 'grid') {
+            setGroupMaximizeClass(group, false);
+        }
+    });
+    if (event.isMaximized) {
+        setGroupMaximizeClass(event.group, true);
+    }
+}
+
+const toggleFull = (group, maximize) => {
+    const dockview = group.api.accessor;
     const type = group.model.location.type;
-    if (type === 'grid') {
-        maximize ? group.api.exitMaximized() : group.api.maximize();
+    dockview.params.maximizing = true;
+    try {
+        if (type === 'grid') {
+            maximize ? dockview.exitMaximizedGroup() : group.api.maximize();
+        }
+        else {
+            maximize ? floatingExitMaximized(group) : floatingMaximize(group);
+            setGroupMaximizeClass(group, !maximize);
+        }
     }
-    else if (type === 'floating') {
-        maximize ? floatingExitMaximized(group) : floatingMaximize(group);
-    }
-    maximize ? actionContainer.classList.remove('bb-maximize') : actionContainer.classList.add('bb-maximize')
-    if (maximize) {
-        group.element.parentElement.classList.remove('bb-maximize')
-    }
-    else {
-        group.element.parentElement.classList.add('bb-maximize')
+    finally {
+        dockview.params.maximizing = false;
     }
 }
 
@@ -523,6 +540,13 @@ const float = group => {
     const { rect, packup } = group.getParams()
     const floatingGroupRect = rect || {
         width, height: packup?.isPackup ? packup.height : height, position: { left, top }
+    }
+    dockview.params.maximizing = true;
+    try {
+        group.api.isMaximized() && group.api.exitMaximized()
+    }
+    finally {
+        dockview.params.maximizing = false;
     }
     const floatingGroup = createFloatingGroup(group, floatingGroupRect)
     saveConfig(dockview)
@@ -557,7 +581,7 @@ const createFloatingGroup = (group, rect, groupType) => {
     observeOverlayChange(overlay, floatingGroup)
     observeGroup(floatingGroup)
     createGroupActions(floatingGroup, groupType)
-    if(floatingGroup.panels.length == 1) {
+    if (floatingGroup.panels.length == 1) {
         moveAlwaysRenderPanel(floatingGroup.activePanel)
     }
     return floatingGroup
@@ -589,9 +613,9 @@ const observeFloatingGroupLocationChange = group => {
             setTimeout(() => {
                 let originalGroup = dockview.groups.find(g => g.id.split('_')[0] == group.id.split('_')[0])
                 if (originalGroup) {
-                    dockview.isClearing = true
+                    dockview.params.reset = true
                     dockview.removeGroup(originalGroup)
-                    dockview.isClearing = false
+                    dockview.params.reset = false
                     group.header.rightActionsContainer.classList.remove('bb-float')
                     saveConfig(dockview)
                 }
@@ -616,7 +640,7 @@ const dock = (group, floatType) => {
     originGroup.element.parentElement.classList.remove('bb-maximize')
     const { drawer, rect = {} } = group.getParams()
     const inset = group.element.parentElement.style.inset.split(' ').map(item => isNaN(parseFloat(item)) ? item : parseFloat(item))
-    if(!rect.isMaximized) {
+    if (!rect.isMaximized) {
         rect.width = group.width + 2;
         rect.height = group.height + 2;
         rect.position = {};
@@ -642,6 +666,8 @@ const dock = (group, floatType) => {
         from: { group: group },
         to: { group: originGroup, position: 'center' }
     })
+    // originGroup was an empty placeholder while floated; its deferred action buttons need re-rendering now it is filled.
+    reRenderActionStates(originGroup)
     saveConfig(dockview)
 }
 
@@ -671,7 +697,7 @@ const down = (group, actionContainer) => {
     saveConfig(group.api.accessor)
 }
 
-close = group => {
+const close = group => {
     if (!group.locked) {
         group.api.close()
     }
@@ -687,11 +713,11 @@ const floatingMaximize = group => {
         isMaximized: true,
         position: {}
     }
-    ;['top', 'right', 'bottom', 'left'].forEach((key, index) => {
-        if (typeof inset[index] == 'number') {
-            rect.position[key] = inset[index]
-        }
-    })
+        ;['top', 'right', 'bottom', 'left'].forEach((key, index) => {
+            if (typeof inset[index] == 'number') {
+                rect.position[key] = inset[index]
+            }
+        })
     group.setParams({ rect })
 
     parentEle.style.left = 0;
@@ -752,4 +778,4 @@ const setWidth = (observerList) => {
     })
 }
 
-export { onAddGroup, addGroupWithPanel, toggleLock, disposeGroup, observeFloatingGroupLocationChange, observeOverlayChange, createDrawerHandle, removeDrawerBtn, setDrawerTitle };
+export { onAddGroup, addGroupWithPanel, toggleLock, disposeGroup, observeFloatingGroupLocationChange, observeOverlayChange, createDrawerHandle, removeDrawerBtn, setDrawerTitle, onMaximizedGroupChange };

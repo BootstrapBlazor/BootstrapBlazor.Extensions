@@ -1,1 +1,0 @@
-(function(e,n){typeof exports=="object"&&typeof module<"u"?module.exports=n():typeof define=="function"&&define.amd?define(n):(e=typeof globalThis<"u"?globalThis:e||self,e.UniverSheetsZenEditorFaIR=n())})(this,(function(){"use strict";return{rightClick:{zenEditor:"ویرایشگر تمام صفحه"},shortcut:{sheet:{"zen-edit-cancel":"لغو ویرایش Zen","zen-edit-confirm":"تایید ویرایش Zen"}}}}));

@@ -37,6 +37,7 @@
     <Project Path="src/components/BootstrapBlazor.Dom2Image/BootstrapBlazor.Dom2Image.csproj" />
     <Project Path="src/components/BootstrapBlazor.DriverJs/BootstrapBlazor.DriverJs.csproj" />
     <Project Path="src/components/BootstrapBlazor.ElementIcon/BootstrapBlazor.ElementIcon.csproj" />
+    <Project Path="src/components/BootstrapBlazor.EmbedPDF/BootstrapBlazor.EmbedPDF.csproj" Id="e69d9666-a406-499b-b5c0-3dab3a5a4fb3" />
     <Project Path="src/components/BootstrapBlazor.FileSystem/BootstrapBlazor.FileSystem.csproj" />
     <Project Path="src/components/BootstrapBlazor.FileViewer/BootstrapBlazor.FileViewer.csproj" />
     <Project Path="src/components/BootstrapBlazor.FloatingUI/BootstrapBlazor.FloatingUI.csproj" />
@@ -55,6 +56,7 @@
     <Project Path="src/components/BootstrapBlazor.ImageHelper/BootstrapBlazor.ImageHelper.csproj" />
     <Project Path="src/components/BootstrapBlazor.IP2Region/BootstrapBlazor.IP2Region.csproj" />
     <Project Path="src/components/BootstrapBlazor.JitsiMeet/BootstrapBlazor.JitsiMeet.csproj" />
+    <Project Path="src/components/BootstrapBlazor.JitViewer/BootstrapBlazor.JitViewer.csproj" />
     <Project Path="src/components/BootstrapBlazor.JuHeIpLocatorProvider/BootstrapBlazor.JuHeIpLocatorProvider.csproj" />
     <Project Path="src/components/BootstrapBlazor.Live2DDisplay/BootstrapBlazor.Live2DDisplay.csproj" />
     <Project Path="src/components/BootstrapBlazor.Maps/BootstrapBlazor.Maps.csproj" />
@@ -84,6 +86,8 @@
     <Project Path="src/components/BootstrapBlazor.TableExport/BootstrapBlazor.TableExport.csproj" />
     <Project Path="src/components/BootstrapBlazor.TagHelper/BootstrapBlazor.TagHelper.csproj" />
     <Project Path="src/components/BootstrapBlazor.Tasks.Dashboard/BootstrapBlazor.Tasks.Dashboard.csproj" />
+    <Project Path="src/components/BootstrapBlazor.Term/BootstrapBlazor.Term.csproj" />
+    <Project Path="src/components/BootstrapBlazor.Theme.Fluent/BootstrapBlazor.Theme.Fluent.csproj" Id="6bba713e-5b23-4306-a6fe-a5be3feb70c0" />
     <Project Path="src/components/BootstrapBlazor.Topology/BootstrapBlazor.Topology.csproj" />
     <Project Path="src/components/BootstrapBlazor.UniverIcon/BootstrapBlazor.UniverIcon.csproj" />
     <Project Path="src/components/BootstrapBlazor.UniverSheet/BootstrapBlazor.UniverSheet.csproj" />
@@ -124,6 +128,7 @@
   </Folder>
   <Folder Name="/tools/">
     <Project Path="tools/BootstrapBlazor.CssBundler/BootstrapBlazor.CssBundler.csproj" />
+    <Project Path="tools/BootstrapBlazor.LLMsDocs.Cli/BootstrapBlazor.LLMsDocs.Cli.csproj" />
     <Project Path="tools/BootstrapBlazor.LLMsDocsGenerator/BootstrapBlazor.LLMsDocsGenerator.csproj" />
   </Folder>
 </Solution>

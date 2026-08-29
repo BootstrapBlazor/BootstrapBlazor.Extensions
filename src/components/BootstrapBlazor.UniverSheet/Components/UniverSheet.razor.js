@@ -1,17 +1,27 @@
-import { isFunction, registerBootstrapBlazorModule } from '../../BootstrapBlazor/modules/utility.js'
+import { addLink, isFunction, registerBootstrapBlazorModule } from '../../BootstrapBlazor/modules/utility.js'
 import { createUniverSheetAsync } from '../univer.js'
 import Data from '../../BootstrapBlazor/modules/data.js'
 import EventHandler from "../../BootstrapBlazor/modules/event-handler.js"
 
 export async function init(id, invoke, options) {
+    const { univerBundleStyleUrl, univerSheetStyleUrl } = options;
+    await addLink(univerBundleStyleUrl);
+    await addLink(univerSheetStyleUrl);
+
     const el = document.getElementById(id);
     if (el === null) {
         return;
     }
 
+    const backdrop = el.querySelector('.bb-univer-sheet-backdrop');
+    if (backdrop) {
+        backdrop.style.removeProperty('display');
+    }
+
     const { theme, lang, plugins, data, ribbonType, darkMode } = options;
     const univerSheet = {
         el: el.querySelector('.bb-univer-sheet-wrap'),
+        backdrop,
         invoke,
         data,
         plugins,
@@ -21,7 +31,6 @@ export async function init(id, invoke, options) {
         darkMode,
         events: {
             onRendered: () => {
-                const backdrop = el.querySelector('.bb-univer-sheet-backdrop');
                 if (backdrop) {
                     backdrop.classList.add('d-none');
                 }
@@ -41,13 +50,30 @@ export async function init(id, invoke, options) {
 
 export function execute(id, data) {
     const univerSheet = Data.get(id);
+    if (univerSheet === null) {
+        return;
+    }
 
-    return univerSheet.pushData(data);
+    const { firstPush, backdrop, pushData } = univerSheet;
+    let ret = null;
+    if (pushData) {
+        ret = pushData(data);
+    }
+    if (firstPush === true && backdrop) {
+        setTimeout(() => {
+            backdrop.classList.add('d-none');
+        }, 100);
+    }
+    return ret;
 }
 
 export function dispose(id) {
     const univerSheet = Data.get(id);
     Data.remove(id);
+
+    if (univerSheet === null) {
+        return;
+    }
 
     if (isFunction(univerSheet.dispose)) {
         univerSheet.dispose();
