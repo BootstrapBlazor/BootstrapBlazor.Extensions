@@ -106,6 +106,16 @@ public partial class CodeEditor
             Theme,
             LineNumbers = ShowLineNo,
             ReadOnly = IsReadonly,
+            StyleSheets = new List<string>()
+            {
+#if NET9_0_OR_GREATER
+                Assets["_content/BootstrapBlazor.CodeEditor/monaco-editor/monaco.css"],
+                Assets["_content/BootstrapBlazor.CodeEditor/code-editor.bundle.css"]
+#else
+                "_content/BootstrapBlazor.CodeEditor/monaco-editor/monaco.css",
+                "_content/BootstrapBlazor.CodeEditor/code-editor.bundle.css"
+#endif
+            }
         };
         await InvokeVoidAsync("init", Id, Interop, options);
     }

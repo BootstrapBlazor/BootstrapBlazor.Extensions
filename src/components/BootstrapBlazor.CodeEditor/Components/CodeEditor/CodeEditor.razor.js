@@ -15,8 +15,7 @@ export async function init(id, interop, options) {
 
     const [module] = await Promise.all([
         loadMonaco(),
-        addLink('_content/BootstrapBlazor.CodeEditor/code-editor.bundle.css'),
-        addLink('_content/BootstrapBlazor.CodeEditor/monaco-editor/monaco.css')
+        ...options.styleSheets.map(styleSheet => addLink(styleSheet))
     ]);
     editor.monaco = module.monaco;
 
