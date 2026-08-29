@@ -12,8 +12,6 @@ namespace BootstrapBlazor.Components;
 /// </summary>
 public partial class CodeEditor
 {
-    private const string MONACO_VS_PATH = "_content/BootstrapBlazor.CodeEditor/monaco-editor/min/vs";
-
     /// <summary>
     /// <para lang="zh">获得/设置 编辑器语言</para>
     /// <para lang="en">Gets or sets the editor language</para>
@@ -106,7 +104,6 @@ public partial class CodeEditor
             Value,
             Language,
             Theme,
-            Path = MONACO_VS_PATH,
             LineNumbers = ShowLineNo,
             ReadOnly = IsReadonly,
         };
