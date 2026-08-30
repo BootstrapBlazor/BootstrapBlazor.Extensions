@@ -10,18 +10,18 @@ namespace UnitTestOpcUa;
 public class UnitTest1
 {
     [Fact]
-    public async Task AddOpcUaServer_Ok()
+    public async Task AddOpcUaClient_Ok()
     {
         var services = new ServiceCollection();
-        services.AddOpcUaServer();
+        services.AddOpcUaClient();
 
         await using var provider = services.BuildServiceProvider();
         await using var scope1 = provider.CreateAsyncScope();
         await using var scope2 = provider.CreateAsyncScope();
-        var server = scope1.ServiceProvider.GetRequiredService<IOpcUaServer>();
+        var server = scope1.ServiceProvider.GetRequiredService<IOpcUaClient>();
 
-        Assert.Same(server, scope1.ServiceProvider.GetRequiredService<IOpcUaServer>());
-        Assert.NotSame(server, scope2.ServiceProvider.GetRequiredService<IOpcUaServer>());
+        Assert.Same(server, scope1.ServiceProvider.GetRequiredService<IOpcUaClient>());
+        Assert.NotSame(server, scope2.ServiceProvider.GetRequiredService<IOpcUaClient>());
         Assert.False(server.IsConnected);
         Assert.Null(server.EndpointUrl);
     }
@@ -30,10 +30,10 @@ public class UnitTest1
     public async Task Operation_NotConnected()
     {
         var services = new ServiceCollection();
-        services.AddOpcUaServer();
+        services.AddOpcUaClient();
 
         await using var provider = services.BuildServiceProvider();
-        var server = provider.GetRequiredService<IOpcUaServer>();
+        var server = provider.GetRequiredService<IOpcUaClient>();
 
         await Assert.ThrowsAsync<InvalidOperationException>(() => server.ReadAsync(["ns=2;s=Tag"]));
         await Assert.ThrowsAsync<InvalidOperationException>(() => server.WriteAsync([new OpcUaWriteItem("ns=2;s=Tag", 1)]));
@@ -63,10 +63,10 @@ public class UnitTest1
     public async Task Dispose_Ok()
     {
         var services = new ServiceCollection();
-        services.AddOpcUaServer();
+        services.AddOpcUaClient();
 
         await using var provider = services.BuildServiceProvider();
-        var server = provider.GetRequiredService<IOpcUaServer>();
+        var server = provider.GetRequiredService<IOpcUaClient>();
         await server.DisposeAsync();
 
         await Assert.ThrowsAsync<ObjectDisposedException>(() => server.DisconnectAsync());
@@ -76,10 +76,10 @@ public class UnitTest1
     public async Task Connect_Options()
     {
         var services = new ServiceCollection();
-        services.AddOpcUaServer();
+        services.AddOpcUaClient();
 
         await using var provider = services.BuildServiceProvider();
-        var server = provider.GetRequiredService<IOpcUaServer>();
+        var server = provider.GetRequiredService<IOpcUaClient>();
 
         await Assert.ThrowsAsync<ArgumentException>(() => server.ConnectAsync("", new OpcUaConnectionOptions()));
         await Assert.ThrowsAsync<ArgumentException>(() => server.ConnectAsync("opc.tcp://localhost:4840", new OpcUaConnectionOptions

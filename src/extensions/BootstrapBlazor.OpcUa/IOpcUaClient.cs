@@ -8,7 +8,7 @@ namespace BootstrapBlazor.OpcUa;
 /// <para lang="zh">OPC UA 客户端接口</para>
 /// <para lang="en">OPC UA client interface</para>
 /// </summary>
-public interface IOpcUaServer : IAsyncDisposable
+public interface IOpcUaClient : IAsyncDisposable
 {
     /// <summary>
     /// <para lang="zh">获得当前是否已连接</para>
