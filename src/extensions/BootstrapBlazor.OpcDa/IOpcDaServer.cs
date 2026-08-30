@@ -5,8 +5,10 @@
 namespace BootstrapBlazor.OpcDa;
 
 /// <summary>
-/// OpcDaServer 兼容接口定义
+/// <para lang="zh">OpcDaServer 兼容接口</para>
+/// <para lang="en">Compatibility interface for OpcDaServer</para>
 /// </summary>
+[Obsolete("Use IOpcDaClient instead.")]
 public interface IOpcDaServer : IOpcDaClient
 {
 }

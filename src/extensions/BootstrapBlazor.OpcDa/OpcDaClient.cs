@@ -9,31 +9,24 @@ using System.Runtime.Versioning;
 namespace BootstrapBlazor.OpcDa;
 
 /// <summary>
-/// OPC Server 操作类
+/// <para lang="zh">OpcDa 客户端实现</para>
+/// <para lang="en">OpcDa client implementation</para>
 /// </summary>
 [SupportedOSPlatform("windows")]
-sealed class OpcDaClient : IOpcDaClient, IOpcDaServer
+class OpcDaClient : IOpcDaClient, IOpcDaServer
 {
     private Opc.Da.Server? _server = null;
 
-    /// <summary>
-    /// 获得 OPC Server 名称
-    /// </summary>
+    /// <inheritdoc/>
     public string? ServerName { get; private set; }
 
-    /// <summary>
-    /// 获得 OPC Server 状态
-    /// </summary>
+    /// <inheritdoc/>
     public bool IsConnected => _server?.IsConnected ?? false;
 
     private readonly Dictionary<string, ISubscription> _subscriptions = [];
 
-    /// <summary>
-    /// 连接到 OPCServer 方法
-    /// </summary>
-    /// <param name="serverName">服务器名称</param>
+    /// <inheritdoc/>
     /// <remarks>opcda://localhost/Kepware.KEPServerEX.V6</remarks>
-    /// <returns>成功时返回真</returns>
     public bool Connect(string serverName)
     {
         ServerName = serverName;
@@ -46,10 +39,7 @@ sealed class OpcDaClient : IOpcDaClient, IOpcDaServer
         return IsConnected;
     }
 
-    /// <summary>
-    /// 断开连接方法
-    /// </summary>
-    /// <returns></returns>
+    /// <inheritdoc/>
     public void Disconnect()
     {
         ServerName = string.Empty;
@@ -66,13 +56,7 @@ sealed class OpcDaClient : IOpcDaClient, IOpcDaServer
         }
     }
 
-    /// <summary>
-    /// 创建订阅方法
-    /// </summary>
-    /// <param name="name">订阅名称</param>
-    /// <param name="updateRate">更新频率 默认 1000 毫秒</param>
-    /// <param name="active">是否激活 默认 true</param>
-    /// <returns></returns>
+    /// <inheritdoc/>
     public IOpcSubscription CreateSubscription(string name, int updateRate = 1000, bool active = true)
     {
         var server = GetOpcServer();
@@ -87,11 +71,7 @@ sealed class OpcDaClient : IOpcDaClient, IOpcDaServer
         return subscription.ToOpcSubscription();
     }
 
-    /// <summary>
-    /// 取消订阅方法
-    /// </summary>
-    /// <param name="subscription">订阅接口 <see cref="IOpcSubscription"/> 实例</param>
-    /// <returns></returns>
+    /// <inheritdoc/>
     public void CancelSubscription(IOpcSubscription subscription)
     {
         var server = GetOpcServer();
@@ -102,11 +82,7 @@ sealed class OpcDaClient : IOpcDaClient, IOpcDaServer
         }
     }
 
-    /// <summary>
-    /// 读取指定 Item 值方法
-    /// </summary>
-    /// <param name="items"></param>
-    /// <returns></returns>
+    /// <inheritdoc/>
     public HashSet<OpcReadItem> Read(params HashSet<string> items)
     {
         var server = GetOpcServer();
@@ -114,11 +90,7 @@ sealed class OpcDaClient : IOpcDaClient, IOpcDaServer
         return results.Select(i => new OpcReadItem(i.ItemName, i.Quality.ToQuality(), i.Timestamp, i.Value)).ToHashSet(OpcItemEqualityComparer<OpcReadItem>.Default);
     }
 
-    /// <summary>
-    /// 读取指定 Item 值方法
-    /// </summary>
-    /// <param name="items"></param>
-    /// <returns></returns>
+    /// <inheritdoc/>
     public HashSet<OpcWriteItem> Write(params HashSet<OpcWriteItem> items)
     {
         var server = GetOpcServer();
@@ -141,13 +113,7 @@ sealed class OpcDaClient : IOpcDaClient, IOpcDaServer
         return _server;
     }
 
-    /// <summary>
     /// <inheritdoc/>
-    /// </summary>
-    /// <param name="name"></param>
-    /// <param name="filters"></param>
-    /// <param name="position"></param>
-    /// <returns></returns>
     public OpcBrowseElement[] Browse(string name, OpcBrowseFilters filters, out OpcBrowsePosition? position)
     {
         var server = GetOpcServer();
@@ -156,11 +122,7 @@ sealed class OpcDaClient : IOpcDaClient, IOpcDaServer
         return [.. results.Select(element => new OpcBrowseElement(element))];
     }
 
-    /// <summary>
     /// <inheritdoc/>
-    /// </summary>
-    /// <param name="position"></param>
-    /// <returns></returns>
     public OpcBrowseElement[] BrowseNext(OpcBrowsePosition position)
     {
         var server = GetOpcServer();
@@ -169,10 +131,6 @@ sealed class OpcDaClient : IOpcDaClient, IOpcDaServer
         return [.. results.Select(element => new OpcBrowseElement(element))];
     }
 
-    /// <summary>
-    /// Dispose 方法
-    /// </summary>
-    /// <param name="disposing"></param>
     private void Dispose(bool disposing)
     {
         if (disposing)
@@ -181,9 +139,7 @@ sealed class OpcDaClient : IOpcDaClient, IOpcDaServer
         }
     }
 
-    /// <summary>
     /// <inheritdoc/>
-    /// </summary>
     public void Dispose()
     {
         Dispose(true);

@@ -5,40 +5,47 @@
 namespace BootstrapBlazor.OpcDa;
 
 /// <summary>
-/// OpcDaClient 接口定义
+/// <para lang="zh">OpcDa 客户端接口</para>
+/// <para lang="en">OpcDa client interface</para>
 /// </summary>
 public interface IOpcDaClient : IDisposable
 {
     /// <summary>
-    /// 获得 OPC Server 是否已连接
+    /// <para lang="zh">获得 OPC Server 是否已连接</para>
+    /// <para lang="en">Gets whether the client is connected to the OPC Server</para>
     /// </summary>
     bool IsConnected { get; }
 
     /// <summary>
-    /// 获得 OPC Server 名称
+    /// <para lang="zh">获得 OPC Server 名称</para>
+    /// <para lang="en">Gets the OPC Server name</para>
     /// </summary>
     string? ServerName { get; }
 
     /// <summary>
-    /// 连接到 OPC Server 方法
+    /// <para lang="zh">连接到 OPC Server</para>
+    /// <para lang="en">Connects to an OPC Server</para>
     /// </summary>
     /// <param name="serverName"></param>
     /// <returns></returns>
     bool Connect(string serverName);
 
     /// <summary>
-    /// 断开连接方法
+    /// <para lang="zh">断开当前连接</para>
+    /// <para lang="en">Disconnects the current connection</para>
     /// </summary>
     void Disconnect();
 
     /// <summary>
-    /// 取消订阅方法
+    /// <para lang="zh">取消订阅</para>
+    /// <para lang="en">Cancels a subscription</para>
     /// </summary>
     /// <param name="subscription"></param>
     void CancelSubscription(IOpcSubscription subscription);
 
     /// <summary>
-    /// 创建订阅方法
+    /// <para lang="zh">创建订阅</para>
+    /// <para lang="en">Creates a subscription</para>
     /// </summary>
     /// <param name="name">订阅名称</param>
     /// <param name="updateRate">更新频率 默认 1000 毫秒</param>
@@ -47,21 +54,24 @@ public interface IOpcDaClient : IDisposable
     IOpcSubscription CreateSubscription(string name, int updateRate = 1000, bool active = true);
 
     /// <summary>
-    /// 读取 Item 值方法
+    /// <para lang="zh">读取 Item 值</para>
+    /// <para lang="en">Reads item values</para>
     /// </summary>
     /// <param name="items"></param>
     /// <returns></returns>
     HashSet<OpcReadItem> Read(params HashSet<string> items);
 
     /// <summary>
-    /// 读取 Item 值方法
+    /// <para lang="zh">写入 Item 值</para>
+    /// <para lang="en">Writes item values</para>
     /// </summary>
     /// <param name="items"></param>
     /// <returns></returns>
     HashSet<OpcWriteItem> Write(params HashSet<OpcWriteItem> items);
 
     /// <summary>
-    /// 浏览 OPC Server 中的位号 (即数据项或者标签)
+    /// <para lang="zh">浏览 OPC Server 中的位号（即数据项或者标签）</para>
+    /// <para lang="en">Browses tags in the OPC Server</para>
     /// </summary>
     /// <param name="name"></param>
     /// <param name="filters"></param>
@@ -70,7 +80,8 @@ public interface IOpcDaClient : IDisposable
     OpcBrowseElement[] Browse(string name, OpcBrowseFilters filters, out OpcBrowsePosition? position);
 
     /// <summary>
-    /// 浏览 OPC Server 中的位号 (即数据项或者标签)
+    /// <para lang="zh">继续浏览 OPC Server 中的位号（即数据项或者标签）</para>
+    /// <para lang="en">Continues browsing tags in the OPC Server</para>
     /// </summary>
     /// <param name="position"></param>
     /// <returns></returns>

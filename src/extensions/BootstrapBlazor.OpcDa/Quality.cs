@@ -5,17 +5,20 @@
 namespace BootstrapBlazor.OpcDa;
 
 /// <summary>
-/// Opc Item Quality 枚举
+/// <para lang="zh">Opc Item Quality 枚举</para>
+/// <para lang="en">Opc item quality</para>
 /// </summary>
 public enum Quality
 {
     /// <summary>
-    /// 不可信
+    /// <para lang="zh">不可信</para>
+    /// <para lang="en">Bad quality</para>
     /// </summary>
     Bad,
 
     /// <summary>
-    /// 可信
+    /// <para lang="zh">可信</para>
+    /// <para lang="en">Good quality</para>
     /// </summary>
     Good
 }

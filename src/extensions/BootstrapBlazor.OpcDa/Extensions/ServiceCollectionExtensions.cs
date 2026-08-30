@@ -9,12 +9,14 @@ using System.Runtime.Versioning;
 namespace Microsoft.Extensions.DependencyInjection;
 
 /// <summary>
-/// OpcDaClient 服务扩展类
+/// <para lang="zh">OpcDaClient 服务扩展类</para>
+/// <para lang="en">OpcDaClient service extension class</para>
 /// </summary>
 public static class ServiceCollectionExtensions
 {
     /// <summary>
-    /// 增加 OpcDaClient 操作服务
+    /// <para lang="zh">增加 OpcDaClient 操作服务</para>
+    /// <para lang="en">Adds the OpcDa client service</para>
     /// </summary>
     /// <param name="services"></param>
     /// <returns></returns>
@@ -28,7 +30,8 @@ public static class ServiceCollectionExtensions
     }
 
     /// <summary>
-    /// 增加 OpcDaClient 操作服务
+    /// <para lang="zh">增加 OpcDaClient 操作服务</para>
+    /// <para lang="en">Adds the OpcDa client service</para>
     /// </summary>
     /// <param name="services"></param>
     /// <returns></returns>
