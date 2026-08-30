@@ -18,9 +18,9 @@ public static class ServiceCollectionExtensions
     /// </summary>
     /// <param name="services"></param>
     /// <returns></returns>
-    public static IServiceCollection AddOpcUaServer(this IServiceCollection services)
+    public static IServiceCollection AddOpcUaClient(this IServiceCollection services)
     {
-        services.AddScoped<IOpcUaServer, OpcUaServer>();
+        services.AddScoped<IOpcUaClient, OpcUaClient>();
         return services;
     }
 }
