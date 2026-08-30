@@ -25,7 +25,6 @@ public static class ServiceCollectionExtensions
     {
         services.TryAddSingleton<OpcDaClient>();
         services.TryAddSingleton<IOpcDaClient>(provider => provider.GetRequiredService<OpcDaClient>());
-        services.TryAddSingleton<IOpcDaServer>(provider => provider.GetRequiredService<OpcDaClient>());
         return services;
     }
 
@@ -37,5 +36,11 @@ public static class ServiceCollectionExtensions
     /// <returns></returns>
     [Obsolete("Use AddOpcDaClient instead.")]
     [SupportedOSPlatform("windows")]
-    public static IServiceCollection AddOpcDaServer(this IServiceCollection services) => services.AddOpcDaClient();
+    public static IServiceCollection AddOpcDaServer(this IServiceCollection services)
+    {
+        services.TryAddSingleton<OpcDaServer>();
+        services.TryAddSingleton<IOpcDaClient>(provider => provider.GetRequiredService<OpcDaServer>());
+        services.TryAddSingleton<IOpcDaServer>(provider => provider.GetRequiredService<OpcDaServer>());
+        return services;
+    }
 }

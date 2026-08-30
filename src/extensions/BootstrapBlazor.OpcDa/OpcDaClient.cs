@@ -13,7 +13,7 @@ namespace BootstrapBlazor.OpcDa;
 /// <para lang="en">OpcDa client implementation</para>
 /// </summary>
 [SupportedOSPlatform("windows")]
-class OpcDaClient : IOpcDaClient, IOpcDaServer
+class OpcDaClient : IOpcDaClient
 {
     private Opc.Da.Server? _server = null;
 
