@@ -5,7 +5,8 @@
 namespace BootstrapBlazor.OpcDa;
 
 /// <summary>
-/// 对 OpcDataServer BrowsePosition 的封装类
+/// <para lang="zh">OpcDataServer BrowsePosition 封装类</para>
+/// <para lang="en">Wrapper for OpcDataServer BrowsePosition</para>
 /// </summary>
 public class OpcBrowsePosition
 {

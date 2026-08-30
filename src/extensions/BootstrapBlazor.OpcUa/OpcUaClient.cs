@@ -7,7 +7,7 @@ using Opc.Ua.Client;
 
 namespace BootstrapBlazor.OpcUa;
 
-sealed class OpcUaServer : IOpcUaServer
+sealed class OpcUaClient : IOpcUaClient
 {
     private readonly SemaphoreSlim _gate = new(1, 1);
     private readonly Dictionary<string, OpcUaSubscription> _subscriptions = [];
