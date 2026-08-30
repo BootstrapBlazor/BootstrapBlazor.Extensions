@@ -1,4 +1,4 @@
-﻿import "./microsoft.cognitiveservices.speech.sdk.bundle-min.js";
+import "./microsoft.cognitiveservices.speech.sdk.bundle-min.js";
 
 var recognizer = undefined;
 var synthesizer = undefined;
@@ -16,7 +16,7 @@ export function bb_azure_speech_recognizeOnce(obj, method, token, region, recogn
     recognizer.recognizeOnceAsync(function (successfulResult) {
         recognizer.close();
         recognizer = undefined;
-        obj.invokeMethodAsync(method, "Finished", successfulResult.privText);
+        obj.invokeMethodAsync(method, "Finished", successfulResult.text);
     }, function (err) {
         recognizer = undefined;
         obj.invokeMethodAsync(method, "Error", err);
