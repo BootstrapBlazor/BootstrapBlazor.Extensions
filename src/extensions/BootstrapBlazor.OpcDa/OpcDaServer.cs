@@ -12,7 +12,7 @@ namespace BootstrapBlazor.OpcDa;
 /// OPC Server 操作类
 /// </summary>
 [SupportedOSPlatform("windows")]
-sealed class OpcDaClient : IOpcDaClient, IOpcDaServer
+sealed class OpcDaServer : IOpcDaServer
 {
     private Opc.Da.Server? _server = null;
 

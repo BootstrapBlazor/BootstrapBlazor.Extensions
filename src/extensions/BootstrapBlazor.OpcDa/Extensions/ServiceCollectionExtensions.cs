@@ -3,36 +3,24 @@
 // Website: https://www.blazor.zone or https://argozhang.github.io/
 
 using BootstrapBlazor.OpcDa;
-using Microsoft.Extensions.DependencyInjection.Extensions;
 using System.Runtime.Versioning;
 
 namespace Microsoft.Extensions.DependencyInjection;
 
 /// <summary>
-/// OpcDaClient 服务扩展类
+/// OpcDaServer 服务扩展类
 /// </summary>
 public static class ServiceCollectionExtensions
 {
     /// <summary>
-    /// 增加 OpcDaClient 操作服务
+    /// 增加 OpcDaServer 操作服务
     /// </summary>
     /// <param name="services"></param>
     /// <returns></returns>
     [SupportedOSPlatform("windows")]
-    public static IServiceCollection AddOpcDaClient(this IServiceCollection services)
+    public static IServiceCollection AddOpcDaServer(this IServiceCollection services)
     {
-        services.TryAddSingleton<OpcDaClient>();
-        services.TryAddSingleton<IOpcDaClient>(provider => provider.GetRequiredService<OpcDaClient>());
-        services.TryAddSingleton<IOpcDaServer>(provider => provider.GetRequiredService<OpcDaClient>());
+        services.AddSingleton<IOpcDaServer, OpcDaServer>();
         return services;
     }
-
-    /// <summary>
-    /// 增加 OpcDaClient 操作服务
-    /// </summary>
-    /// <param name="services"></param>
-    /// <returns></returns>
-    [Obsolete("Use AddOpcDaClient instead.")]
-    [SupportedOSPlatform("windows")]
-    public static IServiceCollection AddOpcDaServer(this IServiceCollection services) => services.AddOpcDaClient();
 }
