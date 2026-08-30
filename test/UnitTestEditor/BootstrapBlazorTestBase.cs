@@ -1,4 +1,4 @@
-﻿// Copyright (c) Argo Zhang (argo@163.com). All rights reserved.
+// Copyright (c) BootstrapBlazor & Argo Zhang (argo@live.ca). All rights reserved.
 // Licensed under the Apache License, Version 2.0. See License.txt in the project root for license information.
 // Website: https://www.blazor.zone or https://argozhang.github.io/
 
@@ -9,13 +9,13 @@ namespace UnitTestEditor;
 
 public class BootstrapBlazorTestBase : IDisposable
 {
-    protected TestContext Context { get; }
+    protected BunitContext Context { get; }
 
     protected ICacheManager Cache { get; }
 
     public BootstrapBlazorTestBase()
     {
-        Context = new TestContext();
+        Context = new BunitContext();
         Context.JSInterop.Mode = JSRuntimeMode.Loose;
 
         ConfigureServices(Context.Services);

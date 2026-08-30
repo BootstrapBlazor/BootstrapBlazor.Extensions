@@ -1,10 +1,6 @@
 <Project Sdk="Microsoft.NET.Sdk.Razor">
 
   <PropertyGroup>
-    <Version>9.0.0</Version>
-  </PropertyGroup>
-
-  <PropertyGroup>
     <PackageTags>Bootstrap Blazor Server UI Components</PackageTags>
     <Description>Bootstrap UI components extensions of TagHelper</Description>
   </PropertyGroup>

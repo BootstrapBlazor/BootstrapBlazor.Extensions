@@ -1,4 +1,4 @@
-﻿// Copyright (c) Argo Zhang (argo@163.com). All rights reserved.
+// Copyright (c) BootstrapBlazor & Argo Zhang (argo@live.ca). All rights reserved.
 // Licensed under the Apache License, Version 2.0. See License.txt in the project root for license information.
 // Website: https://www.blazor.zone or https://argozhang.github.io/
 
@@ -12,7 +12,7 @@ public class EditorTest : BootstrapBlazorTestBase
     public async Task Editor_Ok()
     {
         var value = new Foo();
-        var cut = Context.RenderComponent<Editor>(pb =>
+        var cut = Context.Render<Editor>(pb =>
         {
             pb.Add(a => a.Value, value.Name);
             pb.Add(a => a.ValueChanged, v => value.Name = v);
@@ -23,7 +23,7 @@ public class EditorTest : BootstrapBlazorTestBase
         await cut.InvokeAsync(() => cut.Instance.Update("Test"));
         Assert.Equal("Test", value.Name);
 
-        cut.SetParametersAndRender(pb =>
+        cut.Render(pb =>
         {
             pb.Add(a => a.OnValueChanged, v =>
             {
@@ -39,7 +39,7 @@ public class EditorTest : BootstrapBlazorTestBase
     [Fact]
     public async Task CustomerToolbarButtons_Ok()
     {
-        var cut = Context.RenderComponent<Editor>(pb =>
+        var cut = Context.Render<Editor>(pb =>
         {
             pb.Add(a => a.Value, "Test");
             pb.Add(a => a.CustomerToolbarButtons, new EditorToolbarButton[]
@@ -65,7 +65,7 @@ public class EditorTest : BootstrapBlazorTestBase
         Assert.Equal("Tooltip1", toolbarButtons!.First().Tooltip);
 
         var name = "";
-        cut.SetParametersAndRender(pb =>
+        cut.Render(pb =>
         {
             pb.Add(a => a.OnClickButton, v =>
             {
@@ -80,7 +80,7 @@ public class EditorTest : BootstrapBlazorTestBase
     [Fact]
     public async Task DoMethodAsync_Ok()
     {
-        var cut = Context.RenderComponent<Editor>(pb =>
+        var cut = Context.Render<Editor>(pb =>
         {
             pb.Add(a => a.Value, "Test");
         });

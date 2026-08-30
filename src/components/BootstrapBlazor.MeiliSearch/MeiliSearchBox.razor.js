@@ -10,6 +10,11 @@ if (window.BootstrapBlazor === void 0) {
 export async function init(id, options) {
     const el = document.getElementById(id);
     await addLink('_content/BootstrapBlazor.MeiliSearch/meilisearch.css');
+    el.classList.remove('visually-hidden');
+
+    const mask = el.querySelector('.search-dialog-mask');
+    mask.classList.remove("d-none");
+
     await addScript('_content/BootstrapBlazor.MeiliSearch/meilisearch.umd.min.js');
 
     const search = {
@@ -23,7 +28,7 @@ export async function init(id, options) {
         blockTemplate: el.querySelector('.search-dialog-block-template'),
         emptyTemplate: el.querySelector('.search-dialog-empty-template'),
         dialog: el.querySelector('.search-dialog'),
-        mask: el.querySelector('.search-dialog-mask')
+        mask: mask
     };
     Data.set(id, search);
 

@@ -8,6 +8,7 @@ using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Logging;
 using Microsoft.Extensions.Options;
 using MiniExcelLibs;
+using MiniExcelLibs.OpenXml;
 using System.Text;
 
 namespace BootstrapBlazor.Components;
@@ -52,11 +53,22 @@ class DefaultTableExport(IServiceProvider serviceProvider) : ITableExport
     {
         options ??= serviceProvider.GetRequiredService<IOptions<BootstrapBlazorOptions>>().Value.TableSettings.TableExportOptions;
         cols ??= Utility.GetTableColumns<TModel>();
+
+        IConfiguration? configuration = null;
+        if (excelType == ExcelType.XLSX)
+        {
+            configuration = new OpenXmlConfiguration()
+            {
+                AutoFilter = options.EnableAutoFilter,
+                EnableAutoWidth = options.EnableAutoWidth,
+            };
+        }
+
         var lookupService = serviceProvider.GetRequiredService<ILookupService>();
         var value = new ExportDataReader<TModel>(items, cols, options, lookupService);
 
         using var stream = new MemoryStream();
-        await MiniExcel.SaveAsAsync(stream, value, excelType: excelType);
+        await MiniExcel.SaveAsAsync(stream, value, excelType: excelType, configuration: configuration);
 
         fileName ??= $"ExportData_{DateTime.Now:yyyyMMddHHmmss}.{GetExtension()}";
         stream.Position = 0;

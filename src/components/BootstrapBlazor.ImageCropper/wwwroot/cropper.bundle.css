@@ -19,3 +19,32 @@
     .bb-cropper.disabled {
         opacity: var(--bb-crop-disabled-opacity);
     }
+
+.bb-cropper-preview {
+    overflow: hidden;
+}
+
+.bb-cropper-preview-round {
+    border-radius: 50%;
+}
+
+.bb-cropper-preview-lg {
+    height: 9rem;
+    width: 16rem;
+}
+
+.bb-cropper-preview-md {
+    height: 4.5rem;
+    width: 8rem;
+}
+
+.bb-cropper-preview-sm {
+    height: 2.25rem;
+    width: 4rem;
+}
+
+.bb-cropper-preview-xs {
+    height: 1.125rem;
+    margin-right: 0;
+    width: 2rem;
+}

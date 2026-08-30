@@ -1,0 +1,33 @@
+{
+  "BootstrapBlazor.Components.PdfReader": {
+    "ToggleSidebar": "收起/展开 缩略图",
+    "ZoomIn": "放大",
+    "ZoomOut": "缩小",
+    "PageActual": "页面实际大小",
+    "FitWidth": "适配宽度",
+    "FitHeight": "适配高度",
+    "RotateLeft": "向左旋转 90 度",
+    "RotateRight": "向右旋转 90 度",
+    "Download": "下载",
+    "Print": "打印",
+    "TwoPageView": "双页视图",
+    "PresentationMode": "演示模式",
+    "DocumentProperty": "文档属性",
+    "CloseButtonText": "关闭",
+    "DocumentProperties": "文档属性",
+    "DocumentFileName": "文件名:",
+    "DocumentFileSize": "文件大小:",
+    "DocumentTitle": "标题:",
+    "DocumentAuthor": "作者:",
+    "DocumentSubject": "主题:",
+    "DocumentKeywords": "关键字:",
+    "DocumentCreationDate": "创建时间:",
+    "DocumentModificationDate": "修改时间:",
+    "DocumentApplication": "应用程序:",
+    "DocumentProducer": "PDF 生成器:",
+    "DocumentVersion": "PDF 版本:",
+    "DocumentPageCount": "页数:",
+    "DocumentPageSize": "页面尺寸:",
+    "DocumentFastWebView": "Fast web view:"
+  }
+}

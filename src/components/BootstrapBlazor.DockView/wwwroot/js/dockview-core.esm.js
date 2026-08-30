@@ -1,6 +1,6 @@
-﻿/**
+/**
  * dockview-core
- * @version 4.2.1
+ * @version 5.1.0
  * @link https://github.com/mathuo/dockview
  * @license MIT
  */
@@ -174,7 +174,7 @@ class Emitter {
                         if (index > -1) {
                             this._listeners.splice(index, 1);
                         }
-                        else if (Emitter.ENABLE_TRACKING);
+                        else if (Emitter.ENABLE_TRACKING) ;
                     },
                 };
             };
@@ -185,7 +185,10 @@ class Emitter {
         return this._event;
     }
     fire(e) {
-        this._last = e;
+        var _a;
+        if ((_a = this.options) === null || _a === void 0 ? void 0 : _a.replay) {
+            this._last = e;
+        }
         for (const listener of this._listeners) {
             listener.callback(e);
         }
@@ -293,10 +296,13 @@ class CompositeDisposable {
     }
     constructor(...args) {
         this._isDisposed = false;
-        this._disposables = args;
+        this._disposables = new Set(args);
     }
     addDisposables(...args) {
-        args.forEach((arg) => this._disposables.push(arg));
+        args.forEach((arg) => this._disposables.add(arg));
+    }
+    removeDisposable(disposable) {
+        this._disposables.delete(disposable);
     }
     dispose() {
         if (this._isDisposed) {
@@ -304,7 +310,7 @@ class CompositeDisposable {
         }
         this._isDisposed = true;
         this._disposables.forEach((arg) => arg.dispose());
-        this._disposables = [];
+        this._disposables.clear();
     }
 }
 class MutableDisposable {
@@ -589,14 +595,22 @@ class Classnames {
 }
 const DEBOUCE_DELAY = 100;
 function isChildEntirelyVisibleWithinParent(child, parent) {
-    //
     const childPosition = getDomNodePagePosition(child);
     const parentPosition = getDomNodePagePosition(parent);
+    // Check horizontal visibility
     if (childPosition.left < parentPosition.left) {
         return false;
     }
     if (childPosition.left + childPosition.width >
         parentPosition.left + parentPosition.width) {
+        return false;
+    }
+    // Check vertical visibility
+    if (childPosition.top < parentPosition.top) {
+        return false;
+    }
+    if (childPosition.top + childPosition.height >
+        parentPosition.top + parentPosition.height) {
         return false;
     }
     return true;
@@ -635,6 +649,42 @@ function onDidWindowResizeEnd(element, cb) {
         }, DEBOUCE_DELAY);
     }));
     return disposable;
+}
+function shiftAbsoluteElementIntoView(element, root, options = { buffer: 10 }) {
+    const buffer = options.buffer;
+    const rect = element.getBoundingClientRect();
+    const rootRect = root.getBoundingClientRect();
+    let translateX = 0;
+    let translateY = 0;
+    const left = rect.left - rootRect.left;
+    const top = rect.top - rootRect.top;
+    const bottom = rect.bottom - rootRect.bottom;
+    const right = rect.right - rootRect.right;
+    // Check horizontal overflow
+    if (left < buffer) {
+        translateX = buffer - left;
+    }
+    else if (right > buffer) {
+        translateX = -buffer - right;
+    }
+    // Check vertical overflow
+    if (top < buffer) {
+        translateY = buffer - top;
+    }
+    else if (bottom > buffer) {
+        translateY = -bottom - buffer;
+    }
+    // Apply the translation if needed
+    if (translateX !== 0 || translateY !== 0) {
+        element.style.transform = `translate(${translateX}px, ${translateY}px)`;
+    }
+}
+function findRelativeZIndexParent(el) {
+    let tmp = el;
+    while (tmp && (tmp.style.zIndex === 'auto' || tmp.style.zIndex === '')) {
+        tmp = tmp.parentElement;
+    }
+    return tmp;
 }
 
 function tail(arr) {
@@ -1035,7 +1085,7 @@ class Splitview {
                     };
                 const view = viewDescriptor.view;
                 this.addView(view, sizing, index, true
-                    // true skip layout
+                // true skip layout
                 );
             });
             // Initialize content size and proportions for first layout
@@ -1223,11 +1273,13 @@ class Splitview {
                     document.removeEventListener('pointermove', onPointerMove);
                     document.removeEventListener('pointerup', end);
                     document.removeEventListener('pointercancel', end);
+                    document.removeEventListener('contextmenu', end);
                     this._onDidSashEnd.fire(undefined);
                 };
                 document.addEventListener('pointermove', onPointerMove);
                 document.addEventListener('pointerup', end);
                 document.addEventListener('pointercancel', end);
+                document.addEventListener('contextmenu', end);
             };
             sash.addEventListener('pointerdown', onPointerStart);
             const sashItem = {
@@ -1409,8 +1461,8 @@ class Splitview {
             const offset = i === 0 || visiblePanelsBeforeThisView === 0
                 ? 0
                 : viewLeftOffsets[i - 1] +
-                (visiblePanelsBeforeThisView / sashCount) *
-                marginReducedSize;
+                    (visiblePanelsBeforeThisView / sashCount) *
+                        marginReducedSize;
             if (i < this.viewItems.length - 1) {
                 // calculate sash position
                 const newSize = view.visible
@@ -2093,6 +2145,19 @@ function findLeaf(candiateNode, last) {
     }
     throw new Error('invalid node');
 }
+function cloneNode(node, size, orthogonalSize) {
+    if (node instanceof BranchNode) {
+        const result = new BranchNode(node.orientation, node.proportionalLayout, node.styles, size, orthogonalSize, node.disabled, node.margin);
+        for (let i = node.children.length - 1; i >= 0; i--) {
+            const child = node.children[i];
+            result.addChild(cloneNode(child, child.size, child.orthogonalSize), child.size, 0, true);
+        }
+        return result;
+    }
+    else {
+        return new LeafNode(node.view, node.orientation, orthogonalSize);
+    }
+}
 function flipNode(node, size, orthogonalSize) {
     if (node instanceof BranchNode) {
         const result = new BranchNode(orthogonal(node.orientation), node.proportionalLayout, node.styles, size, orthogonalSize, node.disabled, node.margin);
@@ -2415,8 +2480,8 @@ class Gridview {
                 };
             });
             result = new BranchNode(orientation, this.proportionalLayout, this.styles, node.size, // <- orthogonal size - flips at each depth
-                orthogonalSize, // <- size - flips at each depth,
-                this.locked, this.margin, children);
+            orthogonalSize, // <- size - flips at each depth,
+            this.locked, this.margin, children);
         }
         else {
             const view = deserializer.fromJSON(node);
@@ -2443,6 +2508,29 @@ class Gridview {
             this._onDidChange.fire(e);
         });
     }
+    normalize() {
+        if (!this._root) {
+            return;
+        }
+        if (this._root.children.length !== 1) {
+            return;
+        }
+        const oldRoot = this.root;
+        // can remove one level of redundant branching if there is only a single child
+        const childReference = oldRoot.children[0];
+        if (childReference instanceof LeafNode) {
+            return;
+        }
+        oldRoot.element.remove();
+        const child = oldRoot.removeChild(0); // Remove child to prevent double disposal
+        oldRoot.dispose(); // Dispose old root (won't dispose removed child)
+        child.dispose(); // Dispose the removed child
+        this._root = cloneNode(childReference, childReference.size, childReference.orthogonalSize);
+        this.element.appendChild(this._root.element);
+        this.disposable.value = this._root.onDidChange((e) => {
+            this._onDidChange.fire(e);
+        });
+    }
     /**
      * If the root is orientated as a VERTICAL node then nest the existing root within a new HORIZIONTAL root node
      * If the root is orientated as a HORIZONTAL node then nest the existing root within a new VERITCAL root node
@@ -2454,7 +2542,7 @@ class Gridview {
         const oldRoot = this.root;
         oldRoot.element.remove();
         this._root = new BranchNode(orthogonal(oldRoot.orientation), this.proportionalLayout, this.styles, this.root.orthogonalSize, this.root.size, this.locked, this.margin);
-        if (oldRoot.children.length === 0);
+        if (oldRoot.children.length === 0) ;
         else if (oldRoot.children.length === 1) {
             // can remove one level of redundant branching if there is only a single child
             const childReference = oldRoot.children[0];
@@ -2462,13 +2550,13 @@ class Gridview {
             child.dispose();
             oldRoot.dispose();
             this._root.addChild(
-                /**
-                 * the child node will have the same orientation as the new root since
-                 * we are removing the inbetween node.
-                 * the entire 'tree' must be flipped recursively to ensure that the orientation
-                 * flips at each level
-                 */
-                flipNode(childReference, childReference.orthogonalSize, childReference.size), Sizing.Distribute, 0);
+            /**
+             * the child node will have the same orientation as the new root since
+             * we are removing the inbetween node.
+             * the entire 'tree' must be flipped recursively to ensure that the orientation
+             * flips at each level
+             */
+            flipNode(childReference, childReference.orthogonalSize, childReference.size), Sizing.Distribute, 0);
         }
         else {
             this._root.addChild(oldRoot, Sizing.Distribute, 0);
@@ -2881,7 +2969,7 @@ class BaseGrid extends Resizable {
     }
     updateOptions(options) {
         var _a, _b, _c, _d;
-        if (typeof options.proportionalLayout === 'boolean');
+        if (typeof options.proportionalLayout === 'boolean') ;
         if (options.orientation) {
             this.gridview.orientation = options.orientation;
         }
@@ -3580,6 +3668,9 @@ class DockviewApi {
     get onDidPopoutGroupPositionChange() {
         return this.component.onDidPopoutGroupPositionChange;
     }
+    get onDidOpenPopoutWindowFail() {
+        return this.component.onDidOpenPopoutWindowFail;
+    }
     /**
      * All panel objects.
      */
@@ -3670,8 +3761,8 @@ class DockviewApi {
     /**
      * Create a component from a serialized object.
      */
-    fromJSON(data) {
-        this.component.fromJSON(data);
+    fromJSON(data, options) {
+        this.component.fromJSON(data, options);
     }
     /**
      * Create a serialized object of the current component.
@@ -3727,9 +3818,10 @@ class DockviewApi {
 }
 
 class DragHandler extends CompositeDisposable {
-    constructor(el) {
+    constructor(el, disabled) {
         super();
         this.el = el;
+        this.disabled = disabled;
         this.dataDisposable = new MutableDisposable();
         this.pointerEventsDisposable = new MutableDisposable();
         this._onDragStart = new Emitter();
@@ -3737,12 +3829,17 @@ class DragHandler extends CompositeDisposable {
         this.addDisposables(this._onDragStart, this.dataDisposable, this.pointerEventsDisposable);
         this.configure();
     }
+    setDisabled(disabled) {
+        this.disabled = disabled;
+    }
     isCancelled(_event) {
         return false;
     }
     configure() {
         this.addDisposables(this._onDragStart, addDisposableListener(this.el, 'dragstart', (event) => {
-            if (event.defaultPrevented || this.isCancelled(event)) {
+            if (event.defaultPrevented ||
+                this.isCancelled(event) ||
+                this.disabled) {
                 event.preventDefault();
                 return;
             }
@@ -3831,6 +3928,48 @@ class DragAndDropObserver extends CompositeDisposable {
     }
 }
 
+function setGPUOptimizedBounds(element, bounds) {
+    const { top, left, width, height } = bounds;
+    const topPx = `${Math.round(top)}px`;
+    const leftPx = `${Math.round(left)}px`;
+    const widthPx = `${Math.round(width)}px`;
+    const heightPx = `${Math.round(height)}px`;
+    // Use traditional positioning but maintain GPU layer
+    element.style.top = topPx;
+    element.style.left = leftPx;
+    element.style.width = widthPx;
+    element.style.height = heightPx;
+    element.style.visibility = 'visible';
+    // Ensure GPU layer is maintained
+    if (!element.style.transform || element.style.transform === '') {
+        element.style.transform = 'translate3d(0, 0, 0)';
+    }
+}
+function setGPUOptimizedBoundsFromStrings(element, bounds) {
+    const { top, left, width, height } = bounds;
+    // Use traditional positioning but maintain GPU layer
+    element.style.top = top;
+    element.style.left = left;
+    element.style.width = width;
+    element.style.height = height;
+    element.style.visibility = 'visible';
+    // Ensure GPU layer is maintained
+    if (!element.style.transform || element.style.transform === '') {
+        element.style.transform = 'translate3d(0, 0, 0)';
+    }
+}
+function checkBoundsChanged(element, bounds) {
+    const { top, left, width, height } = bounds;
+    const topPx = `${Math.round(top)}px`;
+    const leftPx = `${Math.round(left)}px`;
+    const widthPx = `${Math.round(width)}px`;
+    const heightPx = `${Math.round(height)}px`;
+    // Check if position or size changed (back to traditional method)
+    return (element.style.top !== topPx ||
+        element.style.left !== leftPx ||
+        element.style.width !== widthPx ||
+        element.style.height !== heightPx);
+}
 class WillShowOverlayEvent extends DockviewEvent {
     get nativeEvent() {
         return this.options.nativeEvent;
@@ -3914,9 +4053,9 @@ class Droptarget extends CompositeDisposable {
             onDragOver: (e) => {
                 var _a, _b, _c, _d, _e, _f, _g;
                 Droptarget.ACTUAL_TARGET = this;
-                const overrideTraget = (_b = (_a = this.options).getOverrideTarget) === null || _b === void 0 ? void 0 : _b.call(_a);
+                const overrideTarget = (_b = (_a = this.options).getOverrideTarget) === null || _b === void 0 ? void 0 : _b.call(_a);
                 if (this._acceptedTargetZonesSet.size === 0) {
-                    if (overrideTraget) {
+                    if (overrideTarget) {
                         return;
                     }
                     this.removeDropTarget();
@@ -3943,7 +4082,7 @@ class Droptarget extends CompositeDisposable {
                     return;
                 }
                 if (!this.options.canDisplayOverlay(e, quadrant)) {
-                    if (overrideTraget) {
+                    if (overrideTarget) {
                         return;
                     }
                     this.removeDropTarget();
@@ -3963,7 +4102,7 @@ class Droptarget extends CompositeDisposable {
                     return;
                 }
                 this.markAsUsed(e);
-                if (overrideTraget);
+                if (overrideTarget) ;
                 else if (!this.targetElement) {
                     this.targetElement = document.createElement('div');
                     this.targetElement.className = 'dv-drop-target-dropzone';
@@ -4112,21 +4251,11 @@ class Droptarget extends CompositeDisposable {
                 box.left = rootLeft + width - 4;
                 box.width = 4;
             }
-            const topPx = `${Math.round(box.top)}px`;
-            const leftPx = `${Math.round(box.left)}px`;
-            const widthPx = `${Math.round(box.width)}px`;
-            const heightPx = `${Math.round(box.height)}px`;
-            if (overlay.style.top === topPx &&
-                overlay.style.left === leftPx &&
-                overlay.style.width === widthPx &&
-                overlay.style.height === heightPx) {
+            // Use GPU-optimized bounds checking and setting
+            if (!checkBoundsChanged(overlay, box)) {
                 return;
             }
-            overlay.style.top = topPx;
-            overlay.style.left = leftPx;
-            overlay.style.width = widthPx;
-            overlay.style.height = heightPx;
-            overlay.style.visibility = 'visible';
+            setGPUOptimizedBounds(overlay, box);
             overlay.className = `dv-drop-target-anchor${this.options.className ? ` ${this.options.className}` : ''}`;
             toggleClass(overlay, 'dv-drop-target-left', isLeft);
             toggleClass(overlay, 'dv-drop-target-right', isRight);
@@ -4178,10 +4307,7 @@ class Droptarget extends CompositeDisposable {
             box.top = `${100 * (1 - size)}%`;
             box.height = `${100 * size}%`;
         }
-        this.overlayElement.style.top = box.top;
-        this.overlayElement.style.left = box.left;
-        this.overlayElement.style.width = box.width;
-        this.overlayElement.style.height = box.height;
+        setGPUOptimizedBoundsFromStrings(this.overlayElement, box);
         toggleClass(this.overlayElement, 'dv-drop-target-small-vertical', isSmallY);
         toggleClass(this.overlayElement, 'dv-drop-target-small-horizontal', isSmallX);
         toggleClass(this.overlayElement, 'dv-drop-target-left', isLeft);
@@ -4869,6 +4995,7 @@ class ContentContainer extends CompositeDisposable {
         }
         if (doRender) {
             const focusTracker = trackFocus(container);
+            this.focusTracker = focusTracker;
             const disposable = new CompositeDisposable();
             disposable.addDisposables(focusTracker, focusTracker.onDidFocus(() => this._onDidFocus.fire()), focusTracker.onDidBlur(() => this._onDidBlur.fire()));
             this.disposable.value = disposable;
@@ -4896,12 +5023,24 @@ class ContentContainer extends CompositeDisposable {
         this.disposable.dispose();
         super.dispose();
     }
+    /**
+     * Refresh the focus tracker state to handle cases where focus state
+     * gets out of sync due to programmatic panel activation
+     */
+    refreshFocusState() {
+        var _a;
+        if ((_a = this.focusTracker) === null || _a === void 0 ? void 0 : _a.refreshState) {
+            this.focusTracker.refreshState();
+        }
+    }
 }
 
 function addGhostImage(dataTransfer, ghostElement, options) {
     var _a, _b;
     // class dockview provides to force ghost image to be drawn on a different layer and prevent weird rendering issues
     addClasses(ghostElement, 'dv-dragged');
+    // move the element off-screen initially otherwise it may in some cases be rendered at (0,0) momentarily
+    ghostElement.style.top = '-9999px';
     document.body.appendChild(ghostElement);
     dataTransfer.setDragImage(ghostElement, (_a = options === null || options === void 0 ? void 0 : options.x) !== null && _a !== void 0 ? _a : 0, (_b = options === null || options === void 0 ? void 0 : options.y) !== null && _b !== void 0 ? _b : 0);
     setTimeout(() => {
@@ -4911,8 +5050,8 @@ function addGhostImage(dataTransfer, ghostElement, options) {
 }
 
 class TabDragHandler extends DragHandler {
-    constructor(element, accessor, group, panel) {
-        super(element);
+    constructor(element, accessor, group, panel, disabled) {
+        super(element, disabled);
         this.accessor = accessor;
         this.group = group;
         this.panel = panel;
@@ -4946,9 +5085,9 @@ class Tab extends CompositeDisposable {
         this._element = document.createElement('div');
         this._element.className = 'dv-tab';
         this._element.tabIndex = 0;
-        this._element.draggable = true;
+        this._element.draggable = !this.accessor.options.disableDnd;
         toggleClass(this.element, 'dv-inactive-tab', true);
-        const dragHandler = new TabDragHandler(this._element, this.accessor, this.group, this.panel);
+        this.dragHandler = new TabDragHandler(this._element, this.accessor, this.group, this.panel, !!this.accessor.options.disableDnd);
         this.dropTarget = new Droptarget(this._element, {
             acceptedTargetZones: ['left', 'right'],
             overlayModel: { activationSize: { value: 50, type: 'percentage' } },
@@ -4965,7 +5104,7 @@ class Tab extends CompositeDisposable {
             getOverrideTarget: () => { var _a; return (_a = group.model.dropTargetContainer) === null || _a === void 0 ? void 0 : _a.model; },
         });
         this.onWillShowOverlay = this.dropTarget.onWillShowOverlay;
-        this.addDisposables(this._onPointDown, this._onDropped, this._onDragStart, dragHandler.onDragStart((event) => {
+        this.addDisposables(this._onPointDown, this._onDropped, this._onDragStart, this.dragHandler.onDragStart((event) => {
             if (event.dataTransfer) {
                 const style = getComputedStyle(this.element);
                 const newNode = this.element.cloneNode(true);
@@ -4977,7 +5116,7 @@ class Tab extends CompositeDisposable {
                 });
             }
             this._onDragStart.fire(event);
-        }), dragHandler, addDisposableListener(this._element, 'pointerdown', (event) => {
+        }), this.dragHandler, addDisposableListener(this._element, 'pointerdown', (event) => {
             this._onPointDown.fire(event);
         }), this.dropTarget.onDrop((event) => {
             this._onDropped.fire(event);
@@ -4994,14 +5133,52 @@ class Tab extends CompositeDisposable {
         this.content = part;
         this._element.appendChild(this.content.element);
     }
+    updateDragAndDropState() {
+        this._element.draggable = !this.accessor.options.disableDnd;
+        this.dragHandler.setDisabled(!!this.accessor.options.disableDnd);
+    }
     dispose() {
         super.dispose();
     }
 }
 
+class DockviewWillShowOverlayLocationEvent {
+    get kind() {
+        return this.options.kind;
+    }
+    get nativeEvent() {
+        return this.event.nativeEvent;
+    }
+    get position() {
+        return this.event.position;
+    }
+    get defaultPrevented() {
+        return this.event.defaultPrevented;
+    }
+    get panel() {
+        return this.options.panel;
+    }
+    get api() {
+        return this.options.api;
+    }
+    get group() {
+        return this.options.group;
+    }
+    preventDefault() {
+        this.event.preventDefault();
+    }
+    getData() {
+        return this.options.getData();
+    }
+    constructor(event, options) {
+        this.event = event;
+        this.options = options;
+    }
+}
+
 class GroupDragHandler extends DragHandler {
-    constructor(element, accessor, group) {
-        super(element);
+    constructor(element, accessor, group, disabled) {
+        super(element, disabled);
         this.accessor = accessor;
         this.group = group;
         this.panelTransfer = LocalSelectionTransfer.getInstance();
@@ -5065,12 +5242,13 @@ class VoidContainer extends CompositeDisposable {
         this.onDragStart = this._onDragStart.event;
         this._element = document.createElement('div');
         this._element.className = 'dv-void-container';
-        this._element.draggable = true;
+        this._element.draggable = !this.accessor.options.disableDnd;
+        toggleClass(this._element, 'dv-draggable', !this.accessor.options.disableDnd);
         this.addDisposables(this._onDrop, this._onDragStart, addDisposableListener(this._element, 'pointerdown', () => {
             this.accessor.doSetGroupActive(this.group);
         }));
-        const handler = new GroupDragHandler(this._element, accessor, group);
-        this.dropTraget = new Droptarget(this._element, {
+        this.handler = new GroupDragHandler(this._element, accessor, group, !!this.accessor.options.disableDnd);
+        this.dropTarget = new Droptarget(this._element, {
             acceptedTargetZones: ['center'],
             canDisplayOverlay: (event, position) => {
                 const data = getPanelData();
@@ -5081,12 +5259,17 @@ class VoidContainer extends CompositeDisposable {
             },
             getOverrideTarget: () => { var _a; return (_a = group.model.dropTargetContainer) === null || _a === void 0 ? void 0 : _a.model; },
         });
-        this.onWillShowOverlay = this.dropTraget.onWillShowOverlay;
-        this.addDisposables(handler, handler.onDragStart((event) => {
+        this.onWillShowOverlay = this.dropTarget.onWillShowOverlay;
+        this.addDisposables(this.handler, this.handler.onDragStart((event) => {
             this._onDragStart.fire(event);
-        }), this.dropTraget.onDrop((event) => {
+        }), this.dropTarget.onDrop((event) => {
             this._onDrop.fire(event);
-        }), this.dropTraget);
+        }), this.dropTarget);
+    }
+    updateDragAndDropState() {
+        this._element.draggable = !this.accessor.options.disableDnd;
+        toggleClass(this._element, 'dv-draggable', !this.accessor.options.disableDnd);
+        this.handler.setDisabled(!!this.accessor.options.disableDnd);
     }
 }
 
@@ -5094,30 +5277,56 @@ class Scrollbar extends CompositeDisposable {
     get element() {
         return this._element;
     }
+    get orientation() {
+        return this._orientation;
+    }
+    set orientation(value) {
+        if (this._orientation === value) {
+            return;
+        }
+        this._scrollOffset = 0;
+        this._orientation = value;
+        removeClasses(this._scrollbar, 'dv-scrollbar-vertical', 'dv-scrollbar-horizontal');
+        if (value === 'vertical') {
+            addClasses(this._scrollbar, 'dv-scrollbar-vertical');
+        }
+        else {
+            addClasses(this._scrollbar, 'dv-scrollbar-horizontal');
+        }
+    }
     constructor(scrollableElement) {
         super();
         this.scrollableElement = scrollableElement;
-        this._scrollLeft = 0;
+        this._scrollOffset = 0;
+        this._orientation = 'horizontal';
         this._element = document.createElement('div');
         this._element.className = 'dv-scrollable';
-        this._horizontalScrollbar = document.createElement('div');
-        this._horizontalScrollbar.className = 'dv-scrollbar-horizontal';
+        this._scrollbar = document.createElement('div');
+        this._scrollbar.className = 'dv-scrollbar dv-scrollbar-horizontal';
         this.element.appendChild(scrollableElement);
-        this.element.appendChild(this._horizontalScrollbar);
+        this.element.appendChild(this._scrollbar);
         this.addDisposables(addDisposableListener(this.element, 'wheel', (event) => {
-            this._scrollLeft += event.deltaY * Scrollbar.MouseWheelSpeed;
+            this._scrollOffset += event.deltaY * Scrollbar.MouseWheelSpeed;
             this.calculateScrollbarStyles();
-        }), addDisposableListener(this._horizontalScrollbar, 'pointerdown', (event) => {
+        }), addDisposableListener(this._scrollbar, 'pointerdown', (event) => {
             event.preventDefault();
             toggleClass(this.element, 'dv-scrollable-scrolling', true);
-            const originalClientX = event.clientX;
-            const originalScrollLeft = this._scrollLeft;
+            const originalClient = this._orientation === 'horizontal'
+                ? event.clientX
+                : event.clientY;
+            const originalScrollOffset = this._scrollOffset;
             const onPointerMove = (event) => {
-                const deltaX = event.clientX - originalClientX;
-                const { clientWidth } = this.element;
-                const { scrollWidth } = this.scrollableElement;
-                const p = clientWidth / scrollWidth;
-                this._scrollLeft = originalScrollLeft + deltaX / p;
+                const delta = this._orientation === 'horizontal'
+                    ? event.clientX - originalClient
+                    : event.clientY - originalClient;
+                const clientSize = this._orientation === 'horizontal'
+                    ? this.element.clientWidth
+                    : this.element.clientHeight;
+                const scrollSize = this._orientation === 'horizontal'
+                    ? this.scrollableElement.scrollWidth
+                    : this.scrollableElement.scrollHeight;
+                const p = clientSize / scrollSize;
+                this._scrollOffset = originalScrollOffset + delta / p;
                 this.calculateScrollbarStyles();
             };
             const onEnd = () => {
@@ -5132,7 +5341,10 @@ class Scrollbar extends CompositeDisposable {
         }), addDisposableListener(this.element, 'scroll', () => {
             this.calculateScrollbarStyles();
         }), addDisposableListener(this.scrollableElement, 'scroll', () => {
-            this._scrollLeft = this.scrollableElement.scrollLeft;
+            this._scrollOffset =
+                this._orientation === 'horizontal'
+                    ? this.scrollableElement.scrollLeft
+                    : this.scrollableElement.scrollTop;
             this.calculateScrollbarStyles();
         }), watchElementResize(this.element, () => {
             toggleClass(this.element, 'dv-scrollable-resizing', true);
@@ -5147,21 +5359,50 @@ class Scrollbar extends CompositeDisposable {
         }));
     }
     calculateScrollbarStyles() {
-        const { clientWidth } = this.element;
-        const { scrollWidth } = this.scrollableElement;
-        const hasScrollbar = scrollWidth > clientWidth;
+        const clientSize = this._orientation === 'horizontal'
+            ? this.element.clientWidth
+            : this.element.clientHeight;
+        const scrollSize = this._orientation === 'horizontal'
+            ? this.scrollableElement.scrollWidth
+            : this.scrollableElement.scrollHeight;
+        const hasScrollbar = scrollSize > clientSize;
         if (hasScrollbar) {
-            const px = clientWidth * (clientWidth / scrollWidth);
-            this._horizontalScrollbar.style.width = `${px}px`;
-            this._scrollLeft = clamp(this._scrollLeft, 0, this.scrollableElement.scrollWidth - clientWidth);
-            this.scrollableElement.scrollLeft = this._scrollLeft;
-            const percentageComplete = this._scrollLeft / (scrollWidth - clientWidth);
-            this._horizontalScrollbar.style.left = `${(clientWidth - px) * percentageComplete}px`;
+            const px = clientSize * (clientSize / scrollSize);
+            if (this._orientation === 'horizontal') {
+                this._scrollbar.style.width = `${px}px`;
+                this._scrollbar.style.height = '';
+            }
+            else {
+                this._scrollbar.style.height = `${px}px`;
+                this._scrollbar.style.width = '';
+            }
+            this._scrollOffset = clamp(this._scrollOffset, 0, scrollSize - clientSize);
+            if (this._orientation === 'horizontal') {
+                this.scrollableElement.scrollLeft = this._scrollOffset;
+            }
+            else {
+                this.scrollableElement.scrollTop = this._scrollOffset;
+            }
+            const percentageComplete = this._scrollOffset / (scrollSize - clientSize);
+            if (this._orientation === 'horizontal') {
+                this._scrollbar.style.left = `${(clientSize - px) * percentageComplete}px`;
+                this._scrollbar.style.top = '';
+            }
+            else {
+                this._scrollbar.style.top = `${(clientSize - px) * percentageComplete}px`;
+                this._scrollbar.style.left = '';
+            }
         }
         else {
-            this._horizontalScrollbar.style.width = `0px`;
-            this._horizontalScrollbar.style.left = `0px`;
-            this._scrollLeft = 0;
+            if (this._orientation === 'horizontal') {
+                this._scrollbar.style.width = '0px';
+                this._scrollbar.style.left = '0px';
+            }
+            else {
+                this._scrollbar.style.height = '0px';
+                this._scrollbar.style.top = '0px';
+            }
+            this._scrollOffset = 0;
         }
     }
 }
@@ -5198,14 +5439,36 @@ class Tabs extends CompositeDisposable {
     get tabs() {
         return this._tabs.map((_) => _.value);
     }
+    get direction() {
+        return this._direction;
+    }
+    set direction(value) {
+        if (this._direction === value) {
+            return;
+        }
+        this._direction = value;
+        if (this._scrollbar) {
+            this._scrollbar.orientation = value;
+        }
+        removeClasses(this._tabsList, 'dv-horizontal', 'dv-vertical');
+        if (value === 'vertical') {
+            addClasses(this._tabsList, 'dv-tabs-container-vertical', 'dv-vertical');
+        }
+        else {
+            removeClasses(this._tabsList, 'dv-tabs-container-vertical');
+            addClasses(this._tabsList, 'dv-horizontal');
+        }
+    }
     constructor(group, accessor, options) {
         super();
         this.group = group;
         this.accessor = accessor;
         this._observerDisposable = new MutableDisposable();
+        this._scrollbar = null;
         this._tabs = [];
         this.selectedIndex = -1;
         this._showTabsOverflowControl = false;
+        this._direction = 'horizontal';
         this._onTabDragStart = new Emitter();
         this.onTabDragStart = this._onTabDragStart.event;
         this._onDrop = new Emitter();
@@ -5215,15 +5478,16 @@ class Tabs extends CompositeDisposable {
         this._onOverflowTabsChange = new Emitter();
         this.onOverflowTabsChange = this._onOverflowTabsChange.event;
         this._tabsList = document.createElement('div');
-        this._tabsList.className = 'dv-tabs-container dv-horizontal';
+        this._tabsList.className = 'dv-tabs-container';
         this.showTabsOverflowControl = options.showTabsOverflowControl;
         if (accessor.options.scrollbars === 'native') {
             this._element = this._tabsList;
         }
         else {
-            const scrollbar = new Scrollbar(this._tabsList);
-            this._element = scrollbar.element;
-            this.addDisposables(scrollbar);
+            this._scrollbar = new Scrollbar(this._tabsList);
+            this._scrollbar.orientation = this.direction;
+            this._element = this._scrollbar.element;
+            this.addDisposables(this._scrollbar);
         }
         this.addDisposables(this._onOverflowTabsChange, this._observerDisposable, this._onWillShowOverlay, this._onDrop, this._onTabDragStart, addDisposableListener(this.element, 'pointerdown', (event) => {
             if (event.defaultPrevented) {
@@ -5258,7 +5522,7 @@ class Tabs extends CompositeDisposable {
                 const parentElement = element.parentElement;
                 if (runningWidth < parentElement.scrollLeft ||
                     runningWidth + element.clientWidth >
-                    parentElement.scrollLeft + parentElement.clientWidth) {
+                        parentElement.scrollLeft + parentElement.clientWidth) {
                     parentElement.scrollLeft = runningWidth;
                 }
             }
@@ -5307,7 +5571,7 @@ class Tabs extends CompositeDisposable {
                 index: this._tabs.findIndex((x) => x.value === tab),
             });
         }), tab.onWillShowOverlay((event) => {
-            this._onWillShowOverlay.fire(new WillShowOverlayLocationEvent(event, {
+            this._onWillShowOverlay.fire(new DockviewWillShowOverlayLocationEvent(event, {
                 kind: 'tab',
                 panel: this.group.activePanel,
                 api: this.accessor.api,
@@ -5347,6 +5611,11 @@ class Tabs extends CompositeDisposable {
                 .filter((tab) => !isChildEntirelyVisibleWithinParent(tab.value.element, this._tabsList))
                 .map((x) => x.value.panel.id);
         this._onOverflowTabsChange.fire({ tabs, reset: options.reset });
+    }
+    updateDragAndDropState() {
+        for (const tab of this._tabs) {
+            tab.value.updateDragAndDropState();
+        }
     }
 }
 
@@ -5415,6 +5684,22 @@ class TabsContainer extends CompositeDisposable {
         this._hidden = value;
         this.element.style.display = value ? 'none' : '';
     }
+    get direction() {
+        return this._direction;
+    }
+    set direction(value) {
+        this._direction = value;
+        if (value === 'vertical') {
+            addClasses(this._element, 'dv-groupview-header-vertical');
+            addClasses(this.rightActionsContainer, 'dv-right-actions-container-vertical');
+            this.tabs.direction = value;
+        }
+        else {
+            removeClasses(this._element, 'dv-groupview-header-vertical');
+            removeClasses(this.rightActionsContainer, 'dv-right-actions-container-vertical');
+            this.tabs.direction = value;
+        }
+    }
     get element() {
         return this._element;
     }
@@ -5423,6 +5708,7 @@ class TabsContainer extends CompositeDisposable {
         this.accessor = accessor;
         this.group = group;
         this._hidden = false;
+        this._direction = 'horizontal';
         this.dropdownPart = null;
         this._overflowTabs = [];
         this._dropdownDisposable = new MutableDisposable();
@@ -5466,7 +5752,7 @@ class TabsContainer extends CompositeDisposable {
                 index: this.tabs.size,
             });
         }), this.voidContainer.onWillShowOverlay((event) => {
-            this._onWillShowOverlay.fire(new WillShowOverlayLocationEvent(event, {
+            this._onWillShowOverlay.fire(new DockviewWillShowOverlayLocationEvent(event, {
                 kind: 'header_space',
                 panel: this.group.activePanel,
                 api: this.accessor.api,
@@ -5602,19 +5888,30 @@ class TabsContainer extends CompositeDisposable {
                 toggleClass(wrapper, 'dv-tab', true);
                 toggleClass(wrapper, 'dv-active-tab', panelObject.api.isActive);
                 toggleClass(wrapper, 'dv-inactive-tab', !panelObject.api.isActive);
-                wrapper.addEventListener('mousedown', () => {
+                wrapper.addEventListener('click', (event) => {
                     this.accessor.popupService.close();
+                    if (event.defaultPrevented) {
+                        return;
+                    }
                     tab.element.scrollIntoView();
                     tab.panel.api.setActive();
                 });
                 wrapper.appendChild(child);
                 el.appendChild(wrapper);
             }
+            const relativeParent = findRelativeZIndexParent(root);
             this.accessor.popupService.openPopover(el, {
                 x: event.clientX,
                 y: event.clientY,
+                zIndex: (relativeParent === null || relativeParent === void 0 ? void 0 : relativeParent.style.zIndex)
+                    ? `calc(${relativeParent.style.zIndex} * 2)`
+                    : undefined,
             });
         }));
+    }
+    updateDragAndDropState() {
+        this.tabs.updateDragAndDropState();
+        this.voidContainer.updateDragAndDropState();
     }
 }
 
@@ -5641,6 +5938,7 @@ const PROPERTY_KEYS_DOCKVIEW = (() => {
         floatingGroupBounds: undefined,
         popoutUrl: undefined,
         defaultRenderer: undefined,
+        defaultHeaderPosition: undefined,
         debug: undefined,
         rootOverlayModel: undefined,
         locked: undefined,
@@ -5712,39 +6010,6 @@ class DockviewWillDropEvent extends DockviewDidDropEvent {
         this._kind = options.kind;
     }
 }
-class WillShowOverlayLocationEvent {
-    get kind() {
-        return this.options.kind;
-    }
-    get nativeEvent() {
-        return this.event.nativeEvent;
-    }
-    get position() {
-        return this.event.position;
-    }
-    get defaultPrevented() {
-        return this.event.defaultPrevented;
-    }
-    get panel() {
-        return this.options.panel;
-    }
-    get api() {
-        return this.options.api;
-    }
-    get group() {
-        return this.options.group;
-    }
-    preventDefault() {
-        this.event.preventDefault();
-    }
-    getData() {
-        return this.options.getData();
-    }
-    constructor(event, options) {
-        this.event = event;
-        this.options = options;
-    }
-}
 class DockviewGroupPanelModel extends CompositeDisposable {
     get element() {
         throw new Error('dockview: not supported');
@@ -5783,6 +6048,29 @@ class DockviewGroupPanelModel extends CompositeDisposable {
         }
         return isAncestor(document.activeElement, this.contentContainer.element);
     }
+    get headerPosition() {
+        var _a;
+        return (_a = this._headerPosition) !== null && _a !== void 0 ? _a : 'top';
+    }
+    set headerPosition(value) {
+        var _a;
+        this._headerPosition = value;
+        removeClasses(this.container, 'dv-groupview-header-top', 'dv-groupview-header-bottom', 'dv-groupview-header-left', 'dv-groupview-header-right');
+        addClasses(this.container, `dv-groupview-header-${value}`);
+        const direction = value === 'top' || value === 'bottom' ? 'horizontal' : 'vertical';
+        this.tabsContainer.direction = direction;
+        this.header.direction = direction;
+        // resize the active panel to fit the new header direction
+        // if not, the panel will overflow the tabs container
+        if ((_a = this._activePanel) === null || _a === void 0 ? void 0 : _a.layout) {
+            this._activePanel.layout(this._width, this._height);
+        }
+        if (this._leftHeaderActions ||
+            this._rightHeaderActions ||
+            this._prefixHeaderActions) {
+            this.updateHeaderActions();
+        }
+    }
     get location() {
         return this._location;
     }
@@ -5817,7 +6105,7 @@ class DockviewGroupPanelModel extends CompositeDisposable {
         });
     }
     constructor(container, accessor, id, options, groupPanel) {
-        var _a;
+        var _a, _b;
         super();
         this.container = container;
         this.accessor = accessor;
@@ -5826,6 +6114,9 @@ class DockviewGroupPanelModel extends CompositeDisposable {
         this.groupPanel = groupPanel;
         this._isGroupActive = false;
         this._locked = false;
+        this._rightHeaderActionsDisposable = new MutableDisposable();
+        this._leftHeaderActionsDisposable = new MutableDisposable();
+        this._prefixHeaderActionsDisposable = new MutableDisposable();
         this._location = { type: 'grid' };
         this.mostRecentlyUsed = [];
         this._overwriteRenderContainer = null;
@@ -5867,7 +6158,9 @@ class DockviewGroupPanelModel extends CompositeDisposable {
         container.append(this.tabsContainer.element, this.contentContainer.element);
         this.header.hidden = !!options.hideHeader;
         this.locked = (_a = options.locked) !== null && _a !== void 0 ? _a : false;
-        this.addDisposables(this._onTabDragStart, this._onGroupDragStart, this._onWillShowOverlay, this.tabsContainer.onTabDragStart((event) => {
+        this.headerPosition =
+            (_b = options.headerPosition) !== null && _b !== void 0 ? _b : accessor.defaultHeaderPosition;
+        this.addDisposables(this._onTabDragStart, this._onGroupDragStart, this._onWillShowOverlay, this._rightHeaderActionsDisposable, this._leftHeaderActionsDisposable, this._prefixHeaderActionsDisposable, this.tabsContainer.onTabDragStart((event) => {
             this._onTabDragStart.fire(event);
         }), this.tabsContainer.onGroupDragStart((event) => {
             this._onGroupDragStart.fire(event);
@@ -5882,7 +6175,7 @@ class DockviewGroupPanelModel extends CompositeDisposable {
         }), this.tabsContainer.onWillShowOverlay((event) => {
             this._onWillShowOverlay.fire(event);
         }), this.contentContainer.dropTarget.onWillShowOverlay((event) => {
-            this._onWillShowOverlay.fire(new WillShowOverlayLocationEvent(event, {
+            this._onWillShowOverlay.fire(new DockviewWillShowOverlayLocationEvent(event, {
                 kind: 'content',
                 panel: this.activePanel,
                 api: this._api,
@@ -5927,10 +6220,13 @@ class DockviewGroupPanelModel extends CompositeDisposable {
         // correctly initialized
         this.setActive(this.isActive, true);
         this.updateContainer();
+        this.updateHeaderActions();
+    }
+    updateHeaderActions() {
         if (this.accessor.options.createRightHeaderActionComponent) {
             this._rightHeaderActions =
                 this.accessor.options.createRightHeaderActionComponent(this.groupPanel);
-            this.addDisposables(this._rightHeaderActions);
+            this._rightHeaderActionsDisposable.value = this._rightHeaderActions;
             this._rightHeaderActions.init({
                 containerApi: this._api,
                 api: this.groupPanel.api,
@@ -5938,10 +6234,15 @@ class DockviewGroupPanelModel extends CompositeDisposable {
             });
             this.tabsContainer.setRightActionsElement(this._rightHeaderActions.element);
         }
+        else {
+            this._rightHeaderActions = undefined;
+            this._rightHeaderActionsDisposable.dispose();
+            this.tabsContainer.setRightActionsElement(undefined);
+        }
         if (this.accessor.options.createLeftHeaderActionComponent) {
             this._leftHeaderActions =
                 this.accessor.options.createLeftHeaderActionComponent(this.groupPanel);
-            this.addDisposables(this._leftHeaderActions);
+            this._leftHeaderActionsDisposable.value = this._leftHeaderActions;
             this._leftHeaderActions.init({
                 containerApi: this._api,
                 api: this.groupPanel.api,
@@ -5949,16 +6250,27 @@ class DockviewGroupPanelModel extends CompositeDisposable {
             });
             this.tabsContainer.setLeftActionsElement(this._leftHeaderActions.element);
         }
+        else {
+            this._leftHeaderActions = undefined;
+            this._leftHeaderActionsDisposable.dispose();
+            this.tabsContainer.setLeftActionsElement(undefined);
+        }
         if (this.accessor.options.createPrefixHeaderActionComponent) {
             this._prefixHeaderActions =
                 this.accessor.options.createPrefixHeaderActionComponent(this.groupPanel);
-            this.addDisposables(this._prefixHeaderActions);
+            this._prefixHeaderActionsDisposable.value =
+                this._prefixHeaderActions;
             this._prefixHeaderActions.init({
                 containerApi: this._api,
                 api: this.groupPanel.api,
                 group: this.groupPanel,
             });
             this.tabsContainer.setPrefixActionsElement(this._prefixHeaderActions.element);
+        }
+        else {
+            this._prefixHeaderActions = undefined;
+            this._prefixHeaderActionsDisposable.dispose();
+            this.tabsContainer.setPrefixActionsElement(undefined);
         }
     }
     rerender(panel) {
@@ -5979,6 +6291,9 @@ class DockviewGroupPanelModel extends CompositeDisposable {
         }
         if (this.header.hidden) {
             result.hideHeader = true;
+        }
+        if (this.headerPosition !== 'top') {
+            result.headerPosition = this.headerPosition;
         }
         return result;
     }
@@ -6177,6 +6492,9 @@ class DockviewGroupPanelModel extends CompositeDisposable {
         if (!options.skipSetActive) {
             this.contentContainer.openPanel(panel);
         }
+        else if (panel.api.renderer === 'always') {
+            this.contentContainer.renderPanel(panel, { asActive: false });
+        }
         if (hasExistingPanel) {
             // TODO - need to ensure ordering hasn't changed and if it has need to re-order this.panels
             return;
@@ -6193,8 +6511,11 @@ class DockviewGroupPanelModel extends CompositeDisposable {
         this._activePanel = panel;
         if (panel) {
             this.tabsContainer.setActivePanel(panel);
+            this.contentContainer.openPanel(panel);
             panel.layout(this._width, this._height);
             this.updateMru(panel);
+            // Refresh focus state to handle programmatic activation without DOM focus change
+            this.contentContainer.refreshFocusState();
             this._onDidActivePanelChange.fire({
                 panel,
             });
@@ -6320,6 +6641,9 @@ class DockviewGroupPanelModel extends CompositeDisposable {
                 api: this._api,
             }));
         }
+    }
+    updateDragAndDropState() {
+        this.tabsContainer.updateDragAndDropState();
     }
     dispose() {
         var _a, _b, _c;
@@ -6552,7 +6876,19 @@ class DockviewGroupPanelApiImpl extends GridviewPanelApiImpl {
         this.onDidLocationChange = this._onDidLocationChange.event;
         this._onDidActivePanelChange = new Emitter();
         this.onDidActivePanelChange = this._onDidActivePanelChange.event;
-        this.addDisposables(this._onDidLocationChange, this._onDidActivePanelChange);
+        this.addDisposables(this._onDidLocationChange, this._onDidActivePanelChange, this._onDidVisibilityChange.event((event) => {
+            // When becoming visible, apply any pending size change
+            if (event.isVisible && this._pendingSize) {
+                super.setSize(this._pendingSize);
+                this._pendingSize = undefined;
+            }
+        }));
+    }
+    setSize(event) {
+        // Always store the requested size
+        this._pendingSize = Object.assign({}, event);
+        // Apply the size change immediately
+        super.setSize(event);
     }
     close() {
         if (!this._group) {
@@ -6565,24 +6901,37 @@ class DockviewGroupPanelApiImpl extends GridviewPanelApiImpl {
             ? this.location.getWindow()
             : window;
     }
+    setHeaderPosition(position) {
+        if (!this._group) {
+            throw new Error(NOT_INITIALIZED_MESSAGE);
+        }
+        this._group.model.headerPosition = position;
+    }
+    getHeaderPosition() {
+        if (!this._group) {
+            throw new Error(NOT_INITIALIZED_MESSAGE);
+        }
+        return this._group.model.headerPosition;
+    }
     moveTo(options) {
-        var _a, _b, _c;
+        var _a, _b, _c, _d;
         if (!this._group) {
             throw new Error(NOT_INITIALIZED_MESSAGE);
         }
         const group = (_a = options.group) !== null && _a !== void 0 ? _a : this.accessor.addGroup({
             direction: positionToDirection((_b = options.position) !== null && _b !== void 0 ? _b : 'right'),
-            skipSetActive: true,
+            skipSetActive: (_c = options.skipSetActive) !== null && _c !== void 0 ? _c : false,
         });
         this.accessor.moveGroupOrPanel({
             from: { groupId: this._group.id },
             to: {
                 group,
                 position: options.group
-                    ? (_c = options.position) !== null && _c !== void 0 ? _c : 'center'
+                    ? ((_d = options.position) !== null && _d !== void 0 ? _d : 'center')
                     : 'center',
                 index: options.index,
             },
+            skipSetActive: options.skipSetActive,
         });
     }
     maximize() {
@@ -6619,6 +6968,10 @@ const MINIMUM_DOCKVIEW_GROUP_PANEL_HEIGHT = 100;
 class DockviewGroupPanel extends GridviewPanel {
     get minimumWidth() {
         var _a;
+        // Check for explicitly set group constraint first
+        if (typeof this._explicitConstraints.minimumWidth === 'number') {
+            return this._explicitConstraints.minimumWidth;
+        }
         const activePanelMinimumWidth = (_a = this.activePanel) === null || _a === void 0 ? void 0 : _a.minimumWidth;
         if (typeof activePanelMinimumWidth === 'number') {
             return activePanelMinimumWidth;
@@ -6627,6 +6980,10 @@ class DockviewGroupPanel extends GridviewPanel {
     }
     get minimumHeight() {
         var _a;
+        // Check for explicitly set group constraint first
+        if (typeof this._explicitConstraints.minimumHeight === 'number') {
+            return this._explicitConstraints.minimumHeight;
+        }
         const activePanelMinimumHeight = (_a = this.activePanel) === null || _a === void 0 ? void 0 : _a.minimumHeight;
         if (typeof activePanelMinimumHeight === 'number') {
             return activePanelMinimumHeight;
@@ -6635,6 +6992,10 @@ class DockviewGroupPanel extends GridviewPanel {
     }
     get maximumWidth() {
         var _a;
+        // Check for explicitly set group constraint first
+        if (typeof this._explicitConstraints.maximumWidth === 'number') {
+            return this._explicitConstraints.maximumWidth;
+        }
         const activePanelMaximumWidth = (_a = this.activePanel) === null || _a === void 0 ? void 0 : _a.maximumWidth;
         if (typeof activePanelMaximumWidth === 'number') {
             return activePanelMaximumWidth;
@@ -6643,6 +7004,10 @@ class DockviewGroupPanel extends GridviewPanel {
     }
     get maximumHeight() {
         var _a;
+        // Check for explicitly set group constraint first
+        if (typeof this._explicitConstraints.maximumHeight === 'number') {
+            return this._explicitConstraints.maximumHeight;
+        }
         const activePanelMaximumHeight = (_a = this.activePanel) === null || _a === void 0 ? void 0 : _a.maximumHeight;
         if (typeof activePanelMaximumHeight === 'number') {
             return activePanelMaximumHeight;
@@ -6674,14 +7039,43 @@ class DockviewGroupPanel extends GridviewPanel {
         var _a, _b, _c, _d, _e, _f;
         super(id, 'groupview_default', {
             minimumHeight: (_b = (_a = options.constraints) === null || _a === void 0 ? void 0 : _a.minimumHeight) !== null && _b !== void 0 ? _b : MINIMUM_DOCKVIEW_GROUP_PANEL_HEIGHT,
-            minimumWidth: (_d = (_c = options.constraints) === null || _c === void 0 ? void 0 : _c.maximumHeight) !== null && _d !== void 0 ? _d : MINIMUM_DOCKVIEW_GROUP_PANEL_WIDTH,
+            minimumWidth: (_d = (_c = options.constraints) === null || _c === void 0 ? void 0 : _c.minimumWidth) !== null && _d !== void 0 ? _d : MINIMUM_DOCKVIEW_GROUP_PANEL_WIDTH,
             maximumHeight: (_e = options.constraints) === null || _e === void 0 ? void 0 : _e.maximumHeight,
             maximumWidth: (_f = options.constraints) === null || _f === void 0 ? void 0 : _f.maximumWidth,
         }, new DockviewGroupPanelApiImpl(id, accessor));
+        // Track explicitly set constraints to override panel constraints
+        this._explicitConstraints = {};
         this.api.initialize(this); // cannot use 'this' after after 'super' call
         this._model = new DockviewGroupPanelModel(this.element, accessor, id, options, this);
         this.addDisposables(this.model.onDidActivePanelChange((event) => {
             this.api._onDidActivePanelChange.fire(event);
+        }), this.api.onDidConstraintsChangeInternal((event) => {
+            // Track explicitly set constraints to override panel constraints
+            // Extract numeric values from functions or values
+            if (event.minimumWidth !== undefined) {
+                this._explicitConstraints.minimumWidth =
+                    typeof event.minimumWidth === 'function'
+                        ? event.minimumWidth()
+                        : event.minimumWidth;
+            }
+            if (event.minimumHeight !== undefined) {
+                this._explicitConstraints.minimumHeight =
+                    typeof event.minimumHeight === 'function'
+                        ? event.minimumHeight()
+                        : event.minimumHeight;
+            }
+            if (event.maximumWidth !== undefined) {
+                this._explicitConstraints.maximumWidth =
+                    typeof event.maximumWidth === 'function'
+                        ? event.maximumWidth()
+                        : event.maximumWidth;
+            }
+            if (event.maximumHeight !== undefined) {
+                this._explicitConstraints.maximumHeight =
+                    typeof event.maximumHeight === 'function'
+                        ? event.maximumHeight()
+                        : event.maximumHeight;
+            }
         }));
     }
     focus() {
@@ -6810,10 +7204,11 @@ class DockviewPanelApiImpl extends GridviewPanelApiImpl {
             to: {
                 group: (_a = options.group) !== null && _a !== void 0 ? _a : this._group,
                 position: options.group
-                    ? (_b = options.position) !== null && _b !== void 0 ? _b : 'center'
+                    ? ((_b = options.position) !== null && _b !== void 0 ? _b : 'center')
                     : 'center',
                 index: options.index,
             },
+            skipSetActive: options.skipSetActive,
         });
     }
     setTitle(title) {
@@ -6976,6 +7371,18 @@ class DockviewPanel extends CompositeDisposable {
         this.view.update({
             params: this._params,
         });
+    }
+    updateFromStateModel(state) {
+        var _a, _b, _c;
+        this._maximumHeight = state.maximumHeight;
+        this._minimumHeight = state.minimumHeight;
+        this._maximumWidth = state.maximumWidth;
+        this._minimumWidth = state.minimumWidth;
+        this.update({ params: (_a = state.params) !== null && _a !== void 0 ? _a : {} });
+        this.setTitle((_b = state.title) !== null && _b !== void 0 ? _b : this.id);
+        this.setRenderer((_c = state.renderer) !== null && _c !== void 0 ? _c : this.accessor.renderer);
+        // state.contentComponent;
+        // state.tabComponent;
     }
     updateParentGroup(group, options) {
         this._group = group;
@@ -7149,7 +7556,7 @@ class DefaultDockviewDeserialzier {
         const viewData = panelData.view;
         const contentComponent = viewData
             ? viewData.content.id
-            : (_a = panelData.contentComponent) !== null && _a !== void 0 ? _a : 'unknown';
+            : ((_a = panelData.contentComponent) !== null && _a !== void 0 ? _a : 'unknown');
         const tabComponent = viewData
             ? (_b = viewData.tab) === null || _b === void 0 ? void 0 : _b.id
             : panelData.tabComponent;
@@ -7201,7 +7608,8 @@ class AriaLevelTracker {
     update() {
         for (let i = 0; i < this._orderedList.length; i++) {
             this._orderedList[i].setAttribute('aria-level', `${i}`);
-            this._orderedList[i].style.zIndex = `calc(var(--dv-overlay-z-index, 999) + ${i * 2})`;
+            this._orderedList[i].style.zIndex =
+                `calc(var(--dv-overlay-z-index, 999) + ${i * 2})`;
         }
     }
 }
@@ -7229,6 +7637,7 @@ class Overlay extends CompositeDisposable {
         this.onDidChangeEnd = this._onDidChangeEnd.event;
         this.addDisposables(this._onDidChange, this._onDidChangeEnd);
         this._element.className = 'dv-resize-container';
+        this.options.className && this._element.classList.add(this.options.className);
         this._isVisible = true;
         this.setupResize('top');
         this.setupResize('bottom');
@@ -7495,7 +7904,7 @@ class Overlay extends CompositeDisposable {
                 // const y = e.clientY - containerRect.top;
                 const clientY = e.clientY < 0 ? 0 : e.clientY;
                 const y = clientY - containerRect.top;
-                e.clientX - containerRect.left;
+                const x = e.clientX - containerRect.left;
                 let originalX = 0, originalY = 0;
                 switch (direction) {
                     case 'top':
@@ -7543,89 +7952,76 @@ class Overlay extends CompositeDisposable {
                 let right = undefined;
                 let width = undefined;
                 const moveTop = () => {
-                    // top = clamp(
-                    //     y,
-                    //     -Number.MAX_VALUE,
-                    //     startPosition!.originalY +
-                    //         startPosition!.originalHeight >
-                    //         containerRect.height
-                    //         ? this.getMinimumHeight(
-                    //               containerRect.height
-                    //           )
-                    //         : Math.max(
-                    //               0,
-                    //               startPosition!.originalY +
-                    //                   startPosition!.originalHeight -
-                    //                   Overlay.MINIMUM_HEIGHT
-                    //           )
-                    // );
+                    // When dragging top handle, constrain top position to prevent oversizing
+                    const maxTop = startPosition.originalY +
+                        startPosition.originalHeight >
+                        containerRect.height
+                        ? Math.max(0, containerRect.height -
+                            Overlay.MINIMUM_HEIGHT)
+                        : Math.max(0, startPosition.originalY +
+                            startPosition.originalHeight -
+                            Overlay.MINIMUM_HEIGHT);
+                    top = clamp(y, 0, maxTop);
                     top = clamp(y, -Number.MAX_VALUE, Math.max(0, startPosition.originalY + startPosition.originalHeight - Overlay.MINIMUM_HEIGHT));
                     height =
                         startPosition.originalY +
-                        startPosition.originalHeight -
-                        top;
+                            startPosition.originalHeight -
+                            top;
                     bottom = containerRect.height - top - height;
                 };
                 const moveBottom = () => {
                     top =
                         startPosition.originalY -
-                        startPosition.originalHeight;
-                    // height = clamp(
-                    //     y - top,
-                    //     top < 0 &&
-                    //         typeof this.options
-                    //             .minimumInViewportHeight === 'number'
-                    //         ? -top +
-                    //               this.options.minimumInViewportHeight
-                    //         : Overlay.MINIMUM_HEIGHT,
-                    //     Number.MAX_VALUE
-                    // );
+                            startPosition.originalHeight;
+                    // When dragging bottom handle, constrain height to container height
+                    const minHeight = top < 0 &&
+                        typeof this.options.minimumInViewportHeight ===
+                            'number'
+                        ? -top +
+                            this.options.minimumInViewportHeight
+                        : Overlay.MINIMUM_HEIGHT;
+                    const maxHeight = containerRect.height - Math.max(0, top);
+                    height = clamp(y - top, minHeight, maxHeight);
                     height = clamp(y - top, Overlay.MINIMUM_HEIGHT, Number.MAX_VALUE);
                     bottom = containerRect.height - top - height;
                 };
                 const moveLeft = () => {
-                    // left = clamp(
-                    //     x,
-                    //     -Number.MAX_VALUE,
-                    //     startPosition!.originalX +
-                    //         startPosition!.originalWidth >
-                    //         containerRect.width
-                    //         ? this.getMinimumWidth(containerRect.width)
-                    //         : Math.max(
-                    //               0,
-                    //               startPosition!.originalX +
-                    //                   startPosition!.originalWidth -
-                    //                   Overlay.MINIMUM_WIDTH
-                    //           )
-                    // );
+                    const maxLeft = startPosition.originalX +
+                        startPosition.originalWidth >
+                        containerRect.width
+                        ? Math.max(0, containerRect.width -
+                            Overlay.MINIMUM_WIDTH) // Prevent extending beyong right edge
+                        : Math.max(0, startPosition.originalX +
+                            startPosition.originalWidth -
+                            Overlay.MINIMUM_WIDTH);
+                    left = clamp(x, 0, maxLeft); // min is 0 (Not -Infinity) to prevent dragging beyond left edge
                     const vw = document.body.offsetWidth - 30;
                     const clientX = e.clientX < 0 ? 0 : (e.clientX > vw ? vw : e.clientX);
-                    const x = clientX - containerRect.left;
-                    left = clamp(x, -Number.MAX_VALUE, Math.max(0, startPosition.originalX + startPosition.originalWidth - Overlay.MINIMUM_WIDTH));
+                    const xx = clientX - containerRect.left;
+                    left = clamp(xx, -Number.MAX_VALUE, Math.max(0, startPosition.originalX + startPosition.originalWidth - Overlay.MINIMUM_WIDTH));
                     width =
                         startPosition.originalX +
-                        startPosition.originalWidth -
-                        left;
+                            startPosition.originalWidth -
+                            left;
                     right = containerRect.width - left - width;
                 };
                 const moveRight = () => {
                     left =
                         startPosition.originalX -
-                        startPosition.originalWidth;
-                    // width = clamp(
-                    //     x - left,
-                    //     left < 0 &&
-                    //         typeof this.options
-                    //             .minimumInViewportWidth === 'number'
-                    //         ? -left +
-                    //               this.options.minimumInViewportWidth
-                    //         : Overlay.MINIMUM_WIDTH,
-                    //     Number.MAX_VALUE
-                    // );
+                            startPosition.originalWidth;
+                    // When dragging right handle, constrain width to container width
+                    const minWidth = left < 0 &&
+                        typeof this.options.minimumInViewportWidth ===
+                            'number'
+                        ? -left +
+                            this.options.minimumInViewportWidth
+                        : Overlay.MINIMUM_WIDTH;
+                    const maxWidth = containerRect.width - Math.max(0, left);
+                    width = clamp(x - left, minWidth, maxWidth);
                     const vw = document.body.offsetWidth;
                     const clientX = e.clientX < 30 ? 30 : (e.clientX > vw ? vw : e.clientX);
-                    const x = clientX - containerRect.left;
-                    width = clamp(x - left, Overlay.MINIMUM_WIDTH, Number.MAX_VALUE);
+                    const xx = clientX - containerRect.left;
+                    width = clamp(xx - left, Overlay.MINIMUM_WIDTH, Number.MAX_VALUE);
                     right = containerRect.width - left - width;
                 };
                 switch (direction) {
@@ -7720,8 +8116,42 @@ class DockviewFloatingGroupPanel extends CompositeDisposable {
 }
 
 const DEFAULT_FLOATING_GROUP_OVERFLOW_SIZE = 100;
-const DEFAULT_FLOATING_GROUP_POSITION = { left: 100, top: 100, width: 300, height: 300 };
+const DEFAULT_FLOATING_GROUP_POSITION = {
+    left: 100,
+    top: 100,
+    width: 300,
+    height: 300,
+};
+const DESERIALIZATION_POPOUT_DELAY_MS = 100;
 
+class PositionCache {
+    constructor() {
+        this.cache = new Map();
+        this.currentFrameId = 0;
+        this.rafId = null;
+    }
+    getPosition(element) {
+        const cached = this.cache.get(element);
+        if (cached && cached.frameId === this.currentFrameId) {
+            return cached.rect;
+        }
+        this.scheduleFrameUpdate();
+        const rect = getDomNodePagePosition(element);
+        this.cache.set(element, { rect, frameId: this.currentFrameId });
+        return rect;
+    }
+    invalidate() {
+        this.currentFrameId++;
+    }
+    scheduleFrameUpdate() {
+        if (this.rafId)
+            return;
+        this.rafId = requestAnimationFrame(() => {
+            this.currentFrameId++;
+            this.rafId = null;
+        });
+    }
+}
 function createFocusableElement() {
     const element = document.createElement('div');
     element.tabIndex = -1;
@@ -7734,6 +8164,8 @@ class OverlayRenderContainer extends CompositeDisposable {
         this.accessor = accessor;
         this.map = {};
         this._disposed = false;
+        this.positionCache = new PositionCache();
+        this.pendingUpdates = new Set();
         this.addDisposables(Disposable.from(() => {
             for (const value of Object.values(this.map)) {
                 value.disposable.dispose();
@@ -7741,6 +8173,19 @@ class OverlayRenderContainer extends CompositeDisposable {
             }
             this._disposed = true;
         }));
+    }
+    updateAllPositions() {
+        if (this._disposed) {
+            return;
+        }
+        // Invalidate position cache to force recalculation
+        this.positionCache.invalidate();
+        // Call resize function directly for all visible panels
+        for (const entry of Object.values(this.map)) {
+            if (entry.panel.api.isVisible && entry.resize) {
+                entry.resize();
+            }
+        }
     }
     detatch(panel) {
         if (this.map[panel.api.id]) {
@@ -7757,6 +8202,9 @@ class OverlayRenderContainer extends CompositeDisposable {
         if (!this.map[panel.api.id]) {
             const element = createFocusableElement();
             element.className = 'dv-render-overlay';
+            // Hide until the first RAF-based position is applied to prevent a
+            // one-frame flash at position 0,0 when the element is first attached.
+            element.style.visibility = 'hidden';
             this.map[panel.api.id] = {
                 panel,
                 disposable: Disposable.NONE,
@@ -7772,17 +8220,38 @@ class OverlayRenderContainer extends CompositeDisposable {
             this.element.appendChild(focusContainer);
         }
         const resize = () => {
-            // TODO propagate position to avoid getDomNodePagePosition calls, possible performance bottleneck?
-            const box = getDomNodePagePosition(referenceContainer.element);
-            const box2 = getDomNodePagePosition(this.element);
-            focusContainer.style.left = `${box.left - box2.left}px`;
-            focusContainer.style.top = `${box.top - box2.top}px`;
-            focusContainer.style.width = `${box.width}px`;
-            focusContainer.style.height = `${box.height}px`;
-            toggleClass(focusContainer, 'dv-render-overlay-float', panel.group.api.location.type === 'floating');
+            const panelId = panel.api.id;
+            if (this.pendingUpdates.has(panelId)) {
+                return; // Update already scheduled
+            }
+            this.pendingUpdates.add(panelId);
+            requestAnimationFrame(() => {
+                this.pendingUpdates.delete(panelId);
+                if (this.isDisposed || !this.map[panelId]) {
+                    return;
+                }
+                const box = this.positionCache.getPosition(referenceContainer.element);
+                const box2 = this.positionCache.getPosition(this.element);
+                // Use traditional positioning for overlay containers
+                const left = box.left - box2.left;
+                const top = box.top - box2.top;
+                const width = box.width;
+                const height = box.height;
+                focusContainer.style.left = `${left}px`;
+                focusContainer.style.top = `${top}px`;
+                focusContainer.style.width = `${width}px`;
+                focusContainer.style.height = `${height}px`;
+                // Reveal after the first position is applied (was hidden to
+                // prevent a flash at 0,0 before the initial layout fires).
+                if (focusContainer.style.visibility === 'hidden') {
+                    focusContainer.style.visibility = '';
+                }
+                toggleClass(focusContainer, 'dv-render-overlay-float', panel.group.api.location.type === 'floating');
+            });
         };
         const visibilityChanged = () => {
             if (panel.api.isVisible) {
+                this.positionCache.invalidate();
                 resize();
             }
             focusContainer.style.display = panel.api.isVisible ? '' : 'none';
@@ -7815,45 +8284,45 @@ class OverlayRenderContainer extends CompositeDisposable {
                 focusContainer.style.zIndex = ''; // reset the z-index, perhaps CSS will take over here
             }
         };
-        const disposable = new CompositeDisposable(observerDisposable,
+        const disposable = new CompositeDisposable(observerDisposable, 
+        /**
+         * since container is positioned absoutely we must explicitly forward
+         * the dnd events for the expect behaviours to continue to occur in terms of dnd
+         *
+         * the dnd observer does not need to be conditional on whether the panel is visible since
+         * non-visible panels are 'display: none' and in such case the dnd observer will not fire.
+         */
+        new DragAndDropObserver(focusContainer, {
+            onDragEnd: (e) => {
+                referenceContainer.dropTarget.dnd.onDragEnd(e);
+            },
+            onDragEnter: (e) => {
+                referenceContainer.dropTarget.dnd.onDragEnter(e);
+            },
+            onDragLeave: (e) => {
+                referenceContainer.dropTarget.dnd.onDragLeave(e);
+            },
+            onDrop: (e) => {
+                referenceContainer.dropTarget.dnd.onDrop(e);
+            },
+            onDragOver: (e) => {
+                referenceContainer.dropTarget.dnd.onDragOver(e);
+            },
+        }), panel.api.onDidVisibilityChange(() => {
             /**
-             * since container is positioned absoutely we must explicitly forward
-             * the dnd events for the expect behaviours to continue to occur in terms of dnd
-             *
-             * the dnd observer does not need to be conditional on whether the panel is visible since
-             * non-visible panels are 'display: none' and in such case the dnd observer will not fire.
+             * Control the visibility of the content, however even when not visible (display: none)
+             * the content is still maintained within the DOM hence DOM specific attributes
+             * such as scroll position are maintained when next made visible.
              */
-            new DragAndDropObserver(focusContainer, {
-                onDragEnd: (e) => {
-                    referenceContainer.dropTarget.dnd.onDragEnd(e);
-                },
-                onDragEnter: (e) => {
-                    referenceContainer.dropTarget.dnd.onDragEnter(e);
-                },
-                onDragLeave: (e) => {
-                    referenceContainer.dropTarget.dnd.onDragLeave(e);
-                },
-                onDrop: (e) => {
-                    referenceContainer.dropTarget.dnd.onDrop(e);
-                },
-                onDragOver: (e) => {
-                    referenceContainer.dropTarget.dnd.onDragOver(e);
-                },
-            }), panel.api.onDidVisibilityChange(() => {
-                /**
-                 * Control the visibility of the content, however even when not visible (display: none)
-                 * the content is still maintained within the DOM hence DOM specific attributes
-                 * such as scroll position are maintained when next made visible.
-                 */
-                visibilityChanged();
-            }), panel.api.onDidDimensionsChange(() => {
-                if (!panel.api.isVisible) {
-                    return;
-                }
-                resize();
-            }), panel.api.onDidLocationChange(() => {
-                correctLayerPosition();
-            }));
+            visibilityChanged();
+        }), panel.api.onDidDimensionsChange(() => {
+            if (!panel.api.isVisible) {
+                return;
+            }
+            resize();
+        }), panel.api.onDidLocationChange(() => {
+            correctLayerPosition();
+        }));
         this.map[panel.api.id].destroy = Disposable.from(() => {
             var _a;
             if (panel.view.content.element.parentElement === focusContainer) {
@@ -7877,6 +8346,8 @@ class OverlayRenderContainer extends CompositeDisposable {
         this.map[panel.api.id].disposable.dispose();
         // and reset the disposable to the active reference-container
         this.map[panel.api.id].disposable = disposable;
+        // store the resize function for direct access
+        this.map[panel.api.id].resize = resize;
         return focusContainer;
     }
 }
@@ -7895,7 +8366,7 @@ LOSS OF USE, DATA OR PROFITS, WHETHER IN AN ACTION OF CONTRACT, NEGLIGENCE OR
 OTHER TORTIOUS ACTION, ARISING OUT OF OR IN CONNECTION WITH THE USE OR
 PERFORMANCE OF THIS SOFTWARE.
 ***************************************************************************** */
-/* global Reflect, Promise, SuppressedError, Symbol */
+/* global Reflect, Promise, SuppressedError, Symbol, Iterator */
 
 
 function __awaiter(thisArg, _arguments, P, generator) {
@@ -7958,8 +8429,8 @@ class PopoutWindow extends CompositeDisposable {
         }
     }
     open() {
-        var _a, _b;
         return __awaiter(this, void 0, void 0, function* () {
+            var _a, _b;
             if (this._window) {
                 throw new Error('instance of popout window is already open');
             }
@@ -8106,10 +8577,11 @@ class PopupService extends CompositeDisposable {
         }), this._activeDisposable);
     }
     openPopover(element, position) {
+        var _a;
         this.close();
         const wrapper = document.createElement('div');
         wrapper.style.position = 'absolute';
-        wrapper.style.zIndex = '99';
+        wrapper.style.zIndex = (_a = position.zIndex) !== null && _a !== void 0 ? _a : 'var(--dv-overlay-z-index)';
         wrapper.appendChild(element);
         const anchorBox = this._element.getBoundingClientRect();
         const offsetX = anchorBox.left;
@@ -8132,7 +8604,12 @@ class PopupService extends CompositeDisposable {
                 return; // clicked within popover
             }
             this.close();
+        }), addDisposableListener(window, 'resize', () => {
+            this.close();
         }));
+        requestAnimationFrame(() => {
+            shiftAbsoluteElementIntoView(wrapper, this.root);
+        });
     }
     close() {
         if (this._active) {
@@ -8259,11 +8736,22 @@ class DockviewComponent extends BaseGrid {
         var _a;
         return (_a = this.options.defaultRenderer) !== null && _a !== void 0 ? _a : 'onlyWhenVisible';
     }
+    get defaultHeaderPosition() {
+        var _a;
+        return (_a = this.options.defaultHeaderPosition) !== null && _a !== void 0 ? _a : 'top';
+    }
     get api() {
         return this._api;
     }
     get floatingGroups() {
         return this._floatingGroups;
+    }
+    /**
+     * Promise that resolves when all popout groups from the last fromJSON call are restored.
+     * Useful for tests that need to wait for delayed popout creation.
+     */
+    get popoutRestorationPromise() {
+        return this._popoutRestorationPromise;
     }
     constructor(container, options) {
         var _a, _b, _c;
@@ -8301,9 +8789,11 @@ class DockviewComponent extends BaseGrid {
         this.onDidPopoutGroupSizeChange = this._onDidPopoutGroupSizeChange.event;
         this._onDidPopoutGroupPositionChange = new Emitter();
         this.onDidPopoutGroupPositionChange = this._onDidPopoutGroupPositionChange.event;
+        this._onDidOpenPopoutWindowFail = new Emitter();
+        this.onDidOpenPopoutWindowFail = this._onDidOpenPopoutWindowFail.event;
         this._onDidLayoutFromJSON = new Emitter();
         this.onDidLayoutFromJSON = this._onDidLayoutFromJSON.event;
-        this._onDidActivePanelChange = new Emitter();
+        this._onDidActivePanelChange = new Emitter({ replay: true });
         this.onDidActivePanelChange = this._onDidActivePanelChange.event;
         this._onDidMovePanel = new Emitter();
         this.onDidMovePanel = this._onDidMovePanel.event;
@@ -8311,6 +8801,7 @@ class DockviewComponent extends BaseGrid {
         this.onDidMaximizedGroupChange = this._onDidMaximizedGroupChange.event;
         this._floatingGroups = [];
         this._popoutGroups = [];
+        this._popoutRestorationPromise = Promise.resolve();
         this._onDidRemoveGroup = new Emitter();
         this.onDidRemoveGroup = this._onDidRemoveGroup.event;
         this._onDidAddGroup = new Emitter();
@@ -8365,7 +8856,14 @@ class DockviewComponent extends BaseGrid {
         if (options.debug) {
             this.addDisposables(new StrictEventsSequencing(this));
         }
-        this.addDisposables(this.rootDropTargetContainer, this.overlayRenderContainer, this._onWillDragPanel, this._onWillDragGroup, this._onWillShowOverlay, this._onDidActivePanelChange, this._onDidAddPanel, this._onDidRemovePanel, this._onDidLayoutFromJSON, this._onDidDrop, this._onWillDrop, this._onDidMovePanel, this._onDidAddGroup, this._onDidRemoveGroup, this._onDidActiveGroupChange, this._onUnhandledDragOverEvent, this._onDidMaximizedGroupChange, this._onDidOptionsChange, this._onDidPopoutGroupSizeChange, this._onDidPopoutGroupPositionChange, this.onDidViewVisibilityChangeMicroTaskQueue(() => {
+        this.addDisposables(this.rootDropTargetContainer, this.overlayRenderContainer, this._onWillDragPanel, this._onWillDragGroup, this._onWillShowOverlay, this._onDidActivePanelChange, this._onDidAddPanel, this._onDidRemovePanel, this._onDidLayoutFromJSON, this._onDidDrop, this._onWillDrop, this._onDidMovePanel, this._onDidMovePanel.event(() => {
+            /**
+             * Update overlay positions after DOM layout completes to prevent 0×0 dimensions.
+             * With defaultRenderer="always" this results in panel content not showing after move operations.
+             * Debounced to avoid multiple calls when moving groups with multiple panels.
+             */
+            this.debouncedUpdateAllPositions();
+        }), this._onDidAddGroup, this._onDidRemoveGroup, this._onDidActiveGroupChange, this._onUnhandledDragOverEvent, this._onDidMaximizedGroupChange, this._onDidOptionsChange, this._onDidPopoutGroupSizeChange, this._onDidPopoutGroupPositionChange, this._onDidOpenPopoutWindowFail, this.onDidViewVisibilityChangeMicroTaskQueue(() => {
             this.updateWatermark();
         }), this.onDidAdd((event) => {
             if (!this._moving) {
@@ -8402,7 +8900,7 @@ class DockviewComponent extends BaseGrid {
                 // option only available when no panels in primary grid
                 return;
             }
-            this._onWillShowOverlay.fire(new WillShowOverlayLocationEvent(event, {
+            this._onWillShowOverlay.fire(new DockviewWillShowOverlayLocationEvent(event, {
                 kind: 'edge',
                 panel: undefined,
                 api: this._api,
@@ -8496,7 +8994,7 @@ class DockviewComponent extends BaseGrid {
         const box = getBox();
         const groupId = (_b = (_a = options === null || options === void 0 ? void 0 : options.overridePopoutGroup) === null || _a === void 0 ? void 0 : _a.id) !== null && _b !== void 0 ? _b : this.getNextGroupId();
         const _window = new PopoutWindow(`${this.id}-${groupId}`, // unique id
-            theme !== null && theme !== void 0 ? theme : '', {
+        theme !== null && theme !== void 0 ? theme : '', {
             url: (_e = (_c = options === null || options === void 0 ? void 0 : options.popoutUrl) !== null && _c !== void 0 ? _c : (_d = this.options) === null || _d === void 0 ? void 0 : _d.popoutUrl) !== null && _e !== void 0 ? _e : '/popout.html',
             left: window.screenX + box.left,
             top: window.screenY + box.top,
@@ -8511,196 +9009,211 @@ class DockviewComponent extends BaseGrid {
         return _window
             .open()
             .then((popoutContainer) => {
-                var _a;
-                if (_window.isDisposed) {
-                    return false;
-                }
-                if (popoutContainer === null) {
-                    popoutWindowDisposable.dispose();
-                    return false;
-                }
-                const gready = document.createElement('div');
-                gready.className = 'dv-overlay-render-container';
-                const overlayRenderContainer = new OverlayRenderContainer(gready, this);
-                const referenceGroup = itemToPopout instanceof DockviewPanel
+            var _a;
+            if (_window.isDisposed) {
+                return false;
+            }
+            const referenceGroup = (options === null || options === void 0 ? void 0 : options.referenceGroup)
+                ? options.referenceGroup
+                : itemToPopout instanceof DockviewPanel
                     ? itemToPopout.group
                     : itemToPopout;
-                const referenceLocation = itemToPopout.api.location.type;
-                /**
-                 * The group that is being added doesn't already exist within the DOM, the most likely occurance
-                 * of this case is when being called from the `fromJSON(...)` method
-                 */
-                const isGroupAddedToDom = referenceGroup.element.parentElement !== null;
-                let group;
-                if (!isGroupAddedToDom) {
-                    group = referenceGroup;
-                }
-                else if (options === null || options === void 0 ? void 0 : options.overridePopoutGroup) {
-                    group = options.overridePopoutGroup;
-                }
-                else {
-                    group = this.createGroup({ id: groupId });
+            const referenceLocation = itemToPopout.api.location.type;
+            /**
+             * The group that is being added doesn't already exist within the DOM, the most likely occurrence
+             * of this case is when being called from the `fromJSON(...)` method
+             */
+            const isGroupAddedToDom = referenceGroup.element.parentElement !== null;
+            let group;
+            if (!isGroupAddedToDom) {
+                group = referenceGroup;
+            }
+            else if (options === null || options === void 0 ? void 0 : options.overridePopoutGroup) {
+                group = options.overridePopoutGroup;
+            }
+            else {
+                group = this.createGroup({ id: groupId });
+                if (popoutContainer) {
                     this._onDidAddGroup.fire(group);
                 }
-                group.model.renderContainer = overlayRenderContainer;
+            }
+            if (popoutContainer === null) {
+                console.error('dockview: failed to create popout. perhaps you need to allow pop-ups for this website');
+                popoutWindowDisposable.dispose();
+                this._onDidOpenPopoutWindowFail.fire();
+                // if the popout window was blocked, we need to move the group back to the reference group
+                // and set it to visible
+                this.movingLock(() => moveGroupWithoutDestroying({
+                    from: group,
+                    to: referenceGroup,
+                }));
+                if (!referenceGroup.api.isVisible) {
+                    referenceGroup.api.setVisible(true);
+                }
+                return false;
+            }
+            const gready = document.createElement('div');
+            gready.className = 'dv-overlay-render-container';
+            const overlayRenderContainer = new OverlayRenderContainer(gready, this);
+            group.model.renderContainer = overlayRenderContainer;
+            group.layout(_window.window.innerWidth, _window.window.innerHeight);
+            let floatingBox;
+            if (!(options === null || options === void 0 ? void 0 : options.overridePopoutGroup) && isGroupAddedToDom) {
+                if (itemToPopout instanceof DockviewPanel) {
+                    this.movingLock(() => {
+                        const panel = referenceGroup.model.removePanel(itemToPopout);
+                        group.model.openPanel(panel);
+                    });
+                }
+                else {
+                    this.movingLock(() => moveGroupWithoutDestroying({
+                        from: referenceGroup,
+                        to: group,
+                    }));
+                    switch (referenceLocation) {
+                        case 'grid':
+                            referenceGroup.api.setVisible(false);
+                            break;
+                        case 'floating':
+                        case 'popout':
+                            floatingBox = (_a = this._floatingGroups
+                                .find((value) => value.group.api.id ===
+                                itemToPopout.api.id)) === null || _a === void 0 ? void 0 : _a.overlay.toJSON();
+                            this.removeGroup(referenceGroup);
+                            break;
+                    }
+                }
+            }
+            popoutContainer.classList.add('dv-dockview');
+            popoutContainer.style.overflow = 'hidden';
+            popoutContainer.appendChild(gready);
+            popoutContainer.appendChild(group.element);
+            const anchor = document.createElement('div');
+            const dropTargetContainer = new DropTargetAnchorContainer(anchor, { disabled: this.rootDropTargetContainer.disabled });
+            popoutContainer.appendChild(anchor);
+            group.model.dropTargetContainer = dropTargetContainer;
+            group.model.location = {
+                type: 'popout',
+                getWindow: () => _window.window,
+                popoutUrl: options === null || options === void 0 ? void 0 : options.popoutUrl,
+            };
+            if (isGroupAddedToDom &&
+                itemToPopout.api.location.type === 'grid') {
+                itemToPopout.api.setVisible(false);
+            }
+            this.doSetGroupAndPanelActive(group);
+            popoutWindowDisposable.addDisposables(group.api.onDidActiveChange((event) => {
+                var _a;
+                if (event.isActive) {
+                    (_a = _window.window) === null || _a === void 0 ? void 0 : _a.focus();
+                }
+            }), group.api.onWillFocus(() => {
+                var _a;
+                (_a = _window.window) === null || _a === void 0 ? void 0 : _a.focus();
+            }));
+            let returnedGroup;
+            const isValidReferenceGroup = isGroupAddedToDom &&
+                referenceGroup &&
+                this.getPanel(referenceGroup.id);
+            const value = {
+                window: _window,
+                popoutGroup: group,
+                referenceGroup: isValidReferenceGroup
+                    ? referenceGroup.id
+                    : undefined,
+                disposable: {
+                    dispose: () => {
+                        popoutWindowDisposable.dispose();
+                        return returnedGroup;
+                    },
+                },
+            };
+            const _onDidWindowPositionChange = onDidWindowMoveEnd(_window.window);
+            popoutWindowDisposable.addDisposables(_onDidWindowPositionChange, onDidWindowResizeEnd(_window.window, () => {
+                this._onDidPopoutGroupSizeChange.fire({
+                    width: _window.window.innerWidth,
+                    height: _window.window.innerHeight,
+                    group,
+                });
+            }), _onDidWindowPositionChange.event(() => {
+                this._onDidPopoutGroupPositionChange.fire({
+                    screenX: _window.window.screenX,
+                    screenY: _window.window.screenX,
+                    group,
+                });
+            }), 
+            /**
+             * ResizeObserver seems slow here, I do not know why but we don't need it
+             * since we can reply on the window resize event as we will occupy the full
+             * window dimensions
+             */
+            addDisposableListener(_window.window, 'resize', () => {
                 group.layout(_window.window.innerWidth, _window.window.innerHeight);
-                let floatingBox;
-                if (!(options === null || options === void 0 ? void 0 : options.overridePopoutGroup) && isGroupAddedToDom) {
-                    if (itemToPopout instanceof DockviewPanel) {
-                        this.movingLock(() => {
-                            const panel = referenceGroup.model.removePanel(itemToPopout);
-                            group.model.openPanel(panel);
+            }), overlayRenderContainer, Disposable.from(() => {
+                if (this.isDisposed) {
+                    return; // cleanup may run after instance is disposed
+                }
+                if (isGroupAddedToDom &&
+                    this.getPanel(referenceGroup.id)) {
+                    this.movingLock(() => moveGroupWithoutDestroying({
+                        from: group,
+                        to: referenceGroup,
+                    }));
+                    if (!referenceGroup.api.isVisible) {
+                        referenceGroup.api.setVisible(true);
+                    }
+                    if (this.getPanel(group.id)) {
+                        this.doRemoveGroup(group, {
+                            skipPopoutAssociated: true,
+                        });
+                    }
+                }
+                else if (this.getPanel(group.id)) {
+                    group.model.renderContainer =
+                        this.overlayRenderContainer;
+                    group.model.dropTargetContainer =
+                        this.rootDropTargetContainer;
+                    returnedGroup = group;
+                    const alreadyRemoved = !this._popoutGroups.find((p) => p.popoutGroup === group);
+                    if (alreadyRemoved) {
+                        /**
+                         * If this popout group was explicitly removed then we shouldn't run the additional
+                         * steps. To tell if the running of this disposable is the result of this popout group
+                         * being explicitly removed we can check if this popout group is still referenced in
+                         * the `this._popoutGroups` list.
+                         */
+                        return;
+                    }
+                    if (floatingBox) {
+                        this.addFloatingGroup(group, {
+                            height: floatingBox.height,
+                            width: floatingBox.width,
+                            position: floatingBox,
                         });
                     }
                     else {
-                        this.movingLock(() => moveGroupWithoutDestroying({
-                            from: referenceGroup,
-                            to: group,
-                        }));
-                        switch (referenceLocation) {
-                            case 'grid':
-                                referenceGroup.api.setVisible(false);
-                                break;
-                            case 'floating':
-                            case 'popout':
-                                floatingBox = (_a = this._floatingGroups
-                                    .find((value) => value.group.api.id ===
-                                        itemToPopout.api.id)) === null || _a === void 0 ? void 0 : _a.overlay.toJSON();
-                                this.removeGroup(referenceGroup);
-                                break;
-                        }
+                        this.doRemoveGroup(group, {
+                            skipDispose: true,
+                            skipActive: true,
+                            skipPopoutReturn: true,
+                        });
+                        group.model.location = { type: 'grid' };
+                        this.movingLock(() => {
+                            // suppress group add events since the group already exists
+                            this.doAddGroup(group, [0]);
+                        });
                     }
+                    this.doSetGroupAndPanelActive(group);
                 }
-                popoutContainer.classList.add('dv-dockview');
-                popoutContainer.style.overflow = 'hidden';
-                popoutContainer.appendChild(gready);
-                popoutContainer.appendChild(group.element);
-                const anchor = document.createElement('div');
-                const dropTargetContainer = new DropTargetAnchorContainer(anchor, { disabled: this.rootDropTargetContainer.disabled });
-                popoutContainer.appendChild(anchor);
-                group.model.dropTargetContainer = dropTargetContainer;
-                group.model.location = {
-                    type: 'popout',
-                    getWindow: () => _window.window,
-                    popoutUrl: options === null || options === void 0 ? void 0 : options.popoutUrl,
-                };
-                if (isGroupAddedToDom &&
-                    itemToPopout.api.location.type === 'grid') {
-                    itemToPopout.api.setVisible(false);
-                }
-                this.doSetGroupAndPanelActive(group);
-                popoutWindowDisposable.addDisposables(group.api.onDidActiveChange((event) => {
-                    var _a;
-                    if (event.isActive) {
-                        (_a = _window.window) === null || _a === void 0 ? void 0 : _a.focus();
-                    }
-                }), group.api.onWillFocus(() => {
-                    var _a;
-                    (_a = _window.window) === null || _a === void 0 ? void 0 : _a.focus();
-                }));
-                let returnedGroup;
-                const isValidReferenceGroup = isGroupAddedToDom &&
-                    referenceGroup &&
-                    this.getPanel(referenceGroup.id);
-                const value = {
-                    window: _window,
-                    popoutGroup: group,
-                    referenceGroup: isValidReferenceGroup
-                        ? referenceGroup.id
-                        : undefined,
-                    disposable: {
-                        dispose: () => {
-                            popoutWindowDisposable.dispose();
-                            return returnedGroup;
-                        },
-                    },
-                };
-                const _onDidWindowPositionChange = onDidWindowMoveEnd(_window.window);
-                popoutWindowDisposable.addDisposables(_onDidWindowPositionChange, onDidWindowResizeEnd(_window.window, () => {
-                    this._onDidPopoutGroupSizeChange.fire({
-                        width: _window.window.innerWidth,
-                        height: _window.window.innerHeight,
-                        group,
-                    });
-                }), _onDidWindowPositionChange.event(() => {
-                    this._onDidPopoutGroupPositionChange.fire({
-                        screenX: _window.window.screenX,
-                        screenY: _window.window.screenX,
-                        group,
-                    });
-                }),
-                    /**
-                     * ResizeObserver seems slow here, I do not know why but we don't need it
-                     * since we can reply on the window resize event as we will occupy the full
-                     * window dimensions
-                     */
-                    addDisposableListener(_window.window, 'resize', () => {
-                        group.layout(_window.window.innerWidth, _window.window.innerHeight);
-                    }), overlayRenderContainer, Disposable.from(() => {
-                        if (this.isDisposed) {
-                            return; // cleanup may run after instance is disposed
-                        }
-                        if (isGroupAddedToDom &&
-                            this.getPanel(referenceGroup.id)) {
-                            this.movingLock(() => moveGroupWithoutDestroying({
-                                from: group,
-                                to: referenceGroup,
-                            }));
-                            if (!referenceGroup.api.isVisible) {
-                                referenceGroup.api.setVisible(true);
-                            }
-                            if (this.getPanel(group.id)) {
-                                this.doRemoveGroup(group, {
-                                    skipPopoutAssociated: true,
-                                });
-                            }
-                        }
-                        else if (this.getPanel(group.id)) {
-                            group.model.renderContainer =
-                                this.overlayRenderContainer;
-                            group.model.dropTargetContainer =
-                                this.rootDropTargetContainer;
-                            returnedGroup = group;
-                            const alreadyRemoved = !this._popoutGroups.find((p) => p.popoutGroup === group);
-                            if (alreadyRemoved) {
-                                /**
-                                 * If this popout group was explicitly removed then we shouldn't run the additional
-                                 * steps. To tell if the running of this disposable is the result of this popout group
-                                 * being explicitly removed we can check if this popout group is still referenced in
-                                 * the `this._popoutGroups` list.
-                                 */
-                                return;
-                            }
-                            if (floatingBox) {
-                                this.addFloatingGroup(group, {
-                                    height: floatingBox.height,
-                                    width: floatingBox.width,
-                                    position: floatingBox,
-                                });
-                            }
-                            else {
-                                this.doRemoveGroup(group, {
-                                    skipDispose: true,
-                                    skipActive: true,
-                                    skipPopoutReturn: true,
-                                });
-                                group.model.location = { type: 'grid' };
-                                this.movingLock(() => {
-                                    // suppress group add events since the group already exists
-                                    this.doAddGroup(group, [0]);
-                                });
-                            }
-                            this.doSetGroupAndPanelActive(group);
-                        }
-                    }));
-                this._popoutGroups.push(value);
-                this.updateWatermark();
-                return true;
-            })
+            }));
+            this._popoutGroups.push(value);
+            this.updateWatermark();
+            return true;
+        })
             .catch((err) => {
-                console.error('dockview: failed to create popout window', err);
-                return false;
-            });
+            console.error('dockview: failed to create popout.', err);
+            return false;
+        });
     }
     addFloatingGroup(item, options) {
         var _a, _b, _c, _d, _e;
@@ -8802,16 +9315,14 @@ class DockviewComponent extends BaseGrid {
             };
         }
         const anchoredBox = getAnchoredBox();
-        const overlay = new Overlay(Object.assign(Object.assign({ container: this.gridview.element, content: group.element }, anchoredBox), {
-            minimumInViewportWidth: this.options.floatingGroupBounds === 'boundedWithinViewport'
+        const overlay = new Overlay(Object.assign(Object.assign({ container: this.gridview.element, content: group.element, className: options === null || options === void 0 ? void 0 : options.className }, anchoredBox), { minimumInViewportWidth: this.options.floatingGroupBounds === 'boundedWithinViewport'
                 ? undefined
-                : (_c = (_b = this.options.floatingGroupBounds) === null || _b === void 0 ? void 0 : _b.minimumWidthWithinViewport) !== null && _c !== void 0 ? _c : DEFAULT_FLOATING_GROUP_OVERFLOW_SIZE, minimumInViewportHeight: this.options.floatingGroupBounds === 'boundedWithinViewport'
-                    ? undefined
-                    : (_e = (_d = this.options.floatingGroupBounds) === null || _d === void 0 ? void 0 : _d.minimumHeightWithinViewport) !== null && _e !== void 0 ? _e : DEFAULT_FLOATING_GROUP_OVERFLOW_SIZE
-        }));
+                : ((_c = (_b = this.options.floatingGroupBounds) === null || _b === void 0 ? void 0 : _b.minimumWidthWithinViewport) !== null && _c !== void 0 ? _c : DEFAULT_FLOATING_GROUP_OVERFLOW_SIZE), minimumInViewportHeight: this.options.floatingGroupBounds === 'boundedWithinViewport'
+                ? undefined
+                : ((_e = (_d = this.options.floatingGroupBounds) === null || _d === void 0 ? void 0 : _d.minimumHeightWithinViewport) !== null && _e !== void 0 ? _e : DEFAULT_FLOATING_GROUP_OVERFLOW_SIZE) }));
         const el = group.element.querySelector('.dv-void-container');
         if (!el) {
-            throw new Error('failed to find drag handle');
+            throw new Error('dockview: failed to find drag handle');
         }
         overlay.setupDrag(el, {
             inDragMode: typeof (options === null || options === void 0 ? void 0 : options.inDragMode) === 'boolean'
@@ -8855,6 +9366,7 @@ class DockviewComponent extends BaseGrid {
         this.updateWatermark();
     }
     orthogonalize(position, options) {
+        this.gridview.normalize();
         switch (position) {
             case 'top':
             case 'bottom':
@@ -8882,7 +9394,7 @@ class DockviewComponent extends BaseGrid {
             case 'right':
                 return this.createGroupAtLocation([this.gridview.length], options === null || options === void 0 ? void 0 : options.size, options); // insert into last position
             default:
-                throw new Error(`unsupported position ${position}`);
+                throw new Error(`dockview: unsupported position ${position}`);
         }
     }
     updateOptions(options) {
@@ -8911,9 +9423,21 @@ class DockviewComponent extends BaseGrid {
             }
         }
         this.updateDropTargetModel(options);
+        const oldDisableDnd = this.options.disableDnd;
         this._options = Object.assign(Object.assign({}, this.options), options);
+        const newDisableDnd = this.options.disableDnd;
+        if (oldDisableDnd !== newDisableDnd) {
+            this.updateDragAndDropState();
+        }
         if ('theme' in options) {
             this.updateTheme();
+        }
+        if ('createRightHeaderActionComponent' in options ||
+            'createLeftHeaderActionComponent' in options ||
+            'createPrefixHeaderActionComponent' in options) {
+            for (const group of this.groups) {
+                group.model.updateHeaderActions();
+            }
         }
         this.layout(this.gridview.width, this.gridview.height, true);
     }
@@ -8924,6 +9448,12 @@ class DockviewComponent extends BaseGrid {
                 // ensure floting groups stay within visible boundaries
                 floating.overlay.setBounds();
             }
+        }
+    }
+    updateDragAndDropState() {
+        // Update draggable state for all tabs and void containers
+        for (const group of this.groups) {
+            group.model.updateDragAndDropState();
         }
     }
     focus() {
@@ -9017,29 +9547,63 @@ class DockviewComponent extends BaseGrid {
         }
         return result;
     }
-    fromJSON(data) {
-        var _a, _b, _c;
+    fromJSON(data, options) {
+        var _a, _b;
+        const existingPanels = new Map();
+        let tempGroup;
+        if (options === null || options === void 0 ? void 0 : options.reuseExistingPanels) {
+            /**
+             * What are we doing here?
+             *
+             * 1. Create a temporary group to hold any panels that currently exist and that also exist in the new layout
+             * 2. Remove that temporary group from the group mapping so that it doesn't get cleared when we clear the layout
+             */
+            tempGroup = this.createGroup();
+            this._groups.delete(tempGroup.api.id);
+            const newPanels = Object.keys(data.panels);
+            for (const panel of this.panels) {
+                if (newPanels.includes(panel.api.id)) {
+                    existingPanels.set(panel.api.id, panel);
+                }
+            }
+            this.movingLock(() => {
+                Array.from(existingPanels.values()).forEach((panel) => {
+                    this.moveGroupOrPanel({
+                        from: {
+                            groupId: panel.api.group.api.id,
+                            panelId: panel.api.id,
+                        },
+                        to: {
+                            group: tempGroup,
+                            position: 'center',
+                        },
+                        keepEmptyGroups: true,
+                    });
+                });
+            });
+        }
         this.clear();
         if (typeof data !== 'object' || data === null) {
-            throw new Error('serialized layout must be a non-null object');
+            throw new Error('dockview: serialized layout must be a non-null object');
         }
         const { grid, panels, activeGroup } = data;
         if (grid.root.type !== 'branch' || !Array.isArray(grid.root.data)) {
-            throw new Error('root must be of type branch');
+            throw new Error('dockview: root must be of type branch');
         }
         try {
             // take note of the existing dimensions
             const width = this.width;
             const height = this.height;
             const createGroupFromSerializedState = (data) => {
-                const { id, locked, hideHeader, views, activeView } = data;
+                const { id, locked, hideHeader, headerPosition, views, activeView, } = data;
                 if (typeof id !== 'string') {
-                    throw new Error('group id must be of type string');
+                    throw new Error('dockview: group id must be of type string');
                 }
                 const group = this.createGroup({
                     id,
                     locked: !!locked,
                     hideHeader: !!hideHeader,
+                    headerPosition,
                 });
                 this._onDidAddGroup.fire(group);
                 const createdPanels = [];
@@ -9049,17 +9613,38 @@ class DockviewComponent extends BaseGrid {
                      * In running this section first we avoid firing lots of 'add' events in the event of a failure
                      * due to a corruption of input data.
                      */
-                    const panel = this._deserializer.fromJSON(panels[child], group);
-                    createdPanels.push(panel);
+                    const existingPanel = existingPanels.get(child);
+                    if (tempGroup && existingPanel) {
+                        this.movingLock(() => {
+                            tempGroup.model.removePanel(existingPanel);
+                        });
+                        createdPanels.push(existingPanel);
+                        existingPanel.updateFromStateModel(panels[child]);
+                    }
+                    else {
+                        const panel = this._deserializer.fromJSON(panels[child], group);
+                        createdPanels.push(panel);
+                    }
                 }
                 for (let i = 0; i < views.length; i++) {
                     const panel = createdPanels[i];
                     const isActive = typeof activeView === 'string' &&
                         activeView === panel.id;
-                    group.model.openPanel(panel, {
-                        skipSetActive: !isActive,
-                        skipSetGroupActive: true,
-                    });
+                    const hasExisting = existingPanels.has(panel.api.id);
+                    if (hasExisting) {
+                        this.movingLock(() => {
+                            group.model.openPanel(panel, {
+                                skipSetActive: !isActive,
+                                skipSetGroupActive: true,
+                            });
+                        });
+                    }
+                    else {
+                        group.model.openPanel(panel, {
+                            skipSetActive: !isActive,
+                            skipSetGroupActive: true,
+                        });
+                    }
                 }
                 if (!group.activePanel && group.panels.length > 0) {
                     group.model.openPanel(group.panels[group.panels.length - 1], {
@@ -9087,19 +9672,32 @@ class DockviewComponent extends BaseGrid {
                 });
             }
             const serializedPopoutGroups = (_b = data.popoutGroups) !== null && _b !== void 0 ? _b : [];
-            for (const serializedPopoutGroup of serializedPopoutGroups) {
+            // Create a promise that resolves when all popout groups are created
+            const popoutPromises = [];
+            // Queue popup group creation with delays to avoid browser blocking
+            serializedPopoutGroups.forEach((serializedPopoutGroup, index) => {
                 const { data, position, gridReferenceGroup, url } = serializedPopoutGroup;
                 const group = createGroupFromSerializedState(data);
-                this.addPopoutGroup((_c = (gridReferenceGroup
-                    ? this.getPanel(gridReferenceGroup)
-                    : undefined)) !== null && _c !== void 0 ? _c : group, {
-                    position: position !== null && position !== void 0 ? position : undefined,
-                    overridePopoutGroup: gridReferenceGroup
-                        ? group
-                        : undefined,
-                    popoutUrl: url,
+                // Add a small delay for each popup after the first to avoid browser popup blocking
+                const popoutPromise = new Promise((resolve) => {
+                    setTimeout(() => {
+                        this.addPopoutGroup(group, {
+                            position: position !== null && position !== void 0 ? position : undefined,
+                            overridePopoutGroup: gridReferenceGroup
+                                ? group
+                                : undefined,
+                            referenceGroup: gridReferenceGroup
+                                ? this.getPanel(gridReferenceGroup)
+                                : undefined,
+                            popoutUrl: url,
+                        });
+                        resolve();
+                    }, index * DESERIALIZATION_POPOUT_DELAY_MS); // 100ms delay between each popup
                 });
-            }
+                popoutPromises.push(popoutPromise);
+            });
+            // Store the promise for tests to wait on
+            this._popoutRestorationPromise = Promise.all(popoutPromises).then(() => void 0);
             for (const floatingGroup of this._floatingGroups) {
                 floatingGroup.overlay.setBounds();
             }
@@ -9146,6 +9744,8 @@ class DockviewComponent extends BaseGrid {
             throw err;
         }
         this.updateWatermark();
+        // Force position updates for always visible panels after DOM layout is complete
+        this.debouncedUpdateAllPositions();
         this._onDidLayoutFromJSON.fire();
     }
     clear() {
@@ -9169,11 +9769,11 @@ class DockviewComponent extends BaseGrid {
     addPanel(options) {
         var _a, _b;
         if (this.panels.find((_) => _.id === options.id)) {
-            throw new Error(`panel with id ${options.id} already exists`);
+            throw new Error(`dockview: panel with id ${options.id} already exists`);
         }
         let referenceGroup;
         if (options.position && options.floating) {
-            throw new Error('you can only provide one of: position, floating as arguments to .addPanel(...)');
+            throw new Error('dockview: you can only provide one of: position, floating as arguments to .addPanel(...)');
         }
         const initial = {
             width: options.initialWidth,
@@ -9187,7 +9787,7 @@ class DockviewComponent extends BaseGrid {
                     : options.position.referencePanel;
                 index = options.position.index;
                 if (!referencePanel) {
-                    throw new Error(`referencePanel '${options.position.referencePanel}' does not exist`);
+                    throw new Error(`dockview: referencePanel '${options.position.referencePanel}' does not exist`);
                 }
                 referenceGroup = this.findGroup(referencePanel);
             }
@@ -9198,7 +9798,7 @@ class DockviewComponent extends BaseGrid {
                         : options.position.referenceGroup;
                 index = options.position.index;
                 if (!referenceGroup) {
-                    throw new Error(`referenceGroup '${options.position.referenceGroup}' does not exist`);
+                    throw new Error(`dockview: referenceGroup '${options.position.referenceGroup}' does not exist`);
                 }
             }
             else {
@@ -9310,7 +9910,7 @@ class DockviewComponent extends BaseGrid {
     }) {
         const group = panel.group;
         if (!group) {
-            throw new Error(`cannot remove panel ${panel.id}. it's missing a group.`);
+            throw new Error(`dockview: cannot remove panel ${panel.id}. it's missing a group.`);
         }
         group.model.removePanel(panel, {
             skipSetActiveGroup: options.skipSetActiveGroup,
@@ -9359,11 +9959,11 @@ class DockviewComponent extends BaseGrid {
                     ? this.panels.find((panel) => panel.id === options.referencePanel)
                     : options.referencePanel;
                 if (!referencePanel) {
-                    throw new Error(`reference panel ${options.referencePanel} does not exist`);
+                    throw new Error(`dockview: reference panel ${options.referencePanel} does not exist`);
                 }
                 referenceGroup = this.findGroup(referencePanel);
                 if (!referenceGroup) {
-                    throw new Error(`reference group for reference panel ${options.referencePanel} does not exist`);
+                    throw new Error(`dockview: reference group for reference panel ${options.referencePanel} does not exist`);
                 }
             }
             else if (isGroupOptionsWithGroup(options)) {
@@ -9372,7 +9972,7 @@ class DockviewComponent extends BaseGrid {
                         ? (_a = this._groups.get(options.referenceGroup)) === null || _a === void 0 ? void 0 : _a.value
                         : options.referenceGroup;
                 if (!referenceGroup) {
-                    throw new Error(`reference group ${options.referenceGroup} does not exist`);
+                    throw new Error(`dockview: reference group ${options.referenceGroup} does not exist`);
                 }
             }
             else {
@@ -9440,7 +10040,7 @@ class DockviewComponent extends BaseGrid {
                 }
                 return floatingGroup.group;
             }
-            throw new Error('failed to find floating group');
+            throw new Error('dockview: failed to find floating group');
         }
         if (group.api.location.type === 'popout') {
             const selectedGroup = this._popoutGroups.find((_) => _.popoutGroup === group);
@@ -9471,7 +10071,7 @@ class DockviewComponent extends BaseGrid {
                 this.updateWatermark();
                 return selectedGroup.popoutGroup;
             }
-            throw new Error('failed to find popout group');
+            throw new Error('dockview: failed to find popout group');
         }
         const re = super.doRemoveGroup(group, options);
         if (!(options === null || options === void 0 ? void 0 : options.skipActive)) {
@@ -9480,6 +10080,15 @@ class DockviewComponent extends BaseGrid {
             }
         }
         return re;
+    }
+    debouncedUpdateAllPositions() {
+        if (this._updatePositionsFrameId !== undefined) {
+            cancelAnimationFrame(this._updatePositionsFrameId);
+        }
+        this._updatePositionsFrameId = requestAnimationFrame(() => {
+            this._updatePositionsFrameId = undefined;
+            this.overlayRenderContainer.updateAllPositions();
+        });
     }
     movingLock(func) {
         const isMoving = this._moving;
@@ -9502,7 +10111,7 @@ class DockviewComponent extends BaseGrid {
             ? (_a = this._groups.get(sourceGroupId)) === null || _a === void 0 ? void 0 : _a.value
             : undefined;
         if (!sourceGroup) {
-            throw new Error(`Failed to find group id ${sourceGroupId}`);
+            throw new Error(`dockview: Failed to find group id ${sourceGroupId}`);
         }
         if (sourceItemId === undefined) {
             /**
@@ -9514,6 +10123,7 @@ class DockviewComponent extends BaseGrid {
                     group: destinationGroup,
                     position: destinationTarget,
                 },
+                skipSetActive: options.skipSetActive,
             });
             return;
         }
@@ -9526,17 +10136,26 @@ class DockviewComponent extends BaseGrid {
                 skipSetActiveGroup: true,
             }));
             if (!removedPanel) {
-                throw new Error(`No panel with id ${sourceItemId}`);
+                throw new Error(`dockview: No panel with id ${sourceItemId}`);
             }
-            if (sourceGroup.model.size === 0 && !options.skipRemoveGroup) {
+            if (!options.keepEmptyGroups && sourceGroup.model.size === 0) {
                 // remove the group and do not set a new group as active
                 this.doRemoveGroup(sourceGroup, { skipActive: true });
             }
-            this.movingLock(() => destinationGroup.model.openPanel(removedPanel, {
-                index: destinationIndex,
-                skipSetGroupActive: true,
-            }));
-            this.doSetGroupAndPanelActive(destinationGroup);
+            // Check if destination group is empty - if so, force render the component
+            const isDestinationGroupEmpty = destinationGroup.model.size === 0;
+            this.movingLock(() => {
+                var _a;
+                return destinationGroup.model.openPanel(removedPanel, {
+                    index: destinationIndex,
+                    skipSetActive: ((_a = options.skipSetActive) !== null && _a !== void 0 ? _a : false) &&
+                        !isDestinationGroupEmpty,
+                    skipSetGroupActive: true,
+                });
+            });
+            if (!options.skipSetActive) {
+                this.doSetGroupAndPanelActive(destinationGroup);
+            }
             this._onDidMovePanel.fire({
                 panel: removedPanel,
                 from: sourceGroup,
@@ -9585,7 +10204,9 @@ class DockviewComponent extends BaseGrid {
                     }));
                     this.doRemoveGroup(sourceGroup, { skipActive: true });
                     const newGroup = this.createGroupAtLocation(targetLocation);
-                    this.movingLock(() => newGroup.model.openPanel(removedPanel));
+                    this.movingLock(() => newGroup.model.openPanel(removedPanel, {
+                        skipSetActive: true,
+                    }));
                     this.doSetGroupAndPanelActive(newGroup);
                     this._onDidMovePanel.fire({
                         panel: this.getGroupPanel(sourceItemId),
@@ -9622,7 +10243,7 @@ class DockviewComponent extends BaseGrid {
                     skipSetActiveGroup: true,
                 }));
                 if (!removedPanel) {
-                    throw new Error(`No panel with id ${sourceItemId}`);
+                    throw new Error(`dockview: No panel with id ${sourceItemId}`);
                 }
                 const dropLocation = getRelativeLocation(this.gridview.orientation, referenceLocation, destinationTarget);
                 this.getGroupShape(sourceGroup, destinationTarget);
@@ -9683,7 +10304,17 @@ class DockviewComponent extends BaseGrid {
                     });
                 }
             });
-            this.doSetGroupAndPanelActive(to);
+            // Ensure group becomes active after move
+            if (options.skipSetActive !== true) {
+                // For center moves (merges), we need to ensure the target group is active
+                // unless explicitly told not to (skipSetActive: true)
+                this.doSetGroupAndPanelActive(to);
+            }
+            else if (!this.activePanel) {
+                // Even with skipSetActive: true, ensure there's an active panel if none exists
+                // This maintains basic functionality while respecting skipSetActive
+                this.doSetGroupAndPanelActive(to);
+            }
         }
         else {
             switch (from.api.location.type) {
@@ -9693,7 +10324,7 @@ class DockviewComponent extends BaseGrid {
                 case 'floating': {
                     const selectedFloatingGroup = this._floatingGroups.find((x) => x.group === from);
                     if (!selectedFloatingGroup) {
-                        throw new Error('failed to find floating group');
+                        throw new Error('dockview: failed to find floating group');
                     }
                     selectedFloatingGroup.dispose();
                     break;
@@ -9701,36 +10332,115 @@ class DockviewComponent extends BaseGrid {
                 case 'popout': {
                     const selectedPopoutGroup = this._popoutGroups.find((x) => x.popoutGroup === from);
                     if (!selectedPopoutGroup) {
-                        throw new Error('failed to find popout group');
+                        throw new Error('dockview: failed to find popout group');
                     }
-                    selectedPopoutGroup.disposable.dispose();
+                    // Remove from popout groups list to prevent automatic restoration
+                    const index = this._popoutGroups.indexOf(selectedPopoutGroup);
+                    if (index >= 0) {
+                        this._popoutGroups.splice(index, 1);
+                    }
+                    // Clean up the reference group (ghost) if it exists and is hidden
+                    if (selectedPopoutGroup.referenceGroup) {
+                        const referenceGroup = this.getPanel(selectedPopoutGroup.referenceGroup);
+                        if (referenceGroup && !referenceGroup.api.isVisible) {
+                            this.doRemoveGroup(referenceGroup, {
+                                skipActive: true,
+                            });
+                        }
+                    }
+                    // Manually dispose the window without triggering restoration
+                    selectedPopoutGroup.window.dispose();
+                    // Update group's location and containers for target
+                    if (to.api.location.type === 'grid') {
+                        from.model.renderContainer =
+                            this.overlayRenderContainer;
+                        from.model.dropTargetContainer =
+                            this.rootDropTargetContainer;
+                        from.model.location = { type: 'grid' };
+                    }
+                    else if (to.api.location.type === 'floating') {
+                        from.model.renderContainer =
+                            this.overlayRenderContainer;
+                        from.model.dropTargetContainer =
+                            this.rootDropTargetContainer;
+                        from.model.location = { type: 'floating' };
+                    }
+                    break;
                 }
             }
-            const referenceLocation = getGridLocation(to.element);
-            const dropLocation = getRelativeLocation(this.gridview.orientation, referenceLocation, target);
-            // let size = this.getGroupShape(to, target)
-            // size = size ? size / 2 : size
-            // this.gridview.addView(from, size, dropLocation);
-            let size;
-            switch (this.gridview.orientation) {
-                case Orientation.VERTICAL:
-                    size =
-                        referenceLocation.length % 2 == 0
-                            ? from.api.width
-                            : from.api.height;
-                    break;
-                case Orientation.HORIZONTAL:
-                    size =
-                        referenceLocation.length % 2 == 0
-                            ? from.api.height
-                            : from.api.width;
-                    break;
+            // For moves to grid locations
+            if (to.api.location.type === 'grid') {
+                const referenceLocation = getGridLocation(to.element);
+                const dropLocation = getRelativeLocation(this.gridview.orientation, referenceLocation, target);
+                // Add to grid for all moves targeting grid location
+                // let size = this.getGroupShape(to, target)
+                // size = size ? size / 2 : size
+                // this.gridview.addView(from, size, dropLocation);
+                let size;
+                switch (this.gridview.orientation) {
+                    case Orientation.VERTICAL:
+                        size =
+                            referenceLocation.length % 2 == 0
+                                ? from.api.width
+                                : from.api.height;
+                        break;
+                    case Orientation.HORIZONTAL:
+                        size =
+                            referenceLocation.length % 2 == 0
+                                ? from.api.height
+                                : from.api.width;
+                        break;
+                }
+                this.gridview.addView(from, size, dropLocation);
             }
-            this.gridview.addView(from, size, dropLocation);
+            else if (to.api.location.type === 'floating') {
+                // For moves to floating locations, add as floating group
+                // Get the position/size from the target floating group
+                const targetFloatingGroup = this._floatingGroups.find((x) => x.group === to);
+                if (targetFloatingGroup) {
+                    const box = targetFloatingGroup.overlay.toJSON();
+                    // Calculate position based on available properties
+                    let left, top;
+                    if ('left' in box) {
+                        left = box.left + 50;
+                    }
+                    else if ('right' in box) {
+                        left = Math.max(0, box.right - box.width - 50);
+                    }
+                    else {
+                        left = 50; // Default fallback
+                    }
+                    if ('top' in box) {
+                        top = box.top + 50;
+                    }
+                    else if ('bottom' in box) {
+                        top = Math.max(0, box.bottom - box.height - 50);
+                    }
+                    else {
+                        top = 50; // Default fallback
+                    }
+                    this.addFloatingGroup(from, {
+                        height: box.height,
+                        width: box.width,
+                        position: {
+                            left,
+                            top,
+                        },
+                    });
+                }
+            }
         }
         from.panels.forEach((panel) => {
             this._onDidMovePanel.fire({ panel, from });
         });
+        this.debouncedUpdateAllPositions();
+        // Ensure group becomes active after move
+        if (options.skipSetActive === false) {
+            // Only activate when explicitly requested (skipSetActive: false)
+            // Use 'to' group for non-center moves since 'from' may have been destroyed
+            const targetGroup = to !== null && to !== void 0 ? to : from;
+            this.doSetGroupAndPanelActive(targetGroup);
+        }
     }
     doSetGroupActive(group) {
         super.doSetGroupActive(group);
@@ -9870,7 +10580,7 @@ class DockviewComponent extends BaseGrid {
         if ('dndEdges' in options) {
             this._rootDropTarget.disabled =
                 typeof options.dndEdges === 'boolean' &&
-                options.dndEdges === false;
+                    options.dndEdges === false;
             if (typeof options.dndEdges === 'object' &&
                 options.dndEdges !== null) {
                 this._rootDropTarget.setOverlayModel(options.dndEdges);
@@ -10105,8 +10815,8 @@ class GridviewComponent extends BaseGrid {
             accessor: this,
             isVisible: true,
         });
-        this.registerPanel(view);
         this.doAddGroup(view, relativeLocation, options.size);
+        this.registerPanel(view);
         this.doSetGroupActive(view);
         return view;
     }
@@ -10263,11 +10973,11 @@ class SplitviewComponent extends Resizable {
         this.panels
             .filter((v) => v !== panel)
             .forEach((v) => {
-                v.api._onDidActiveChange.fire({ isActive: false });
-                if (!skipFocus) {
-                    v.focus();
-                }
-            });
+            v.api._onDidActiveChange.fire({ isActive: false });
+            if (!skipFocus) {
+                v.focus();
+            }
+        });
         panel.api._onDidActiveChange.fire({ isActive: true });
         if (!skipFocus) {
             panel.focus();
@@ -10336,14 +11046,14 @@ class SplitviewComponent extends Resizable {
         const views = this.splitview
             .getViews()
             .map((view, i) => {
-                const size = this.splitview.getViewSize(i);
-                return {
-                    size,
-                    data: view.toJSON(),
-                    snap: !!view.snap,
-                    priority: view.priority,
-                };
-            });
+            const size = this.splitview.getViewSize(i);
+            return {
+                size,
+                data: view.toJSON(),
+                snap: !!view.snap,
+                priority: view.priority,
+            };
+        });
         return {
             views,
             activeView: (_a = this._activePanel) === null || _a === void 0 ? void 0 : _a.id,
@@ -10675,16 +11385,16 @@ class PaneviewComponent extends Resizable {
         const views = this.paneview
             .getPanes()
             .map((view, i) => {
-                const size = this.paneview.getViewSize(i);
-                return {
-                    size,
-                    data: view.toJSON(),
-                    minimumSize: minimum(view.minimumBodySize),
-                    maximumSize: maximum(view.maximumBodySize),
-                    headerSize: view.headerSize,
-                    expanded: view.isExpanded(),
-                };
-            });
+            const size = this.paneview.getViewSize(i);
+            return {
+                size,
+                data: view.toJSON(),
+                minimumSize: minimum(view.minimumBodySize),
+                maximumSize: maximum(view.maximumBodySize),
+                headerSize: view.headerSize,
+                expanded: view.isExpanded(),
+            };
+        });
         return {
             views,
             size: this.paneview.size,
@@ -10914,4 +11624,4 @@ function createPaneview(element, options) {
     return new PaneviewApi(component);
 }
 
-export { BaseGrid, ContentContainer, DefaultDockviewDeserialzier, DefaultTab, DockviewApi, DockviewComponent, CompositeDisposable as DockviewCompositeDisposable, DockviewDidDropEvent, Disposable as DockviewDisposable, Emitter as DockviewEmitter, Event as DockviewEvent, DockviewGroupPanel, DockviewGroupPanelModel, MutableDisposable as DockviewMutableDisposable, DockviewPanel, DockviewUnhandledDragOverEvent, DockviewWillDropEvent, DraggablePaneviewPanel, Gridview, GridviewApi, GridviewComponent, GridviewPanel, LayoutPriority, Orientation, PROPERTY_KEYS_DOCKVIEW, PROPERTY_KEYS_GRIDVIEW, PROPERTY_KEYS_PANEVIEW, PROPERTY_KEYS_SPLITVIEW, PaneFramework, PaneTransfer, PanelTransfer, Paneview, PaneviewApi, PaneviewComponent, PaneviewPanel, PaneviewUnhandledDragOverEvent, SashState, Sizing, Splitview, SplitviewApi, SplitviewComponent, SplitviewPanel, Tab, WillShowOverlayLocationEvent, createDockview, createGridview, createPaneview, createSplitview, directionToPosition, getDirectionOrientation, getGridLocation, getLocationOrientation, getPaneData, getPanelData, getRelativeLocation, indexInParent, isGridBranchNode, isGroupOptionsWithGroup, isGroupOptionsWithPanel, isPanelOptionsWithGroup, isPanelOptionsWithPanel, orthogonal, positionToDirection, themeAbyss, themeAbyssSpaced, themeDark, themeDracula, themeLight, themeLightSpaced, themeReplit, themeVisualStudio, toTarget };
+export { BaseGrid, ContentContainer, DefaultDockviewDeserialzier, DefaultTab, DockviewApi, DockviewComponent, CompositeDisposable as DockviewCompositeDisposable, DockviewDidDropEvent, Disposable as DockviewDisposable, Emitter as DockviewEmitter, Event as DockviewEvent, DockviewGroupPanel, DockviewGroupPanelModel, MutableDisposable as DockviewMutableDisposable, DockviewPanel, DockviewUnhandledDragOverEvent, DockviewWillDropEvent, DockviewWillShowOverlayLocationEvent, DraggablePaneviewPanel, Gridview, GridviewApi, GridviewComponent, GridviewPanel, LayoutPriority, Orientation, PROPERTY_KEYS_DOCKVIEW, PROPERTY_KEYS_GRIDVIEW, PROPERTY_KEYS_PANEVIEW, PROPERTY_KEYS_SPLITVIEW, PaneFramework, PaneTransfer, PanelTransfer, Paneview, PaneviewApi, PaneviewComponent, PaneviewPanel, PaneviewUnhandledDragOverEvent, SashState, Sizing, Splitview, SplitviewApi, SplitviewComponent, SplitviewPanel, Tab, createDockview, createGridview, createPaneview, createSplitview, directionToPosition, getDirectionOrientation, getGridLocation, getLocationOrientation, getPaneData, getPanelData, getRelativeLocation, indexInParent, isGridBranchNode, isGroupOptionsWithGroup, isGroupOptionsWithPanel, isPanelOptionsWithGroup, isPanelOptionsWithPanel, orthogonal, positionToDirection, themeAbyss, themeAbyssSpaced, themeDark, themeDracula, themeLight, themeLightSpaced, themeReplit, themeVisualStudio, toTarget };

@@ -1,12 +1,11 @@
-﻿import '../../js/chart.umd.js'
+import '../../js/chart.umd.js'
 import '../../js/chartjs-plugin-datalabels.js'
+import { deepMerge } from '../../../BootstrapBlazor/modules/utility.js'
 import Data from '../../../BootstrapBlazor/modules/data.js'
 import EventHandler from "../../../BootstrapBlazor/modules/event-handler.js"
 
 Chart.register(ChartDataLabels);
 
-// WIP: wait net9 release
-// later will move into bootstrapblazor for global init make sure window.BootstrapBlazor is defined
 if (window.BootstrapBlazor === void 0) {
     window.BootstrapBlazor = {};
 }
@@ -17,6 +16,15 @@ if (window.BootstrapBlazor.Chart === void 0) {
         setOptionsById(element, instance) {
             if (!elementMap.has(element)) {
                 elementMap.set(element, instance)
+            }
+            else {
+                deepMerge(elementMap.get(element), instance)
+            }
+
+            const data = Data.get(element);
+            if (data && data.chart) {
+                deepMerge(data.chart.config._config, instance);
+                data.chart.update();
             }
         }
 
@@ -99,19 +107,16 @@ const genericOptions = {
     radius: 0
 }
 
-const deepMerge = (obj1, obj2) => {
-    for (let key in obj2) {
-        if (obj2.hasOwnProperty(key)) {
-            if (obj2[key] instanceof Object && obj1[key] instanceof Object) {
-                obj1[key] = deepMerge(obj1[key], obj2[key]);
-            }
-            else {
-                obj1[key] = obj2[key];
-            }
-        }
+const formatChartText = (format, values) => {
+    if (!format) {
+        return null;
     }
-    return obj1;
+
+    return Object.keys(values).reduce((text, key) => text.replaceAll(`{${key}}`, values[key] ?? ''), format);
 }
+
+const getStackedTotal = context => context.chart.data.datasets.reduce(
+    (total, v, index) => context.chart.isDatasetVisible(index) ? total + (Number(v.data[context.dataIndex]) || 0) : total, 0)
 
 const getChartOption = function (option) {
     const appendData = option.appendData;
@@ -133,6 +138,9 @@ const getChartOption = function (option) {
                 text: option.options.x.title
             },
             stacked: option.options.x.stacked,
+            ticks: {
+                autoSkip: option.options.x.autoSkip
+            },
             grid: {
                 display: option.options.showXLine
             }
@@ -145,9 +153,21 @@ const getChartOption = function (option) {
             },
             stacked: option.options.x.stacked,
             position: option.options.y.position,
+            ticks: {
+                autoSkip: option.options.y.autoSkip
+            },
             grid: {
                 display: option.options.showYLine
             }
+        }
+    }
+
+    if (option.options.categoryLabelFormatter) {
+        scale.x.ticks.callback = function (value) {
+            return formatChartText(option.options.categoryLabelFormatter, {
+                value,
+                label: this.getLabelForValue(value)
+            });
         }
     }
 
@@ -234,20 +254,15 @@ const getChartOption = function (option) {
             ...genericOptions
         }
 
-        config = chartOption
+        config = chartOption;
 
-        if (option.options.barColorSeparately) {
-            colorFunc = function (data) {
-                data.borderWidth = 1
+        colorFunc = function (data) {
+            let color = chartColors[colors.shift()];
+            if (Array.isArray(data.backgroundColor) && data.backgroundColor.length !== 0) {
+                color = data.backgroundColor.shift();
             }
-        }
-        else {
-            colorFunc = function (data) {
-                const color = chartColors[colors.shift()]
-
-                data.backgroundColor = color
-                data.borderColor = color
-            }
+            data.backgroundColor = color;
+            data.borderColor = data.backgroundColor;
         }
     }
     else if (option.type === 'bar') {
@@ -257,16 +272,24 @@ const getChartOption = function (option) {
 
         if (option.options.barColorSeparately) {
             colorFunc = function (data) {
-                data.borderWidth = 1
+                if (Array.isArray(data.backgroundColor) && data.backgroundColor.length !== 0) {
+
+                }
+                else {
+                    data.backgroundColor = colors.slice(0, data.data.length).map(function (name) {
+                        return chartColors[name]
+                    })
+                }
             }
         }
         else {
             colorFunc = function (data) {
-                const color = chartColors[colors.shift()]
-
-                data.backgroundColor = Chart.helpers.color(color).alpha(0.5).rgbString()
+                let color = chartColors[colors.shift()]
+                if (Array.isArray(data.backgroundColor) && data.backgroundColor.length !== 0) {
+                    color = data.backgroundColor.shift();
+                }
+                data.backgroundColor = Chart.helpers.color(color).alpha(0.5).rgbString();
                 data.borderColor = color
-                data.borderWidth = 1
             }
         }
     }
@@ -287,10 +310,18 @@ const getChartOption = function (option) {
             }
         }
         colorFunc = function (data) {
-            data.backgroundColor = colors.slice(0, data.data.length).map(function (name) {
-                return chartColors[name]
-            })
-            data.borderColor = 'white'
+            if (Array.isArray(data.backgroundColor) && data.backgroundColor.length !== 0) {
+
+            }
+            else {
+                data.backgroundColor = colors.slice(0, data.data.length).map(function (name) {
+                    return chartColors[name]
+                })
+            }
+
+            if (data.borderColor === null) {
+                data.borderColor = 'white';
+            }
         }
 
         if (option.type === 'doughnut') {
@@ -323,14 +354,25 @@ const getChartOption = function (option) {
             }
         }
         colorFunc = function (data) {
-            const color = chartColors[colors.shift()]
-            data.backgroundColor = Chart.helpers.color(color).alpha(0.5).rgbString()
-            data.borderWidth = 1
+            let color = chartColors[colors.shift()]
+            if (Array.isArray(data.backgroundColor) && data.backgroundColor.length !== 0) {
+                color = data.backgroundColor.shift();
+            }
+            data.backgroundColor = Chart.helpers.color(color).alpha(0.5).rgbString();
             data.borderColor = color
         }
     }
 
     option.data.forEach(function (v) {
+        if (v.borderWidth === -1) {
+            if (option.type === 'line') {
+                v.borderWidth = 3;
+            }
+            else {
+                v.borderWidth = 1;
+            }
+        }
+
         colorFunc(v)
     })
 
@@ -343,13 +385,13 @@ const getChartOption = function (option) {
             stacked: option.options.x.stacked,
             position: option.options.y2.position,
             ticks: {
+                autoSkip: option.options.y2.autoSkip,
                 max: option.options.y2.TicksMax,
                 min: option.options.y2.TicksMin
             }
         }
     }
 
-    // pie 图除外默认显示 网格线与坐标系
     if (option.type !== 'pie' && option.type !== 'doughnut') {
         if (option.options.showXScales === null) {
             scale.x.display = true
@@ -363,6 +405,96 @@ const getChartOption = function (option) {
         if (option.options.showYLine === null) {
             scale.y.grid.display = true
         }
+    }
+
+    let showDataLabel = option.options.showDataLabel;
+    if (showDataLabel === true && option.options.x.stacked) {
+        showDataLabel = context => Number(context.dataset?.data[context.dataIndex]) !== 0;
+    }
+
+    const datalabels = {
+        anchor: option.options.anchor,
+        align: option.options.align,
+        formatter: option.options.formatter,
+        display: showDataLabel,
+        color: option.options.chartDataLabelColor,
+        font: {
+            weight: 'bold'
+        }
+    };
+
+    if (option.options.showTotalDataLabel && option.options.x.stacked) {
+        const lastVisibleIndex = chart => {
+            let last = -1;
+            chart.data.datasets.forEach((v, index) => {
+                if (chart.isDatasetVisible(index)) {
+                    last = index;
+                }
+            });
+            return last;
+        };
+        const totalLabel = {
+            anchor: 'end',
+            align: 'end',
+            display: context => context.datasetIndex === lastVisibleIndex(context.chart),
+            formatter: (value, context) => {
+                const total = getStackedTotal(context);
+                return formatChartText(option.options.totalDataLabelFormatter, { total, value: total }) ?? total;
+            }
+        };
+
+        if (option.options.totalDataLabelColor) {
+            totalLabel.color = option.options.totalDataLabelColor;
+        }
+        if (option.options.totalDataLabelBackgroundColor) {
+            totalLabel.backgroundColor = option.options.totalDataLabelBackgroundColor;
+        }
+        if (option.options.totalDataLabelBorderRadius !== null) {
+            totalLabel.borderRadius = option.options.totalDataLabelBorderRadius;
+        }
+        if (option.options.totalDataLabelPadding !== null) {
+            totalLabel.padding = option.options.totalDataLabelPadding;
+        }
+        if (option.options.totalDataLabelFontWeight) {
+            totalLabel.font = {
+                weight: option.options.totalDataLabelFontWeight
+            };
+        }
+
+        datalabels.labels = {
+            value: {},
+            total: totalLabel
+        };
+    }
+
+    const tooltip = {};
+    if (option.options.tooltipTitleFormatter) {
+        tooltip.callbacks = {
+            ...tooltip.callbacks,
+            title: tooltipItems => {
+                const item = tooltipItems[0];
+                return formatChartText(option.options.tooltipTitleFormatter, {
+                    label: item.label,
+                    value: item.formattedValue,
+                    datasetLabel: item.dataset.label,
+                    dataIndex: item.dataIndex,
+                    datasetIndex: item.datasetIndex
+                });
+            }
+        };
+    }
+
+    if (option.options.tooltipLabelFormatter) {
+        tooltip.callbacks = {
+            ...tooltip.callbacks,
+            label: context => formatChartText(option.options.tooltipLabelFormatter, {
+                label: context.label,
+                value: context.formattedValue,
+                datasetLabel: context.dataset.label,
+                dataIndex: context.dataIndex,
+                datasetIndex: context.datasetIndex
+            })
+        };
     }
 
     return {
@@ -385,16 +517,8 @@ const getChartOption = function (option) {
                         display: option.options.title != null,
                         text: option.options.title
                     },
-                    datalabels: {
-                        anchor: option.options.anchor,
-                        align: option.options.align,
-                        formatter: Math.round,
-                        display: option.options.showDataLabel,
-                        color: option.options.chartDataLabelColor,
-                        font: {
-                            weight: 'bold'
-                        }
-                    },
+                    datalabels: datalabels,
+                    ...(tooltip.callbacks ? { tooltip } : {}),
                     customCanvasBackgroundColor: {
                         color: option.options.canvasBackgroundColor,
                     }
@@ -407,10 +531,10 @@ const getChartOption = function (option) {
 
 const updateChart = function (config, option) {
     if (option.updateMethod === "addDataset") {
-        config.data.datasets.push(option.data.datasets.pop())
+        config.data.datasets = option.data.datasets;
     }
     else if (option.updateMethod === "removeDataset") {
-        config.data.datasets.pop()
+        config.data.datasets = option.data.datasets;
     }
     else if (option.updateMethod === "addData") {
         if (config.data.datasets.length > 0) {
@@ -465,7 +589,7 @@ export function init(id, invoke, method, option) {
     }
     const el = document.getElementById(id);
     const chart = new Chart(el.getElementsByTagName('canvas'), op)
-    Data.set(id, chart)
+    Data.set(id, { invoke, chart })
 
     if (op.options.height !== null) {
         chart.canvas.parentNode.style.height = op.options.height
@@ -483,8 +607,14 @@ export function init(id, invoke, method, option) {
     EventHandler.on(window, 'resize', chart.resizeHandler)
 }
 
-export function update(id, invoke, option, method, angle) {
-    const chart = Data.get(id)
+export function update(id, option, method, angle) {
+    const { invoke, chart } = Data.get(id);
+    option.data.forEach(d => {
+        const l = chart.legend.legendItems.find(i => i.text === d.label);
+        if(l) {
+            d.hidden = l.hidden;
+        }
+    });
     let op = getChartOption(option);
     handlerClickData(invoke, op, option.options.onClickDataMethod);
     op.angle = angle
@@ -543,12 +673,13 @@ export function toImage(id, mimeType) {
 }
 
 export function dispose(id) {
-    const chart = Data.get(id)
+    const d = Data.get(id)
     Data.remove(id)
     BootstrapBlazor.Chart.removeOptionsById(id);
 
-    if (chart) {
-        EventHandler.off(window, 'resize', chart.resizeHandler)
+    if (d) {
+        const { chart, chart: { resizeHandler } } = d;
+        EventHandler.off(window, 'resize', resizeHandler)
         chart.destroy()
     }
 }

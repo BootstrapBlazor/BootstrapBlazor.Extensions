@@ -51,7 +51,7 @@ const loader = el => {
 }
 
 export async function init(id) {
-    await addLink('./_content/BootstrapBlazor.Splitting/lib/splitting/splitting-cells.css')
+    await addLink('./_content/BootstrapBlazor.Splitting/splitting.bundle.css')
     await addScript('./_content/BootstrapBlazor.Splitting/lib/splitting/splitting.min.js')
     await addScript('./_content/BootstrapBlazor.Splitting/modules/gsap.min.js')
 

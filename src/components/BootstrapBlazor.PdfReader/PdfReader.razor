@@ -1,14 +1,180 @@
-﻿@namespace BootstrapBlazor.Components
+@using Microsoft.AspNetCore.Components.Web
+@namespace BootstrapBlazor.Components
+@inherits BootstrapModuleComponentBase
 
-@if (Debug)
-{
-    <p>@(Url??UrlDebug)</p>
-}
-@if (!string.IsNullOrEmpty(ErrorMessage))
-{
-    <p>@ErrorMessage</p>
-}
-<iframe @ref="Element"
-        allow="fullscreen"
-        style="@($"border: none; width: {Width}; height: {Height};{StyleString}")"
-        src=@Url />
+<div @attributes="@AdditionalAttributes" id="@Id" class="@ClassString" style="@StyleString" data-bb-download="@DownloadFileName">
+    <div class="bb-view-progress">
+        <div class="bb-view-progress-bar"></div>
+    </div>
+    <div class="bb-view-toolbar">
+        @if (ShowToolbar)
+        {
+            <div class="bb-view-group bb-view-title">
+                @if (EnableThumbnails)
+                {
+                    <div class="bb-view-icon bb-view-bar" title="@Localizer["ToggleSidebar"]"><i class="fa-solid fa-bars"></i></div>
+                }
+                <span class="bb-view-subject">@_docTitle</span>
+            </div>
+            <div class="bb-view-group bb-view-toolbar-main invisible">
+                <div class="bb-view-group bb-view-group-page">
+                    <input type="text" class="bb-view-num" value="1" /><span class="bb-view-slash">/</span>
+                    <div class="bb-view-pagesCount"></div>
+                </div>
+                <div class="bb-view-group bb-view-group-scale">
+                    <div class="bb-view-divider"></div>
+                    <div class="bb-view-icon bb-page-minus" title="@Localizer["ZoomOut"]"><i class="fa-solid fa-fw fa-minus"></i></div>
+                    <input type="text" class="bb-view-scale-input" value="100%" />
+                    <div class="bb-view-icon bb-page-plus" title="@Localizer["ZoomIn"]"><i class="fa-solid fa-fw fa-plus"></i></div>
+                </div>
+                <div class="bb-view-group bb-view-group-rotate">
+                    <div class="bb-view-divider"></div>
+                    <div class="bb-view-icon btn-group">
+                        <button type="button" class="btn bb-view-fit-height" title="@Localizer["FitHeight"]"><i class="fa-solid fa-fw fa-arrows-left-right-to-line fa-rotate-90"></i></button>
+                        <button type="button" class="btn bb-view-fit-width" title="@Localizer["FitWidth"]"><i class="fa-solid fa-fw fa-arrows-left-right-to-line"></i></button>
+                        <button type="button" class="btn dropdown-toggle dropdown-toggle-split" data-bs-toggle="dropdown" aria-expanded="false">
+                            <span class="visually-hidden">Toggle Dropdown</span>
+                        </button>
+                        <div class="dropdown-menu dropdown-menu-end shadow">
+                            <div class="dropdown-item bb-view-page-actual">@Localizer["PageActual"]</div>
+                            <div class="dropdown-item bb-view-fit-width">@Localizer["FitWidth"]</div>
+                            <div class="dropdown-item bb-view-fit-height">@Localizer["FitHeight"]</div>
+                        </div>
+                    </div>
+                    <div class="bb-view-icon bb-view-rotate-left" title="@Localizer["RotateLeft"]"><i class="fa-solid fa-fw fa-rotate-left"></i></div>
+                    <div class="bb-view-icon bb-view-rotate-right" title="@Localizer["RotateRight"]"><i class="fa-solid fa-fw fa-rotate-right"></i></div>
+                </div>
+            </div>
+            <div class="bb-view-group bb-view-controls invisible">
+                @if (ShowDownload)
+                {
+                    <div class="bb-view-icon bb-view-download" title="@Localizer["Download"]"><i class="fa-solid fa-fw fa-arrow-right-to-bracket fa-rotate-90"></i></div>
+                }
+                @if (ShowPrint)
+                {
+                    <div class="bb-view-icon bb-view-print" title="@Localizer["Print"]"><i class="fa-solid fa-fw fa-print"></i></div>
+                }
+                <div class="dropdown">
+                    <button type="button" class="btn dropdown-toggle" data-bs-toggle="dropdown">
+                        <i class="@MoreButtonIcon"></i>
+                    </button>
+                    <div class="dropdown-menu shadow dropdown-menu-end">
+                        @if (ShowTwoPagesOneView)
+                        {
+                            <div class="dropdown-item dropdown-item-pages">
+                                <i class="@_dropdownItemCheckIcon"></i>
+                                <i class="@_dropdownItemDefaultIcon"></i>
+                                <span>@Localizer["TwoPageView"]</span>
+                            </div>
+                        }
+                        @if (ShowPresentationMode)
+                        {
+                            <div class="dropdown-item dropdown-item-presentation">
+                                <i class="@_dropdownItemCheckIcon"></i>
+                                <i class="@_dropdownItemDefaultIcon"></i>
+                                <span>@Localizer["PresentationMode"]</span>
+                            </div>
+                        }
+                        @if (ShowTwoPagesOneView || ShowPresentationMode)
+                        {
+                            <div class="divider">
+                                <div class="divider-mask"></div>
+                            </div>
+                        }
+                        <div class="dropdown-item dropdown-item-doc">
+                            <i class="@_dropdownItemDefaultIcon"></i>
+                            <span>@Localizer["DocumentProperty"]</span>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        }
+    </div>
+    <div class="bb-view-main">
+        @if (EnableThumbnails)
+        {
+            <div class="bb-view-thumbnails"></div>
+        }
+        <div class="bb-view-content">
+            <div class="bb-view-container">
+                <div class="pdfViewer"></div>
+            </div>
+        </div>
+    </div>
+    <div class="bb-view-pdf-backdrop invisible"></div>
+    <div class="bb-view-pdf-info invisible">
+        <div class="bb-view-pdf-dialog">
+            <div class="bb-view-pdf-dialog-title mb-3">@Localizer["DocumentProperties"]</div>
+            <div class="bb-view-pdf-dialog-item">
+                <div class="bb-view-pdf-dialog-label">@Localizer["DocumentFileName"]</div>
+                <div class="bb-view-pdf-dialog-filename"></div>
+            </div>
+            <div class="bb-view-pdf-dialog-item">
+                <div class="bb-view-pdf-dialog-label">@Localizer["DocumentFileSize"]</div>
+                <div class="bb-view-pdf-dialog-file-size"></div>
+            </div>
+            <div class="divider">
+                <div class="divider-mask"></div>
+            </div>
+            <div class="bb-view-pdf-dialog-item">
+                <div class="bb-view-pdf-dialog-label">@Localizer["DocumentTitle"]</div>
+                <div class="bb-view-pdf-dialog-title">-</div>
+            </div>
+            <div class="bb-view-pdf-dialog-item">
+                <div class="bb-view-pdf-dialog-label">@Localizer["DocumentAuthor"]</div>
+                <div class="bb-view-pdf-dialog-author">-</div>
+            </div>
+            <div class="bb-view-pdf-dialog-item">
+                <div class="bb-view-pdf-dialog-label">@Localizer["DocumentSubject"]</div>
+                <div class="bb-view-pdf-dialog-subject">-</div>
+            </div>
+            <div class="bb-view-pdf-dialog-item">
+                <div class="bb-view-pdf-dialog-label">@Localizer["DocumentKeywords"]</div>
+                <div class="bb-view-pdf-dialog-keywords">-</div>
+            </div>
+            <div class="bb-view-pdf-dialog-item">
+                <div class="bb-view-pdf-dialog-label">@Localizer["DocumentCreationDate"]</div>
+                <div class="bb-view-pdf-dialog-created">-</div>
+            </div>
+            <div class="bb-view-pdf-dialog-item">
+                <div class="bb-view-pdf-dialog-label">@Localizer["DocumentModificationDate"]</div>
+                <div class="bb-view-pdf-dialog-modified">-</div>
+            </div>
+            <div class="bb-view-pdf-dialog-item">
+                <div class="bb-view-pdf-dialog-label">@Localizer["DocumentApplication"]</div>
+                <div class="bb-view-pdf-dialog-application">-</div>
+            </div>
+            <div class="divider">
+                <div class="divider-mask"></div>
+            </div>
+            <div class="bb-view-pdf-dialog-item">
+                <div class="bb-view-pdf-dialog-label">@Localizer["DocumentProducer"]</div>
+                <div class="bb-view-pdf-dialog-producer">-</div>
+            </div>
+            <div class="bb-view-pdf-dialog-item">
+                <div class="bb-view-pdf-dialog-label">@Localizer["DocumentVersion"]</div>
+                <div class="bb-view-pdf-dialog-version">-</div>
+            </div>
+            <div class="bb-view-pdf-dialog-item">
+                <div class="bb-view-pdf-dialog-label">@Localizer["DocumentPageCount"]</div>
+                <div class="bb-view-pdf-dialog-count">-</div>
+            </div>
+            <div class="bb-view-pdf-dialog-item">
+                <div class="bb-view-pdf-dialog-label">@Localizer["DocumentPageSize"]</div>
+                <div class="bb-view-pdf-dialog-size">-</div>
+            </div>
+            <div class="divider">
+                <div class="divider-mask"></div>
+            </div>
+            <div class="bb-view-pdf-dialog-item">
+                <div class="bb-view-pdf-dialog-label">@Localizer["DocumentFastWebView"]</div>
+                <div class="bb-view-pdf-dialog-view">No</div>
+            </div>
+            <div class="bb-view-pdf-dialog-close">
+                <button type="button" class="btn btn-primary btn-close-doc">
+                    <span>@Localizer["CloseButtonText"]</span>
+                </button>
+            </div>
+        </div>
+    </div>
+</div>

@@ -35,7 +35,7 @@ public class ImageCropperOption
     /// </summary>
     /// <remarks>默认情况下，裁剪框具有自由比例。 设置为1, 裁剪区默认正方形</remarks>
     [JsonIgnore(Condition = JsonIgnoreCondition.WhenWritingNull)]
-    public int? AspectRatio { get; set; }
+    public float? AspectRatio { get; set; }
 
     /// <summary>
     /// Re-render the cropper when resizing the window. default tue
@@ -210,4 +210,10 @@ public class ImageCropperOption
     /// </summary>
     [JsonIgnore(Condition = JsonIgnoreCondition.WhenWritingNull)]
     public string? Radius { get; set; }
+
+    /// <summary>
+    /// 获得/设置 预览元素 Selector 
+    /// </summary>
+    [JsonIgnore(Condition = JsonIgnoreCondition.WhenWritingNull)]
+    public string? Preview { get; set; }
 }

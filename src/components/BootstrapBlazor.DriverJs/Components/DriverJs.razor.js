@@ -1,4 +1,4 @@
-﻿import { driver } from "../driver.js"
+import { driver } from "../driver.js.mjs"
 import { addLink } from '../../BootstrapBlazor/modules/utility.js'
 import Data from "../../BootstrapBlazor/modules/data.js"
 
@@ -17,8 +17,8 @@ export function start(id, options, config) {
     const d = Data.get(id);
     if (d) {
         d.config = config;
-        const { autoDrive, index } = config;
-        const { hookDestroyStarted, hookDestroyed } = options;
+        const { index } = config;
+        const { hookDestroyStarted, hookDestroyed, overlayClickBehavior } = options;
         if (hookDestroyStarted) {
             delete options.hookDestroyStarted;
             options.onDestroyStarted = async (el, step, { state }) => {
@@ -34,12 +34,15 @@ export function start(id, options, config) {
                 d.invoke.invokeMethodAsync("OnDestroyed");
             };
         }
+        if (overlayClickBehavior === "function") {
+            options.overlayClickBehavior = async (el, step, { state }) => {
+                await d.invoke.invokeMethodAsync("OnOverlayClicked", state.activeIndex)
+            };
+        }
+
         const driverObj = driver(options);
         d.driver = driverObj;
-
-        if (autoDrive) {
-            driverObj.drive(index);
-        }
+        driverObj.drive(index);
     }
 }
 

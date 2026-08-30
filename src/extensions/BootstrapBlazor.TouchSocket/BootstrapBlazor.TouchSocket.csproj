@@ -1,0 +1,32 @@
+﻿<Project Sdk="Microsoft.NET.Sdk">
+
+  <PropertyGroup>
+    <Version>9.0.0</Version>
+  </PropertyGroup>
+
+  <PropertyGroup>
+    <PackageTags>Bootstrap Blazor WebAssembly wasm UI Components Topology FlowChart</PackageTags>
+    <Description>Bootstrap UI components extensions of FlowChart</Description>
+  </PropertyGroup>
+
+  <ItemGroup>
+    <SupportedPlatform Remove="browser" />
+  </ItemGroup>
+
+  <ItemGroup>
+    <PackageReference Include="TouchSocket" Version="4.0.0-Alpha.10" />
+  </ItemGroup>
+
+  <ItemGroup>
+    <!--<PackageReference Include="BootstrapBlazor" Version="9.8.0-beta07" />-->
+  </ItemGroup>
+
+  <ItemGroup>
+    <ProjectReference Include="..\..\..\..\BootstrapBlazor\src\BootstrapBlazor\BootstrapBlazor.csproj" />
+  </ItemGroup>
+
+  <ItemGroup>
+    <Using Include="Microsoft.JSInterop" />
+  </ItemGroup>
+
+</Project>

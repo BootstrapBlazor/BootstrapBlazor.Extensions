@@ -140,7 +140,7 @@ const hackMeta2d = el => {
 
         }
         Meta2d.prototype.doSocket = function (data) {
-            this.socketCallback(data)
+            this.socketCallback(data, { type: 'http', url: '' });
         }
 
         Meta2d.prototype.disableAnchor = function () {

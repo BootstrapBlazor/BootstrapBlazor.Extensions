@@ -1,20 +1,10 @@
 <Project Sdk="Microsoft.NET.Sdk.Razor">
   
   <PropertyGroup>
-    <Version>0.0.8</Version>
-  </PropertyGroup>
-
-  <PropertyGroup>
     <PackageTags>Bootstrap Blazor ImageHelper 图像助手 组件  </PackageTags>
     <Description>Bootstrap UI ImageHelper components experience</Description>
     <NoWarn>1591</NoWarn>
   </PropertyGroup> 
-
-  <ItemGroup>
-    <Content Remove="wwwroot\models\image_classification\bvlc_alexnet.caffemodel.txt" />
-    <Content Remove="wwwroot\models\pose_estimation\coco\pose_iter_440000.caffemodel.txt" />
-    <Content Remove="wwwroot\models\pose_estimation\mpi\pose_iter_160000.caffemodel.txt" />
-  </ItemGroup>
 
   <ItemGroup>
     <Using Include="BootstrapBlazor.Components" />

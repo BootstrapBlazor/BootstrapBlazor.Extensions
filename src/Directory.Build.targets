@@ -1,6 +1,6 @@
 <Project>
 
-  <Target Name="CopyLogo" AfterTargets="Build" Condition="'$(TargetFramework)' == 'net9.0'">
+  <Target Name="CopyLogo" AfterTargets="Build" Condition="'$(TargetFramework)' == 'net10.0'">
     <Message Text="Copy logo assets ..." Importance="high"></Message>
     <Copy SourceFiles="$(MSBuildThisFileDirectory)logo.png" DestinationFiles="$(MSBuildProjectDirectory)\logo.png" SkipUnchangedFiles="true" ></Copy>
 

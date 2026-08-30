@@ -25,9 +25,13 @@ public partial class Player
     [EditorRequired]
     public PlayerOptions? Options { get; set; }
 
-    private string? ClassString => CssBuilder.Default("bb-video-player")
-        .AddClassFromAttributes(AdditionalAttributes)
-        .Build();
+    /// <summary>
+    /// Gets or sets the client event callback. Default is null.
+    /// </summary>
+    [Parameter]
+    public Func<string, Task>? OnEvent { get; set; }
+
+    private string? EventString => OnEvent == null ? "true" : null;
 
     /// <summary>
     /// <inheritdoc/>
@@ -39,7 +43,7 @@ public partial class Player
         {
             Options.Language ??= CultureInfo.CurrentUICulture.Name;
         }
-        await InvokeVoidAsync("init", Id, Interop, "", Options);
+        await InvokeVoidAsync("init", Id, Interop, nameof(TriggerEvent), Options);
     }
 
     /// <summary>
@@ -48,4 +52,18 @@ public partial class Player
     /// <param name="option"></param>
     /// <returns></returns>
     public Task Reload(PlayerOptions option) => InvokeVoidAsync("reload", Id, option);
+
+    /// <summary>
+    /// Trigger <see cref="OnEvent"/> event callback. Triggered by JSInterop.
+    /// </summary>
+    /// <param name="eventName"></param>
+    /// <returns></returns>
+    [JSInvokable]
+    public async Task TriggerEvent(string eventName)
+    {
+        if (OnEvent != null)
+        {
+            await OnEvent(eventName);
+        }
+    }
 }

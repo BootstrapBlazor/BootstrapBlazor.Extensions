@@ -1,4 +1,4 @@
-﻿// Copyright (c) Argo Zhang (argo@163.com). All rights reserved.
+// Copyright (c) Argo Zhang (argo@163.com). All rights reserved.
 // Licensed under the Apache License, Version 2.0. See License.txt in the project root for license information.
 // Website: https://www.blazor.zone or https://argozhang.github.io/
 
@@ -13,6 +13,10 @@ namespace BootstrapBlazor.Components;
 /// </summary>
 public partial class Editor
 {
+    private string? ClassString => CssBuilder.Default("editor")
+        .AddClass(CssClass).AddClass(ValidCss)
+        .Build();
+
     /// <summary>
     /// 获得 Editor 样式
     /// </summary>
@@ -28,7 +32,7 @@ public partial class Editor
     public string? PlaceHolder { get; set; }
 
     /// <summary>
-    /// 获得/设置 是否直接显示为富文本编辑框
+    /// 获得/设置 是否直接显示为富文本编辑框 默认 false
     /// </summary>
     [Parameter]
     public bool IsEditor { get; set; }
@@ -60,6 +64,12 @@ public partial class Editor
     [Parameter]
     public bool ShowSubmit { get; set; } = true;
 
+    /// <summary>
+    /// 获得/设置 Editor 组件内上传文件时回调此方法
+    /// </summary>
+    [Parameter]
+    public Func<EditorUploadFile, Task<string>>? OnFileUpload { get; set; }
+
     private bool _lastShowSubmit = true;
 
     private string? ShowSubmitString => ShowSubmit ? "true" : null;
@@ -71,34 +81,16 @@ public partial class Editor
     private string? _lastValue;
 
     /// <summary>
-    /// 获得/设置 组件值
-    /// </summary>
-    [Parameter]
-    public string? Value { get; set; }
-
-    /// <summary>
     /// 获得/设置 语言，默认为 null 自动判断，内置中英文额外语言包需要自行引入语言包
     /// </summary>
     [Parameter]
     public string? Language { get; set; }
 
     /// <summary>
-    /// 获得/设置 语言扩展脚本路径 默认 null 如加载德语可设置为 
+    /// 获得/设置 语言扩展脚本路径 默认 null 如加载德语可设置为
     /// </summary>
     [Parameter]
     public string? LanguageUrl { get; set; }
-
-    /// <summary>
-    /// 获得/设置 组件值变化后的回调委托
-    /// </summary>
-    [Parameter]
-    public EventCallback<string?> ValueChanged { get; set; }
-
-    /// <summary>
-    /// 获得/设置 组件值变化后的回调委托
-    /// </summary>
-    [Parameter]
-    public Func<string, Task>? OnValueChanged { get; set; }
 
     /// <summary>
     /// 获取/设置 插件点击时的回调委托
@@ -186,7 +178,7 @@ public partial class Editor
             methodClickPluginItem = nameof(ClickPluginItem);
         }
 
-        await InvokeVoidAsync("init", Id, Interop, methodGetPluginAttributes, methodClickPluginItem, Height, Value ?? "", Language, LanguageUrl);
+        await InvokeVoidAsync("init", Id, Interop, methodGetPluginAttributes, methodClickPluginItem, Height, Value ?? "", Language, LanguageUrl, OnFileUpload is not null);
     }
 
     /// <summary>
@@ -194,20 +186,10 @@ public partial class Editor
     /// </summary>
     /// <param name="value"></param>
     [JSInvokable]
-    public async Task Update(string value)
+    public void Update(string value)
     {
-        Value = value;
-        _lastValue = Value;
-
-        if (ValueChanged.HasDelegate)
-        {
-            await ValueChanged.InvokeAsync(Value);
-        }
-
-        if (OnValueChanged != null)
-        {
-            await OnValueChanged.Invoke(value);
-        }
+        CurrentValue = value;
+        _lastValue = value;
     }
 
     /// <summary>
@@ -252,6 +234,26 @@ public partial class Editor
         if (OnClickButton != null)
         {
             ret = await OnClickButton(pluginItemName);
+        }
+        return ret;
+    }
+
+    /// <summary>
+    /// 文件上传回调
+    /// </summary>
+    /// <param name="name"></param>
+    /// <param name="contentType"></param>
+    /// <param name="size"></param>
+    /// <param name="stream"></param>
+    [JSInvokable]
+    public async Task<string?> ImageUpload(string name, string contentType, long size, IJSStreamReference stream)
+    {
+        string? ret = null;
+        await using var data = await stream.OpenReadStreamAsync(size);
+        var file = new EditorUploadFile(name, contentType, size, data);
+        if (OnFileUpload != null)
+        {
+            ret = await OnFileUpload(file);
         }
         return ret;
     }

@@ -9,9 +9,6 @@ namespace BootstrapBlazor.Components;
 /// <summary>
 /// 裁切结果实体类
 /// </summary>
-/// <remarks>
-/// 构造函数
-/// </remarks>
 /// <param name="data"></param>
 public class ImageCropperResult(string data)
 {

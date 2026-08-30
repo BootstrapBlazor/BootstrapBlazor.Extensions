@@ -1,13 +1,9 @@
-﻿import '../../js/summernote-bs5.min.js'
+import '../../js/summernote-bs5.min.js'
 import { addLink, addScript } from '../../../BootstrapBlazor/modules/utility.js'
 import Data from '../../../BootstrapBlazor/modules/data.js'
 import EventHandler from '../../../BootstrapBlazor/modules/event-handler.js'
 
-if (window.BootstrapBlazor === void 0) {
-    window.BootstrapBlazor = {};
-}
-
-export async function init(id, invoker, methodGetPluginAttrs, methodClickPluginItem, height, value, lang, langUrl) {
+export async function init(id, invoker, methodGetPluginAttrs, methodClickPluginItem, height, value, lang, langUrl, hasUpload) {
     const el = document.getElementById(id)
     if (el === null) {
         return
@@ -45,7 +41,24 @@ export async function init(id, invoker, methodGetPluginAttrs, methodClickPluginI
 
             const showSubmit = el.getAttribute("data-bb-submit") === "true"
             option.toolbar = toolbar;
-            reloadCallbacks(id, option);
+            if (hasUpload) {
+                option.callbacks.onImageUpload = async files => {
+                    editor.files = files
+                    for (let i = 0; i < files.length; i++) {
+                        const file = files[i];
+                        const stream = DotNet.createJSStreamReference(file);
+                        const url = await editor.invoker.invokeMethodAsync('ImageUpload',
+                            file.name,
+                            file.type || 'application/octet-stream',
+                            file.size,
+                            stream
+                        )
+                        const image = createImage(file, url);
+                        editor.$editor.summernote('insertNode', image);
+                    }
+                }
+            }
+
             if (!showSubmit) {
                 const externalOnChange = option.callbacks.onChange;
                 option.callbacks.onChange = function (contents) {
@@ -124,18 +137,6 @@ export async function init(id, invoker, methodGetPluginAttrs, methodClickPluginI
     await initEditor();
 }
 
-const reloadCallbacks = (id, option) => {
-    const events = ['Blur', 'BlurCodeview', 'Change', 'ChangeCodeview', 'DialogShown', 'Enter', 'Focus', 'ImageLinkInsert', 'ImageUploadError', 'Init', 'Keydown', 'Keyup', 'Mousedown', 'Mouseup', 'Paste', 'Scroll'];
-
-    events.forEach(event => {
-        option.callbacks[`on${event}`] = function () {
-            const callbacks = window.BootstrapBlazor?.SummerNote?.callbacks;
-            const cb = callbacks?.find(i => i.id === id);
-            cb?.[`on${event}`]?.apply(this, arguments);
-        };
-    });
-}
-
 export function update(id, val) {
     const editor = Data.get(id)
     if (editor.$editor) {
@@ -157,7 +158,11 @@ export function getCode(id) {
 }
 
 export function reset(id) {
-    const editor = Data.get(id)
+    const editor = Data.get(id);
+    if (!editor.$editor) {
+        return;
+    }
+
     const context = editor.$editor.data('summernote')
 
     const showSubmit = editor.el.getAttribute("data-bb-submit") === "true"
@@ -198,6 +203,12 @@ export function dispose(id) {
             delete editor[propertyName]
         }
     }
+}
+
+const createImage = (file, url) => {
+    const element = document.createElement('img');
+    element.src = url || URL.createObjectURL(file);
+    return element;
 }
 
 const offEvent = eventEl => {

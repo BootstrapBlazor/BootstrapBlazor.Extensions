@@ -65,7 +65,7 @@ class DefaultDataService<TModel> : DataServiceBase<TModel>, IEntityFrameworkCore
             if (existingEntity != null)
             {
                 _db.Entry(existingEntity).State = EntityState.Detached;
-            } 
+            }
         }
         return Task.CompletedTask;
     }
@@ -134,7 +134,7 @@ class DefaultDataService<TModel> : DataServiceBase<TModel>, IEntityFrameworkCore
         var ret = new QueryData<TModel>()
         {
             TotalCount = count,
-            Items = items,
+            Items = items.ToList(),
             IsSorted = option.SortOrder != SortOrder.Unset,
             IsFiltered = option.Filters.Count > 0,
             IsAdvanceSearch = option.AdvanceSearches.Count > 0,

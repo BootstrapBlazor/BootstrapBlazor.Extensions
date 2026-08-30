@@ -1,27 +1,27 @@
-﻿import { addLink, addScript } from '../../../BootstrapBlazor/modules/utility.js'
+import { addLink } from '../../../BootstrapBlazor/modules/utility.js'
 import Data from '../../../BootstrapBlazor/modules/data.js'
 import EventHandler from "../../../BootstrapBlazor/modules/event-handler.js"
+
+let monacoLoader;
+
+const loadMonaco = () => {
+    monacoLoader ??= import('../../monaco-editor/monaco.js');
+    return monacoLoader;
+}
 
 export async function init(id, interop, options) {
     const editor = {};
     Data.set(id, editor);
 
-    await addLink('_content/BootstrapBlazor.CodeEditor/code-editor.bundle.css');
-    await addScript('_content/BootstrapBlazor.CodeEditor/monaco-editor/min/vs/loader.min.js');
+    const [module] = await Promise.all([
+        loadMonaco(),
+        ...options.styleSheets.map(styleSheet => addLink(styleSheet))
+    ]);
+    editor.monaco = module.monaco;
 
     const init = container => {
-
-        // Hide the Progress Ring
-        monaco.editor.onDidCreateEditor((e) => {
-            const progress = container.querySelector(".spinner");
-            if (progress && progress.style) {
-                progress.style.display = "none";
-            }
-        });
-
-        // Create the Monaco Editor
         const body = container.querySelector(".code-editor-body");
-        editor.editor = monaco.editor.create(body, {
+        editor.editor = editor.monaco.editor.create(body, {
             ariaLabel: "online code editor",
             value: options.value,
             language: options.language,
@@ -30,13 +30,15 @@ export async function init(id, interop, options) {
             readOnly: options.readOnly,
         });
 
-        // Catch when the editor lost the focus (didType to immediate)
+        const progress = container.querySelector(".spinner");
+        if (progress) {
+            progress.style.display = "none";
+        }
+
         editor.editor.onDidBlurEditorText((e) => {
             const code = editor.editor.getValue();
             interop.invokeMethodAsync("UpdateValueAsync", code);
         });
-
-        monaco.editor.setModelLanguage(monaco.editor.getModels()[0], options.language)
 
         editor.editor.layout();
 
@@ -45,34 +47,48 @@ export async function init(id, interop, options) {
         });
     }
 
-    // require is provided by loader.min.js.
-    require.config({
-        paths: { 'vs': options.path }
-    });
-
-    require(["vs/editor/editor.main"], () => {
-        editor.handler = setInterval(() => {
-            var container = document.getElementById(id);
-            if (container.offsetHeight > 0) {
-                clearInterval(editor.handler);
-                init(container);
-                editor.handler = null;
-                delete editor.handler;
-            }
-        }, 50);
-    });
+    editor.handler = setInterval(() => {
+        const container = document.getElementById(id);
+        if (container?.offsetHeight > 0) {
+            clearInterval(editor.handler);
+            init(container);
+            editor.handler = null;
+            delete editor.handler;
+        }
+    }, 50);
 }
 
-// Update the editor options
+export function insertText(id, insertData) {
+    const wrapper = Data.get(id);
+    if (!wrapper) return;
+
+    const editor = wrapper.editor;
+    const selection = editor.getSelection();
+    editor.executeEdits('insert-custom-text', [
+        {
+            range: selection,
+            text: insertData,
+            forceMoveMarkers: true
+        }
+    ]);
+    editor.focus();
+}
+
 export function monacoSetOptions(id, options) {
-    var editor = Data.get(id);
-    if (editor) {
-        editor.editor.setValue(options.value);
-        editor.editor.updateOptions({
+    const wrapper = Data.get(id);
+    if (wrapper?.editor) {
+        const value = options.value ?? '';
+        if (wrapper.editor.getValue() !== value) {
+            wrapper.editor.setValue(value);
+        }
+        wrapper.editor.updateOptions({
             language: options.language,
             theme: options.theme
         });
-        monaco.editor.setModelLanguage(monaco.editor.getModels()[0], options.language)
+        const model = wrapper.editor.getModel();
+        if (model) {
+            wrapper.monaco.editor.setModelLanguage(model, options.language);
+        }
     }
 }
 

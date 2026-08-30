@@ -1,0 +1,18 @@
+@import url('cherry-markdown.min.css');
+
+.bb-cherry-markdown {
+}
+
+    .bb-cherry-markdown.is-valid {
+        border: 1px solid var(--bs-success);
+    }
+
+    .bb-cherry-markdown.is-invalid {
+        border: 1px solid var(--bs-danger);
+    }
+
+    .bb-cherry-markdown .cherry {
+        border: 1px solid var(--bs-border-color);
+        border-radius: var(--bs-border-radius);
+        overflow: hidden;
+    }

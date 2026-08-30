@@ -16,9 +16,7 @@ public partial class Topology
     /// </summary>
     [Parameter]
     [NotNull]
-#if NET6_0_OR_GREATER
     [EditorRequired]
-#endif
     public string? Content { get; set; }
 
     /// <summary>
