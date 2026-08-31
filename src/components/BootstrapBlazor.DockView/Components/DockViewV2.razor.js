@@ -60,13 +60,6 @@ export function update(id, options) {
     }
 }
 
-export function switchLayout(id, options) {
-    const dock = Data.get(id)
-    if (dock) {
-        dock.dockview.switchLayout(options);
-    }
-}
-
 export function reset(id, options) {
     const dock = Data.get(id)
     if (dock) {
@@ -83,6 +76,14 @@ export function save(id) {
         ret = JSON.stringify(dockview.toJSON());
     }
     return ret;
+}
+
+export function switchLayout(id, options) {
+    const dock = Data.get(id)
+    if (dock) {
+        const { dockview } = dock;
+        dockview.switchLayout(options);
+    }
 }
 
 export function dispose(id) {
