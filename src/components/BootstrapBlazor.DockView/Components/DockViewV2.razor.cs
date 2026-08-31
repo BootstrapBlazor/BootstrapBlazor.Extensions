@@ -309,7 +309,6 @@ public partial class DockViewV2
     /// </summary>
     private List<DockViewComponentBase> GetLayoutContents()
     {
-        // Pure LayoutConfig mode declares no child components; allowed by GetDockViewConfig's guard
         if (_components.Count == 0)
         {
             return [];
