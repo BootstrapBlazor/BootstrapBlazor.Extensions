@@ -120,11 +120,9 @@ const updateTitle = panel => {
     }
 }
 
-// Pick the layout root by layoutName. Single definition: config grid-building and panel extraction here must select the same layout
 export const getRootContent = options => options.content.find(c => c.layoutName === options.layoutName) || options.content[0]
 const getPanelsFromOptions = options => {
     const rootContent = getRootContent(options)
-    // Pure layoutConfig mode declares no content; return an empty panel set
     return rootContent ? getPanels(rootContent, options) : []
 }
 

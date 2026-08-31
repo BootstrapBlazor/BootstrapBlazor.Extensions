@@ -61,8 +61,6 @@ const initDockviewFromConfig = (dockview, options) => {
         dockview.params.floatingGroups = [];
     }
 
-    // fromJSON 用 dockview.width/height 定稿；该值为 0 时整网塌缩(group 被 clamp 到 100)。
-    // 刷新有 ResizeObserver 兜底，切换布局时容器尺寸未变不会触发，故主动按实测尺寸校正一次。
     syncLayoutToContainer(dockview);
 }
 
@@ -71,7 +69,6 @@ const syncLayoutToContainer = dockview => {
     if (!el) return;
     const width = el.clientWidth;
     const height = el.clientHeight;
-    // 尺寸不可用(隐藏 Tab/未挂载)时不动，交回 ResizeObserver 按原机制处理
     if (!width || !height) return;
     if (width === dockview.width && height === dockview.height) return;
     dockview.layout(width, height, true);
@@ -83,7 +80,6 @@ const getConfigFromContent = options => {
     const getGroupId = getGroupIdFunc()
     options = filterEmptyContent(options)
     const rootContent = getRootContent(options)
-    // Fallback empty grid when no content (pure layoutConfig with a missing/corrupt archive), to avoid destructuring throws
     if (!rootContent) {
         return {
             activeGroup: '1',
@@ -286,7 +282,6 @@ const saveConfig = dockview => {
         return;
     }
 
-    // Don't persist a collapsed/unmeasured layout: toJSON freezes size to 100, making even splits sticky across reloads
     if (!dockview.width || !dockview.height) {
         return;
     }
@@ -295,8 +290,6 @@ const saveConfig = dockview => {
         panel.params.isActive = panel.api.isActive || panel.group.activePanel === panel
     })
 
-    // toJSON toggles sibling visibility while maximized; guard with `maximizing` so content isn't moved
-    // into the template. finally resets the flag even on throw so later saves don't bail out.
     let gridJson;
     dockview.params.maximizing = true;
     try {
@@ -363,7 +356,6 @@ const syncLayoutWithOptions = (layout, options, invisiblePanels = []) => {
         if (p.params?.key) localIdByKey.set(p.params.key, p.id);
     });
 
-    // Nothing to sync: the archive is the whole truth (getConfigFromContent requires non-empty content)
     if (optionPanels.length === 0) {
         return layout;
     }

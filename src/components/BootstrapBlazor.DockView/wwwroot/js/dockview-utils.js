@@ -62,9 +62,6 @@ const guardCollapsedSaveProportions = dockview => {
     };
 }
 
-// The patched removeGroup returns early on the reset path, skipping removeDrawerBtn; clear the
-// drawer-button container here or onDidLayoutFromJSON rebuilds on top of stale ones whose closures
-// point to destroyed groups. ":scope >" keeps nested dockviews untouched.
 const removeDrawerButtons = dockview => {
     dockview.element?.querySelectorAll(':scope > .bb-dockview-aside').forEach(el => el.remove());
 }
@@ -94,9 +91,8 @@ const initDockview = (dockview, options, template) => {
             dockview.updateTheme();
         }
 
-        // Layout switching is an explicit switchLayout call from C#; update stays incremental
         if (options.layoutConfig) {
-            dockview.reset(dockview.params.options);   // 传已规范化的 options（含 renderer 兜底）
+            dockview.reset(dockview.params.options);
         }
         else {
             toggleComponent(dockview, options);
@@ -145,7 +141,6 @@ const initDockview = (dockview, options, template) => {
     })
 
     dockview.onDidLayoutFromJSON(() => {
-        // 捕获本次布局序号，用于在异步回调里识别自己是否已被后续切换作废
         const layoutToken = dockview.params.layoutSeq;
         dockview.groups.forEach(group => {
             markFirstVisibleElement(group);
@@ -156,7 +151,6 @@ const initDockview = (dockview, options, template) => {
                 dockview = null;
                 return;
             }
-            // Superseded by a later reset: proceeding would touch the new layout's panels and skip setting inited
             if (dockview.params.layoutSeq !== layoutToken) {
                 return;
             }
@@ -181,8 +175,6 @@ const initDockview = (dockview, options, template) => {
             }
             const { floatingGroups } = dockview.params
             dockview.floatingGroups.forEach(fg => {
-                // Skip missing positions to avoid destructuring throws; drawer rebuild is
-                // position-independent and must always run (reset already cleared the container)
                 const saved = floatingGroups.find(g => g.data.id == fg.group.id);
                 if (saved?.position) {
                     const { top, right, bottom, left } = saved.position;
