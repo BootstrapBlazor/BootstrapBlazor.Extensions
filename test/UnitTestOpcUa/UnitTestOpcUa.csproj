@@ -1,7 +1,11 @@
 ﻿<Project Sdk="Microsoft.NET.Sdk">
 
   <ItemGroup>
-    <ProjectReference Include="..\..\src\components\BootstrapBlazor.OpcUa\BootstrapBlazor.OpcUa.csproj" />
+    <ProjectReference Include="..\..\src\extensions\BootstrapBlazor.OpcUa\BootstrapBlazor.OpcUa.csproj" />
+  </ItemGroup>
+
+  <ItemGroup>
+    <Using Include="Microsoft.Extensions.DependencyInjection" />
   </ItemGroup>
 
 </Project>

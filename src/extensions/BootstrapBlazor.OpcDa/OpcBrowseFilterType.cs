@@ -5,22 +5,26 @@
 namespace BootstrapBlazor.OpcDa;
 
 /// <summary>
-/// OpcDa 浏览过滤器类型枚举
+/// <para lang="zh">OpcDa 浏览过滤器类型枚举</para>
+/// <para lang="en">OpcDa browse filter type</para>
 /// </summary>
 public enum OpcBrowseFilterType
 {
     /// <summary>
-    /// 全部
+    /// <para lang="zh">全部</para>
+    /// <para lang="en">All nodes</para>
     /// </summary>
     All,
 
     /// <summary>
-    /// 分支
+    /// <para lang="zh">分支</para>
+    /// <para lang="en">Branches</para>
     /// </summary>
     Branch,
 
     /// <summary>
-    /// 数据项
+    /// <para lang="zh">数据项</para>
+    /// <para lang="en">Items</para>
     /// </summary>
     Item
 }

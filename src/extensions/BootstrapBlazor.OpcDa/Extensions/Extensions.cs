@@ -7,7 +7,8 @@ using Opc.Da;
 namespace BootstrapBlazor.OpcDa;
 
 /// <summary>
-/// 扩展方法类
+/// <para lang="zh">扩展方法类</para>
+/// <para lang="en">Extension methods</para>
 /// </summary>
 internal static class Extensions
 {

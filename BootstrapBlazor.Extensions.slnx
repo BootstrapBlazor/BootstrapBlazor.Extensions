@@ -70,7 +70,6 @@
     <Project Path="src/components/BootstrapBlazor.OfdReader/BootstrapBlazor.OfdReader.csproj" />
     <Project Path="src/components/BootstrapBlazor.OfficeViewer/BootstrapBlazor.OfficeViewer.csproj" />
     <Project Path="src/components/BootstrapBlazor.OnScreenKeyboard/BootstrapBlazor.OnScreenKeyboard.csproj" />
-    <Project Path="src/components/BootstrapBlazor.OpcUa/BootstrapBlazor.OpcUa.csproj" />
     <Project Path="src/components/BootstrapBlazor.OpenAI.GPT3/BootstrapBlazor.OpenAI.csproj" />
     <Project Path="src/components/BootstrapBlazor.PdfReader/BootstrapBlazor.PdfReader.csproj" />
     <Project Path="src/components/BootstrapBlazor.PdfViewer/BootstrapBlazor.PdfViewer.csproj" />
@@ -87,6 +86,7 @@
     <Project Path="src/components/BootstrapBlazor.TagHelper/BootstrapBlazor.TagHelper.csproj" />
     <Project Path="src/components/BootstrapBlazor.Tasks.Dashboard/BootstrapBlazor.Tasks.Dashboard.csproj" />
     <Project Path="src/components/BootstrapBlazor.Term/BootstrapBlazor.Term.csproj" />
+    <Project Path="src/components/BootstrapBlazor.Theme.Fluent/BootstrapBlazor.Theme.Fluent.csproj" Id="6bba713e-5b23-4306-a6fe-a5be3feb70c0" />
     <Project Path="src/components/BootstrapBlazor.Topology/BootstrapBlazor.Topology.csproj" />
     <Project Path="src/components/BootstrapBlazor.UniverIcon/BootstrapBlazor.UniverIcon.csproj" />
     <Project Path="src/components/BootstrapBlazor.UniverSheet/BootstrapBlazor.UniverSheet.csproj" />
@@ -102,6 +102,7 @@
     <Project Path="src/extensions/BootstrapBlazor.DataAccess.PetaPoco/BootstrapBlazor.DataAccess.PetaPoco.csproj" />
     <Project Path="src/extensions/BootstrapBlazor.DataAccess.SqlSugar/BootstrapBlazor.DataAccess.SqlSugar.csproj" />
     <Project Path="src/extensions/BootstrapBlazor.OpcDa/BootstrapBlazor.OpcDa.csproj" />
+    <Project Path="src/extensions/BootstrapBlazor.OpcUa/BootstrapBlazor.OpcUa.csproj" />
   </Folder>
   <Folder Name="/src/middelware/">
     <Project Path="src/middleware/BootstrapBlazor.Middleware/BootstrapBlazor.Middleware.csproj" />
@@ -127,7 +128,7 @@
   </Folder>
   <Folder Name="/tools/">
     <Project Path="tools/BootstrapBlazor.CssBundler/BootstrapBlazor.CssBundler.csproj" />
-    <Project Path="tools/BootstrapBlazor.LLMsDocsGenerator/BootstrapBlazor.LLMsDocsGenerator.csproj" />
     <Project Path="tools/BootstrapBlazor.LLMsDocs.Cli/BootstrapBlazor.LLMsDocs.Cli.csproj" />
+    <Project Path="tools/BootstrapBlazor.LLMsDocsGenerator/BootstrapBlazor.LLMsDocsGenerator.csproj" />
   </Folder>
 </Solution>
