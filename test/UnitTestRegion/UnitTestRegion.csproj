@@ -1,6 +1,7 @@
 ﻿<Project Sdk="Microsoft.NET.Sdk">
 
   <ItemGroup>
+    <PackageReference Include="bunit" Version="2.*" />
     <ProjectReference Include="..\..\src\components\BootstrapBlazor.Region\BootstrapBlazor.Region.csproj" />
   </ItemGroup>
 
