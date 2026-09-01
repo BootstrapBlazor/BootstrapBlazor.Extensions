@@ -60,12 +60,19 @@ public partial class SelectCity
     private readonly HashSet<string> _values = [];
     private string? _searchText;
     private bool _showSearch;
+    private IEnumerable<string> _filteredProvinces = Provinces;
+    private HashSet<ProvinceItem>? _provinceItems;
+    private Dictionary<string, HashSet<string>>? _cityPinyin;
 
     private string? GetActiveClass(string item) => CssBuilder.Default()
         .AddClass("active", _values.Contains(item) && IsMultiple)
         .AddClass("active", CurrentValue == item && !IsMultiple)
-        .AddClass("prev", !string.IsNullOrEmpty(_searchText) && StartsWith(PinyinService.GetFirstLetters(item), _searchText))
+        .AddClass("prev", IsPinyinMatch(item))
         .Build();
+
+    private bool IsPinyinMatch(string item) => !string.IsNullOrEmpty(_searchText)
+        && _cityPinyin?.TryGetValue(item, out var pinyin) == true
+        && StartsWith(pinyin, _searchText);
 
     /// <summary>
     /// <inheritdoc/>
@@ -84,6 +91,7 @@ public partial class SelectCity
         if (ShowSearch == false)
         {
             _searchText = "";
+            _filteredProvinces = Provinces;
         }
     }
 
@@ -123,7 +131,14 @@ public partial class SelectCity
     [JSInvokable]
     public void TriggerSearch(string v)
     {
-        _searchText = v.ToUpperInvariant();
+        var searchText = v.ToUpperInvariant();
+        if (_searchText == searchText)
+        {
+            return;
+        }
+
+        _searchText = searchText;
+        _filteredProvinces = FilterProvinces(searchText);
         StateHasChanged();
     }
 
@@ -143,7 +158,7 @@ public partial class SelectCity
 
     private RenderFragment RenderCities() => builder =>
     {
-        foreach (var item in GetProvinces())
+        foreach (var item in _filteredProvinces)
         {
             builder.AddContent(0, RenderItem(item));
         }
@@ -190,19 +205,19 @@ public partial class SelectCity
         }
     }
 
-    private HashSet<string> GetProvinces()
+    private IEnumerable<string> FilterProvinces(string searchText)
     {
-        if (string.IsNullOrEmpty(_searchText))
+        if (string.IsNullOrEmpty(searchText))
         {
             return Provinces;
         }
 
-        if (PinyinService.ContainsChinese(_searchText))
+        if (PinyinService.ContainsChinese(searchText))
         {
-            return [.. Provinces.Where(i => i.Contains(_searchText) || GetCities(i).Any(city => city.Contains(_searchText)))];
+            return Provinces.Where(i => i.Contains(searchText) || GetCities(i).Any(city => city.Contains(searchText))).ToArray();
         }
 
-        return [.. GenerateProvincePinYin().Where(i => FilterProvince(i, _searchText)).Select(i => i.Name)];
+        return GenerateProvincePinYin().Where(i => FilterProvince(i, searchText)).Select(i => i.Name).ToArray();
     }
 
     [MethodImpl(MethodImplOptions.AggressiveInlining)]
@@ -211,16 +226,19 @@ public partial class SelectCity
     [MethodImpl(MethodImplOptions.AggressiveInlining)]
     private static bool StartsWith(HashSet<string> source, string searchText) => source.Any(i => i.StartsWith(searchText, StringComparison.OrdinalIgnoreCase));
 
-    private static HashSet<ProvinceItem>? _provinceItems;
-
     private HashSet<ProvinceItem> GenerateProvincePinYin()
     {
-        _provinceItems ??= [.. Provinces.Select(i => new ProvinceItem()
+        if (_provinceItems is null)
         {
-            PinYin = PinyinService.GetFirstLetters(i),
-            Name = i,
-            Cities = GenerateCityPinYin(i)
-        })];
+            _cityPinyin = [];
+            _provinceItems = [.. Provinces.Select(i => new ProvinceItem()
+            {
+                PinYin = PinyinService.GetFirstLetters(i),
+                Name = i,
+                Cities = GenerateCityPinYin(i)
+            })];
+        }
+
         return _provinceItems;
     }
 
@@ -231,10 +249,15 @@ public partial class SelectCity
         _ => RegionService.GetCities(provinceName)
     };
 
-    private HashSet<CityItem> GenerateCityPinYin(string provinceName) => [.. GetCities(provinceName).Select(i => new CityItem()
+    private HashSet<CityItem> GenerateCityPinYin(string provinceName) => [.. GetCities(provinceName).Select(i =>
     {
-        PinYin = PinyinService.GetFirstLetters(i),
-        Name = i
+        var pinyin = PinyinService.GetFirstLetters(i);
+        _cityPinyin![i] = pinyin;
+        return new CityItem()
+        {
+            PinYin = pinyin,
+            Name = i
+        };
     })];
 
     private static readonly HashSet<string> Provinces = [
