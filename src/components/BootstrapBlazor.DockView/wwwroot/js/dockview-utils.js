@@ -66,10 +66,81 @@ const removeDrawerButtons = dockview => {
     dockview.element?.querySelectorAll(':scope > .bb-dockview-aside').forEach(el => el.remove());
 }
 
+// Post-rebuild work for the initial load and every reset (both go through dockview.init).
+// Notifications run one microtask later so razor.js subscribers — attached after cerateDockview
+// returns — exist, replacing the old setTimeout(0) whose queue wait delayed the content render.
+const postLayoutInit = (dockview, options) => {
+    if (dockview._isDisposed) {
+        return
+    }
+    const { floatingGroups } = dockview.params
+    dockview.floatingGroups.forEach(fg => {
+        const saved = floatingGroups.find(g => g.data.id == fg.group.id);
+        if (saved?.position) {
+            const { top, right, bottom, left } = saved.position;
+
+            fg.group.element.parentElement.style.inset = [top, right, bottom, left]
+                .map(item => typeof item == 'number' ? (item + 'px') : 'auto').join(' ')
+        }
+
+        observeOverlayChange(fg.overlay, fg.group)
+        const { floatType, direction } = fg.group.getParams();
+        if (floatType == 'drawer') {
+            createDrawerHandle(fg.group, direction == 'right')
+        }
+        observeFloatingGroupLocationChange(fg.group)
+    })
+
+    dockview.groups.forEach(group => {
+        observeGroup(group)
+    })
+
+    // Bind once per instance: re-binding on every rebuild piled duplicate handlers.
+    if (!dockview.params.drawerHandlerBound) {
+        dockview.params.drawerHandlerBound = true;
+        dockview.element.querySelector('&>.dv-dockview>.dv-branch-node')?.addEventListener('click', function (e) {
+            this.parentElement.querySelectorAll('&>.dv-resize-container-drawer, &>.dv-render-overlay-float-drawer')?.forEach(item => {
+                item.classList.remove('active')
+            })
+            this.closest('.bb-dockview').querySelectorAll('&>.bb-dockview-aside>.bb-dockview-aside-button')?.forEach(item => {
+                item.classList.remove('active')
+            })
+        })
+    }
+
+    // Must stay the last synchronous step: keeps saveConfig suppressed until post-processing completes.
+    dockview.params.inited = true;
+
+    queueMicrotask(() => {
+        if (dockview._isDisposed) {
+            return
+        }
+        // Hidden set first (merged from reset's tail and the razor.js init loop), then visible — original order.
+        dockview.params.invisiblePanels?.forEach(p => {
+            dockview._panelVisibleChanged?.fire({ key: p.params.key, status: false });
+        })
+        dockview.panels.forEach(panel => {
+            if (panel.params.visible) {
+                dockview._panelVisibleChanged?.fire({ key: panel.params.key, status: true });
+            }
+            else {
+                panel.group.model.closePanel(panel)
+            }
+        })
+
+        if (options.renderer === 'onlyWhenVisible') {
+            const visiblePanels = dockview.groups.filter(g => g.isVisible).map(g => g.panels.find(p => p.params.isActive) || g.panels.find(p => p.api.isVisible))
+            dockview._loadTabs?.fire(visiblePanels.filter(p => p.params.key).map(p => p.params.key));
+        }
+        dockview._initialized?.fire();
+    })
+}
+
 const initDockview = (dockview, options, template) => {
     dockview.params = { panels: [], options, template, observer: null, layoutSeq: 0 };
     dockview.init = function (options) {
         initDockviewFromConfig(this, options);
+        postLayoutInit(this, options);
     }
 
     dockview.switchTheme = theme => {
@@ -110,9 +181,6 @@ const initDockview = (dockview, options, template) => {
         finally {
             dockview.params.reset = false;
         }
-        dockview.params.invisiblePanels?.forEach(p => {
-            dockview._panelVisibleChanged?.fire({ key: p.params.key, status: false });
-        });
     }
 
     dockview.switchLayout = options => {
@@ -141,70 +209,10 @@ const initDockview = (dockview, options, template) => {
     })
 
     dockview.onDidLayoutFromJSON(() => {
-        const layoutToken = dockview.params.layoutSeq;
+        // Rebuild post-processing lives in postLayoutInit (called by the dockview.init wrapper).
         dockview.groups.forEach(group => {
             markFirstVisibleElement(group);
         })
-        const handler = setTimeout(() => {
-            clearTimeout(handler);
-            if (dockview._isDisposed) {
-                dockview = null;
-                return;
-            }
-            if (dockview.params.layoutSeq !== layoutToken) {
-                return;
-            }
-            const panels = dockview.panels;
-            const groups = dockview.groups;
-
-
-            panels.forEach(panel => {
-                const visible = panel.params.visible
-                if (visible) {
-                    dockview._panelVisibleChanged?.fire({ key: panel.params.key, status: true });
-                }
-                else {
-                    panel.group.model.closePanel(panel)
-                }
-            })
-
-
-            if (options.renderer === 'onlyWhenVisible') {
-                const visiblePanels = groups.filter(g => g.isVisible).map(g => g.panels.find(p => p.params.isActive) || g.panels.find(p => p.api.isVisible))
-                dockview._loadTabs?.fire(visiblePanels.filter(p => p.params.key).map(p => p.params.key));
-            }
-            const { floatingGroups } = dockview.params
-            dockview.floatingGroups.forEach(fg => {
-                const saved = floatingGroups.find(g => g.data.id == fg.group.id);
-                if (saved?.position) {
-                    const { top, right, bottom, left } = saved.position;
-
-                    fg.group.element.parentElement.style.inset = [top, right, bottom, left]
-                        .map(item => typeof item == 'number' ? (item + 'px') : 'auto').join(' ')
-                }
-
-                observeOverlayChange(fg.overlay, fg.group)
-                const { floatType, direction } = fg.group.getParams();
-                if (floatType == 'drawer') {
-                    createDrawerHandle(fg.group, direction == 'right')
-                }
-                observeFloatingGroupLocationChange(fg.group)
-            })
-
-            dockview.groups.forEach(group => {
-                observeGroup(group)
-            })
-            dockview.element.querySelector('&>.dv-dockview>.dv-branch-node')?.addEventListener('click', function (e) {
-                this.parentElement.querySelectorAll('&>.dv-resize-container-drawer, &>.dv-render-overlay-float-drawer')?.forEach(item => {
-                    item.classList.remove('active')
-                })
-                this.closest('.bb-dockview').querySelectorAll('&>.bb-dockview-aside>.bb-dockview-aside-button')?.forEach(item => {
-                    item.classList.remove('active')
-                })
-            })
-            dockview.params.inited = true;
-            dockview._initialized?.fire();
-        }, 0);
     })
 
     dockview.gridview.onDidChange(event => {
