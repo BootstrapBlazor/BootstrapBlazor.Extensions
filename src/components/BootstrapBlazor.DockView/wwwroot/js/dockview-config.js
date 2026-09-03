@@ -1,4 +1,4 @@
-import { getPanelsFromOptions } from "./dockview-panel.js"
+import { getPanelsFromOptions, getRootContent } from "./dockview-panel.js"
 
 const initDockviewFromConfig = (dockview, options) => {
     const { layoutConfig, enableLocalStorage } = options;
@@ -58,17 +58,39 @@ const initDockviewFromConfig = (dockview, options) => {
     else {
         dockview.fromJSON(getConfigFromContent(options));
         dockview.params.invisiblePanels = [];
+        dockview.params.floatingGroups = [];
     }
 
+    syncLayoutToContainer(dockview);
 }
+
+const syncLayoutToContainer = dockview => {
+    const el = dockview.gridview?.element?.parentElement ?? dockview.element;
+    if (!el) return;
+    const width = el.clientWidth;
+    const height = el.clientHeight;
+    if (!width || !height) return;
+    if (width === dockview.width && height === dockview.height) return;
+    dockview.layout(width, height, true);
+}
+
 
 const getConfigFromContent = options => {
     const { width, height } = { width: 800, height: 600 };
     const getGroupId = getGroupIdFunc()
     options = filterEmptyContent(options)
-    const panels = {}, rootType = options.content[0].type
+    const rootContent = getRootContent(options)
+    if (!rootContent) {
+        return {
+            activeGroup: '1',
+            grid: { width, height, orientation: 'HORIZONTAL', root: { type: 'branch', size: 0, data: [] } },
+            panels: {}
+        }
+    }
+    const rootParent = { content: [rootContent] }
+    const panels = {}, rootType = rootContent.type
     const orientation = rootType === 'column' ? 'VERTICAL' : 'HORIZONTAL';
-    const root = getTree(options.content[0], { width, height, orientation }, options, panels, getGroupId, options)
+    const root = getTree(rootContent, { width, height, orientation }, rootParent, panels, getGroupId, options)
     return {
         activeGroup: '1',
         grid: { width, height, orientation, root },
@@ -260,9 +282,6 @@ const saveConfig = dockview => {
         return;
     }
 
-    // Don't persist a collapsed/unmeasured layout: while collapsed toJSON() serializes size:100, which
-    // makes the even-split sticky across refreshes. Real layouts are measured (width>0), so this only
-    // drops a degenerate save the next change re-saves.
     if (!dockview.width || !dockview.height) {
         return;
     }
@@ -271,10 +290,6 @@ const saveConfig = dockview => {
         panel.params.isActive = panel.api.isActive || panel.group.activePanel === panel
     })
 
-    // While maximized, toJSON()'s serialize() toggles sibling visibility once; guard it with
-    // `maximizing` so the onlyWhenVisible handler doesn't move sibling content into the template
-    // (which would blank it after exit). finally resets the flag even on throw, otherwise a stuck
-    // `maximizing` would make every later saveConfig bail at the top guard.
     let gridJson;
     dockview.params.maximizing = true;
     try {
@@ -340,6 +355,10 @@ const syncLayoutWithOptions = (layout, options, invisiblePanels = []) => {
     Object.values(layout.panels).forEach(p => {
         if (p.params?.key) localIdByKey.set(p.params.key, p.id);
     });
+
+    if (optionPanels.length === 0) {
+        return layout;
+    }
 
     const matchCount = [...optionPanelByKey.keys()].filter(key => localIdByKey.has(key)).length;
     if (matchCount === 0) {

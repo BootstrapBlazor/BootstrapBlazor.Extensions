@@ -120,8 +120,10 @@ const updateTitle = panel => {
     }
 }
 
+export const getRootContent = options => options.content.find(c => c.layoutName === options.layoutName) || options.content[0]
 const getPanelsFromOptions = options => {
-    return getPanels(options.content[0], options)
+    const rootContent = getRootContent(options)
+    return rootContent ? getPanels(rootContent, options) : []
 }
 
 const getPanels = (contentItem, options, parent = {}, panels = []) => {

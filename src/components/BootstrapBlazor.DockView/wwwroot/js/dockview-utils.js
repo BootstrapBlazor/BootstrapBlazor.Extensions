@@ -62,10 +62,79 @@ const guardCollapsedSaveProportions = dockview => {
     };
 }
 
+const removeDrawerButtons = dockview => {
+    dockview.element?.querySelectorAll(':scope > .bb-dockview-aside').forEach(el => el.remove());
+}
+
+const postLayoutInit = (dockview, options) => {
+    if (dockview._isDisposed) {
+        return
+    }
+    const { floatingGroups } = dockview.params
+    dockview.floatingGroups.forEach(fg => {
+        const saved = floatingGroups.find(g => g.data.id == fg.group.id);
+        if (saved?.position) {
+            const { top, right, bottom, left } = saved.position;
+
+            fg.group.element.parentElement.style.inset = [top, right, bottom, left]
+                .map(item => typeof item == 'number' ? (item + 'px') : 'auto').join(' ')
+        }
+
+        observeOverlayChange(fg.overlay, fg.group)
+        const { floatType, direction } = fg.group.getParams();
+        if (floatType == 'drawer') {
+            createDrawerHandle(fg.group, direction == 'right')
+        }
+        observeFloatingGroupLocationChange(fg.group)
+    })
+
+    dockview.groups.forEach(group => {
+        observeGroup(group)
+    })
+
+    if (!dockview.params.drawerHandlerBound) {
+        dockview.params.drawerHandlerBound = true;
+        dockview.element.querySelector('&>.dv-dockview>.dv-branch-node')?.addEventListener('click', function (e) {
+            this.parentElement.querySelectorAll('&>.dv-resize-container-drawer, &>.dv-render-overlay-float-drawer')?.forEach(item => {
+                item.classList.remove('active')
+            })
+            this.closest('.bb-dockview').querySelectorAll('&>.bb-dockview-aside>.bb-dockview-aside-button')?.forEach(item => {
+                item.classList.remove('active')
+            })
+        })
+    }
+
+    dockview.params.inited = true;
+
+    queueMicrotask(() => {
+        if (dockview._isDisposed) {
+            return
+        }
+        dockview.params.invisiblePanels?.forEach(p => {
+            dockview._panelVisibleChanged?.fire({ key: p.params.key, status: false });
+        })
+        dockview.panels.forEach(panel => {
+            if (panel.params.visible) {
+                dockview._panelVisibleChanged?.fire({ key: panel.params.key, status: true });
+            }
+            else {
+                panel.group.model.closePanel(panel)
+            }
+        })
+
+        if (options.renderer === 'onlyWhenVisible') {
+            const visiblePanels = dockview.groups.filter(g => g.isVisible).map(g => g.panels.find(p => p.params.isActive) || g.panels.find(p => p.api.isVisible))
+            dockview._loadTabs?.fire(visiblePanels.filter(p => p.params.key).map(p => p.params.key));
+        }
+        dockview._initialized?.fire();
+    })
+}
+
 const initDockview = (dockview, options, template) => {
-    dockview.params = { panels: [], options, template, observer: null };
+    dockview.params = { panels: [], options, template, observer: null, layoutSeq: 0 };
     dockview.init = function (options) {
         initDockviewFromConfig(this, options);
+        postLayoutInit(this, options);
     }
 
     dockview.switchTheme = theme => {
@@ -88,7 +157,7 @@ const initDockview = (dockview, options, template) => {
         }
 
         if (options.layoutConfig) {
-            dockview.reset(options);
+            dockview.reset(dockview.params.options);
         }
         else {
             toggleComponent(dockview, options);
@@ -98,8 +167,19 @@ const initDockview = (dockview, options, template) => {
     dockview.reset = options => {
         dockview.params.inited = false;
         dockview.params.reset = true;
-        dockview.init(options);
-        dockview.params.reset = false;
+        dockview.params.layoutSeq++;
+        removeDrawerButtons(dockview);
+        try {
+            dockview.init(options);
+        }
+        finally {
+            dockview.params.reset = false;
+        }
+    }
+
+    dockview.switchLayout = options => {
+        dockview.params.options = { ...options, renderer: options.renderer || 'onlyWhenVisible' };
+        dockview.reset(dockview.params.options);
     }
 
     dockview.onDidRemovePanel(onRemovePanel);
@@ -126,58 +206,6 @@ const initDockview = (dockview, options, template) => {
         dockview.groups.forEach(group => {
             markFirstVisibleElement(group);
         })
-        const handler = setTimeout(() => {
-            clearTimeout(handler);
-            if (dockview._isDisposed) {
-                dockview = null;
-                return;
-            }
-            const panels = dockview.panels;
-            const groups = dockview.groups;
-
-            panels.forEach(panel => {
-                const visible = panel.params.visible
-                if (visible) {
-                    dockview._panelVisibleChanged?.fire({ key: panel.params.key, status: true });
-                }
-                else {
-                    panel.group.model.closePanel(panel)
-                }
-            })
-
-            if (options.renderer === 'onlyWhenVisible') {
-                const visiblePanels = groups.filter(g => g.isVisible).map(g => g.panels.find(p => p.params.isActive) || g.panels.find(p => p.api.isVisible))
-                dockview._loadTabs?.fire(visiblePanels.filter(p => p.params.key).map(p => p.params.key));
-            }
-            const { floatingGroups } = dockview.params
-            dockview.floatingGroups.forEach(fg => {
-                const { top, right, bottom, left } = floatingGroups.find(g => g.data.id == fg.group.id).position
-
-                fg.group.element.parentElement.style.inset = [top, right, bottom, left]
-                    .map(item => typeof item == 'number' ? (item + 'px') : 'auto').join(' ')
-
-                observeOverlayChange(fg.overlay, fg.group)
-                const { floatType, direction } = fg.group.getParams();
-                if (floatType == 'drawer') {
-                    createDrawerHandle(fg.group, direction == 'right')
-                }
-                observeFloatingGroupLocationChange(fg.group)
-            })
-
-            dockview.groups.forEach(group => {
-                observeGroup(group)
-            })
-            dockview.element.querySelector('&>.dv-dockview>.dv-branch-node')?.addEventListener('click', function (e) {
-                this.parentElement.querySelectorAll('&>.dv-resize-container-drawer, &>.dv-render-overlay-float-drawer')?.forEach(item => {
-                    item.classList.remove('active')
-                })
-                this.closest('.bb-dockview').querySelectorAll('&>.bb-dockview-aside>.bb-dockview-aside-button')?.forEach(item => {
-                    item.classList.remove('active')
-                })
-            })
-            dockview.params.inited = true;
-            dockview._initialized?.fire();
-        }, 0);
     })
 
     dockview.gridview.onDidChange(event => {

@@ -1,18 +1,21 @@
 @inherits DockViewComponentBase
 
-<div id="@Id" class="bb-dockview-panel" data-bb-key="@Key" data-bb-title="@Title">
-    @if (TitleTemplate != null)
-    {
-        <div class="bb-dockview-item-title">
-            @TitleTemplate
-        </div>
-    }
-    else if (ShowTitleBar)
-    {
-        <DockViewTitleBar BarIcon="@TitleBarIcon" BarIconUrl="@TitleBarIconUrl" OnClickBarCallback="OnClickBar"></DockViewTitleBar>
-    }
-    @if (IsRender())
-    {
-        @ChildContent
-    }
-</div>
+@if (ChildContent != null)
+{
+    <div id="@Id" class="bb-dockview-panel" data-bb-key="@Key" data-bb-title="@Title">
+        @if (TitleTemplate != null)
+        {
+            <div class="bb-dockview-item-title">
+                @TitleTemplate
+            </div>
+        }
+        else if (ShowTitleBar)
+        {
+            <DockViewTitleBar BarIcon="@TitleBarIcon" BarIconUrl="@TitleBarIconUrl" OnClickBarCallback="OnClickBar"></DockViewTitleBar>
+        }
+        @if (IsRender())
+        {
+            @ChildContent
+        }
+    </div>
+}

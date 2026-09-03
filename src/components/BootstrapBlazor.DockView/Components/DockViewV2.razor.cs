@@ -156,6 +156,13 @@ public partial class DockViewV2
     public DockViewTheme Theme { get; set; } = DockViewTheme.Light;
 
     /// <summary>
+    /// <para lang="zh">获得/设置 布局名称，默认为 null</para>
+    /// <para lang="en">Gets or sets the layout name. Default is null</para>
+    /// </summary>
+    [Parameter]
+    public string? LayoutName { get; set; }
+
+    /// <summary>
     /// 嵌套 DockView 时生效防止生成冗余的 DOM 结构
     /// </summary>
     [CascadingParameter]
@@ -179,6 +186,7 @@ public partial class DockViewV2
     private DockViewOptions? _options = null;
     private ConcurrentDictionary<string, DockViewComponentState> _componentStates = new();
     private string? _layoutConfig;
+    private string? _layoutName;
     private bool _disposed;
 
     /// <summary>
@@ -224,6 +232,12 @@ public partial class DockViewV2
         if (firstRender)
         {
             _layoutConfig = LayoutConfig;
+            _layoutName = LayoutName;
+        }
+        else if (_layoutName != LayoutName)
+        {
+            _layoutName = LayoutName;
+            await InvokeVoidAsync("switchLayout", Id, GetDockViewConfig());
         }
         else if (!_triggerLoadTabs)
         {
@@ -283,14 +297,47 @@ public partial class DockViewV2
             LockChangedCallback = nameof(LockChangedCallbackAsync),
             SplitterCallback = nameof(SplitterCallbackAsync),
             SaveConfigCallback = nameof(SaveConfigCallbackAsync),
-            Contents = _components,
-            LoadTabs = nameof(LoadTabs)
+            Contents = GetLayoutContents(),
+            LoadTabs = nameof(LoadTabs),
+            LayoutName = LayoutName
         };
+    }
+
+    /// <summary>
+    /// <para lang="zh">根据 <see cref="LayoutName"/> 在服务器端过滤出匹配的布局，避免将所有布局序列化到客户端</para>
+    /// <para lang="en">Filters the matching layout on the server side by <see cref="LayoutName"/> to avoid serializing all layouts to the client</para>
+    /// </summary>
+    private List<DockViewComponentBase> GetLayoutContents()
+    {
+        if (_components.Count == 0)
+        {
+            return [];
+        }
+
+        var content = _components[0];
+        if (string.IsNullOrEmpty(LayoutName))
+        {
+            return [content];
+        }
+
+        return [_components.Find(item => item.LayoutName == LayoutName) ?? content];
     }
 
     private bool IsEnableLocalStorage => EnableLocalStorage ?? _options.EnableLocalStorage ?? false;
 
-    private string? LocalStorageKey => IsEnableLocalStorage ? $"{GetPrefixKey()}-{Name}-{GetVersion()}" : null;
+    private string? LocalStorageKey
+    {
+        get
+        {
+            if (!IsEnableLocalStorage)
+            {
+                return null;
+            }
+
+            var layoutSegment = string.IsNullOrEmpty(LayoutName) ? "" : $"-{LayoutName}";
+            return $"{GetPrefixKey()}-{Name}{layoutSegment}-{GetVersion()}";
+        }
+    }
 
     private string GetVersion() => Version ?? _options.Version ?? "v1";
 

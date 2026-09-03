@@ -463,7 +463,7 @@ const createDrawerBtn = (floatingGroup, isRight) => {
 const removeDrawerBtn = group => {
     const parentEle = group.api.accessor.element.parentElement.parentElement
     const btnList = parentEle?.querySelectorAll(`[groupid="${group.api.accessor.id}_${group.id}"]`)
-    btnList.forEach(btn => btn.remove())
+    btnList?.forEach(btn => btn.remove())
 }
 
 const setDrawerTitle = group => {
