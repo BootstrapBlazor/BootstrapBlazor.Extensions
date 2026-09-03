@@ -66,9 +66,6 @@ const removeDrawerButtons = dockview => {
     dockview.element?.querySelectorAll(':scope > .bb-dockview-aside').forEach(el => el.remove());
 }
 
-// Post-rebuild work for the initial load and every reset (both go through dockview.init).
-// Notifications run one microtask later so razor.js subscribers — attached after cerateDockview
-// returns — exist, replacing the old setTimeout(0) whose queue wait delayed the content render.
 const postLayoutInit = (dockview, options) => {
     if (dockview._isDisposed) {
         return
@@ -95,7 +92,6 @@ const postLayoutInit = (dockview, options) => {
         observeGroup(group)
     })
 
-    // Bind once per instance: re-binding on every rebuild piled duplicate handlers.
     if (!dockview.params.drawerHandlerBound) {
         dockview.params.drawerHandlerBound = true;
         dockview.element.querySelector('&>.dv-dockview>.dv-branch-node')?.addEventListener('click', function (e) {
@@ -108,14 +104,12 @@ const postLayoutInit = (dockview, options) => {
         })
     }
 
-    // Must stay the last synchronous step: keeps saveConfig suppressed until post-processing completes.
     dockview.params.inited = true;
 
     queueMicrotask(() => {
         if (dockview._isDisposed) {
             return
         }
-        // Hidden set first (merged from reset's tail and the razor.js init loop), then visible — original order.
         dockview.params.invisiblePanels?.forEach(p => {
             dockview._panelVisibleChanged?.fire({ key: p.params.key, status: false });
         })
@@ -209,7 +203,6 @@ const initDockview = (dockview, options, template) => {
     })
 
     dockview.onDidLayoutFromJSON(() => {
-        // Rebuild post-processing lives in postLayoutInit (called by the dockview.init wrapper).
         dockview.groups.forEach(group => {
             markFirstVisibleElement(group);
         })

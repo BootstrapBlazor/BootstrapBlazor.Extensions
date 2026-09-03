@@ -330,7 +330,6 @@ public partial class DockViewV2
         get
         {
             if (!IsEnableLocalStorage) return null;
-            // 各布局独立持久化；LayoutName 为空时保持原格式以兼容旧存档
             var layoutSegment = string.IsNullOrEmpty(LayoutName) ? "" : $"-{LayoutName}";
             return $"{GetPrefixKey()}-{Name}{layoutSegment}-{GetVersion()}";
         }
