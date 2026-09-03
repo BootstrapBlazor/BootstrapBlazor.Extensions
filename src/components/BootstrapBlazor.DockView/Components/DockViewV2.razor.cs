@@ -329,7 +329,11 @@ public partial class DockViewV2
     {
         get
         {
-            if (!IsEnableLocalStorage) return null;
+            if (!IsEnableLocalStorage)
+            {
+                return null;
+            }
+
             var layoutSegment = string.IsNullOrEmpty(LayoutName) ? "" : $"-{LayoutName}";
             return $"{GetPrefixKey()}-{Name}{layoutSegment}-{GetVersion()}";
         }
