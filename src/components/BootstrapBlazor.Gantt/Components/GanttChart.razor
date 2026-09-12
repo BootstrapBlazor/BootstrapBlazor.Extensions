@@ -33,7 +33,7 @@
             }
         </div>
 
-        @if (ShowSummary && VisibleItems.Count > 0)
+        @if (ShowSummary && (VisibleItems.Count > 0 || ScheduleIssues.ItemIds.Count > 0))
         {
             <div class="gantt-chart__summary">
                 <span>可见任务 @VisibleItems.Count 个</span>

@@ -525,6 +525,11 @@ public partial class GanttChart
     /// <returns></returns>
     private int GetSlotIndexForDate(DateTime date)
     {
+        if (date.Date <= TimelineSlots[0].End.Date)
+        {
+            return 0;
+        }
+
         for (var index = 0; index < TimelineSlots.Count; index++)
         {
             var slot = TimelineSlots[index];

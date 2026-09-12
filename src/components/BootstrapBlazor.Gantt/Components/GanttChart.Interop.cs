@@ -1,8 +1,6 @@
 using BootstrapBlazor.Components;
 using Microsoft.AspNetCore.Components;
 using Microsoft.JSInterop;
-using Microsoft.JSInterop.Implementation;
-using System.Runtime.Serialization;
 
 namespace BootstrapBlazor.Gantt;
 
@@ -15,16 +13,20 @@ public partial class GanttChart
     private ViewportState? pendingViewportState;
 
     /// <summary>
-    /// 
+    ///
     /// </summary>
     /// <param name="firstRender"></param>
     /// <returns></returns>
     protected override async Task OnAfterRenderAsync(bool firstRender)
     {
         await base.OnAfterRenderAsync(firstRender);
-        if (!IsEditable)
+        if (!IsEditable || VisibleRows.Count == 0)
         {
-            await DisposeJsDragAsync();
+            if (jSObjectReference is not null)
+            {
+                await DisposeJsDragAsync();
+            }
+
             return;
         }
 
@@ -33,7 +35,7 @@ public partial class GanttChart
             throw new Exception("JS module is not initialized.");
         }
 
-        if (firstRender)
+        if (jSObjectReference is null)
         {
             jSObjectReference = await Module.InvokeAsync<IJSObjectReference>("initGanttDrag",
                 timelineShellRef,
@@ -42,8 +44,7 @@ public partial class GanttChart
         }
         else
         {
-            EnsureJSObjectReference();
-            await jSObjectReference!.InvokeVoidAsync("updateOptions", BuildJsDragOptions());
+            await jSObjectReference.InvokeVoidAsync("updateOptions", BuildJsDragOptions());
         }
 
         if (pendingViewportState is not null)
@@ -96,22 +97,24 @@ public partial class GanttChart
         if (disposing)
         {
             await DisposeJsDragAsync();
-
-            if (jSObjectReference != null)
-            {
-                await jSObjectReference.DisposeAsync();
-                jSObjectReference = null;
-            }
         }
+
         await base.DisposeAsync(disposing);
     }
 
     private async Task DisposeJsDragAsync()
     {
+        var jsObjectReference = jSObjectReference;
+        jSObjectReference = null;
+        if (jsObjectReference is null)
+        {
+            return;
+        }
+
         try
         {
-            EnsureJSObjectReference();
-            await jSObjectReference!.InvokeVoidAsync("dispose");
+            await jsObjectReference.InvokeVoidAsync("dispose");
+            await jsObjectReference.DisposeAsync();
         }
         catch (JSDisconnectedException)
         {
@@ -124,14 +127,5 @@ public partial class GanttChart
         public double ScrollLeftRatio { get; } = scrollLeftRatio;
 
         public double ScrollTopRatio { get; } = scrollTopRatio;
-    }
-
-
-    private void EnsureJSObjectReference()
-    {
-        if (jSObjectReference == null)
-        {
-            throw new Exception("JSObjectReference is null.");
-        }
     }
 }

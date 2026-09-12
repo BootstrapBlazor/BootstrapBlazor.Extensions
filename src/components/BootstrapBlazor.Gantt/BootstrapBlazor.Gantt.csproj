@@ -2,7 +2,7 @@
 
   <PropertyGroup>
     <PackageTags>Bootstrap Blazor WebAssembly wasm UI Components</PackageTags>
-    <Description>Bootstrap UI components extensions of Grantt</Description>
+    <Description>A Bootstrap Blazor Gantt chart component with grouping, dependencies, critical paths, and interactive scheduling</Description>
   </PropertyGroup>
 
   <ItemGroup>

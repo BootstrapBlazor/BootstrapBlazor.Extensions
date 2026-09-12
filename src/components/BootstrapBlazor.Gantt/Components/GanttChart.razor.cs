@@ -3,7 +3,7 @@ using Microsoft.AspNetCore.Components;
 namespace BootstrapBlazor.Gantt;
 
 /// <summary>
-/// 
+///
 /// </summary>
 public partial class GanttChart
 {
@@ -181,6 +181,8 @@ public partial class GanttChart
     /// </summary>
     private readonly HashSet<string> collapsedGroupIds = new(StringComparer.Ordinal);
 
+    private readonly HashSet<string> initializedGroupIds = new(StringComparer.Ordinal);
+
     /// <summary>
     /// <para lang="zh">记录已折叠任务标识的集合</para>
     /// <para lang="en">Stores the set of collapsed item identifiers</para>
@@ -318,7 +320,7 @@ public partial class GanttChart
     private GanttViewMode ResolvedViewMode => internalViewMode ?? ViewMode;
 
     /// <summary>
-    /// 
+    ///
     /// </summary>
     protected override void OnParametersSet()
     {
@@ -328,6 +330,7 @@ public partial class GanttChart
             .ToHashSet(StringComparer.Ordinal);
 
         collapsedGroupIds.RemoveWhere(id => !validIds.Contains(id));
+        initializedGroupIds.RemoveWhere(id => !validIds.Contains(id));
 
         var validItemIds = (Groups.Count == 0
                 ? FlattenParameterItems(Items)
@@ -336,7 +339,7 @@ public partial class GanttChart
             .ToHashSet(StringComparer.Ordinal);
         collapsedItemIds.RemoveWhere(id => !validItemIds.Contains(id));
 
-        foreach (var group in Groups.Where(group => group.InitiallyCollapsed))
+        foreach (var group in Groups.Where(group => initializedGroupIds.Add(group.Id) && group.InitiallyCollapsed))
         {
             collapsedGroupIds.Add(group.Id);
         }
@@ -549,10 +552,18 @@ public partial class GanttChart
             rangeEndCache = EndDate.HasValue
                 ? NormalizeToSlotEnd(EndDate.Value.Date)
                 : NormalizeToSlotEnd((visibleItemsCache.Count == 0 ? DateTime.Today : visibleItemsCache.Max(item => item.End.Date).Date));
+            if (rangeEndCache < rangeStartCache)
+            {
+                rangeEndCache = NormalizeToSlotEnd(rangeStartCache);
+            }
 
             timelineSlotsCache = BuildTimelineSlots(rangeStartCache, rangeEndCache);
             visibleRowsCache = BuildRows(visibleItemsCache);
-            scheduleIssuesCache = BuildScheduleIssueState(visibleItemsCache);
+            var analysisItems = (Groups.Count == 0
+                    ? FlattenAllItems(GetCurrentItems())
+                    : GetCurrentGroups().SelectMany(group => FlattenAllItems(group.Items)))
+                .ToArray();
+            scheduleIssuesCache = BuildScheduleIssueState(analysisItems);
             resourceConflictsCache = BuildResourceConflictState(visibleItemsCache);
             criticalPathCache = BuildCriticalPathState(visibleItemsCache);
             dependencySegmentsCache = BuildDependencySegments(visibleItemsCache, visibleRowsCache, criticalPathCache);
