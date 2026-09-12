@@ -17,6 +17,15 @@ if (window.BootstrapBlazor.Chart === void 0) {
             if (!elementMap.has(element)) {
                 elementMap.set(element, instance)
             }
+            else {
+                deepMerge(elementMap.get(element), instance)
+            }
+
+            const data = Data.get(element);
+            if (data && data.chart) {
+                deepMerge(data.chart.config._config, instance);
+                data.chart.update();
+            }
         }
 
         getOptionsById(element) {
@@ -98,6 +107,17 @@ const genericOptions = {
     radius: 0
 }
 
+const formatChartText = (format, values) => {
+    if (!format) {
+        return null;
+    }
+
+    return Object.keys(values).reduce((text, key) => text.replaceAll(`{${key}}`, values[key] ?? ''), format);
+}
+
+const getStackedTotal = context => context.chart.data.datasets.reduce(
+    (total, v, index) => context.chart.isDatasetVisible(index) ? total + (Number(v.data[context.dataIndex]) || 0) : total, 0)
+
 const getChartOption = function (option) {
     const appendData = option.appendData;
     delete option.appendData;
@@ -118,6 +138,9 @@ const getChartOption = function (option) {
                 text: option.options.x.title
             },
             stacked: option.options.x.stacked,
+            ticks: {
+                autoSkip: option.options.x.autoSkip
+            },
             grid: {
                 display: option.options.showXLine
             }
@@ -130,9 +153,21 @@ const getChartOption = function (option) {
             },
             stacked: option.options.x.stacked,
             position: option.options.y.position,
+            ticks: {
+                autoSkip: option.options.y.autoSkip
+            },
             grid: {
                 display: option.options.showYLine
             }
+        }
+    }
+
+    if (option.options.categoryLabelFormatter) {
+        scale.x.ticks.callback = function (value) {
+            return formatChartText(option.options.categoryLabelFormatter, {
+                value,
+                label: this.getLabelForValue(value)
+            });
         }
     }
 
@@ -350,6 +385,7 @@ const getChartOption = function (option) {
             stacked: option.options.x.stacked,
             position: option.options.y2.position,
             ticks: {
+                autoSkip: option.options.y2.autoSkip,
                 max: option.options.y2.TicksMax,
                 min: option.options.y2.TicksMin
             }
@@ -369,6 +405,96 @@ const getChartOption = function (option) {
         if (option.options.showYLine === null) {
             scale.y.grid.display = true
         }
+    }
+
+    let showDataLabel = option.options.showDataLabel;
+    if (showDataLabel === true && option.options.x.stacked) {
+        showDataLabel = context => Number(context.dataset?.data[context.dataIndex]) !== 0;
+    }
+
+    const datalabels = {
+        anchor: option.options.anchor,
+        align: option.options.align,
+        formatter: option.options.formatter,
+        display: showDataLabel,
+        color: option.options.chartDataLabelColor,
+        font: {
+            weight: 'bold'
+        }
+    };
+
+    if (option.options.showTotalDataLabel && option.options.x.stacked) {
+        const lastVisibleIndex = chart => {
+            let last = -1;
+            chart.data.datasets.forEach((v, index) => {
+                if (chart.isDatasetVisible(index)) {
+                    last = index;
+                }
+            });
+            return last;
+        };
+        const totalLabel = {
+            anchor: 'end',
+            align: 'end',
+            display: context => context.datasetIndex === lastVisibleIndex(context.chart),
+            formatter: (value, context) => {
+                const total = getStackedTotal(context);
+                return formatChartText(option.options.totalDataLabelFormatter, { total, value: total }) ?? total;
+            }
+        };
+
+        if (option.options.totalDataLabelColor) {
+            totalLabel.color = option.options.totalDataLabelColor;
+        }
+        if (option.options.totalDataLabelBackgroundColor) {
+            totalLabel.backgroundColor = option.options.totalDataLabelBackgroundColor;
+        }
+        if (option.options.totalDataLabelBorderRadius !== null) {
+            totalLabel.borderRadius = option.options.totalDataLabelBorderRadius;
+        }
+        if (option.options.totalDataLabelPadding !== null) {
+            totalLabel.padding = option.options.totalDataLabelPadding;
+        }
+        if (option.options.totalDataLabelFontWeight) {
+            totalLabel.font = {
+                weight: option.options.totalDataLabelFontWeight
+            };
+        }
+
+        datalabels.labels = {
+            value: {},
+            total: totalLabel
+        };
+    }
+
+    const tooltip = {};
+    if (option.options.tooltipTitleFormatter) {
+        tooltip.callbacks = {
+            ...tooltip.callbacks,
+            title: tooltipItems => {
+                const item = tooltipItems[0];
+                return formatChartText(option.options.tooltipTitleFormatter, {
+                    label: item.label,
+                    value: item.formattedValue,
+                    datasetLabel: item.dataset.label,
+                    dataIndex: item.dataIndex,
+                    datasetIndex: item.datasetIndex
+                });
+            }
+        };
+    }
+
+    if (option.options.tooltipLabelFormatter) {
+        tooltip.callbacks = {
+            ...tooltip.callbacks,
+            label: context => formatChartText(option.options.tooltipLabelFormatter, {
+                label: context.label,
+                value: context.formattedValue,
+                datasetLabel: context.dataset.label,
+                dataIndex: context.dataIndex,
+                datasetIndex: context.datasetIndex
+            })
+        };
     }
 
     return {
@@ -391,16 +517,8 @@ const getChartOption = function (option) {
                         display: option.options.title != null,
                         text: option.options.title
                     },
-                    datalabels: {
-                        anchor: option.options.anchor,
-                        align: option.options.align,
-                        formatter: option.options.formatter,
-                        display: option.options.showDataLabel,
-                        color: option.options.chartDataLabelColor,
-                        font: {
-                            weight: 'bold'
-                        }
-                    },
+                    datalabels: datalabels,
+                    ...(tooltip.callbacks ? { tooltip } : {}),
                     customCanvasBackgroundColor: {
                         color: option.options.canvasBackgroundColor,
                     }
@@ -555,12 +673,13 @@ export function toImage(id, mimeType) {
 }
 
 export function dispose(id) {
-    const chart = Data.get(id)
+    const d = Data.get(id)
     Data.remove(id)
     BootstrapBlazor.Chart.removeOptionsById(id);
 
-    if (chart) {
-        EventHandler.off(window, 'resize', chart.resizeHandler)
+    if (d) {
+        const { chart, chart: { resizeHandler } } = d;
+        EventHandler.off(window, 'resize', resizeHandler)
         chart.destroy()
     }
 }

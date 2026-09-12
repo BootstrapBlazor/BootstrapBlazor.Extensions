@@ -7,31 +7,31 @@ const onAddPanel = panel => {
     updateTitle(panel);
     observePanelActiveChange(panel)
 }
+
 const observePanelActiveChange = panel => {
-    panel.api.onDidActiveChange(({ isActive }) => {
-        if (isActive && !panel.group.api.isMaximized()) {
-            saveConfig(panel.accessor)
-            if (panel.group.panels.length >= 2){
-                panel.group.panels.filter(p => p != panel.group.activePanel && p.renderer == 'onlyWhenVisible').forEach(p => {
-                    appendTemplatePanelEle(p)
-                })
-            }
-        }
-        if (isActive && panel.group.getParams().floatType == 'drawer') {
-            setDrawerTitle(panel.group)
-        }
-        setTimeout(function () {
-            moveAlwaysRenderPanel(panel)
-        }, 0)
-    })
     panel.api.onDidVisibilityChange(({ isVisible }) => {
         const dockview = panel.accessor;
-        if (dockview.params.options.renderer === 'onlyWhenVisible' && dockview._inited && isVisible) {
-            setTimeout(function() {
+        if (dockview._isDisposed || dockview.params.maximizing) return;
+        const renderer = dockview.params.options.renderer;
+        if (renderer === 'onlyWhenVisible' && dockview.params.inited) {
+            if (isVisible) {
+                saveConfig(panel.accessor)
                 const visiblePanels = dockview.groups.map(g => g.panels.find(p => p.params.isActive) || g.panels.find(p => p.api.isVisible))
                 dockview._loadTabs?.fire(visiblePanels.filter(p => Boolean(p)).map(p => p.params.key));
-            }, 0)
+            }
+            else {
+                movePanelContentToTemplate(panel, false)
+            }
         }
+
+        if (isVisible && panel.group.getParams().floatType == 'drawer') {
+            setDrawerTitle(panel.group)
+        }
+        const handler = setTimeout(function () {
+            clearTimeout(handler)
+            if (dockview._isDisposed) return;
+            moveAlwaysRenderPanel(panel)
+        }, 0)
     })
 }
 
@@ -52,7 +52,9 @@ const moveAlwaysRenderPanel = panel => {
 
 const onRemovePanel = event => {
     const dockview = event.accessor
-    let panel = {
+    // Data-driven channels (showClose=false) must not enter invisiblePanels, else suppressed by the visible filter
+    const isDataChannel = event.params?.showClose === false;
+    let invisiblePanel = {
         id: event.id,
         title: event.title,
         component: event.view.contentComponent,
@@ -63,13 +65,16 @@ const onRemovePanel = event => {
             currentPosition: {
                 width: event.group.element.parentElement.offsetWidth,
                 height: event.group.element.parentElement.offsetHeight,
-                top: parseFloat(event.group.element.parentElement.style.top || 0),
-                left: parseFloat(event.group.element.parentElement.style.left || 0)
+                // offsetTop/Left, not style.top/left which can be 'auto' -> parseFloat NaN -> lost position.
+                top: event.group.element.parentElement.offsetTop,
+                left: event.group.element.parentElement.offsetLeft
             },
             index: event.group.delPanelIndex
         }
     }
-    savePanel(dockview, panel)
+    if (!isDataChannel) {
+        saveInvisiblePanel(dockview, invisiblePanel)
+    }
 
     if (event.group.children) {
         event.group.children = event.group.children.filter(p => findPanel(p, event) !== null);
@@ -78,27 +83,6 @@ const onRemovePanel = event => {
             title: event.title,
             params: event.params
         })
-    }
-
-    // if (event.view.content.element) {
-    //     if (event.titleMenuEle) {
-    //         event.view.content.element.append(event.titleMenuEle)
-    //     }
-    //     if (dockview.params.template) {
-    //         dockview.params.template.append(event.view.content.element)
-    //     }
-    // }
-}
-
-const appendTemplatePanelEle = (panel) => {
-    const dockview = panel.accessor
-    if (panel.view.content.element) {
-        // if (panel.titleMenuEle) {
-        //     panel.view.content.element.append(panel.titleMenuEle)
-        // }
-        if (dockview.params.template) {
-            dockview.params.template.append(panel.view.content.element)
-        }
     }
 }
 
@@ -136,8 +120,10 @@ const updateTitle = panel => {
     }
 }
 
+export const getRootContent = options => options.content.find(c => c.layoutName === options.layoutName) || options.content[0]
 const getPanelsFromOptions = options => {
-    return getPanels(options.content[0], options)
+    const rootContent = getRootContent(options)
+    return rootContent ? getPanels(rootContent, options) : []
 }
 
 const getPanels = (contentItem, options, parent = {}, panels = []) => {
@@ -162,28 +148,33 @@ const findContentFromPanels = (panels, content) => {
     return panels.find((p => p.params.key && p.params.key === content.params.key) || p.id === content.id || p.title === content.title);
 }
 
-const savePanel = (dockview, panel) => {
-    const { panels, options } = dockview.params;
-    panels.push(panel)
-    if (options.enableLocalStorage) {
-        localStorage.setItem(`${options.localStorageKey}-panels`, JSON.stringify(panels))
-        const timer = setTimeout(() => {
-            clearTimeout(timer)
-            saveConfig(dockview)
-        }, 0)
-    }
-}
-
-const deletePanel = (dockview, panel) => {
-    const { panels, options } = dockview.params;
-    let index = panels.indexOf(panel);
-    if (index > -1) {
-        panels.splice(index, 1);
-    }
-    if (options.enableLocalStorage) {
-        localStorage.setItem(`${options.localStorageKey}-panels`, JSON.stringify(panels))
+const saveInvisiblePanel = (dockview, invisiblePanel) => {
+    const { invisiblePanels, options } = dockview.params;
+    if (!invisiblePanels) return
+    invisiblePanels.push(invisiblePanel)
+    const timer = setTimeout(() => {
+        clearTimeout(timer)
         saveConfig(dockview)
+    }, 0);
+}
+
+const deleteInvisiblePanel = (dockview, invisiblePanel) => {
+    const { invisiblePanels, options } = dockview.params;
+
+    dockview.params.invisiblePanels = invisiblePanels.filter(p => p.params.key !== invisiblePanel.params.key)
+    saveConfig(dockview)
+}
+
+export const movePanelContentToTemplate = (panel, titleMenu = false) => {
+    const dockview = panel.accessor
+    if (panel.view.content.element) {
+        if (titleMenu && panel.titleMenuEle) {
+            panel.view.content.element.append(panel.titleMenuEle)
+        }
+        if (dockview.params.template) {
+            dockview.params.template.append(panel.view.content.element)
+        }
     }
 }
 
-export { onAddPanel, observePanelActiveChange, moveAlwaysRenderPanel, onRemovePanel, getPanelsFromOptions, findContentFromPanels, deletePanel };
+export { onAddPanel, observePanelActiveChange, moveAlwaysRenderPanel, onRemovePanel, getPanelsFromOptions, findContentFromPanels, deleteInvisiblePanel };

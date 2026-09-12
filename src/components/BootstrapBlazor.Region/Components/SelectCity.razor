@@ -36,12 +36,12 @@
 
 @code {
     RenderFragment RenderItem(string item) =>
-    @<div class="bb-region-city-item">
+    @<div @key="item" class="bb-region-city-item">
         <div class="bb-region-city-title" @onclick="() => OnSelectProvince(item)">@item</div>
         <ul>
             @foreach (var city in GetCities(item))
             {
-                <li class="@GetActiveClass(city)" @onclick="() => OnSelectCity(city)">@city</li>
+                <li @key="city" class="@GetActiveClass(city)" @onclick="() => OnSelectCity(city)">@city</li>
             }
         </ul>
     </div>;

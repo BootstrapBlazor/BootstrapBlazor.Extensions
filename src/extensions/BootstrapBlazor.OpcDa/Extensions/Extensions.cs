@@ -1,4 +1,4 @@
-﻿// Copyright (c) Argo Zhang (argo@163.com). All rights reserved.
+// Copyright (c) Argo Zhang (argo@163.com). All rights reserved.
 // Licensed under the Apache License, Version 2.0. See License.txt in the project root for license information.
 // Website: https://www.blazor.zone or https://argozhang.github.io/
 
@@ -7,7 +7,8 @@ using Opc.Da;
 namespace BootstrapBlazor.OpcDa;
 
 /// <summary>
-/// 扩展方法类
+/// <para lang="zh">扩展方法类</para>
+/// <para lang="en">Extension methods</para>
 /// </summary>
 internal static class Extensions
 {

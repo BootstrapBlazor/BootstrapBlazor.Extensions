@@ -42,6 +42,13 @@ public abstract class DockViewComponentBase : IdComponentBase, IDisposable
     [JsonIgnore]
     public RenderFragment? ChildContent { get; set; }
 
+    /// <summary>
+    /// <para lang="zh">获得/设置 名称</para>
+    /// <para lang="en">Gets or sets the name</para>
+    /// </summary>
+    [Parameter]
+    public string? LayoutName { get; set; }
+
     [CascadingParameter]
     private List<DockViewComponentBase>? Parent { get; set; }
 

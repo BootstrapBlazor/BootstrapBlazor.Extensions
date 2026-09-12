@@ -1,0 +1,14 @@
+{
+  "name": "bootstrapblazor-code-editor-assets",
+  "private": true,
+  "scripts": {
+    "build": "node ./scripts/build-monaco.mjs"
+  },
+  "devDependencies": {
+    "esbuild": "0.28.2",
+    "monaco-editor": "0.56.0"
+  },
+  "overrides": {
+    "dompurify": "3.4.14"
+  }
+}

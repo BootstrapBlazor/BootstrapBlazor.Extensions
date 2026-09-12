@@ -2,6 +2,7 @@ import Data from "../../BootstrapBlazor/modules/data.js"
 import EventHandler from "../../BootstrapBlazor/modules/event-handler.js"
 import Input from "../../BootstrapBlazor/modules/input.js"
 import Popover from "../../BootstrapBlazor/modules/base-popover.js"
+import { debounce } from "../../BootstrapBlazor/modules/utility.js"
 
 export function init(id, invoke, options) {
     const el = document.getElementById(id);
@@ -37,9 +38,12 @@ const initSearch = region => {
     const { el, invoke, options } = region;
     const searchInput = el.querySelector(".search-text");
     if (searchInput) {
-        Input.composition(searchInput, async v => {
-            await invoke.invokeMethodAsync(options.triggerSearch, v);
-        });
+        const handler = debounce(async v => {
+            if (searchInput.isConnected && searchInput.value === v) {
+                await invoke.invokeMethodAsync(options.triggerSearch, v);
+            }
+        })
+        Input.composition(searchInput, handler);
     }
 
     const search = el.querySelector(".dropdown-menu-search .clear-icon");

@@ -46,6 +46,7 @@ public partial class DockViewComponent
     /// <para lang="en">Gets or sets the title template. Default is null</para>
     /// </summary>
     [Parameter]
+    [JsonIgnore]
     public RenderFragment? TitleTemplate { get; set; }
 
     /// <summary>

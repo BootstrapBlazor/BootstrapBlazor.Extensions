@@ -17,14 +17,15 @@ export async function init(id, invoke, options) {
         }
     }
     const dockview = cerateDockview(el, options);
+
     const updateTheme = e => dockview.switchTheme(e.theme);
     Data.set(id, { el, dockview, updateTheme });
 
     dockview.on('initialized', () => {
         invoke.invokeMethodAsync(options.initializedCallback);
     });
-    dockview.on('lockChanged', ({ title, isLock }) => {
-        invoke.invokeMethodAsync(options.lockChangedCallback, title, isLock);
+    dockview.on('lockChanged', ({ keys, isLock }) => {
+        invoke.invokeMethodAsync(options.lockChangedCallback, keys, isLock);
     });
     dockview.on('panelVisibleChanged', ({ key, status }) => {
         invoke.invokeMethodAsync(options.panelVisibleChangedCallback, key, status);
@@ -33,9 +34,18 @@ export async function init(id, invoke, options) {
         invoke.invokeMethodAsync(options.splitterCallback);
     });
     dockview.on('loadTabs', tabs => {
+        if (tabs.length === 0) {
+            return;
+        }
         invoke.invokeMethodAsync(options.loadTabs, tabs);
     });
+    dockview.on('saveConfig', json => {
+        if (options.enableLocalStorage) {
+            return;
+        }
 
+        invoke.invokeMethodAsync(options.saveConfigCallback, json);
+    });
     EventHandler.on(document, 'changed.bb.theme', updateTheme);
 }
 
@@ -63,6 +73,14 @@ export function save(id) {
         ret = JSON.stringify(dockview.toJSON());
     }
     return ret;
+}
+
+export function switchLayout(id, options) {
+    const dock = Data.get(id)
+    if (dock) {
+        const { dockview } = dock;
+        dockview.switchLayout(options);
+    }
 }
 
 export function dispose(id) {

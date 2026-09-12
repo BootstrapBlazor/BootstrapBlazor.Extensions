@@ -12,7 +12,8 @@ using System.Net;
 namespace BootstrapBlazor.Components;
 
 /// <summary>
-/// 默认 IP2Region 实现
+/// <para lang="zh">默认 IP2Region 实现</para>
+/// <para lang="en">Default IP2Region implementation</para>
 /// </summary>
 class IP2RegionService : DefaultIpLocatorProvider
 {

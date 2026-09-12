@@ -26,14 +26,12 @@ export async function createUniverSheetAsync(sheet) {
                 window[`UniverPresetSheetsDrawing${langStr}`],
                 window[`UniverSheetsZenEditor${langStr}`],
                 window[`UniverPresetSheetsDataValidation${langStr}`],
-                window[`UniverProSheetsChart${langStr}`],
-                window[`UniverProSheetsChartUi${langStr}`],
             ),
         },
         presets: [
             UniverSheetsCorePreset({
                 container: el,
-                ribbonType: sheet.ribbonType ?? 'simple', // default | classic | simple
+                ribbonType: sheet.ribbonType === 'default' ? 'collapsed' : sheet.ribbonType ?? 'simple', // collapsed | classic | simple
                 menu: {
                     'sheet.menu.print': {
                         hidden: true,
@@ -48,8 +46,6 @@ export async function createUniverSheetAsync(sheet) {
         ],
         plugins: [
             UniverSheetsZenEditorPlugin,
-            UniverProSheetsChart.UniverSheetsChartPlugin,
-            UniverProSheetsChartUi.UniverSheetsChartUIPlugin,
         ]
     };
     const plugins = sheet.plugins ?? {

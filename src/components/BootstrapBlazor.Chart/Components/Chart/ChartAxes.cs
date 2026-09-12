@@ -27,6 +27,11 @@ public class ChartAxes
     public bool Stacked { get; set; }
 
     /// <summary>
+    /// 获得/设置 是否自动跳过刻度标签 默认 true 容器宽度不足时自动隐藏部分标签避免重叠 设置 false 时始终显示全部标签
+    /// </summary>
+    public bool AutoSkip { get; set; } = true;
+
+    /// <summary>
     /// 获得/设置 比例最小步长/大小 默认 0
     /// </summary>
     public int TicksMin { get; set; } = 0;

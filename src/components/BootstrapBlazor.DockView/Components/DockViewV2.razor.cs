@@ -15,15 +15,6 @@ namespace BootstrapBlazor.Components;
 public partial class DockViewV2
 {
     /// <summary>
-    /// <para lang="zh">获得/设置 DockView 名称，默认为 null，用于本地存储标识</para>
-    /// <para lang="en">Gets or sets the DockView name. Default is null and it is used for local storage identification</para>
-    /// </summary>
-    [Parameter]
-    [EditorRequired]
-    [NotNull]
-    public string? Name { get; set; }
-
-    /// <summary>
     /// <para lang="zh">获得/设置 布局配置</para>
     /// <para lang="en">Gets or sets the layout configuration</para>
     /// </summary>
@@ -115,6 +106,13 @@ public partial class DockViewV2
     public Func<Task>? OnInitializedCallbackAsync { get; set; }
 
     /// <summary>
+    /// <para lang="zh">获得/设置 客户端配置文件保存回调方法</para>
+    /// <para lang="en">Gets or sets the callback for when the client config is saved</para>
+    /// </summary>
+    [Parameter]
+    public Func<string, Task>? OnSaveConfigCallbackAsync { get; set; }
+
+    /// <summary>
     /// <para lang="zh">获得/设置 子组件内容</para>
     /// <para lang="en">Gets or sets the child content</para>
     /// </summary>
@@ -127,6 +125,14 @@ public partial class DockViewV2
     /// </summary>
     [Parameter]
     public string? Version { get; set; }
+
+    /// <summary>
+    /// <para lang="zh">获得/设置 DockView 名称，默认为 null，用于本地存储标识</para>
+    /// <para lang="en">Gets or sets the DockView name. Default is null and it is used for local storage identification</para>
+    /// </summary>
+    [Parameter]
+    [NotNull]
+    public string? Name { get; set; }
 
     /// <summary>
     /// <para lang="zh">获得/设置 是否启用本地存储布局，默认为 null</para>
@@ -148,6 +154,13 @@ public partial class DockViewV2
     /// </summary>
     [Parameter]
     public DockViewTheme Theme { get; set; } = DockViewTheme.Light;
+
+    /// <summary>
+    /// <para lang="zh">获得/设置 布局名称，默认为 null</para>
+    /// <para lang="en">Gets or sets the layout name. Default is null</para>
+    /// </summary>
+    [Parameter]
+    public string? LayoutName { get; set; }
 
     /// <summary>
     /// 嵌套 DockView 时生效防止生成冗余的 DOM 结构
@@ -172,6 +185,9 @@ public partial class DockViewV2
     [NotNull]
     private DockViewOptions? _options = null;
     private ConcurrentDictionary<string, DockViewComponentState> _componentStates = new();
+    private string? _layoutConfig;
+    private string? _layoutName;
+    private bool _disposed;
 
     /// <summary>
     /// <inheritdoc/>
@@ -189,43 +205,139 @@ public partial class DockViewV2
     /// <summary>
     /// <inheritdoc/>
     /// </summary>
+    protected override void OnParametersSet()
+    {
+        base.OnParametersSet();
+
+        // 开启本体存储未提供 Name 时抛出异常提示
+        if (IsEnableLocalStorage && string.IsNullOrEmpty(Name))
+        {
+            throw new InvalidOperationException("Name must be provided when local storage is enabled.");
+        }
+    }
+
+    /// <summary>
+    /// <inheritdoc/>
+    /// </summary>
     /// <param name="firstRender"></param>
     protected override async Task OnAfterRenderAsync(bool firstRender)
     {
         await base.OnAfterRenderAsync(firstRender);
 
-        if (!firstRender)
+        if (_disposed)
         {
-            await InvokeVoidAsync("update", Id, GetOptions());
+            return;
+        }
+
+        if (firstRender)
+        {
+            _layoutConfig = LayoutConfig;
+            _layoutName = LayoutName;
+        }
+        else if (_layoutName != LayoutName)
+        {
+            _layoutName = LayoutName;
+            await InvokeVoidAsync("switchLayout", Id, GetDockViewConfig());
+        }
+        else if (!_triggerLoadTabs)
+        {
+            await InvokeVoidAsync("update", Id, GetDockViewConfig());
+        }
+        else
+        {
+            _triggerLoadTabs = false;
         }
     }
 
     /// <summary>
     /// <inheritdoc />
     /// </summary>
-    protected override Task InvokeInitAsync() => InvokeVoidAsync("init", Id, Interop, GetOptions());
-
-    private DockViewConfig GetOptions() => new()
+    protected override Task InvokeInitAsync()
     {
-        EnableLocalStorage = EnableLocalStorage ?? _options.EnableLocalStorage ?? false,
-        LocalStorageKey = $"{GetPrefixKey()}-{Name}-{GetVersion()}",
-        IsLock = IsLock,
-        ShowLock = ShowLock,
-        IsFloating = IsFloating,
-        ShowFloat = ShowFloat,
-        ShowClose = ShowClose,
-        ShowPin = ShowPin,
-        ShowMaximize = ShowMaximize,
-        Renderer = Renderer,
-        LayoutConfig = LayoutConfig,
-        Theme = Theme.ToDescriptionString(),
-        InitializedCallback = nameof(InitializedCallbackAsync),
-        PanelVisibleChangedCallback = nameof(PanelVisibleChangedCallbackAsync),
-        LockChangedCallback = nameof(LockChangedCallbackAsync),
-        SplitterCallback = nameof(SplitterCallbackAsync),
-        Contents = _components,
-        LoadTabs = nameof(LoadTabs)
-    };
+        if (_disposed)
+        {
+            return Task.CompletedTask;
+        }
+
+        return InvokeVoidAsync("init", Id, Interop, GetDockViewConfig());
+    }
+
+    private DockViewConfig GetDockViewConfig()
+    {
+        if (_components.Count == 0 && string.IsNullOrEmpty(LayoutConfig))
+        {
+            // 未设置布局并且未设置 LayoutConfig
+            throw new InvalidOperationException("LayoutConfig must be provided when no components are added.");
+        }
+
+        string? layoutConfig = null;
+        if (_layoutConfig != LayoutConfig)
+        {
+            // 如果布局更改了。需要推送下去，如果未更改不需要推送这个变量
+            _layoutConfig = LayoutConfig;
+            layoutConfig = LayoutConfig;
+        }
+
+        return new()
+        {
+            EnableLocalStorage = IsEnableLocalStorage,
+            LocalStorageKey = LocalStorageKey,
+            IsLock = IsLock,
+            ShowLock = ShowLock,
+            IsFloating = IsFloating,
+            ShowFloat = ShowFloat,
+            ShowClose = ShowClose,
+            ShowPin = ShowPin,
+            ShowMaximize = ShowMaximize,
+            Renderer = Renderer,
+            LayoutConfig = layoutConfig,
+            Theme = Theme.ToDescriptionString(),
+            InitializedCallback = nameof(InitializedCallbackAsync),
+            PanelVisibleChangedCallback = nameof(PanelVisibleChangedCallbackAsync),
+            LockChangedCallback = nameof(LockChangedCallbackAsync),
+            SplitterCallback = nameof(SplitterCallbackAsync),
+            SaveConfigCallback = nameof(SaveConfigCallbackAsync),
+            Contents = GetLayoutContents(),
+            LoadTabs = nameof(LoadTabs),
+            LayoutName = LayoutName
+        };
+    }
+
+    /// <summary>
+    /// <para lang="zh">根据 <see cref="LayoutName"/> 在服务器端过滤出匹配的布局，避免将所有布局序列化到客户端</para>
+    /// <para lang="en">Filters the matching layout on the server side by <see cref="LayoutName"/> to avoid serializing all layouts to the client</para>
+    /// </summary>
+    private List<DockViewComponentBase> GetLayoutContents()
+    {
+        if (_components.Count == 0)
+        {
+            return [];
+        }
+
+        var content = _components[0];
+        if (string.IsNullOrEmpty(LayoutName))
+        {
+            return [content];
+        }
+
+        return [_components.Find(item => item.LayoutName == LayoutName) ?? content];
+    }
+
+    private bool IsEnableLocalStorage => EnableLocalStorage ?? _options.EnableLocalStorage ?? false;
+
+    private string? LocalStorageKey
+    {
+        get
+        {
+            if (!IsEnableLocalStorage)
+            {
+                return null;
+            }
+
+            var layoutSegment = string.IsNullOrEmpty(LayoutName) ? "" : $"-{LayoutName}";
+            return $"{GetPrefixKey()}-{Name}{layoutSegment}-{GetVersion()}";
+        }
+    }
 
     private string GetVersion() => Version ?? _options.Version ?? "v1";
 
@@ -237,7 +349,7 @@ public partial class DockViewV2
     /// </summary>
     public async Task Reset(string? layoutConfig = null)
     {
-        var options = GetOptions();
+        var options = GetDockViewConfig();
         if (layoutConfig != null)
         {
             options.LayoutConfig = layoutConfig;
@@ -333,6 +445,7 @@ public partial class DockViewV2
     }
 
     private HashSet<string> _loadTabs = new();
+    private bool _triggerLoadTabs = false;
 
     /// <summary>
     /// <para lang="zh">加载指定标签页的方法，由 JavaScript 调用</para>
@@ -348,9 +461,29 @@ public partial class DockViewV2
             // 标记是否渲染
             componnet.Value.Render = tabs.Contains(componnet.Key);
         }
+        _triggerLoadTabs = true;
         StateHasChanged();
 
         return Task.CompletedTask;
+    }
+
+    /// <summary>
+    /// <para lang="zh">保存配置回调方法，由 JavaScript 调用</para>
+    /// <para lang="en">Save configuration callback method called by JavaScript</para>
+    /// </summary>
+    /// <param name="configJsonString">
+    ///   <para lang="zh">布局配置 JSON 字符串</para>
+    ///   <para lang="en">Layout configuration JSON string</para>
+    /// </param>
+    /// <returns></returns>
+    [JSInvokable]
+    public async Task SaveConfigCallbackAsync(string configJsonString)
+    {
+        // 此处可将 configJsonString 保存到服务器中，以便下次加载时使用
+        if (OnSaveConfigCallbackAsync != null)
+        {
+            await OnSaveConfigCallbackAsync(configJsonString);
+        }
     }
 
     internal void AddComponentState(DockViewComponentState state)
@@ -422,6 +555,7 @@ public partial class DockViewV2
     {
         if (disposing)
         {
+            _disposed = true;
             ThemeProviderService.ThemeChangedAsync -= OnThemeChangedAsync;
         }
 

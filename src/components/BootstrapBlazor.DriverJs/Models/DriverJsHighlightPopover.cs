@@ -5,7 +5,8 @@
 namespace BootstrapBlazor.Components;
 
 /// <summary>
-/// DriverJsHighlightPopover 实例
+/// <para lang="zh">DriverJsHighlightPopover 高亮弹窗配置类</para>
+/// <para lang="en">DriverJsHighlightPopover highlight popover configuration class</para>
 /// </summary>
 public class DriverJsHighlightPopover : IDriverJsPopover
 {

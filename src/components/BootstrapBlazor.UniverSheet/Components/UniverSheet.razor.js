@@ -4,7 +4,9 @@ import Data from '../../BootstrapBlazor/modules/data.js'
 import EventHandler from "../../BootstrapBlazor/modules/event-handler.js"
 
 export async function init(id, invoke, options) {
-    await addLink('./_content/BootstrapBlazor.UniverSheet/css/univer-sheet.bundle.css');
+    const { univerBundleStyleUrl, univerSheetStyleUrl } = options;
+    await addLink(univerBundleStyleUrl);
+    await addLink(univerSheetStyleUrl);
 
     const el = document.getElementById(id);
     if (el === null) {
@@ -48,6 +50,9 @@ export async function init(id, invoke, options) {
 
 export function execute(id, data) {
     const univerSheet = Data.get(id);
+    if (univerSheet === null) {
+        return;
+    }
 
     const { firstPush, backdrop, pushData } = univerSheet;
     let ret = null;
@@ -65,6 +70,10 @@ export function execute(id, data) {
 export function dispose(id) {
     const univerSheet = Data.get(id);
     Data.remove(id);
+
+    if (univerSheet === null) {
+        return;
+    }
 
     if (isFunction(univerSheet.dispose)) {
         univerSheet.dispose();

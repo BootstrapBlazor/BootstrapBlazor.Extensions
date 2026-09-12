@@ -8,10 +8,11 @@ using Microsoft.JSInterop;
 namespace BootstrapBlazor.Components;
 
 /// <summary>
-/// 默认 Html to Image 实现
+/// <para lang="zh">默认 Html to Image 实现</para>
+/// <para lang="en">Default Html to Image implementation</para>
+/// </summary>
 /// <param name="runtime"></param>
 /// <param name="logger"></param>
-/// </summary>
 class DefaultDom2ImageService(IJSRuntime runtime, ILogger<DefaultDom2ImageService> logger) : IDom2ImageService
 {
     private JSModule? _jsModule;
@@ -61,12 +62,6 @@ class DefaultDom2ImageService(IJSRuntime runtime, ILogger<DefaultDom2ImageServic
     /// <summary>
     /// <inheritdoc/>
     /// </summary>
-    /// <param name="selector"></param>
-    /// <param name="fileName"></param>
-    /// <param name="format"></param>
-    /// <param name="backgroundColor"></param>
-    /// <param name="options"></param>
-    /// <returns></returns>
     public async Task DownloadAsync(string selector, string fileName = "capture", string? format = "png", string? backgroundColor = null, Dom2ImageOptions? options = null)
     {
         try

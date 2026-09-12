@@ -15,10 +15,10 @@ public class UnitTest1
     public void Write_Ok()
     {
         var sc = new ServiceCollection();
-        sc.AddOpcDaServer();
+        sc.AddOpcDaClient();
 
         var sp = sc.BuildServiceProvider();
-        var server = sp.GetRequiredService<IOpcDaServer>();
+        var server = sp.GetRequiredService<IOpcDaClient>();
         var ret = server.Connect("opcda://localhost/Kepware.KEPServerEX.V6");
         Assert.True(ret);
         Assert.True(server.IsConnected);
@@ -46,10 +46,10 @@ public class UnitTest1
     public async Task Subscription_Ok()
     {
         var sc = new ServiceCollection();
-        sc.AddOpcDaServer();
+        sc.AddOpcDaClient();
 
         var sp = sc.BuildServiceProvider();
-        var server = sp.GetRequiredService<IOpcDaServer>();
+        var server = sp.GetRequiredService<IOpcDaClient>();
         server.Connect("opcda://localhost/Kepware.KEPServerEX.V6");
 
         var subscription = server.CreateSubscription("Test", 100);
@@ -85,10 +85,10 @@ public class UnitTest1
     public void Browser_Ok()
     {
         var sc = new ServiceCollection();
-        sc.AddOpcDaServer();
+        sc.AddOpcDaClient();
 
         var sp = sc.BuildServiceProvider();
-        var server = sp.GetRequiredService<IOpcDaServer>();
+        var server = sp.GetRequiredService<IOpcDaClient>();
         server.Connect("opcda://localhost/Kepware.KEPServerEX.V6");
 
         var elements = server.Browse("Channel1", new OpcBrowseFilters(), out var position);

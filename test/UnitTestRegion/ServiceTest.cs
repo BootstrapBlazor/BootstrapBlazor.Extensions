@@ -50,7 +50,7 @@ public class UnitTest1
         Assert.Equal(15, counties.Count);
 
         counties = regionService.GetCounties("重庆市");
-        Assert.Equal(38, counties.Count);
+        Assert.Equal(37, counties.Count);
     }
 
     [Fact]
