@@ -67,7 +67,7 @@ class DefaultDom2ImageService(IJSRuntime runtime, ILogger<DefaultDom2ImageServic
         try
         {
             _jsModule ??= await LoadModule();
-            await _jsModule.InvokeAsync<IJSStreamReference?>("downloadAsync", selector, fileName, format, backgroundColor, options);
+            await _jsModule.InvokeVoidAsync("downloadAsync", selector, fileName, format, backgroundColor, options);
         }
         catch (OperationCanceledException) { }
         catch (Exception ex)
