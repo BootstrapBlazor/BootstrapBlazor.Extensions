@@ -141,15 +141,12 @@ public partial class UniverSheet
         UniverSheetStyleUrl
     });
 
+#if NET9_0_OR_GREATER
     private string UniverBundleStyleUrl
     {
         get
         {
-#if NET9_0_OR_GREATER
             return Assets[UniverBundleStylePath];
-#else
-            return UniverBundleStylePath;
-#endif
         }
     }
 
@@ -157,13 +154,26 @@ public partial class UniverSheet
     {
         get
         {
-#if NET9_0_OR_GREATER
             return Assets[UniverSheetStylePath];
-#else
-            return UniverSheetStylePath;
-#endif
         }
     }
+#else
+    private static string UniverBundleStyleUrl
+    {
+        get
+        {
+            return UniverBundleStylePath;
+        }
+    }
+
+    private static string UniverSheetStyleUrl
+    {
+        get
+        {
+            return UniverSheetStylePath;
+        }
+    }
+#endif
 
     /// <summary>
     /// <para lang="zh">推送数据方法</para>
