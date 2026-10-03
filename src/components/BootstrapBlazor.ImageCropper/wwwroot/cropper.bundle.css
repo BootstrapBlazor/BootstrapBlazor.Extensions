@@ -1,6 +1,4 @@
-﻿@import url('./cropper.min.css');
-
-.bb-cropper {
+﻿.bb-cropper {
     --bb-crop-disabled-opacity: 0.65;
     max-width: 640px;
     width: 100%;
@@ -11,9 +9,9 @@
         width: 100%;
     }
 
-    .bb-cropper.is-round .cropper-view-box,
-    .bb-cropper.is-round .cropper-face {
-        border-radius: 50%;
+    .bb-cropper cropper-canvas {
+        width: 100%;
+        max-width: 100%;
     }
 
     .bb-cropper.disabled {
@@ -47,4 +45,9 @@
     height: 1.125rem;
     margin-right: 0;
     width: 2rem;
+}
+
+.bb-cropper-preview-round {
+    aspect-ratio: 1;
+    width: auto;
 }
