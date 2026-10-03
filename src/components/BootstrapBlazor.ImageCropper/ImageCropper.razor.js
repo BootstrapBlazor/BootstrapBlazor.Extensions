@@ -6,8 +6,8 @@ export async function init(id, invoke, options) {
     await addLink("./_content/BootstrapBlazor.ImageCropper/cropper.bundle.css");
 
     const el = document.getElementById(id);
-    if (el === null) {
-        return;
+    if (!el) {
+        throw new Error(`ImageCropper element '${id}' was not found.`);
     }
 
     const image = el.querySelector(".bb-cropper-image");
