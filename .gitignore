@@ -389,3 +389,6 @@ src/**/wwwroot/**/uploader
 # test
 **/UnitTestSvgIcon/**/*.svg
 **/UnitTestSvgIcon/**/*.razor
+
+# AI
+**/.workbuddy/
