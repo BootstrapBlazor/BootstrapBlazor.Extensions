@@ -2,6 +2,7 @@
 // Licensed under the Apache License, Version 2.0. See License.txt in the project root for license information.
 // Website: https://www.blazor.zone or https://argozhang.github.io/
 
+using System.Globalization;
 using System.Text.Json.Serialization;
 
 namespace BootstrapBlazor.Components;
@@ -12,9 +13,10 @@ namespace BootstrapBlazor.Components;
 public class ImageCropperOption
 {
     /// <summary>
-    /// Define the view mode of the cropper
+    /// Deprecated in Cropper.js 2; use InitialFit for initial image sizing
     /// </summary>
     [JsonIgnore(Condition = JsonIgnoreCondition.WhenWritingNull)]
+    [Obsolete("Cropper.js 2 no longer supports ViewMode. Use InitialFit for initial image sizing.")]
     public ImageCropperViewMode? ViewMode { get; set; }
 
     /// <summary>
@@ -38,27 +40,31 @@ public class ImageCropperOption
     public float? AspectRatio { get; set; }
 
     /// <summary>
-    /// Re-render the cropper when resizing the window. default tue
+    /// Deprecated in Cropper.js 2; the canvas responds to container resizing automatically
     /// </summary>
     [JsonIgnore(Condition = JsonIgnoreCondition.WhenWritingNull)]
+    [Obsolete("Cropper.js 2 is responsive by default. This option is ignored.")]
     public bool? Responsive { get; set; }
 
     /// <summary>
-    /// Restore the cropped area after resizing the window. default tue
+    /// Deprecated in Cropper.js 2; this option is ignored
     /// </summary>
     [JsonIgnore(Condition = JsonIgnoreCondition.WhenWritingNull)]
+    [Obsolete("Cropper.js 2 no longer supports Restore. This option is ignored.")]
     public bool? Restore { get; set; }
 
     /// <summary>
-    /// Check if the current image is a cross-origin image. default tue
+    /// Deprecated in Cropper.js 2; use CrossOrigin and configure server CORS instead
     /// </summary>
     [JsonIgnore(Condition = JsonIgnoreCondition.WhenWritingNull)]
+    [Obsolete("Use CrossOrigin and configure CORS on the image server instead.")]
     public bool? CheckCrossOrigin { get; set; }
 
     /// <summary>
-    /// Check the current image's Exif Orientation information. Note that only a JPEG image may contain Exif Orientation information. default tue
+    /// Deprecated in Cropper.js 2; image orientation is handled by the browser
     /// </summary>
     [JsonIgnore(Condition = JsonIgnoreCondition.WhenWritingNull)]
+    [Obsolete("Cropper.js 2 relies on browser image orientation. This option is ignored.")]
     public bool? CheckOrientation { get; set; }
 
     /// <summary>
@@ -216,4 +222,68 @@ public class ImageCropperOption
     /// </summary>
     [JsonIgnore(Condition = JsonIgnoreCondition.WhenWritingNull)]
     public string? Preview { get; set; }
+
+    /// <summary>
+    /// 获取/设置 画布高度，单位为像素，默认 360
+    /// </summary>
+    [JsonIgnore(Condition = JsonIgnoreCondition.WhenWritingNull)]
+    public int? CanvasHeight { get; set; }
+
+    /// <summary>
+    /// 获取/设置 初始图片适配方式，支持 contain、cover，默认 contain
+    /// </summary>
+    [JsonIgnore(Condition = JsonIgnoreCondition.WhenWritingNull)]
+    public string? InitialFit { get; set; }
+
+    /// <summary>
+    /// 获取/设置 是否启用裁剪区域键盘操作，默认 false
+    /// </summary>
+    [JsonIgnore(Condition = JsonIgnoreCondition.WhenWritingNull)]
+    public bool? Keyboard { get; set; }
+
+    /// <summary>
+    /// 获取/设置 裁剪区域是否随图片变换，默认 false
+    /// </summary>
+    [JsonIgnore(Condition = JsonIgnoreCondition.WhenWritingNull)]
+    public bool? DynamicSelection { get; set; }
+
+    /// <summary>
+    /// 获取/设置 图片跨域模式，支持 anonymous、use-credentials
+    /// </summary>
+    [JsonIgnore(Condition = JsonIgnoreCondition.WhenWritingNull)]
+    public string? CrossOrigin { get; set; }
+
+    internal void Validate()
+    {
+        if (AspectRatio.HasValue && (!float.IsFinite(AspectRatio.Value) || AspectRatio.Value <= 0))
+        {
+            throw new ArgumentOutOfRangeException(nameof(AspectRatio));
+        }
+        if (InitialAspectRatio != null &&
+            (!double.TryParse(InitialAspectRatio, NumberStyles.Float, CultureInfo.InvariantCulture, out var ratio) ||
+             !double.IsFinite(ratio) || ratio <= 0))
+        {
+            throw new ArgumentException("Use a positive number in invariant culture.", nameof(InitialAspectRatio));
+        }
+        if (AutoCropArea.HasValue && (!float.IsFinite(AutoCropArea.Value) || AutoCropArea.Value < 0 || AutoCropArea.Value > 1))
+        {
+            throw new ArgumentOutOfRangeException(nameof(AutoCropArea));
+        }
+        if (CanvasHeight <= 0)
+        {
+            throw new ArgumentOutOfRangeException(nameof(CanvasHeight));
+        }
+        if (WheelZoomRatio.HasValue && (!float.IsFinite(WheelZoomRatio.Value) || WheelZoomRatio.Value <= 0))
+        {
+            throw new ArgumentOutOfRangeException(nameof(WheelZoomRatio));
+        }
+        if (InitialFit is not (null or "contain" or "cover"))
+        {
+            throw new ArgumentException("Use contain or cover.", nameof(InitialFit));
+        }
+        if (CrossOrigin is not (null or "anonymous" or "use-credentials"))
+        {
+            throw new ArgumentException("Use anonymous or use-credentials.", nameof(CrossOrigin));
+        }
+    }
 }
