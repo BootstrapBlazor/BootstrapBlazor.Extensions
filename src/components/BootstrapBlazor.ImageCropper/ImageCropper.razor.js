@@ -3,7 +3,7 @@ import Data from '../BootstrapBlazor/modules/data.js'
 import { addLink } from '../BootstrapBlazor/modules/utility.js'
 
 export async function init(id, invoke, options) {
-    await addLink("./_content/BootstrapBlazor.ImageCropper/cropper.bundle.css");
+    await addLink(options.styleUrl);
 
     const el = document.getElementById(id);
     if (!el) {
