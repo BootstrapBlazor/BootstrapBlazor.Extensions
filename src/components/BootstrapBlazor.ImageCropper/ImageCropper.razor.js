@@ -3,15 +3,14 @@ import Data from '../BootstrapBlazor/modules/data.js'
 import { addLink } from '../BootstrapBlazor/modules/utility.js'
 
 export async function init(id, invoke, options) {
-    await addLink("./_content/BootstrapBlazor.ImageCropper/cropper.bundle.css");
-
     const el = document.getElementById(id);
     if (el === null) {
         return;
     }
 
     const image = el.querySelector(".bb-cropper-image");
-    const { options: op, triggerOnCropEndAsync } = options;
+    const { options: op, triggerOnCropEndAsync, styleUrl } = options;
+    await addLink(styleUrl);
     if (triggerOnCropEndAsync) {
         let cropData = null;
         op.cropend = () => {
