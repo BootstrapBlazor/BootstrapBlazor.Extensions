@@ -12,6 +12,8 @@ namespace BootstrapBlazor.Components;
 /// </summary>
 public partial class ImageCropper
 {
+    private const string CropperStylePath = "_content/BootstrapBlazor.ImageCropper/cropper.bundle.css";
+
     /// <summary>
     /// 获得/设置 图片地址 URL
     /// </summary>
@@ -92,7 +94,14 @@ public partial class ImageCropper
     {
         Options = Options ?? new(),
         TriggerOnCropEndAsync = OnCropChangedAsync != null ? nameof(TriggerOnCropChangedAsync) : null,
+        StyleUrl = CropperStyleUrl
     });
+
+#if NET9_0_OR_GREATER
+    private string CropperStyleUrl => Assets[CropperStylePath];
+#else
+    private static string CropperStyleUrl => CropperStylePath;
+#endif
 
     /// <summary>
     /// 剪裁方法 触发 <see cref="OnCropAsync"/> 回调方法
