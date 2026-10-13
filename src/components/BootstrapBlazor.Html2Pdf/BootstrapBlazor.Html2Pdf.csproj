@@ -10,7 +10,7 @@
   </PropertyGroup>
 
   <PropertyGroup>
-    <PuppeteerSharpVersion>25.12.0</PuppeteerSharpVersion>
+    <PuppeteerSharpVersion>25.13.1</PuppeteerSharpVersion>
   </PropertyGroup>
 
   <ItemGroup>
