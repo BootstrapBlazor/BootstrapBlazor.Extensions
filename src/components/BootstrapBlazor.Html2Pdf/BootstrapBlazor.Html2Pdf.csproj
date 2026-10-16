@@ -1,7 +1,7 @@
 ﻿<Project Sdk="Microsoft.NET.Sdk.Razor">
 
   <PropertyGroup>
-    <Version>10.0.20</Version>
+    <Version>10.0.21</Version>
   </PropertyGroup>
 
   <PropertyGroup>
@@ -10,7 +10,7 @@
   </PropertyGroup>
 
   <PropertyGroup>
-    <PuppeteerSharpVersion>25.13.1</PuppeteerSharpVersion>
+    <PuppeteerSharpVersion>25.14.0</PuppeteerSharpVersion>
   </PropertyGroup>
 
   <ItemGroup>
