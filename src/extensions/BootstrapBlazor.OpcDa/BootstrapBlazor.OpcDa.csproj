@@ -1,7 +1,6 @@
 ﻿<Project Sdk="Microsoft.NET.Sdk">
 
   <PropertyGroup>
-    <Version>10.0.2</Version>
     <RootNamespace>BootstrapBlazor.OpcDa</RootNamespace>
   </PropertyGroup>
 
