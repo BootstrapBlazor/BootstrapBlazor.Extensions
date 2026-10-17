@@ -12,6 +12,8 @@ namespace BootstrapBlazor.Components;
 /// </summary>
 public partial class WinBox
 {
+    private const string WinBoxStylePath = "_content/BootstrapBlazor.WinBox/css/winbox.bundle.css";
+
     /// <summary>
     /// DialogServices 服务实例
     /// </summary>
@@ -22,6 +24,18 @@ public partial class WinBox
     private WinBoxOption? _option;
 
     private readonly ConcurrentDictionary<string, WinBoxOption> _cache = new();
+
+    /// <summary>
+    /// <inheritdoc/>
+    /// </summary>
+    /// <returns></returns>
+    protected override Task InvokeInitAsync() => InvokeVoidAsync("init", Id, WinBoxStyleUrl);
+
+#if NET9_0_OR_GREATER
+    private string WinBoxStyleUrl => Assets[WinBoxStylePath];
+#else
+    private static string WinBoxStyleUrl => WinBoxStylePath;
+#endif
 
     /// <summary>
     /// OnInitialized 方法

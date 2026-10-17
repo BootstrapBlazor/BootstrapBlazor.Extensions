@@ -2,8 +2,8 @@
 import Data from '../BootstrapBlazor/modules/data.js'
 import { addLink } from "../BootstrapBlazor/modules/utility.js"
 
-export async function init(id) {
-    await addLink('_content/BootstrapBlazor.WinBox/css/winbox.bundle.css')
+export async function init(id, styleUrl) {
+    await addLink(styleUrl)
 }
 
 export function show(id, invoke, option) {
