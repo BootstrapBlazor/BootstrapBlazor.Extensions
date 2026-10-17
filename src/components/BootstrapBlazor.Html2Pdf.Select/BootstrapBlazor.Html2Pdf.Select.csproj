@@ -30,4 +30,8 @@
     <PackageReference Include="System.Drawing.Common" Version="$(NET10Version)" />
   </ItemGroup>
 
+  <ItemGroup Condition="'$(TargetFramework)' == 'net11.0'">
+    <PackageReference Include="System.Drawing.Common" Version="$(NET11Version)" />
+  </ItemGroup>
+
 </Project>

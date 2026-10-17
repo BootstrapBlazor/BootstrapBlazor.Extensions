@@ -37,4 +37,8 @@
     <PackageReference Include="PuppeteerSharp" Version="$(PuppeteerSharpVersion)" />
   </ItemGroup>
 
+  <ItemGroup Condition="'$(TargetFramework)' == 'net11.0'">
+    <PackageReference Include="PuppeteerSharp" Version="$(PuppeteerSharpVersion)" />
+  </ItemGroup>
+
 </Project>
