@@ -39,4 +39,9 @@
     <PackageReference Include="OPCFoundation.NetStandard.Opc.Ua.Client" Version="$(UA8Version)" />
   </ItemGroup>
 
+  <ItemGroup Condition="'$(TargetFramework)' == 'net11.0'">
+    <PackageReference Include="Microsoft.Extensions.DependencyInjection" Version="$(NET11Version)" />
+    <PackageReference Include="OPCFoundation.NetStandard.Opc.Ua.Client" Version="$(UA8Version)" />
+  </ItemGroup>
+
 </Project>

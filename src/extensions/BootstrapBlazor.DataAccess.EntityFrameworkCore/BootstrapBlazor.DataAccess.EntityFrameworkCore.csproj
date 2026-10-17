@@ -25,6 +25,10 @@
     <PackageReference Include="Microsoft.EntityFrameworkCore" Version="$(NET10Version)" />
   </ItemGroup>
 
+  <ItemGroup Condition="'$(TargetFramework)' == 'net11.0'">
+    <PackageReference Include="Microsoft.EntityFrameworkCore" Version="$(NET11Version)" />
+  </ItemGroup>
+
   <ItemGroup>
     <PackageReference Include="BootstrapBlazor" Version="$(BBVersion)" />
   </ItemGroup>
