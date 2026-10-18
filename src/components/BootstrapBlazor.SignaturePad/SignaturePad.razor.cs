@@ -13,6 +13,14 @@ namespace BootstrapBlazor.Components;
 /// </summary>
 public partial class SignaturePad
 {
+    private const string StylePath = "_content/BootstrapBlazor.SignaturePad/SignaturePad.css";
+
+#if NET9_0_OR_GREATER
+    private string StyleUrl => Assets[StylePath];
+#else
+    private static string StyleUrl => StylePath;
+#endif
+
     /// <summary>
     /// 手写签名结果回调/SignaturePad result callback method
     /// </summary>
@@ -219,7 +227,7 @@ public partial class SignaturePad
     /// <summary>
     /// <inheritdoc/>
     /// </summary>
-    protected override Task InvokeInitAsync() => InvokeVoidAsync("init", Id, Interop, EnableAlertJS ? SignatureAlertText : null, BackgroundColor);
+    protected override Task InvokeInitAsync() => InvokeVoidAsync("init", Id, Interop, EnableAlertJS ? SignatureAlertText : null, BackgroundColor, StyleUrl);
 
     /// <summary>
     /// 签名完成回调方法
