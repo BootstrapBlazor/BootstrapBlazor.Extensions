@@ -12,6 +12,14 @@ namespace BootstrapBlazor.Components;
 [JSModuleAutoLoader("./_content/BootstrapBlazor.MouseFollower/Components/MouseFollower/MouseFollower.razor.js")]
 public partial class MouseFollower
 {
+    private const string StylePath = "_content/BootstrapBlazor.MouseFollower/mouse-follower.bundle.css";
+
+#if NET9_0_OR_GREATER
+    private string StyleUrl => Assets[StylePath];
+#else
+    private static string StyleUrl => StylePath;
+#endif
+
     /// <summary>
     /// 获得/设置 MouseFollowerMode 模式
     /// </summary>
@@ -55,6 +63,6 @@ public partial class MouseFollower
     {
         Options ??= new MouseFollowerOptions();
 
-        await InvokeVoidAsync("init", Id, new { Options, Global = GlobalMode, Mode = FollowerMode.ToDescriptionString(), Content });
+        await InvokeVoidAsync("init", Id, new { Options, Global = GlobalMode, Mode = FollowerMode.ToDescriptionString(), Content }, StyleUrl);
     }
 }
