@@ -1,9 +1,9 @@
 <Project Sdk="Microsoft.NET.Sdk">
 
   <PropertyGroup>
-    <Version>10.0.3</Version>
+    <Version>10.0.4</Version>
     <OutputType>Exe</OutputType>
-    <TargetFramework>net10.0</TargetFramework>
+    <TargetFrameworks>net10.0;net11.0</TargetFrameworks>
     <SatelliteResourceLanguages>false</SatelliteResourceLanguages>
   </PropertyGroup>
 
