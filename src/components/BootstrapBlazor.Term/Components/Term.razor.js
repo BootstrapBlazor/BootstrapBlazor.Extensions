@@ -3,8 +3,8 @@ import "../lib/xterm-addon-fit.js";
 import { addLink } from '../../BootstrapBlazor/modules/utility.js'
 import Data from '../../BootstrapBlazor/modules/data.js'
 
-export async function init(id, invoke, options) {
-    await addLink('./_content/BootstrapBlazor.Term/lib/xterm.css');
+export async function init(id, invoke, options, styleUrl) {
+    await addLink(styleUrl)
 
     const el = document.getElementById(id);
     if (el === null) {
