@@ -12,6 +12,8 @@ namespace BootstrapBlazor.Components;
 /// </summary>
 public partial class WinBox
 {
+    private const string WinBoxBaseStylePath = "_content/BootstrapBlazor.WinBox/css/winbox.min.css";
+
     private const string WinBoxStylePath = "_content/BootstrapBlazor.WinBox/css/winbox.bundle.css";
 
     /// <summary>
@@ -29,11 +31,19 @@ public partial class WinBox
     /// <inheritdoc/>
     /// </summary>
     /// <returns></returns>
-    protected override Task InvokeInitAsync() => InvokeVoidAsync("init", Id, WinBoxStyleUrl);
+    protected override Task InvokeInitAsync() => InvokeVoidAsync("init", Id, new
+    {
+        BaseStyleUrl = WinBoxBaseStyleUrl,
+        StyleUrl = WinBoxStyleUrl
+    });
 
 #if NET9_0_OR_GREATER
+    private string WinBoxBaseStyleUrl => Assets[WinBoxBaseStylePath];
+
     private string WinBoxStyleUrl => Assets[WinBoxStylePath];
 #else
+    private static string WinBoxBaseStyleUrl => WinBoxBaseStylePath;
+
     private static string WinBoxStyleUrl => WinBoxStylePath;
 #endif
 
