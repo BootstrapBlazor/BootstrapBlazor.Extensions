@@ -1,8 +1,5 @@
-﻿<Project Sdk="Microsoft.NET.Sdk">
+<Project Sdk="Microsoft.NET.Sdk">
 
-  <PropertyGroup>
-    <Version>10.0.2</Version>
-  </PropertyGroup>
 
   <PropertyGroup>
     <PackageTags>Bootstrap Blazor WebAssembly wasm UI Components Opc Ua Client</PackageTags>
@@ -36,6 +33,11 @@
 
   <ItemGroup Condition="'$(TargetFramework)' == 'net10.0'">
     <PackageReference Include="Microsoft.Extensions.DependencyInjection" Version="$(NET10Version)" />
+    <PackageReference Include="OPCFoundation.NetStandard.Opc.Ua.Client" Version="$(UA8Version)" />
+  </ItemGroup>
+
+  <ItemGroup Condition="'$(TargetFramework)' == 'net11.0'">
+    <PackageReference Include="Microsoft.Extensions.DependencyInjection" Version="$(NET11Version)" />
     <PackageReference Include="OPCFoundation.NetStandard.Opc.Ua.Client" Version="$(UA8Version)" />
   </ItemGroup>
 
