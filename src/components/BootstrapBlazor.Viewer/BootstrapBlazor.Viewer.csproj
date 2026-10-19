@@ -1,6 +1,10 @@
 <Project Sdk="Microsoft.NET.Sdk.Razor">
 
   <PropertyGroup>
+    <Version>11.0.0-beta01</Version>
+  </PropertyGroup>
+
+  <PropertyGroup>
     <PackageTags>Bootstrap Blazor Viewer 图片浏览器 组件</PackageTags>
     <Description>Bootstrap UI Viewer components experience</Description>
   </PropertyGroup>
