@@ -12,6 +12,14 @@ namespace BootstrapBlazor.Components;
 /// </summary>
 public partial class VideoPlayer : IAsyncDisposable
 {
+    private const string StylePath = "_content/BootstrapBlazor.VideoPlayer/video-js.min.css";
+
+#if NET9_0_OR_GREATER
+    private string StyleUrl => Assets[StylePath];
+#else
+    private static string StyleUrl => StylePath;
+#endif
+
     /// <summary>
     /// 资源地址
     /// </summary>
@@ -92,7 +100,7 @@ public partial class VideoPlayer : IAsyncDisposable
             Language = Language
         };
         option.Sources.Add(new VideoSources(MineType, Url));
-        await InvokeVoidAsync("init", Id, option);
+        await InvokeVoidAsync("init", Id, option, StyleUrl);
     }
 
     /// <summary>
