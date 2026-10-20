@@ -10,6 +10,8 @@ namespace BootstrapBlazor.Components;
 /// </summary>
 public partial class DriverJs
 {
+    private const string DriverJsStylePath = "_content/BootstrapBlazor.DriverJs/driver.css";
+
     /// <summary>
     /// <para lang="zh">获得/设置 是否自动开始向导，默认为 true</para>
     /// <para lang="en">Gets or sets whether to start the tour automatically. Default is true</para>
@@ -42,7 +44,13 @@ public partial class DriverJs
     /// <inheritdoc/>
     /// </summary>
     /// <returns></returns>
-    protected override Task InvokeInitAsync() => InvokeVoidAsync("init", Id, Interop);
+    protected override Task InvokeInitAsync() => InvokeVoidAsync("init", Id, Interop, DriverJsStyleUrl);
+
+#if NET9_0_OR_GREATER
+    private string DriverJsStyleUrl => Assets[DriverJsStylePath];
+#else
+    private static string DriverJsStyleUrl => DriverJsStylePath;
+#endif
 
     /// <summary>
     /// <para lang="zh">开始方法</para>
