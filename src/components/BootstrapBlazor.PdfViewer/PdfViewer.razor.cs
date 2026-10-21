@@ -12,6 +12,14 @@ namespace BootstrapBlazor.Components;
 /// </summary>
 public partial class PdfViewer
 {
+    private const string StylePath = "_content/BootstrapBlazor.PdfViewer/pdf-viewer.css";
+
+#if NET9_0_OR_GREATER
+    private string StyleUrl => Assets[StylePath];
+#else
+    private static string StyleUrl => StylePath;
+#endif
+
     /// <summary>
     /// <para lang="zh">获得/设置 文档 Url 属性</para>
     /// <para lang="en">Gets or sets the url for the PDF file to be displayed</para>
@@ -96,7 +104,7 @@ public partial class PdfViewer
         LoadedCallaback = nameof(TriggerOnLoaded),
         NotSupportCallback = nameof(TriggerNotSupportCallback),
         Url = GetAbsoluteUri(Url)
-    });
+    }, StyleUrl);
 
     private string GetAbsoluteUri(string? url)
     {
