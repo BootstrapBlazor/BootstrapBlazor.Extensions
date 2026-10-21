@@ -8,8 +8,8 @@ if (pdfjsLib != null) {
     pdfjsLib.GlobalWorkerOptions.workerSrc = '/_content/BootstrapBlazor.PdfReader/lib/pdf.worker.min.mjs';
 }
 
-export async function init(id, invoke, options) {
-    await addLink('./_content/BootstrapBlazor.PdfReader/css/pdf_reader.css');
+export async function init(id, invoke, options, styleUrl) {
+    await addLink(styleUrl)
 
     const el = document.getElementById(id);
     if (el === null) {
