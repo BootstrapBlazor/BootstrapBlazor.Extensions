@@ -14,6 +14,14 @@ namespace BootstrapBlazor.Components;
 /// </summary>
 public partial class DockViewV2
 {
+    private const string StylePath = "_content/BootstrapBlazor.DockView/css/dockview-bb.css";
+
+#if NET9_0_OR_GREATER
+    private string StyleUrl => Assets[StylePath];
+#else
+    private static string StyleUrl => StylePath;
+#endif
+
     /// <summary>
     /// <para lang="zh">获得/设置 布局配置</para>
     /// <para lang="en">Gets or sets the layout configuration</para>
@@ -259,7 +267,7 @@ public partial class DockViewV2
             return Task.CompletedTask;
         }
 
-        return InvokeVoidAsync("init", Id, Interop, GetDockViewConfig());
+        return InvokeVoidAsync("init", Id, Interop, GetDockViewConfig(), StyleUrl);
     }
 
     private DockViewConfig GetDockViewConfig()

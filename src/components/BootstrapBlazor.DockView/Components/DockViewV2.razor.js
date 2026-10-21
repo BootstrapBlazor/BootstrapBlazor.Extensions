@@ -3,8 +3,8 @@ import { cerateDockview } from '../js/dockview-utils.js'
 import Data from '../../BootstrapBlazor/modules/data.js'
 import EventHandler from "../../BootstrapBlazor/modules/event-handler.js"
 
-export async function init(id, invoke, options) {
-    await addLink("./_content/BootstrapBlazor.DockView/css/dockview-bb.css")
+export async function init(id, invoke, options, styleUrl) {
+    await addLink(styleUrl)
     const el = document.getElementById(id);
     if (!el) {
         return;
