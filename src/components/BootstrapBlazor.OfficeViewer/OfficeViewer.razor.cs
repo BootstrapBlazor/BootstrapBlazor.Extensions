@@ -14,6 +14,14 @@ namespace BootstrapBlazor.Components;
 /// for when the document is loaded.</remarks>
 public partial class OfficeViewer
 {
+    private const string StylePath = "_content/BootstrapBlazor.OfficeViewer/office-viewer.css";
+
+#if NET9_0_OR_GREATER
+    private string StyleUrl => Assets[StylePath];
+#else
+    private static string StyleUrl => StylePath;
+#endif
+
     /// <summary>
     /// Gets or sets the url for the Office file to be displayed.
     /// </summary>
@@ -81,7 +89,7 @@ public partial class OfficeViewer
     {
         LoadedCallaback = nameof(TriggerOnLoaded),
         Url = GetAbsoluteUri(Url)
-    });
+    }, StyleUrl);
 
     private string GetAbsoluteUri(string? url)
     {

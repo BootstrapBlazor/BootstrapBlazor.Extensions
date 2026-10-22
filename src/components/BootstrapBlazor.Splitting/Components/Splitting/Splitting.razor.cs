@@ -11,6 +11,14 @@ namespace BootstrapBlazor.Components;
 /// </summary>
 public partial class Splitting
 {
+    private const string StylePath = "_content/BootstrapBlazor.Splitting/splitting.bundle.css";
+
+#if NET9_0_OR_GREATER
+    private string StyleUrl => Assets[StylePath];
+#else
+    private static string StyleUrl => StylePath;
+#endif
+
     /// <summary>
     /// 获得/设置 文本内容
     /// </summary>
@@ -59,6 +67,12 @@ public partial class Splitting
 
         Text ??= "Loading";
     }
+
+    /// <summary>
+    /// <inheritdoc/>
+    /// </summary>
+    /// <returns></returns>
+    protected override Task InvokeInitAsync() => InvokeVoidAsync("init", Id, StyleUrl);
 
     /// <summary>
     /// <inheritdoc/>
