@@ -13,6 +13,14 @@ namespace BootstrapBlazor.Components;
 /// </summary>
 public partial class Editor
 {
+    private const string StylePath = "_content/BootstrapBlazor.SummerNote/css/bootstrap.blazor.editor.min.css";
+
+#if NET9_0_OR_GREATER
+    private string StyleUrl => Assets[StylePath];
+#else
+    private static string StyleUrl => StylePath;
+#endif
+
     private string? ClassString => CssBuilder.Default("editor")
         .AddClass(CssClass).AddClass(ValidCss)
         .Build();
@@ -178,7 +186,7 @@ public partial class Editor
             methodClickPluginItem = nameof(ClickPluginItem);
         }
 
-        await InvokeVoidAsync("init", Id, Interop, methodGetPluginAttributes, methodClickPluginItem, Height, Value ?? "", Language, LanguageUrl, OnFileUpload is not null);
+        await InvokeVoidAsync("init", Id, Interop, methodGetPluginAttributes, methodClickPluginItem, Height, Value ?? "", Language, LanguageUrl, OnFileUpload is not null, StyleUrl);
     }
 
     /// <summary>
