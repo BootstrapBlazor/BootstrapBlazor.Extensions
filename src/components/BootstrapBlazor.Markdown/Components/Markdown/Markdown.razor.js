@@ -5,8 +5,8 @@ import { addLink } from '../../../BootstrapBlazor/modules/utility.js'
 import Data from '../../../BootstrapBlazor/modules/data.js'
 import EventHandler from '../../../BootstrapBlazor/modules/event-handler.js'
 
-export async function init(id, invoker, options, callback) {
-    await addLink('./_content/BootstrapBlazor.Markdown/css/bootstrap.blazor.markdown.min.css')
+export async function init(id, invoker, options, callback, styleUrl) {
+    await addLink(styleUrl)
 
     const el = document.getElementById(id)
     const md = {}
