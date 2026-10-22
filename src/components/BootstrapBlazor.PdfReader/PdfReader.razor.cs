@@ -13,6 +13,14 @@ namespace BootstrapBlazor.Components;
 [JSModuleAutoLoader("./_content/BootstrapBlazor.PdfReader/PdfReader.razor.js", JSObjectReference = true)]
 public partial class PdfReader
 {
+    private const string StylePath = "_content/BootstrapBlazor.PdfReader/css/pdf_reader.css";
+
+#if NET9_0_OR_GREATER
+    private string StyleUrl => Assets[StylePath];
+#else
+    private static string StyleUrl => StylePath;
+#endif
+
     /// <summary>
     /// 获得/设置 是否显示文件名 默认 true 显示
     /// </summary>
@@ -286,7 +294,7 @@ public partial class PdfReader
             TriggerTowPagesOnViewChanged = OnTwoPagesOneViewAsync != null,
             TriggerScaleChanged = OnScaleChangedAsync != null,
             TriggerRotationChanged = OnRotationChanged != null,
-        });
+        }, StyleUrl);
     }
 
     private async Task InvokeSetDataAsync(Stream? stream)
