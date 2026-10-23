@@ -1,49 +1,32 @@
-﻿// Copyright (c) Argo Zhang (argo@163.com). All rights reserved.
+// Copyright (c) Argo Zhang (argo@163.com). All rights reserved.
 // Licensed under the Apache License, Version 2.0. See License.txt in the project root for license information.
 // Website: https://www.blazor.zone or https://argozhang.github.io/
-
-using Microsoft.AspNetCore.Http;
-using System.Text.Json;
 
 namespace Microsoft.AspNetCore.Builder;
 
 /// <summary>
-/// 
+/// BootstrapBlazor server middleware extensions.
 /// </summary>
 public static class BootstrapBlazorApplicationBuilderExtensions
 {
     /// <summary>
-    /// 
+    /// Adds the client IP and connection heartbeat handlers.
     /// </summary>
+    /// <remarks>
+    /// Call after forwarded headers and authentication middleware to record the client IP and authenticated user.
+    /// The /connection.axd handler accepts POST requests containing ClientInfo JSON when ConnectionHubOptions.Enable is true.
+    /// Client-supplied IP, city, and user name are replaced with server-side values.
+    /// </remarks>
     /// <param name="builder"></param>
     /// <returns></returns>
     public static IApplicationBuilder UseBootstrapBlazor(this IApplicationBuilder builder)
     {
-        // 获得客户端 IP 地址
-        builder.UseWhen(context => context.Request.Path.StartsWithSegments("/ip.axd"), app => app.Run(async context =>
-        {
-            var ip = "";
-            var headers = context.Request.Headers;
-            if (headers.TryGetValue("X-Forwarded-For", out var value))
-            {
-                var ips = new List<string>();
-                foreach (var xf in value)
-                {
-                    if (!string.IsNullOrEmpty(xf))
-                    {
-                        ips.Add(xf);
-                    }
-                }
-                ip = string.Join(";", ips);
-            }
-            else
-            {
-                ip = context.Connection.RemoteIpAddress.ToIPv4String();
-            }
+        // Map /ip.axd to return the client IP address.
+        builder.MapIp();
 
-            context.Response.Headers.TryAdd("Content-Type", new Microsoft.Extensions.Primitives.StringValues("application/json; charset=utf-8"));
-            await context.Response.WriteAsync(JsonSerializer.Serialize(new { Id = context.TraceIdentifier, Ip = ip }));
-        }));
+        // Map /connection.axd to receive client heartbeats.
+        builder.MapConnection();
+
         return builder;
     }
 }
