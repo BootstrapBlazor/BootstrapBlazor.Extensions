@@ -50,8 +50,8 @@ const loader = el => {
     }, "+=0.5");
 }
 
-export async function init(id) {
-    await addLink('./_content/BootstrapBlazor.Splitting/splitting.bundle.css')
+export async function init(id, styleUrl) {
+    await addLink(styleUrl)
     await addScript('./_content/BootstrapBlazor.Splitting/lib/splitting/splitting.min.js')
     await addScript('./_content/BootstrapBlazor.Splitting/modules/gsap.min.js')
 

@@ -3,8 +3,8 @@ import './hls.js';
 import { addLink, addScript } from '../BootstrapBlazor/modules/utility.js';
 import Data from '../BootstrapBlazor/modules/data.js';
 
-export async function init(id, invoke, method, options) {
-    await addLink('./_content/BootstrapBlazor.Player/plyr.css');
+export async function init(id, invoke, method, options, styleUrl) {
+    await addLink(styleUrl)
     await addScript('./_content/BootstrapBlazor.Player/plyr-plugin-thumbnail.js');
 
     const el = document.getElementById(id);
