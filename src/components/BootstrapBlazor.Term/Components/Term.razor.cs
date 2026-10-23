@@ -14,6 +14,14 @@ namespace BootstrapBlazor.Components;
 [JSModuleAutoLoader("./_content/BootstrapBlazor.Term/Components/Term.razor.js", JSObjectReference = true)]
 public partial class Term
 {
+    private const string StylePath = "_content/BootstrapBlazor.Term/lib/xterm.css";
+
+#if NET9_0_OR_GREATER
+    private string StyleUrl => Assets[StylePath];
+#else
+    private static string StyleUrl => StylePath;
+#endif
+
     /// <summary>
     /// <para lang="zh">获得/设置 <see cref="TermOptions"/> 实例 默认 null</para>
     /// <para lang="en">Gets or sets the <see cref="TermOptions"/> instance Default value is null.</para>
@@ -68,7 +76,7 @@ public partial class Term
     /// </summary>
     protected override async Task InvokeInitAsync()
     {
-        await InvokeVoidAsync("init", Id, Interop, Options);
+        await InvokeVoidAsync("init", Id, Interop, Options, StyleUrl);
     }
 
     /// <summary>
