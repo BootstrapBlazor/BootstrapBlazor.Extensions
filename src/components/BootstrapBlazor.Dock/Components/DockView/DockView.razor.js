@@ -4,13 +4,13 @@ import { saveConfig, removeConfig } from "../../js/golden-layout-config.js"
 import { lockDock, resetDockLock, lockStack, unlockStack, lockTab, toggleComponent, getAllItemsByType } from "../../js/golden-layout-utility.js"
 import Data from '../../../BootstrapBlazor/modules/data.js'
 
-export async function init(id, option, invoke) {
+export async function init(id, option, invoke, styleUrl) {
     const el = document.getElementById(id)
     if (el === null) {
         return
     }
 
-    await addLink("./_content/BootstrapBlazor.Dock/css/goldenlayout-bb.css")
+    await addLink(styleUrl)
 
     const eventsData = new Map()
     const dock = { el, template: el.querySelector('template'), eventsData, invoke, lock: option.lock, layoutConfig: option.layoutConfig }

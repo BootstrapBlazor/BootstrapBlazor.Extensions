@@ -1,13 +1,13 @@
 import { addLink, addScript } from '../BootstrapBlazor/modules/utility.js';
 import Data from '../BootstrapBlazor/modules/data.js';
 
-export async function init(id, invoke, options) {
+export async function init(id, invoke, options, styleUrl) {
     const el = document.getElementById(id);
     if (el === null) {
         return;
     }
 
-    await addLink('./_content/BootstrapBlazor.Vditor/css/vditor.css');
+    await addLink(styleUrl)
     await addScript('./_content/BootstrapBlazor.Vditor/js/vditor.js');
 
     const root = el.querySelector('.bb-vditor-container');

@@ -12,6 +12,14 @@ namespace BootstrapBlazor.Components;
 /// </summary>
 public partial class Player
 {
+    private const string StylePath = "_content/BootstrapBlazor.Player/plyr.css";
+
+#if NET9_0_OR_GREATER
+    private string StyleUrl => Assets[StylePath];
+#else
+    private static string StyleUrl => StylePath;
+#endif
+
     /// <summary>
     /// 获得/设置 组件模式 默认为 <see cref="PlayerMode.Video"/>
     /// </summary>
@@ -43,7 +51,7 @@ public partial class Player
         {
             Options.Language ??= CultureInfo.CurrentUICulture.Name;
         }
-        await InvokeVoidAsync("init", Id, Interop, nameof(TriggerEvent), Options);
+        await InvokeVoidAsync("init", Id, Interop, nameof(TriggerEvent), Options, StyleUrl);
     }
 
     /// <summary>

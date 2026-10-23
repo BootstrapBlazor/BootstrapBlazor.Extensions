@@ -2,8 +2,8 @@
 import { addLink, addScript } from '../BootstrapBlazor/modules/utility.js';
 import Data from '../BootstrapBlazor/modules/data.js';
 
-export async function init(id, options) {
-    await addLink('./_content/BootstrapBlazor.VideoPlayer/video-js.min.css');
+export async function init(id, options, styleUrl) {
+    await addLink(styleUrl)
 
     const { language } = options;
     if (language) {
