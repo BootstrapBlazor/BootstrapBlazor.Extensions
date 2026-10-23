@@ -7,9 +7,9 @@ if (window.BootstrapBlazor === void 0) {
     window.BootstrapBlazor = {};
 }
 
-export async function init(id, options) {
+export async function init(id, options, styleUrl) {
     const el = document.getElementById(id);
-    await addLink('_content/BootstrapBlazor.MeiliSearch/meilisearch.css');
+    await addLink(styleUrl);
     el.classList.remove('visually-hidden');
 
     const mask = el.querySelector('.search-dialog-mask');

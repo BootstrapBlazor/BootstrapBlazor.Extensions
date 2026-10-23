@@ -12,6 +12,14 @@ namespace BootstrapBlazor.Components;
 /// </summary>
 public partial class DockView
 {
+    private const string StylePath = "_content/BootstrapBlazor.Dock/css/goldenlayout-bb.css";
+
+#if NET9_0_OR_GREATER
+    private string StyleUrl => Assets[StylePath];
+#else
+    private static string StyleUrl => StylePath;
+#endif
+
     /// <summary>
     /// 获得/设置 RenderFragment 实例
     /// </summary>
@@ -151,7 +159,7 @@ public partial class DockView
 
         if (firstRender)
         {
-            await InvokeVoidAsync("init", Id, GetOptions(), Interop);
+            await InvokeVoidAsync("init", Id, GetOptions(), Interop, StyleUrl);
         }
         else
         {

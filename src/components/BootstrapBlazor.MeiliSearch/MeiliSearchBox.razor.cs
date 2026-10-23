@@ -13,6 +13,14 @@ namespace BootstrapBlazor.Components;
 /// </summary>
 public partial class MeiliSearchBox
 {
+    private const string StylePath = "_content/BootstrapBlazor.MeiliSearch/meilisearch.css";
+
+#if NET9_0_OR_GREATER
+    private string StyleUrl => Assets[StylePath];
+#else
+    private static string StyleUrl => StylePath;
+#endif
+
     [Inject, NotNull]
     private IOptionsMonitor<MeiliSearchOptions>? Options { get; set; }
 
@@ -155,7 +163,7 @@ public partial class MeiliSearchBox
                 EmptySearchResultPlaceHolder,
                 SearchingText,
                 SearchResultText
-            });
+            }, StyleUrl);
         }
     }
 
