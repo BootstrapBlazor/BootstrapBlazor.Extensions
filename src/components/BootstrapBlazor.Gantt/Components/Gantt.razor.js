@@ -2,13 +2,13 @@
 import { addLink } from '../../BootstrapBlazor/modules/utility.js'
 import Data from '../../BootstrapBlazor/modules/data.js'
 
-export async function init(id, tasks, option, invoke) {
+export async function init(id, tasks, option, invoke, styleUrl) {
     const el = document.getElementById(id)
     if (el === null) {
         return
     }
 
-    await addLink("./_content/BootstrapBlazor.Gantt/css/gantt.bundle.css")
+    await addLink(styleUrl)
 
     const gantt = new Gantt(el, tasks, {
         on_click: function (task) {
