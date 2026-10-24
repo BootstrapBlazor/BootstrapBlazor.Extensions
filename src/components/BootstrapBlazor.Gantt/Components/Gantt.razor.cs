@@ -11,6 +11,14 @@ namespace BootstrapBlazor.Components;
 /// </summary>
 public partial class Gantt
 {
+    private const string StylePath = "_content/BootstrapBlazor.Gantt/css/gantt.bundle.css";
+
+#if NET9_0_OR_GREATER
+    private string StyleUrl => Assets[StylePath];
+#else
+    private static string StyleUrl => StylePath;
+#endif
+
     /// <summary>
     /// 获得或设置 甘特图数据源
     /// </summary>
@@ -62,7 +70,7 @@ public partial class Gantt
     /// <summary>
     /// <inheritdoc/>
     /// </summary>
-    protected override Task InvokeInitAsync() => InvokeVoidAsync("init", Id, Items, Option, Interop);
+    protected override Task InvokeInitAsync() => InvokeVoidAsync("init", Id, Items, Option, Interop, StyleUrl);
 
     /// <summary>
     /// 

@@ -69,13 +69,14 @@ const setVideo = (cursor, op) => {
     })
 }
 
-export async function init(id, op) {
+export async function init(id, op, styleUrl, bundleStyleUrl) {
     const el = document.getElementById(id)
     if (el === null) {
         return
     }
 
-    await addLink("_content/BootstrapBlazor.MouseFollower/mouse-follower.bundle.css")
+    await addLink(styleUrl)
+    await addLink(bundleStyleUrl)
     await addScript("_content/BootstrapBlazor.MouseFollower/gsap.min.js")
     await addScript("_content/BootstrapBlazor.MouseFollower/mouse-follower.min.js")
 

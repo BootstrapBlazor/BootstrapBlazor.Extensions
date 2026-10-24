@@ -2,8 +2,8 @@ import { addLink, addScript, getTheme } from '../../BootstrapBlazor/modules/util
 import Data from '../../BootstrapBlazor/modules/data.js'
 import EventHandler from "../../BootstrapBlazor/modules/event-handler.js"
 
-export async function init(id, invoke, options) {
-    await addLink('./_content/BootstrapBlazor.JitViewer/jit-viewer.css');
+export async function init(id, invoke, options, styleUrl) {
+    await addLink(styleUrl)
     await addScript('./_content/BootstrapBlazor.JitViewer/lib/jit-viewer.min.js');
 
     const el = document.getElementById(id);

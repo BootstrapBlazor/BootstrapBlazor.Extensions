@@ -17,6 +17,14 @@ namespace BootstrapBlazor.Components;
 /// </summary>
 public partial class Viewer : IAsyncDisposable
 {
+    private const string StylePath = "_content/BootstrapBlazor.Viewer/lib/viewerjs/viewer.min.css";
+
+#if NET9_0_OR_GREATER
+    private string StyleUrl => Assets[StylePath];
+#else
+    private static string StyleUrl => StylePath;
+#endif
+
     [Inject][NotNull] IJSRuntime? JSRuntime { get; set; }
     
     /// <summary>

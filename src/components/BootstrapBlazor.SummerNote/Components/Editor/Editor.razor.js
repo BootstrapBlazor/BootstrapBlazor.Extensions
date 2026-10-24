@@ -3,13 +3,13 @@ import { addLink, addScript } from '../../../BootstrapBlazor/modules/utility.js'
 import Data from '../../../BootstrapBlazor/modules/data.js'
 import EventHandler from '../../../BootstrapBlazor/modules/event-handler.js'
 
-export async function init(id, invoker, methodGetPluginAttrs, methodClickPluginItem, height, value, lang, langUrl, hasUpload) {
+export async function init(id, invoker, methodGetPluginAttrs, methodClickPluginItem, height, value, lang, langUrl, hasUpload, styleUrl) {
     const el = document.getElementById(id)
     if (el === null) {
         return
     }
 
-    await addLink('./_content/BootstrapBlazor.SummerNote/css/bootstrap.blazor.editor.min.css');
+    await addLink(styleUrl)
 
     const editor = { el, invoker }
     Data.set(id, editor)

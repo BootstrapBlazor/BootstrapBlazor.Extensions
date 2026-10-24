@@ -12,6 +12,17 @@ namespace BootstrapBlazor.Components;
 /// </summary>
 public partial class CherryMarkdown
 {
+    private const string StylePath = "_content/BootstrapBlazor.CherryMarkdown/css/cherry-markdown.css";
+    private const string KatexStylePath = "_content/BootstrapBlazor.CherryMarkdown/css/katex.min.css";
+
+#if NET9_0_OR_GREATER
+    private string StyleUrl => Assets[StylePath];
+    private string KatexStyleUrl => Assets[KatexStylePath];
+#else
+    private static string StyleUrl => StylePath;
+    private static string KatexStyleUrl => KatexStylePath;
+#endif
+
     /// <summary>
     /// 获得/设置 编辑器设置
     /// </summary>
@@ -114,7 +125,7 @@ public partial class CherryMarkdown
         Locale = Language,
         Editor = EditorSettings ?? new(),
         Toolbars = ToolbarSettings ?? new()
-    }, nameof(Upload));
+    }, nameof(Upload), StyleUrl, KatexStyleUrl);
 
     /// <summary>
     /// 文件上传回调
