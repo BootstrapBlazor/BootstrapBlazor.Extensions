@@ -2,8 +2,8 @@
 import Data from '../../../BootstrapBlazor/modules/data.js'
 import EventHandler from '../../../BootstrapBlazor/modules/event-handler.js'
 
-export async function init(op) {
-    await addLink("_content/BootstrapBlazor.Live2DDisplay/live2d.bundle.css")
+export async function init(op, styleUrl) {
+    await addLink(styleUrl)
     await addScript("_content/BootstrapBlazor.Live2DDisplay/live2dcubismcore.min.js")
     await addScript("_content/BootstrapBlazor.Live2DDisplay/live2d.min.js")
     await addScript("_content/BootstrapBlazor.Live2DDisplay/pixi.min.js")

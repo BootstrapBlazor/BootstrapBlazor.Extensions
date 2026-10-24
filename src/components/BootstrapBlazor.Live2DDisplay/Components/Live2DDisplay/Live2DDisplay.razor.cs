@@ -7,6 +7,14 @@ namespace BootstrapBlazor.Components;
 /// </summary>
 public partial class Live2DDisplay
 {
+    private const string StylePath = "_content/BootstrapBlazor.Live2DDisplay/live2d.bundle.css";
+
+#if NET9_0_OR_GREATER
+    private string StyleUrl => Assets[StylePath];
+#else
+    private static string StyleUrl => StylePath;
+#endif
+
     private bool _isInit;
 
     private string? _source;
@@ -137,7 +145,7 @@ public partial class Live2DDisplay
     /// <inheritdoc/>
     protected override async Task InvokeInitAsync()
     {
-        await InvokeVoidAsync("init", new { Id, Source, Scale, X = XOffset, Y = YOffset, IsDraggable, AddHitAreaFrames, BackgroundAlpha, BackgroundColor });
+        await InvokeVoidAsync("init", new { Id, Source, Scale, X = XOffset, Y = YOffset, IsDraggable, AddHitAreaFrames, BackgroundAlpha, BackgroundColor }, StyleUrl);
         _isInit = true;
         _source = Source;
         _scale = Scale;
