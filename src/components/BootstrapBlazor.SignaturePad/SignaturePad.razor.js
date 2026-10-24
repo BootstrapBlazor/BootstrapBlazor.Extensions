@@ -1,11 +1,10 @@
-﻿import './lib/signature_pad.umd.js';
+import './lib/signature_pad.umd.js';
 import Data from '../BootstrapBlazor/modules/data.js'
 import { addLink } from '../BootstrapBlazor/modules/utility.js'
 
 export async function init(id, invoke, alertText, backgroundColor, styleUrl) {
     await addLink(styleUrl)
 
-    //Code modify from https://github.com/szimek/signature_pad
     var element = document.getElementById(id);
     var clearButton = element.querySelector("[data-action=clear]");
     var changeColorButton = element.querySelector("[data-action=change-color]");
@@ -17,35 +16,42 @@ export async function init(id, invoke, alertText, backgroundColor, styleUrl) {
     var closeButton = element.querySelector("[data-action=close]");
     var canvas = element.querySelector("canvas");
     var signaturePad = new SignaturePad(canvas, {
-        // It's Necessary to use an opaque color when saving image as JPEG;
-        // this option can be omitted if only saving as PNG or SVG
         backgroundColor: backgroundColor || 'rgb(255, 255, 255)'
     });
 
-    // Adjust canvas coordinate space taking into account pixel ratio,
-    // to make it look crisp on mobile devices.
-    // This also causes canvas to be cleared.
-    function resizeCanvas() {
-        // When zoomed out to less than 100%, for some very strange reason,
-        // some browsers report devicePixelRatio as less than 1
-        // and only part of the canvas is cleared then.
-        var ratio = devicePixelRatio;
+    var previousWidth = canvas.parentElement.offsetWidth;
+    var previousHeight = canvas.parentElement.offsetHeight;
 
-        // This part causes the canvas to be cleared
-        canvas.width = canvas.parentElement.offsetWidth * ratio;
-        canvas.height = canvas.parentElement.offsetHeight * ratio;
+    function resizeCanvas() {
+        var ratio = devicePixelRatio;
+        var width = canvas.parentElement.offsetWidth;
+        var height = canvas.parentElement.offsetHeight;
+        var data = signaturePad.toData();
+        var scaleX = previousWidth > 0 ? width / previousWidth : 1;
+        var scaleY = previousHeight > 0 ? height / previousHeight : 1;
+
+        canvas.width = width * ratio;
+        canvas.height = height * ratio;
         canvas.getContext("2d").scale(ratio, ratio);
 
-        // This library does not listen for canvas changes, so after the canvas is automatically
-        // cleared by the browser, SignaturePad#isEmpty might still return false, even though the
-        // canvas looks empty, because the internal data of this library wasn't cleared. To make sure
-        // that the state of this library is consistent with visual state of the canvas, you
-        // have to clear it manually.
-        signaturePad.clear();
+        previousWidth = width;
+        previousHeight = height;
+
+        if (data.length > 0) {
+            signaturePad.fromData(data.map(group => ({
+                ...group,
+                points: group.points.map(point => ({
+                    ...point,
+                    x: point.x * scaleX,
+                    y: point.y * scaleY
+                }))
+            })));
+        }
+        else {
+            signaturePad.clear();
+        }
     }
 
-    // On mobile devices it might make more sense to listen to orientation change,
-    // rather than window resize events.
     const observer = new ResizeObserver(resizeCanvas);
     observer.observe(element);
 
@@ -65,14 +71,14 @@ export async function init(id, invoke, alertText, backgroundColor, styleUrl) {
             document.body.appendChild(a);
             a.click();
 
-            window.URL.revokeObjectURL(url);
+            setTimeout(() => {
+                window.URL.revokeObjectURL(url);
+                a.remove();
+            }, 1000);
         }
     }
 
-    // One could simply use Canvas#toBlob method instead, but it's just to show
-    // that it can be done using result of SignaturePad#toDataURL.
     function dataURLToBlob(dataURL) {
-        // Code taken from https://github.com/ebidel/filer.js
         var parts = dataURL.split(';base64,');
         var contentType = parts[0].split(":")[1];
         var raw = window.atob(parts[1]);
@@ -88,7 +94,6 @@ export async function init(id, invoke, alertText, backgroundColor, styleUrl) {
 
     if (clearButton) clearButton.addEventListener("click", function (event) {
         signaturePad.clear();
-        //return wrapperc.invokeMethodAsync("SignatureResult", null);
     });
 
     if (undoButton) undoButton.addEventListener("click", function (event) {
@@ -114,7 +119,6 @@ export async function init(id, invoke, alertText, backgroundColor, styleUrl) {
             alertMessage();
         } else {
             var imgBase64 = signaturePad.toDataURL();
-            //console.log(imgBase64);
             return invoke.invokeMethodAsync("SignatureResult", imgBase64);
         }
     });
@@ -158,12 +162,7 @@ export async function init(id, invoke, alertText, backgroundColor, styleUrl) {
 }
 
 export function dispose(id) {
-    const element = document.getElementById(id);
-    if (element) {
-        const observer = Data.get(id);
-
-        observer.unobserve(element);
-        observer.disconnect();
-    }
+    const observer = Data.get(id)?.observer;
+    observer?.disconnect();
     Data.remove(id);
 }
