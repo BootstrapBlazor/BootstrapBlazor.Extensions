@@ -1,8 +1,8 @@
 ﻿import { addLink } from "../BootstrapBlazor/modules/utility.js"
 import Data from "../BootstrapBlazor/modules/data.js"
 
-export async function init(id, invoke, options) {
-    await addLink("./_content/BootstrapBlazor.OfficeViewer/office-viewer.css");
+export async function init(id, invoke, options, styleUrl) {
+    await addLink(styleUrl)
 
     const el = document.getElementById(id);
     const officeViewer = { el, invoke, options };

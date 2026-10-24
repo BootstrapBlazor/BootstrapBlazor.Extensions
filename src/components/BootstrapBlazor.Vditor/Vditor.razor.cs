@@ -12,6 +12,14 @@ namespace BootstrapBlazor.Components;
 /// </summary>
 public partial class Vditor
 {
+    private const string StylePath = "_content/BootstrapBlazor.Vditor/css/vditor.css";
+
+#if NET9_0_OR_GREATER
+    private string StyleUrl => Assets[StylePath];
+#else
+    private static string StyleUrl => StylePath;
+#endif
+
     /// <summary>
     /// <para lang="zh">获得/设置 组件 <see cref="VditorOptions"/> 实例 默认 null</para>
     /// <para lang="en">Gets or sets the <see cref="VditorOptions"/> instance. Default is null.</para>
@@ -103,7 +111,7 @@ public partial class Vditor
     {
         Options,
         Value
-    });
+    }, StyleUrl);
 
     /// <summary>
     /// <para lang="zh">重新设置编辑器方法</para>

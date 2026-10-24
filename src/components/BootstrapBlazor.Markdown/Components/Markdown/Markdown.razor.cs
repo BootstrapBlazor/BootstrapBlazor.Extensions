@@ -14,6 +14,14 @@ namespace BootstrapBlazor.Components;
 [JSModuleAutoLoader("./_content/BootstrapBlazor.Markdown/Components/Markdown/Markdown.razor.js", JSObjectReference = true)]
 public partial class Markdown : IAsyncDisposable
 {
+    private const string StylePath = "_content/BootstrapBlazor.Markdown/css/bootstrap.blazor.markdown.min.css";
+
+#if NET9_0_OR_GREATER
+    private string StyleUrl => Assets[StylePath];
+#else
+    private static string StyleUrl => StylePath;
+#endif
+
     /// <summary>
     /// 获得/设置 控件高度，默认300px
     /// </summary>
@@ -112,7 +120,7 @@ public partial class Markdown : IAsyncDisposable
     /// <inheritdoc/>
     /// </summary>
     /// <returns></returns>
-    protected override Task InvokeInitAsync() => InvokeVoidAsync("init", Id, Interop, Option, nameof(Update));
+    protected override Task InvokeInitAsync() => InvokeVoidAsync("init", Id, Interop, Option, nameof(Update), StyleUrl);
 
     /// <summary>
     /// 更新组件值方法

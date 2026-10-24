@@ -14,6 +14,14 @@ namespace BootstrapBlazor.Components;
 [JSModuleAutoLoader("./_content/BootstrapBlazor.JitViewer/Components/JitViewer.razor.js", JSObjectReference = true)]
 public partial class JitViewer
 {
+    private const string StylePath = "_content/BootstrapBlazor.JitViewer/jit-viewer.css";
+
+#if NET9_0_OR_GREATER
+    private string StyleUrl => Assets[StylePath];
+#else
+    private static string StyleUrl => StylePath;
+#endif
+
     /// <summary>
     /// <para lang="zh">预览文件路径</para>
     /// <para lang="en">File path for preview</para>
@@ -90,7 +98,7 @@ public partial class JitViewer
     /// <inheritdoc/>
     /// </summary>
     /// <returns></returns>
-    protected override Task InvokeInitAsync() => InvokeVoidAsync("init", Id, Interop, GetOptions());
+    protected override Task InvokeInitAsync() => InvokeVoidAsync("init", Id, Interop, GetOptions(), StyleUrl);
 
     private object GetOptions() => new
     {
