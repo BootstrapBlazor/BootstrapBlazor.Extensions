@@ -11,6 +11,14 @@ namespace BootstrapBlazor.Components;
 /// </summary>
 public partial class SvgEditor
 {
+    private const string StylePath = "_content/BootstrapBlazor.SvgEditor/svgedit.bundle.css";
+
+#if NET9_0_OR_GREATER
+    private string StyleUrl => Assets[StylePath];
+#else
+    private static string StyleUrl => StylePath;
+#endif
+
     /// <summary>
     /// 获得/设置 首次加载内容
     /// </summary>
@@ -29,7 +37,7 @@ public partial class SvgEditor
     /// <inheritdoc/>
     /// </summary>
     /// <returns></returns>
-    protected override Task InvokeInitAsync() => InvokeVoidAsync("init", Id, new { Interop, Preload = PreContent, Callback = nameof(GetContent) });
+    protected override Task InvokeInitAsync() => InvokeVoidAsync("init", Id, new { Interop, Preload = PreContent, Callback = nameof(GetContent) }, StyleUrl);
 
     /// <summary>
     /// 更新内容方法
