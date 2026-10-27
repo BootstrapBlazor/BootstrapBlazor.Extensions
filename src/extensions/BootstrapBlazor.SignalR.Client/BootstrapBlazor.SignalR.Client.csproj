@@ -1,4 +1,4 @@
-<Project Sdk="Microsoft.NET.Sdk">
+﻿<Project Sdk="Microsoft.NET.Sdk">
 
   <PropertyGroup>
     <Version>11.0.0-rc.3.1</Version>
@@ -33,7 +33,7 @@
   </ItemGroup>
 
   <ItemGroup>
-    <PackageReference Include="BootstrapBlazor" Version="11.1.0-rc.3.1" />
+    <PackageReference Include="BootstrapBlazor" Version="11.1.0-rc.3.2" />
   </ItemGroup>
 
 </Project>
