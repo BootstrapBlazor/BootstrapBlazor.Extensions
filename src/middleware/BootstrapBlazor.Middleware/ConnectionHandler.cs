@@ -24,12 +24,6 @@ static class ConnectionHandler
             return false;
         }
 
-        if (client == null || string.IsNullOrWhiteSpace(client.Id) || client.Id.Length > 128 ||
-            !Enum.IsDefined(typeof(WebClientDeviceType), client.Device))
-        {
-            throw new HubException("Invalid connection heartbeat.");
-        }
-
         var httpContext = context.GetHttpContext() ?? throw new HubException("The connection context is unavailable.");
         client.Ip = httpContext.Connection.RemoteIpAddress.ToIPv4String();
         client.UserName = context.User?.Identity is { IsAuthenticated: true } identity ? identity.Name : null;
@@ -48,6 +42,12 @@ static class ConnectionHandler
 
     public static async Task<ConnectionSnapshot?> GetSnapshotAsync(HubCallerContext context, BootstrapBlazorHubOptions options, IServiceProvider services)
     {
+        var service = await GetConnectionServiceAsync(context, options, services);
+        return service == null ? null : new ConnectionSnapshot(service.Count, service.Connections);
+    }
+
+    private static async Task<IConnectionService?> GetConnectionServiceAsync(HubCallerContext context, BootstrapBlazorHubOptions options, IServiceProvider services)
+    {
         if (!options.EnableConnectionSnapshots)
         {
             // 未开启快照查询功能直接返回 null
@@ -65,11 +65,6 @@ static class ConnectionHandler
             }
         }
 
-        var service = services.GetRequiredService<IConnectionService>();
-        return new ConnectionSnapshot
-        {
-            Count = service.Count,
-            Connections = service.Connections
-        };
+        return services.GetRequiredService<IConnectionService>();
     }
 }
