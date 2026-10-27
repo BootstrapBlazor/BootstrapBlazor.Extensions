@@ -46,7 +46,7 @@ static class ConnectionHandler
         return true;
     }
 
-    public static async Task<ConnectionSnapshot?> GetSnapshotAsync(HubCallerContext context, BootstrapBlazorHubOptions options, IServiceProvider services)
+    public static async Task<ICollection<ConnectionItem>?> GetSnapshotAsync(HubCallerContext context, BootstrapBlazorHubOptions options, IServiceProvider services)
     {
         if (!options.EnableConnectionSnapshots)
         {
@@ -66,10 +66,6 @@ static class ConnectionHandler
         }
 
         var service = services.GetRequiredService<IConnectionService>();
-        return new ConnectionSnapshot
-        {
-            Count = service.Count,
-            Connections = service.Connections
-        };
+        return service.Connections;
     }
 }
