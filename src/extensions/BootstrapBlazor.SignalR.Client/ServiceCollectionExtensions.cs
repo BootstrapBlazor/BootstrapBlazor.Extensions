@@ -28,9 +28,12 @@ public static class ServiceCollectionExtensions
     /// </remarks>
     public static IServiceCollection AddBootstrapBlazorHub(this IServiceCollection services)
     {
+        // 增加 Connection 服务
         services.TryAddSingleton<SignalRConnection>();
-        services.AddSingleton(typeof(IDispatchService<>), typeof(DefaultDispatchService<>));
         services.AddSingleton<IConnectionService, DefaultConnectionService>();
+
+        // 增加 Dispatch 服务
+        services.AddSingleton(typeof(IDispatchService<>), typeof(DefaultDispatchService<>));
         return services;
     }
 }
