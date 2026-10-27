@@ -51,6 +51,6 @@ public sealed class BootstrapBlazorHub(BootstrapBlazorHubOptions options, IServi
     /// <para lang="zh">查询在线连接列表，仅返回给调用方，不向消息订阅者广播；查询被禁用或调用方未获授权时返回 null</para>
     /// <para lang="en">Queries the online connections for the caller only, without broadcasting them to dispatch subscribers. Returns null when queries are disabled or the caller is not authorized.</para>
     /// </summary>
-    public Task<ICollection<ConnectionItem>?> GetConnectionSnapshot()
+    public Task<ConnectionSnapshot?> GetConnectionSnapshot()
         => ConnectionHandler.GetSnapshotAsync(Context, options, services);
 }

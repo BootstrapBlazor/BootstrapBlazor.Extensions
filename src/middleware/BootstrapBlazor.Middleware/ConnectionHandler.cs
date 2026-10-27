@@ -24,12 +24,6 @@ static class ConnectionHandler
             return false;
         }
 
-        if (client == null || string.IsNullOrWhiteSpace(client.Id) || client.Id.Length > 128 ||
-            !Enum.IsDefined(typeof(WebClientDeviceType), client.Device))
-        {
-            throw new HubException("Invalid connection heartbeat.");
-        }
-
         var httpContext = context.GetHttpContext() ?? throw new HubException("The connection context is unavailable.");
         client.Ip = httpContext.Connection.RemoteIpAddress.ToIPv4String();
         client.UserName = context.User?.Identity is { IsAuthenticated: true } identity ? identity.Name : null;
@@ -46,7 +40,13 @@ static class ConnectionHandler
         return true;
     }
 
-    public static async Task<ICollection<ConnectionItem>?> GetSnapshotAsync(HubCallerContext context, BootstrapBlazorHubOptions options, IServiceProvider services)
+    public static async Task<ConnectionSnapshot?> GetSnapshotAsync(HubCallerContext context, BootstrapBlazorHubOptions options, IServiceProvider services)
+    {
+        var service = await GetConnectionServiceAsync(context, options, services);
+        return service == null ? null : new ConnectionSnapshot(service.Count, service.Connections);
+    }
+
+    private static async Task<IConnectionService?> GetConnectionServiceAsync(HubCallerContext context, BootstrapBlazorHubOptions options, IServiceProvider services)
     {
         if (!options.EnableConnectionSnapshots)
         {
@@ -65,7 +65,6 @@ static class ConnectionHandler
             }
         }
 
-        var service = services.GetRequiredService<IConnectionService>();
-        return service.Connections;
+        return services.GetRequiredService<IConnectionService>();
     }
 }
