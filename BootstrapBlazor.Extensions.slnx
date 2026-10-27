@@ -84,7 +84,6 @@
     <Project Path="src/extensions/BootstrapBlazor.DataAccess.PetaPoco/BootstrapBlazor.DataAccess.PetaPoco.csproj" />
     <Project Path="src/extensions/BootstrapBlazor.DataAccess.SqlSugar/BootstrapBlazor.DataAccess.SqlSugar.csproj" />
     <Project Path="src/extensions/BootstrapBlazor.OpcDa/BootstrapBlazor.OpcDa.csproj" />
-    <Project Path="src/extensions/BootstrapBlazor.SignalR.Client/BootstrapBlazor.SignalR.Client.csproj" />
     <Project Path="src/extensions/BootstrapBlazor.OpcUa/BootstrapBlazor.OpcUa.csproj" />
   </Folder>
   <Folder Name="/src/middelware/">
