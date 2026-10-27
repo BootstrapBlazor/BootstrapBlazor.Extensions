@@ -7,6 +7,8 @@ using Microsoft.Extensions.Logging;
 
 namespace BootstrapBlazor.Components;
 
+sealed record ConnectionSnapshot(long Count, ICollection<ConnectionItem> Connections);
+
 /// <summary>
 /// <para lang="zh">基于 SignalR 的客户端连接服务，通过心跳上报连接信息并轮询服务端连接快照</para>
 /// <para lang="en">SignalR client connection service that reports connection information through heartbeats and polls server connection snapshots</para>
@@ -17,7 +19,7 @@ sealed class DefaultConnectionService : IConnectionService, IAsyncDisposable
     private readonly ILogger<DefaultConnectionService> _logger;
     private readonly CancellationTokenSource _lifetime = new();
     private readonly Task _pollingTask;
-    private ConnectionSnapshot _snapshot = new();
+    private ConnectionSnapshot _snapshot = new(0, []);
     private int _disposed;
 
     /// <summary>
@@ -35,14 +37,14 @@ sealed class DefaultConnectionService : IConnectionService, IAsyncDisposable
     }
 
     /// <summary>
-    /// <para lang="zh">获得 最近一次服务端快照中的连接数量</para>
-    /// <para lang="en">Gets the connection count from the latest server snapshot</para>
+    /// <para lang="zh">获得 最近一次服务端快照中尚未超时的在线连接数量</para>
+    /// <para lang="en">Gets the online connection count from the latest server snapshot, excluding timed-out connections</para>
     /// </summary>
     public long Count => _snapshot.Count;
 
     /// <summary>
-    /// <para lang="zh">获得 最近一次服务端快照中的连接集合</para>
-    /// <para lang="en">Gets the connection collection from the latest server snapshot</para>
+    /// <para lang="zh">获得 最近一次服务端查询的连接集合</para>
+    /// <para lang="en">Gets the connection collection from the latest server query</para>
     /// </summary>
     public ICollection<ConnectionItem> Connections => _snapshot.Connections;
 
@@ -92,7 +94,7 @@ sealed class DefaultConnectionService : IConnectionService, IAsyncDisposable
                     var snapshot = await _connection.InvokeAsync<ConnectionSnapshot?>("GetConnectionSnapshot", null, cancellationToken);
                     if (snapshot == null)
                     {
-                        _snapshot = new();
+                        _snapshot = new(0, []);
                         _logger.LogInformation("Connection snapshot polling stopped because queries are disabled or not authorized.");
                         return;
                     }
@@ -100,7 +102,7 @@ sealed class DefaultConnectionService : IConnectionService, IAsyncDisposable
                 }
                 catch (HttpRequestException ex) when (!cancellationToken.IsCancellationRequested && !SignalRConnection.IsTransientFailure(ex))
                 {
-                    _snapshot = new();
+                    _snapshot = new(0, []);
                     _logger.LogWarning(ex, "Connection snapshot polling stopped because the Hub request was rejected.");
                     return;
                 }
