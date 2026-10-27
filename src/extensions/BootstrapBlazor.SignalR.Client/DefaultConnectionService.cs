@@ -7,8 +7,6 @@ using Microsoft.Extensions.Logging;
 
 namespace BootstrapBlazor.Components;
 
-sealed record ConnectionSnapshot(long Count, ICollection<ConnectionItem> Connections);
-
 /// <summary>
 /// <para lang="zh">基于 SignalR 的客户端连接服务，通过心跳上报连接信息并轮询服务端连接快照</para>
 /// <para lang="en">SignalR client connection service that reports connection information through heartbeats and polls server connection snapshots</para>
