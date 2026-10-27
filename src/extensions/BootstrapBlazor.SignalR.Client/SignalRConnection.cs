@@ -56,12 +56,11 @@ sealed class SignalRConnection : IAsyncDisposable
     /// </summary>
     /// <param name="navigation"><para lang="zh">导航管理器，用于解析 Hub 的绝对地址</para><para lang="en">The navigation manager used to resolve the absolute Hub URL</para></param>
     /// <param name="logger"><para lang="zh">日志记录器</para><para lang="en">The logger</para></param>
-    /// <param name="hubPath"><para lang="zh">Hub 地址</para><para lang="en">The Hub path</para></param>
-    public SignalRConnection(NavigationManager navigation, ILogger<SignalRConnection> logger, string hubPath)
+    public SignalRConnection(NavigationManager navigation, ILogger<SignalRConnection> logger)
     {
         _logger = logger;
         _connection = new HubConnectionBuilder()
-            .WithUrl(navigation.ToAbsoluteUri(hubPath))
+            .WithUrl(navigation.ToAbsoluteUri("bb.hub"))
             .WithAutomaticReconnect(new ConnectionRetryPolicy())
             .Build();
         _receiver = _connection.On<string, JsonElement>("Receive", ReceiveAsync);
