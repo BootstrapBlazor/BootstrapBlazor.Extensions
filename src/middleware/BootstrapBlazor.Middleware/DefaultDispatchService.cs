@@ -50,6 +50,7 @@ sealed class DefaultDispatchService<TEntry>(
                 Task callbackTask;
                 lock (_locker)
                 {
+                    cancellationToken.ThrowIfCancellationRequested();
                     if (!_subscriptions.Contains(subscription))
                     {
                         continue;
@@ -59,7 +60,8 @@ sealed class DefaultDispatchService<TEntry>(
                     callbackTask = subscription.Callback(entry);
                 }
 
-                await callbackTask;
+                await callbackTask.WaitAsync(cancellationToken);
+                cancellationToken.ThrowIfCancellationRequested();
             }
             catch (Exception ex) when (!cancellationToken.IsCancellationRequested)
             {
