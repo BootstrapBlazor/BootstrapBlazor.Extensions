@@ -1,7 +1,15 @@
 <Project Sdk="Microsoft.NET.Sdk">
 
+  <PropertyGroup>
+    <Version>11.0.0-rc.3.4</Version>
+  </PropertyGroup>
+
   <ItemGroup>
     <FrameworkReference Include="Microsoft.AspNetCore.App" />
+  </ItemGroup>
+
+  <ItemGroup>
+    <PackageReference Include="BootstrapBlazor" Version="11.1.0-rc.3.3" />
   </ItemGroup>
 
 </Project>

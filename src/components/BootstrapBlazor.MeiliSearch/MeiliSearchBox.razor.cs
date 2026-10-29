@@ -1,4 +1,4 @@
-﻿// Copyright (c) Argo Zhang (argo@163.com). All rights reserved.
+// Copyright (c) Argo Zhang (argo@163.com). All rights reserved.
 // Licensed under the Apache License, Version 2.0. See License.txt in the project root for license information.
 // Website: https://www.blazor.zone or https://argozhang.github.io/
 
@@ -13,6 +13,14 @@ namespace BootstrapBlazor.Components;
 /// </summary>
 public partial class MeiliSearchBox
 {
+    private const string StylePath = "_content/BootstrapBlazor.MeiliSearch/meilisearch.css";
+
+#if NET9_0_OR_GREATER
+    private string StyleUrl => Assets[StylePath];
+#else
+    private static string StyleUrl => StylePath;
+#endif
+
     [Inject, NotNull]
     private IOptionsMonitor<MeiliSearchOptions>? Options { get; set; }
 
@@ -155,7 +163,7 @@ public partial class MeiliSearchBox
                 EmptySearchResultPlaceHolder,
                 SearchingText,
                 SearchResultText
-            });
+            }, StyleUrl);
         }
     }
 
@@ -173,5 +181,5 @@ public partial class MeiliSearchBox
         EmptySearchResultPlaceHolder,
         SearchingText,
         SearchResultText
-    });
+    }, StyleUrl);
 }

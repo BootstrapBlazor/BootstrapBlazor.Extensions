@@ -2,16 +2,16 @@ import '../../js/cherry-markdown.core.js'
 import { addLink, addScript } from '../../../BootstrapBlazor/modules/utility.js'
 import Data from '../../../BootstrapBlazor/modules/data.js'
 
-export async function init(id, invoke, options, callback) {
+export async function init(id, invoke, options, callback, styleUrl, katexStyleUrl) {
     const el = document.getElementById(id);
     if (el === null) {
         return;
     }
 
-    await addLink('./_content/BootstrapBlazor.CherryMarkdown/css/cherry-markdown.css')
+    await addLink(styleUrl)
     if (options.isSupportMath) {
         await addScript('./_content/BootstrapBlazor.CherryMarkdown/js/katex.min.js')
-        await addLink('./_content/BootstrapBlazor.CherryMarkdown/css/katex.min.css')
+        await addLink(katexStyleUrl)
         options.engine = {
             syntax: {
                 mathBlock: { engine: 'katex', },

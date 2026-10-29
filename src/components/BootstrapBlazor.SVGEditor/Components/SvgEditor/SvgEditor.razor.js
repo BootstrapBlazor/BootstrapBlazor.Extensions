@@ -1,14 +1,14 @@
-﻿import { addLink } from '../../../BootstrapBlazor/modules/utility.js'
+import { addLink } from '../../../BootstrapBlazor/modules/utility.js'
 import Data from '../../../BootstrapBlazor/modules/data.js'
 import Editor from "../../editor/Editor.js"
 
-export async function init(id, options) {
+export async function init(id, options, styleUrl) {
     const { preload, interop, callback } = options;
 
-    await addLink('_content/BootstrapBlazor.SvgEditor/svgedit.bundle.css');
+    await addLink(styleUrl)
 
-    /* for available options see the file `docs/tutorials/ConfigOptions.md */
-    const svgEditor = new Editor(document.getElementById(id))
+    const container = document.getElementById(id)
+    const svgEditor = new Editor(container)
     svgEditor.setConfig({
         canvasName: id,
         lang: "en",
@@ -18,31 +18,28 @@ export async function init(id, options) {
         extPath: "/_content/BootstrapBlazor.SvgEditor/editor/extensions/",
         noDefaultExtensions: false
     })
-    svgEditor.init()
+    await svgEditor.init()
     svgEditor.topPanel.showSourceEditor = async (e, forceSaving) => {
         const origSource = svgEditor.svgCanvas.getSvgString()
         await interop.invokeMethodAsync(callback, origSource);
     }
 
     if (preload != null) {
-        svgEditor.loadFromString(preload)
+        await svgEditor.loadFromString(preload)
     }
     Data.set(id, {
         svgEditor,
         interop
     })
 
-    var timer = setTimeout(() => {
-        svgEditor.zoomChanged(window, "canvas", true);
-        document.querySelector("#zoom").value = "canvas"
-        clearTimeout(timer)
-    }, 800)
+    svgEditor.zoomChanged(window, "canvas", true)
+    container.querySelector("#zoom").value = "canvas"
 }
 
-export function updateContent(id, contenet) {
+export async function update(id, content) {
     var editor = Data.get(id)
     if (editor) {
-        editor.svgEditor.loadFromString(contenet);
+        await editor.svgEditor.loadFromString(content);
     }
 }
 

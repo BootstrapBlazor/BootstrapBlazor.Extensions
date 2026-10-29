@@ -1,49 +1,29 @@
-﻿// Copyright (c) Argo Zhang (argo@163.com). All rights reserved.
+// Copyright (c) Argo Zhang (argo@163.com). All rights reserved.
 // Licensed under the Apache License, Version 2.0. See License.txt in the project root for license information.
 // Website: https://www.blazor.zone or https://argozhang.github.io/
 
-using Microsoft.AspNetCore.Http;
-using System.Text.Json;
+using BootstrapBlazor.Components;
 
 namespace Microsoft.AspNetCore.Builder;
 
 /// <summary>
-/// 
+/// <para lang="zh">BootstrapBlazor 服务端中间件扩展</para>
+/// <para lang="en">BootstrapBlazor server middleware extensions.</para>
 /// </summary>
 public static class BootstrapBlazorApplicationBuilderExtensions
 {
     /// <summary>
-    /// 
+    /// <para lang="zh">使用 BootstrapBlazor 中间件</para>
+    /// <para lang="en">Use BootstrapBlazor middleware</para>
     /// </summary>
-    /// <param name="builder"></param>
-    /// <returns></returns>
+    /// <remarks>
+    /// <para lang="zh">提供客户端 IP 地址查询（/ip.axd）。</para>
+    /// <para lang="en">Provides client IP lookup (/ip.axd).</para>
+    /// </remarks>
     public static IApplicationBuilder UseBootstrapBlazor(this IApplicationBuilder builder)
     {
-        // 获得客户端 IP 地址
-        builder.UseWhen(context => context.Request.Path.StartsWithSegments("/ip.axd"), app => app.Run(async context =>
-        {
-            var ip = "";
-            var headers = context.Request.Headers;
-            if (headers.TryGetValue("X-Forwarded-For", out var value))
-            {
-                var ips = new List<string>();
-                foreach (var xf in value)
-                {
-                    if (!string.IsNullOrEmpty(xf))
-                    {
-                        ips.Add(xf);
-                    }
-                }
-                ip = string.Join(";", ips);
-            }
-            else
-            {
-                ip = context.Connection.RemoteIpAddress.ToIPv4String();
-            }
+        builder.MapWhen(context => context.Request.Path.StartsWithSegments("/ip.axd"), app => app.Run(IpRequestHandler.HandleAsync));
 
-            context.Response.Headers.TryAdd("Content-Type", new Microsoft.Extensions.Primitives.StringValues("application/json; charset=utf-8"));
-            await context.Response.WriteAsync(JsonSerializer.Serialize(new { Id = context.TraceIdentifier, Ip = ip }));
-        }));
         return builder;
     }
 }
