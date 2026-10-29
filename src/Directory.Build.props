@@ -6,7 +6,7 @@
   <Import Project=".\SourceLink.targets" />
 
   <PropertyGroup>
-    <Version>11.0.0-rc.2</Version>
+    <Version>11.0.0</Version>
   </PropertyGroup>
 
   <PropertyGroup>
@@ -22,7 +22,7 @@
   </PropertyGroup>
 
   <PropertyGroup>
-    <BBVersion>11.0.1</BBVersion>
+    <BBVersion>11.1.0</BBVersion>
   </PropertyGroup>
 
   <PropertyGroup>
