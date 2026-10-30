@@ -15,7 +15,7 @@ internal static partial class MarkdownBuilder
 {
     private const string GitHubRawBaseUrl = "https://raw.githubusercontent.com/dotnetcore/BootstrapBlazor/refs/heads/main/";
     private const string GitHubRepositoryUrl = "https://github.com/dotnetcore/BootstrapBlazor";
-    private const string GitHubExtensionsRawUrl = "https://raw.githubusercontent.com/BootstrapBlazor/BootstrapBlazor.Extensions/refs/heads/main/";
+    private const string GitHubExtensionsRawUrl = "https://raw.githubusercontent.com/BootstrapBlazor/BootstrapBlazor.Extensions/refs/heads/master/";
     private const string GitHubExtensionsRepositoryUrl = "https://github.com/BootstrapBlazor/BootstrapBlazor.Extensions";
 
     /// <summary>
