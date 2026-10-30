@@ -63,14 +63,21 @@ public sealed partial class LlmsDocsClient : IDisposable
 
     public Task<string> GetIndexAsync(CancellationToken ct = default) => FetchAsync("llms.txt", ct);
 
-    public Task<string> GetComponentAsync(string name, CancellationToken ct = default)
+    public async Task<string> GetComponentAsync(string name, CancellationToken ct = default)
     {
         if (string.IsNullOrWhiteSpace(name))
         {
             throw new ArgumentException("Component name is required.", nameof(name));
         }
 
-        return FetchAsync($"components/{name}.txt", ct);
+        var entry = ParseIndex(await GetIndexAsync(ct))
+            .FirstOrDefault(e => string.Equals(e.Name, name, StringComparison.OrdinalIgnoreCase));
+        if (entry is null)
+        {
+            throw new FileNotFoundException($"Component not found in index: {name}");
+        }
+
+        return await FetchAsync(entry.DocumentPath, ct);
     }
 
     public async Task<IReadOnlyList<ComponentEntry>> ListAsync(string? query, CancellationToken ct = default)
@@ -96,6 +103,7 @@ public sealed partial class LlmsDocsClient : IDisposable
 
         var matches = await ListAsync(query, ct);
         return matches
+            .DistinctBy(e => e.DocumentPath, StringComparer.Ordinal)
             .OrderBy(e => e.Name.StartsWith(query, StringComparison.OrdinalIgnoreCase) ? 0 : 1)
             .ThenBy(e => e.Name, StringComparer.OrdinalIgnoreCase)
             .Take(Math.Clamp(limit, 1, 100))
@@ -157,8 +165,8 @@ public sealed partial class LlmsDocsClient : IDisposable
 
     // ---- index parsing ----------------------------------------------------
 
-    // Matches: "- [Button](components/Button.txt) - optional description"
-    [GeneratedRegex(@"^- \[(?<name>[^\]]+)\]\(components/[^)]+\.txt\)(?:\s*-\s*(?<desc>.*))?$")]
+    // Matches component and extension links in llms.txt.
+    [GeneratedRegex(@"^- \[(?<name>[^\]]+)\]\((?<path>(?:components|extensions)/[^)]+\.txt)\)(?:\s*-\s*(?<desc>.*))?$")]
     private static partial Regex IndexLineRegex();
 
     // Matches a category heading: "### Buttons"
@@ -189,7 +197,11 @@ public sealed partial class LlmsDocsClient : IDisposable
 
             var name = lineMatch.Groups["name"].Value.Trim();
             var desc = lineMatch.Groups["desc"].Success ? lineMatch.Groups["desc"].Value.Trim() : null;
-            entries.Add(new ComponentEntry(name, string.IsNullOrEmpty(desc) ? null : desc, category));
+            entries.Add(new ComponentEntry(name, string.IsNullOrEmpty(desc) ? null : desc, category)
+            {
+                IsExtension = lineMatch.Groups["path"].Value.StartsWith("extensions/", StringComparison.Ordinal),
+                DocumentPath = lineMatch.Groups["path"].Value
+            });
         }
 
         return entries;
