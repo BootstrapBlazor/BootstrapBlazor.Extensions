@@ -51,7 +51,6 @@
     <Project Path="src/components/BootstrapBlazor.OfdReader/BootstrapBlazor.OfdReader.csproj" />
     <Project Path="src/components/BootstrapBlazor.OfficeViewer/BootstrapBlazor.OfficeViewer.csproj" />
     <Project Path="src/components/BootstrapBlazor.OnScreenKeyboard/BootstrapBlazor.OnScreenKeyboard.csproj" />
-    <Project Path="src/components/BootstrapBlazor.OpenAI.GPT3/BootstrapBlazor.OpenAI.csproj" />
     <Project Path="src/components/BootstrapBlazor.PdfReader/BootstrapBlazor.PdfReader.csproj" />
     <Project Path="src/components/BootstrapBlazor.PdfViewer/BootstrapBlazor.PdfViewer.csproj" />
     <Project Path="src/components/BootstrapBlazor.Player/BootstrapBlazor.Player.csproj" />
