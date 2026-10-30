@@ -5,4 +5,4 @@
 
 using BootstrapBlazor.LLMsDocsGenerator;
 
-await Runner.Run(args);
+return await Runner.Run(args);

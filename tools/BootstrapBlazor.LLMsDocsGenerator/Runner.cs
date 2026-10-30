@@ -6,10 +6,10 @@ namespace BootstrapBlazor.LLMsDocsGenerator;
 
 internal static class Runner
 {
-    public static async Task Run(string[] args)
+    public static async Task<int> Run(string[] args)
     {
         var result = ArgumentsHelper.Parse(args);
 
-        await result.InvokeAsync();
+        return await result.InvokeAsync();
     }
 }
