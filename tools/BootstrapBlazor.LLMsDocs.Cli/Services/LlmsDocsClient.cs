@@ -70,8 +70,20 @@ public sealed partial class LlmsDocsClient : IDisposable
             throw new ArgumentException("Component name is required.", nameof(name));
         }
 
-        var entry = ParseIndex(await GetIndexAsync(ct))
+        var index = "";
+        var usedCachedIndex = _useCache && !_refresh && TryReadFreshCache("llms.txt", out index);
+        if (!usedCachedIndex)
+        {
+            index = await GetIndexAsync(ct);
+        }
+
+        var entry = ParseIndex(index)
             .FirstOrDefault(e => string.Equals(e.Name, name, StringComparison.OrdinalIgnoreCase));
+        if (entry is null && usedCachedIndex)
+        {
+            entry = ParseIndex(await FetchAsync("llms.txt", ct, refresh: true))
+                .FirstOrDefault(e => string.Equals(e.Name, name, StringComparison.OrdinalIgnoreCase));
+        }
         if (entry is null)
         {
             throw new FileNotFoundException($"Component not found in index: {name}");
@@ -112,7 +124,7 @@ public sealed partial class LlmsDocsClient : IDisposable
 
     // ---- core fetch -------------------------------------------------------
 
-    private async Task<string> FetchAsync(string relativePath, CancellationToken ct)
+    private async Task<string> FetchAsync(string relativePath, CancellationToken ct, bool refresh = false)
     {
         if (!_isRemote)
         {
@@ -127,7 +139,7 @@ public sealed partial class LlmsDocsClient : IDisposable
 
         var url = new Uri(_baseUri!, relativePath);
 
-        if (_useCache && !_refresh && TryReadFreshCache(relativePath, out var fresh))
+        if (_useCache && !_refresh && !refresh && TryReadFreshCache(relativePath, out var fresh))
         {
             return fresh;
         }
