@@ -69,9 +69,9 @@ public class ComponentInfo
     /// <summary>
     /// Dependency-injection registration for an extension service, resolved from the
     /// <c>AddXxx(this IServiceCollection)</c> extension method that registers this type.
-    /// Null for components and for services with no discoverable registration method.
+    /// Empty for components and for services with no discoverable registration method.
     /// </summary>
-    public ServiceRegistration? Registration { get; set; }
+    public List<ServiceRegistration> Registrations { get; set; } = new();
 }
 
 /// <summary>
@@ -80,6 +80,11 @@ public class ComponentInfo
 /// </summary>
 public class ServiceRegistration
 {
+    /// <summary>
+    /// Extension package providing this registration.
+    /// </summary>
+    public string PackageName { get; set; } = string.Empty;
+
     /// <summary>
     /// Registration extension method name, e.g. <c>AddBootstrapBlazorWinBoxService</c>.
     /// </summary>

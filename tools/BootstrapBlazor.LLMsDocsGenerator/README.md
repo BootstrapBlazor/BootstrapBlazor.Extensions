@@ -33,6 +33,9 @@ AI coding assistants (Claude Code, Cursor, GitHub Copilot) often generate incorr
 │    ├── Table.txt       → Table component API reference       │
 │    ├── Select.txt      → Select component API reference      │
 │    └── ...             → One file per component              │
+│  extensions/           → BootstrapBlazor.Extensions docs     │
+│    ├── SelectCity.txt  → Extension component API reference   │
+│    └── ...             → One file per extension type         │
 └─────────────────────────────────────────────────────────────┘
 ```
 
@@ -81,14 +84,17 @@ Components are organized in the index by category for easy navigation, but each 
 
 ## Requirements
 
-- .NET 10 SDK
+- An SDK matching the project's `TargetFrameworks` (currently .NET 11 for source builds).
+- A local `BootstrapBlazor` checkout; when `docs.json` configures extension packages, also check out `BootstrapBlazor.Extensions` beside it. The generator does not clone repositories.
 
 ## Installation
 
 ### Run from source
 
-```bash
-dotnet run --project tools/BootstrapBlazor.LLMsDocsGenerator -- --root <ROOT> --output <OUTPUT>
+From the `BootstrapBlazor.Extensions` repository root:
+
+```powershell
+dotnet run --project tools\BootstrapBlazor.LLMsDocsGenerator --root "..\BootstrapBlazor\src\BootstrapBlazor.Server" --output "..\BootstrapBlazor\src\BootstrapBlazor.Server"
 ```
 
 ### Install as a global tool
@@ -111,16 +117,38 @@ Once installed, the tool is invoked with the command name `llms-docs`.
 
 ## Usage
 
-The generator requires **both** `--root` and `--output`. If either is missing it exits without writing anything.
+Both options are optional and independently default to the current working directory (`.`). Run `llms-docs` without arguments from BB's `src/BootstrapBlazor.Server` directory to write documentation into that project. Overriding `--root` does not change the default `--output`; specify both when using another checkout or publish directory.
+
+From the Server project directory, `dotnet llms-docs --output=bin\Release\publish\` also works: the omitted `--root` defaults to `.`, and relative output paths are resolved from that same directory. MSBuild can use `dotnet llms-docs --output=$(PublishDir)` when the path contains no spaces.
 
 | Option | Required | Description |
 |--------|----------|-------------|
-| `--root` | Yes | Project root folder. The component source is read from `<root>/../BootstrapBlazor`, so this is typically the `BootstrapBlazor.Server` project directory. |
-| `--output` | Yes | Publish folder. Documentation is written to `<output>/wwwroot/llms/`. |
+| `--root` | No | Project root folder. Defaults to `.`. Component source is read from `<root>/../BootstrapBlazor`. |
+| `--output` | No | Publish folder. Defaults to `.`. Documentation is written to `<output>/wwwroot/llms/`. |
+
+When a `BootstrapBlazor.Extensions` checkout is available beside the core `BootstrapBlazor` checkout, the generator also analyzes the extension sources. The extension types to document are configured under `extensions` in `src/BootstrapBlazor.Server/docs.json`, the only configuration location. Generation fails if the file is missing. Extension docs are written to `extensions/`.
+
+Only source projects listed in `BootstrapBlazor.Extensions.slnx` are scanned. Package names are matched against project filenames, not directory names. Configured packages outside the solution are skipped with a diagnostic; missing solution projects are reported as errors. Leftover directories do not participate in analysis. Core Razor-only components with an `@inherits` directive are also supported. Regeneration removes obsolete `.txt` files carrying the generator's `<!-- Generated: ... -->` marker, while preserving other files.
+
+If extension packages are configured but the sibling extension source checkout is missing, generation fails before changing existing documentation. Unresolved configured component or service types also fail generation before writing files or removing stale documents. Services shared by multiple packages retain one document listing the registration method for each configured package; choose the registration matching the package in use.
+
+Explicit `<Using Include="..." />` items in each source project's `.csproj` (including aliases and static imports) are applied to that project's C# files, without leaking these imports into other projects in the combined analysis.
+
+This is source analysis, not a full MSBuild evaluation: conditions, property expansion, imported `.props`/`.targets`, and `Using Remove` are not evaluated. Razor-only support synthesizes inheritance declarations; it does not compile Razor or extract members from `@code` blocks.
+
+Declare extension services by the types actually registered for injection. For example, both speech packages use `"services": ["IRecognizerProvider", "ISynthesizerProvider"]`, not their provider implementation classes.
+
+Generation errors and explicitly empty paths return a nonzero process exit code so MSBuild and CI can stop.
+
+Run the integration checks with PowerShell:
+
+```powershell
+.\tools\BootstrapBlazor.LLMsDocsGenerator\tests\Verify-Generation.ps1
+```
 
 ### Example
 
-Running from the BootstrapBlazor repository root, pointing both options at the server project:
+With the `BootstrapBlazor` and `BootstrapBlazor.Extensions` repositories checked out as sibling directories, run from the `BootstrapBlazor` repository root and point both options at the server project:
 
 ```bash
 llms-docs --root src/BootstrapBlazor.Server --output src/BootstrapBlazor.Server
@@ -131,25 +159,42 @@ This reads components from `src/BootstrapBlazor` and produces:
 ```
 src/BootstrapBlazor.Server/wwwroot/llms/llms.txt
 src/BootstrapBlazor.Server/wwwroot/llms/components/*.txt
+src/BootstrapBlazor.Server/wwwroot/llms/extensions/*.txt
 ```
 
-The same command works through `dotnet run`:
+The index groups extension docs by package, for example `BootstrapBlazor.Region`; `SelectCity` is generated as `extensions/SelectCity.txt`.
 
-```bash
-dotnet run --project tools/BootstrapBlazor.LLMsDocsGenerator -- --root src/BootstrapBlazor.Server --output src/BootstrapBlazor.Server
+From the same `BootstrapBlazor` repository root, run the sibling source project:
+
+```powershell
+dotnet run --project "..\BootstrapBlazor.Extensions\tools\BootstrapBlazor.LLMsDocsGenerator" --root "src\BootstrapBlazor.Server" --output "src\BootstrapBlazor.Server"
 ```
 
 ## CI/CD Integration
 
-Regenerate the documentation as part of a workflow that publishes the doc site:
+Check out both repositories as siblings and use an SDK matching the checked-out generator project. The following steps assume the workflow belongs to `dotnetcore/BootstrapBlazor`; pin compatible refs when building a release:
 
 ```yaml
+- uses: actions/checkout@v4
+  with:
+    path: BootstrapBlazor
+- uses: actions/checkout@v4
+  with:
+    repository: BootstrapBlazor/BootstrapBlazor.Extensions
+    path: BootstrapBlazor.Extensions
+- uses: actions/setup-dotnet@v4
+  with:
+    dotnet-version: '11.0.x'
+    dotnet-quality: 'preview'
 - name: Generate LLM Documentation
+  working-directory: BootstrapBlazor
   run: >
-    dotnet run --project tools/BootstrapBlazor.LLMsDocsGenerator --
+    dotnet run --project ../BootstrapBlazor.Extensions/tools/BootstrapBlazor.LLMsDocsGenerator
     --root src/BootstrapBlazor.Server
     --output src/BootstrapBlazor.Server
 ```
+
+The BB Server publish target instead restores and runs the local `llms-docs` tool pinned in BB's `dotnet-tools.json`. Its working directory is the Server project directory (`$(MSBuildThisFileDirectory)`); it uses the default `--root` and passes only `--output` with the absolute publish directory. Editing generator source does not update that package; publish a new tool version supporting these defaults and update the manifest before using the simplified target.
 
 ## Output Format
 

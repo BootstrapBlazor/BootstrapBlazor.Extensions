@@ -33,6 +33,9 @@ AI 编程助手（Claude Code、Cursor、GitHub Copilot）经常因为缺乏准�
 │    ├── Table.txt       → Table 组件 API 参考                 │
 │    ├── Select.txt      → Select 组件 API 参考                │
 │    └── ...             → 每个组件一个文件                     │
+│  extensions/           → BootstrapBlazor.Extensions 文档     │
+│    ├── SelectCity.txt  → 扩展组件 API 参考                   │
+│    └── ...             → 每个扩展类型一个文件                 │
 └─────────────────────────────────────────────────────────────┘
 ```
 
@@ -81,14 +84,17 @@ AI 编程助手（Claude Code、Cursor、GitHub Copilot）经常因为缺乏准�
 
 ## 环境要求
 
-- .NET 10 SDK
+- 与工程 `TargetFrameworks` 匹配的 SDK（当前源码构建使用 .NET 11）。
+- 本地 `BootstrapBlazor` 仓库；`docs.json` 配置了扩展包时，还需要同级的 `BootstrapBlazor.Extensions` 仓库。生成器不会自动克隆仓库。
 
 ## 安装
 
 ### 从源代码运行
 
-```bash
-dotnet run --project tools/BootstrapBlazor.LLMsDocsGenerator -- --root <ROOT> --output <OUTPUT>
+在 `BootstrapBlazor.Extensions` 仓库根目录执行：
+
+```powershell
+dotnet run --project tools\BootstrapBlazor.LLMsDocsGenerator --root "..\BootstrapBlazor\src\BootstrapBlazor.Server" --output "..\BootstrapBlazor\src\BootstrapBlazor.Server"
 ```
 
 ### 作为全局工具安装
@@ -111,16 +117,38 @@ dotnet tool uninstall --global BootstrapBlazor.LLMsDocsGenerator
 
 ## 使用方法
 
-生成器要求**同时**提供 `--root` 和 `--output`，缺少任意一个都会直接退出且不生成任何文件。
+两个参数均可省略，各自默认为当前工作目录（`.`）。在 BB 的 `src/BootstrapBlazor.Server` 目录直接执行 `llms-docs` 即可将文档生成到该工程。覆盖 `--root` 不会改变 `--output` 的默认值；使用其他仓库或发布目录时请分别指定。
+
+在 Server 工程目录运行时也支持 `dotnet llms-docs --output=bin\Release\publish\`，省略的 `--root` 使用 `.`，相对输出路径也基于当前 Server 目录解析。MSBuild 中可使用 `dotnet llms-docs --output=$(PublishDir)`（路径不含空格时）。
 
 | 选项 | 必需 | 说明 |
 |------|------|------|
-| `--root` | 是 | 项目根目录。组件源码从 `<root>/../BootstrapBlazor` 读取，因此通常指向 `BootstrapBlazor.Server` 项目目录。 |
-| `--output` | 是 | 发布目录。文档生成到 `<output>/wwwroot/llms/`。 |
+| `--root` | 否 | 项目根目录，默认为 `.`。组件源码从 `<root>/../BootstrapBlazor` 读取。 |
+| `--output` | 否 | 发布目录，默认为 `.`。文档生成到 `<output>/wwwroot/llms/`。 |
+
+当 `BootstrapBlazor.Extensions` 仓库与核心 `BootstrapBlazor` 仓库并列存在时，生成器也会分析扩展仓库源码。需在 `src/BootstrapBlazor.Server/docs.json` 的 `extensions` 节中配置要生成文档的扩展包和类型；这是唯一配置位置，文件不存在时生成失败。扩展文档会写入 `extensions/` 目录。
+
+仅扫描 `BootstrapBlazor.Extensions.slnx` 中列出的源码工程，按工程文件名而非目录名匹配扩展包。配置中不属于解决方案的包会输出提示并跳过；解决方案引用了不存在的工程时会报错。磁盘上残留的其他目录不会参与分析。核心库中仅有 `.razor` 文件、通过 `@inherits` 指定基类的组件也支持生成文档。重新生成时会清理带有 `<!-- Generated: ... -->` 标记的过期 `.txt` 文档，保留其他文件。
+
+配置了扩展包但缺少同级扩展源码仓库时，生成会失败且不改动已有文档。配置中的组件或服务类型无法解析时，也会在写入文件、清理过期文档之前报错。多个包共用的服务接口仍使用一份文档，按配置的包分别列出注册方法，使用时选择对应包的注册方式。
+
+源码工程 `.csproj` 中显式声明的 `<Using Include="..." />`（包括别名和静态导入）会应用到该工程的 C# 文件，不会在合并分析时泄漏到其他工程。
+
+此工具进行源码分析，不执行完整的 MSBuild 求值：不处理条件、属性展开、导入的 `.props`/`.targets` 及 `Using Remove`。纯 Razor 支持仅合成继承声明，不编译 Razor，也不提取 `@code` 块中的成员。
+
+扩展服务应配置实际用于依赖注入的注册类型。例如，两个语音包均使用 `"services": ["IRecognizerProvider", "ISynthesizerProvider"]`，而不是 Provider 实现类。
+
+生成错误或显式传入空路径时会返回非零进程退出码，便于 MSBuild 和 CI 中止。
+
+使用 PowerShell 执行集成检查：
+
+```powershell
+.\tools\BootstrapBlazor.LLMsDocsGenerator\tests\Verify-Generation.ps1
+```
 
 ### 示例
 
-在 BootstrapBlazor 仓库根目录下执行，两个选项都指向 Server 项目：
+将 `BootstrapBlazor` 与 `BootstrapBlazor.Extensions` 仓库放在同级目录后，在 BootstrapBlazor 仓库根目录执行，两个选项都指向 Server 项目：
 
 ```bash
 llms-docs --root src/BootstrapBlazor.Server --output src/BootstrapBlazor.Server
@@ -131,25 +159,42 @@ llms-docs --root src/BootstrapBlazor.Server --output src/BootstrapBlazor.Server
 ```
 src/BootstrapBlazor.Server/wwwroot/llms/llms.txt
 src/BootstrapBlazor.Server/wwwroot/llms/components/*.txt
+src/BootstrapBlazor.Server/wwwroot/llms/extensions/*.txt
 ```
 
-通过 `dotnet run` 执行同样的命令：
+索引会按扩展包分组，例如 `BootstrapBlazor.Region`；`SelectCity` 文档生成到 `extensions/SelectCity.txt`。
 
-```bash
-dotnet run --project tools/BootstrapBlazor.LLMsDocsGenerator -- --root src/BootstrapBlazor.Server --output src/BootstrapBlazor.Server
+仍在 `BootstrapBlazor` 仓库根目录，通过同级仓库的源码工程执行：
+
+```powershell
+dotnet run --project "..\BootstrapBlazor.Extensions\tools\BootstrapBlazor.LLMsDocsGenerator" --root "src\BootstrapBlazor.Server" --output "src\BootstrapBlazor.Server"
 ```
 
 ## CI/CD 集成
 
-在发布文档站点的工作流中重新生成文档：
+将两个仓库检出到同级目录，使用与生成器工程匹配的 SDK。以下步骤假定工作流位于 `dotnetcore/BootstrapBlazor` 仓库；构建发布版本时请固定兼容的 ref：
 
 ```yaml
+- uses: actions/checkout@v4
+  with:
+    path: BootstrapBlazor
+- uses: actions/checkout@v4
+  with:
+    repository: BootstrapBlazor/BootstrapBlazor.Extensions
+    path: BootstrapBlazor.Extensions
+- uses: actions/setup-dotnet@v4
+  with:
+    dotnet-version: '11.0.x'
+    dotnet-quality: 'preview'
 - name: Generate LLM Documentation
+  working-directory: BootstrapBlazor
   run: >
-    dotnet run --project tools/BootstrapBlazor.LLMsDocsGenerator --
+    dotnet run --project ../BootstrapBlazor.Extensions/tools/BootstrapBlazor.LLMsDocsGenerator
     --root src/BootstrapBlazor.Server
     --output src/BootstrapBlazor.Server
 ```
+
+BB Server 的发布 target 则还原并运行 BB 的 `dotnet-tools.json` 固定版本的本地 `llms-docs` 工具。执行目录固定为 Server 工程目录（`$(MSBuildThisFileDirectory)`），使用默认 `--root`，仅传入实际发布目录的绝对路径 `--output`。修改生成器源码不会自动更新该工具包；使用简化后的 target 前，需发布支持默认参数的新版本并更新工具清单。
 
 ## 输出格式
 

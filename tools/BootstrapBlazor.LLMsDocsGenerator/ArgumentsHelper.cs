@@ -11,8 +11,17 @@ internal static class ArgumentsHelper
 {
     public static ParseResult Parse(string[] args)
     {
-        var rootFolderOption = new Option<string?>("--root") { Description = "Set the root folder of project" };
-        var outputFolderOption = new Option<string?>("--output") { Description = "Set the publish folder of project" };
+        const string defaultFolder = ".";
+        var rootFolderOption = new Option<string>("--root")
+        {
+            Description = "Set the root folder of project",
+            DefaultValueFactory = _ => defaultFolder
+        };
+        var outputFolderOption = new Option<string>("--output")
+        {
+            Description = "Set the publish folder of project",
+            DefaultValueFactory = _ => defaultFolder
+        };
 
         var rootCommand = new RootCommand("BootstrapBlazor LLMs Documentation Generator")
         {
@@ -25,13 +34,13 @@ internal static class ArgumentsHelper
             var rootFolder = result.GetValue(rootFolderOption);
             if (string.IsNullOrEmpty(rootFolder))
             {
-                return;
+                throw new ArgumentException("Project root folder must not be empty.");
             }
 
             var outputFolder = result.GetValue(outputFolderOption);
             if (string.IsNullOrEmpty(outputFolder))
             {
-                return;
+                throw new ArgumentException("Publish folder must not be empty.");
             }
 
             await DocsGenerator.GenerateAllAsync(rootFolder, outputFolder);

@@ -15,7 +15,7 @@ internal static partial class MarkdownBuilder
 {
     private const string GitHubRawBaseUrl = "https://raw.githubusercontent.com/dotnetcore/BootstrapBlazor/refs/heads/main/";
     private const string GitHubRepositoryUrl = "https://github.com/dotnetcore/BootstrapBlazor";
-    private const string GitHubExtensionsRawUrl = "https://raw.githubusercontent.com/dotnetcore/BootstrapBlazor.Extensions/refs/heads/main/";
+    private const string GitHubExtensionsRawUrl = "https://raw.githubusercontent.com/BootstrapBlazor/BootstrapBlazor.Extensions/refs/heads/main/";
     private const string GitHubExtensionsRepositoryUrl = "https://github.com/BootstrapBlazor/BootstrapBlazor.Extensions";
 
     /// <summary>
@@ -352,21 +352,28 @@ internal static partial class MarkdownBuilder
         }
 
         // Service registration (DI): extension services must be registered before use.
-        if (component.Registration != null)
+        if (component.Registrations.Count > 0)
         {
-            var reg = component.Registration;
             _sb.AppendLine("### 服务注册");
             _sb.AppendLine();
-            _sb.AppendLine("该服务需要先注册到容器，在 `Program.cs` 中添加：");
+            _sb.AppendLine("该服务需要先注册到容器，在 `Program.cs` 中按所用扩展包选择一种注册方式：");
             _sb.AppendLine();
-            _sb.AppendLine("```csharp");
-            _sb.AppendLine($"builder.Services.{reg.MethodName}();");
-            if (!string.IsNullOrEmpty(reg.Parameters))
+            foreach (var reg in component.Registrations)
             {
-                _sb.AppendLine($"// 可选配置参数：{reg.MethodName}({reg.Parameters})");
+                if (!string.IsNullOrEmpty(reg.PackageName))
+                {
+                    _sb.AppendLine($"#### {reg.PackageName}");
+                    _sb.AppendLine();
+                }
+                _sb.AppendLine("```csharp");
+                _sb.AppendLine($"builder.Services.{reg.MethodName}();");
+                if (!string.IsNullOrEmpty(reg.Parameters))
+                {
+                    _sb.AppendLine($"// 可选配置参数：{reg.MethodName}({reg.Parameters})");
+                }
+                _sb.AppendLine("```");
+                _sb.AppendLine();
             }
-            _sb.AppendLine("```");
-            _sb.AppendLine();
             _sb.AppendLine("在组件或页面中注入使用：");
             _sb.AppendLine();
             _sb.AppendLine("```csharp");

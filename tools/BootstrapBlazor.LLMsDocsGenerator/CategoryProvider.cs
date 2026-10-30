@@ -48,6 +48,10 @@ internal sealed class CategoryProvider
     public CategoryProvider(string serverPath)
     {
         _docsFile = Path.Combine(serverPath, "docs.json");
+        if (!File.Exists(_docsFile))
+        {
+            throw new FileNotFoundException("Documentation configuration not found.", _docsFile);
+        }
     }
 
     /// <summary>
