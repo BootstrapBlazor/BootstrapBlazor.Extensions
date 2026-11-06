@@ -1,0 +1,62 @@
+[
+  {
+    "name": "元旦",
+    "range": [ "2027-01-01", "2027-01-03" ],
+    "type": "holiday"
+  },
+  {
+    "name": "春节",
+    "range": [ "2027-01-31" ],
+    "type": "workingday"
+  },
+  {
+    "name": "春节",
+    "range": [ "2027-02-05", "2027-02-13" ],
+    "type": "holiday"
+  },
+  {
+    "name": "春节",
+    "range": [ "2027-02-14" ],
+    "type": "workingday"
+  },
+  {
+    "name": "清明节",
+    "range": [ "2027-04-03", "2027-04-05" ],
+    "type": "holiday"
+  },
+  {
+    "name": "劳动节",
+    "range": [ "2027-05-01", "2027-05-05" ],
+    "type": "holiday"
+  },
+  {
+    "name": "劳动节",
+    "range": [ "2027-05-08" ],
+    "type": "workingday"
+  },
+  {
+    "name": "端午节",
+    "range": [ "2027-06-09" ],
+    "type": "holiday"
+  },
+  {
+    "name": "中秋节",
+    "range": [ "2027-09-15" ],
+    "type": "holiday"
+  },
+  {
+    "name": "国庆节",
+    "range": [ "2027-09-26" ],
+    "type": "workingday"
+  },
+  {
+    "name": "国庆节",
+    "range": [ "2027-10-01", "2027-10-07" ],
+    "type": "holiday"
+  },
+  {
+    "name": "国庆节",
+    "range": [ "2027-10-09" ],
+    "type": "workingday"
+  }
+]
