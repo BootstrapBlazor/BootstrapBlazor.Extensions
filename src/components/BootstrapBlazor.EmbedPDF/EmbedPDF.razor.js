@@ -11,7 +11,7 @@ export async function init(id, invoke, options) {
 
     const target = el.querySelector('.pdf-viewer');
     const { src, tabBar, theme, lang, currentPage, scrollStrategy, pageGap } = options;
-    const wasmUrl = `${location.origin}/_content/BootstrapBlazor.EmbedPDF/pdfium.wasm`;
+    const wasmUrl = `${location.origin}/_content/BootstrapBlazor.EmbedPDF/embedpdf.wasm`;
 
     let preference = theme;
     if (preference === 'system') {
