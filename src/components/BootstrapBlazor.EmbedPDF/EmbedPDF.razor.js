@@ -9,115 +9,125 @@ export async function init(id, invoke, options) {
         return null;
     }
 
-    const target = el.querySelector('.pdf-viewer');
     const { src, tabBar, theme, lang, currentPage, scrollStrategy, pageGap } = options;
-    const wasmUrl = `${location.origin}/_content/BootstrapBlazor.EmbedPDF/embedpdf.wasm`;
+    const assetsUrl = new URL('_content/BootstrapBlazor.EmbedPDF/', document.baseURI).href;
+    const preference = getViewerTheme(theme);
+    const currentPageGap = pageGap === 0 ? 20 : pageGap;
+    const pdf = {
+        element: null,
+        viewer: null,
+        scrollStrategy,
+        resolveReady: null
+    };
+    pdf.ready = new Promise(resolve => {
+        pdf.resolveReady = resolve;
+    });
 
-    let preference = theme;
-    if (preference === 'system') {
-        preference = getTheme();
-    }
-
-    let currentPageGap = pageGap;
-    if (currentPageGap === 0) {
-        currentPageGap = 20;
-    }
-
-    const viewer = EmbedPDF.init({
-        type: 'container',
+    const element = EmbedPDF.init({
         target: el,
         src,
-        worker: true,
-        tabBar,
-        theme: {
-            preference: preference
+        locale: lang || 'auto',
+        theme: preference,
+        layout: layout => layout.tabs(tabBar),
+        plugins: {
+            stage: {
+                layout: scrollStrategy,
+                gap: currentPageGap
+            },
+            i18n: {
+                fallbackLocale: 'en'
+            }
         },
-        wasmUrl,
-        i18n: {
-            defaultLocale: lang,
-            fallbackLocale: 'en'
+        engine: {
+            assetsUrl
         },
-        scroll: {
-            defaultStrategy: scrollStrategy,
-            defaultPageGap: currentPageGap
+        onReady: viewer => {
+            pdf.viewer = viewer;
+            viewer.documents.onOpened(({ documentId }) => {
+                const stage = viewer.forDocument(documentId).get('stage');
+                stage.updateSettings({ layout: pdf.scrollStrategy });
+                if (currentPage > 0) {
+                    stage.goToPage(currentPage - 1);
+                }
+            });
+
+            viewer.documents.onActiveChanged(() => {
+                viewer.tryGet('stage')?.updateSettings({ layout: pdf.scrollStrategy });
+            });
+            pdf.resolveReady(viewer);
         }
     });
+
+    pdf.element = element;
+    Data.set(id, pdf);
 
     registerBootstrapBlazorModule('EmbedPDF', id, () => {
         EventHandler.on(document, 'changed.bb.theme', updateTheme);
     });
-
-    Data.set(id, { el, invoke, options, viewer });
-
-    const registry = await viewer.registry;
-    const scroll = registry.getPlugin('scroll').provides();
-
-    if (currentPage !== 0) {
-        scroll.onLayoutReady((event) => {
-            scroll.scrollToPage({
-                pageNumber: currentPage,
-                behavior: 'instant'
-            });
-        });
-    }
+    await pdf.ready;
 }
 
 export async function setUrl(id, url, keepCurrentDoc) {
     const pdf = Data.get(id);
-    const { viewer } = pdf;
-
-    if (viewer) {
-        const registry = await viewer.registry;
-        const docManager = registry.getPlugin('document-manager').provides();
-        if (!keepCurrentDoc) {
-            const doc = docManager.getActiveDocument();
-            if (doc) {
-                docManager.closeDocument(doc.id).toPromise();
-            }
-        }
-        const name = getFileName(url);
-        docManager.openDocumentUrl({
-            url,
-            name,
-            autoActivate: true
-        }).toPromise();
+    if (!pdf) {
+        return;
     }
+
+    const viewer = await pdf.ready;
+    if (!viewer || Data.get(id) !== pdf) {
+        return;
+    }
+
+    if (!keepCurrentDoc) {
+        const activeDocumentId = viewer.documents.getActiveId();
+        if (activeDocumentId) {
+            await viewer.documents.close(activeDocumentId);
+        }
+    }
+
+    if (!url || Data.get(id) !== pdf) {
+        return;
+    }
+
+    await viewer.documents.open(
+        { kind: 'url', url },
+        { name: getFileName(url) }
+    );
 }
 
 export function setTheme(id, theme) {
     const pdf = Data.get(id);
-    const { viewer } = pdf;
-
-    if (viewer) {
-        viewer.setTheme(theme);
+    if (pdf?.element) {
+        pdf.element.theme = getViewerTheme(theme);
     }
 }
 
-export async function setLocale(id, locale) {
+export function setLocale(id, locale) {
     const pdf = Data.get(id);
-    const { viewer } = pdf;
-
-    if (viewer) {
-        const registry = await viewer.registry;
-        const i18n = registry.getPlugin('i18n').provides();
-        i18n.setLocale(locale);
+    if (pdf?.element) {
+        pdf.element.locale = locale;
     }
 }
 
-export async function setScrollStrategy(id, strategy) {
+export function setScrollStrategy(id, strategy) {
     const pdf = Data.get(id);
-    const { viewer } = pdf;
-
-    if (viewer) {
-        const registry = await viewer.registry;
-        const scroll = registry.getPlugin('scroll').provides();
-        scroll.setScrollStrategy(strategy);
+    if (pdf) {
+        pdf.scrollStrategy = strategy;
+        const stage = pdf.viewer?.tryGet('stage');
+        if (stage) {
+            stage.updateSettings({ layout: strategy });
+        }
     }
 }
 
 export function dispose(id) {
     const pdf = Data.get(id);
     Data.remove(id);
+    pdf?.resolveReady(null);
+
+    if (pdf?.element) {
+        pdf.element.remove();
+    }
 
     const { EmbedPDF } = window.BootstrapBlazor;
     if (EmbedPDF) {
@@ -134,11 +144,8 @@ const updateTheme = e => {
         const id = s.getAttribute('id');
         if (id) {
             const pdf = Data.get(id);
-            if (pdf) {
-                const { viewer } = pdf;
-                if (viewer) {
-                    viewer.setTheme(theme);
-                }
+            if (pdf?.element) {
+                pdf.element.theme = getViewerTheme(theme);
             }
         }
     });
@@ -150,4 +157,9 @@ function getFileName(filePath) {
         filePath.lastIndexOf('\\')
     );
     return filePath.substring(lastSeparatorIndex + 1);
+}
+
+function getViewerTheme(theme) {
+    const preference = theme === 'system' ? getTheme() : theme;
+    return preference === 'auto' ? 'system' : preference;
 }
