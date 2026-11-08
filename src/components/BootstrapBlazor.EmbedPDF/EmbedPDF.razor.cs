@@ -10,6 +10,8 @@ namespace BootstrapBlazor.Components;
 [JSModuleAutoLoader("./_content/BootstrapBlazor.EmbedPDF/EmbedPDF.razor.js", JSObjectReference = true)]
 public partial class EmbedPDF
 {
+    private const string AssetsBaseUrl = "./_content/BootstrapBlazor.EmbedPDF/";
+
     /// <summary>
     /// <para lang="zh">获得/设置 PDF 文档路径</para>
     /// <para lang="en">Gets or sets the PDF document URL</para>
@@ -152,6 +154,7 @@ public partial class EmbedPDF
         Theme = Theme.ToDescriptionString(),
         Src = Url,
         Lang = Language,
+        AssetsUrl = AssetsBaseUrl,
         CurrentPage,
         ScrollStrategy = ScrollStrategy.ToDescriptionString(),
         PageGap
