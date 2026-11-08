@@ -9,8 +9,7 @@ export async function init(id, invoke, options) {
         return null;
     }
 
-    const { src, tabBar, theme, lang, currentPage, scrollStrategy, pageGap } = options;
-    const assetsUrl = new URL('_content/BootstrapBlazor.EmbedPDF/', document.baseURI).href;
+    const { src, tabBar, theme, lang, assetsUrl, currentPage, scrollStrategy, pageGap } = options;
     const preference = getViewerTheme(theme);
     const currentPageGap = pageGap === 0 ? 20 : pageGap;
     const pdf = {
