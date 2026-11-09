@@ -123,8 +123,8 @@ const postLayoutInit = (dockview, options) => {
         })
 
         if (options.renderer === 'onlyWhenVisible') {
-            const visiblePanels = dockview.groups.filter(g => g.isVisible).map(g => g.panels.find(p => p.params.isActive) || g.panels.find(p => p.api.isVisible))
-            dockview._loadTabs?.fire(visiblePanels.filter(p => p.params.key).map(p => p.params.key));
+            const visiblePanels = dockview.groups.filter(g => g.isVisible).map(g => g.activePanel)
+            dockview._loadTabs?.fire(visiblePanels.filter(p => p && p.params.key).map(p => p.params.key));
         }
         dockview._initialized?.fire();
     })
@@ -211,6 +211,22 @@ const initDockview = (dockview, options, template) => {
     dockview.gridview.onDidChange(event => {
         dockview._groupSizeChanged.fire()
         saveConfig(dockview)
+    })
+
+    // 切标签不改 grid 尺寸，always 下也走不到 onlyWhenVisible 分支；不在这里落盘则 F5 后回退
+    dockview.onDidActivePanelChange(() => {
+        saveConfig(dockview)
+    })
+
+    // 拖拽期 core 会抑制上一条事件，程序化移动也不经 drop 处理器；0ms 合并掉一次操作的连续 fire
+    let movePanelTimer = null
+    dockview.onDidMovePanel(() => {
+        if (movePanelTimer) return
+        movePanelTimer = setTimeout(() => {
+            movePanelTimer = null
+            if (dockview._isDisposed) return
+            saveConfig(dockview)
+        }, 0)
     })
 
     dockview._rootDropTarget.onDrop(() => {
