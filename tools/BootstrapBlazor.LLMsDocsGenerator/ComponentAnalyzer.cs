@@ -7,6 +7,7 @@ using Microsoft.CodeAnalysis;
 using Microsoft.CodeAnalysis.CSharp;
 using Microsoft.CodeAnalysis.CSharp.Syntax;
 using System.Text.RegularExpressions;
+using System.Xml.Linq;
 
 namespace BootstrapBlazorLLMsDocsGenerator;
 
@@ -26,6 +27,7 @@ public partial class ComponentAnalyzer
     private readonly string _componentsPath;
     private readonly string _samplesPath;
     private readonly string? _extensionsSourcePath;
+    private readonly IReadOnlyDictionary<string, string>? _extensionProjects;
 
     private CSharpCompilation? _compilation;
     private readonly Dictionary<string, SyntaxTree> _treeByPath = new(StringComparer.OrdinalIgnoreCase);
@@ -43,12 +45,14 @@ public partial class ComponentAnalyzer
         typeQualificationStyle: SymbolDisplayTypeQualificationStyle.NameAndContainingTypesAndNamespaces,
         genericsOptions: SymbolDisplayGenericsOptions.IncludeTypeParameters);
 
-    public ComponentAnalyzer(string sourcePath, string? extensionsSourcePath = null)
+    public ComponentAnalyzer(string sourcePath, string? extensionsSourcePath = null,
+        IReadOnlyDictionary<string, string>? extensionProjects = null)
     {
         _sourcePath = sourcePath;
         _componentsPath = Path.Combine(sourcePath, "Components");
         _samplesPath = Path.Combine(Path.GetDirectoryName(sourcePath)!, "BootstrapBlazor.Server", "Components", "Samples");
         _extensionsSourcePath = extensionsSourcePath;
+        _extensionProjects = extensionProjects;
     }
 
     /// <summary>
@@ -69,8 +73,11 @@ public partial class ComponentAnalyzer
         // Entry points: component code-behind files and explicit base classes.
         // Other partial files (e.g. Table.razor.Toolbar.cs) are NOT entry points;
         // their members are merged into the component via the symbol model.
+        // Razor-only components use the synthesized @inherits declaration.
         var entryFiles = Directory.GetFiles(_componentsPath, "*.razor.cs", SearchOption.AllDirectories)
             .Concat(Directory.GetFiles(_componentsPath, "*Base.cs", SearchOption.AllDirectories))
+            .Concat(Directory.GetFiles(_componentsPath, "*.razor", SearchOption.AllDirectories)
+                .Where(file => !File.Exists(file + ".cs") && _treeByPath.ContainsKey(Path.GetFullPath(file))))
             .Distinct(StringComparer.OrdinalIgnoreCase);
 
         var seenTypes = new HashSet<string>(StringComparer.Ordinal);
@@ -104,6 +111,10 @@ public partial class ComponentAnalyzer
         {
             files = Directory.GetFiles(_componentsPath, $"{componentName}.cs", SearchOption.AllDirectories);
         }
+        if (files.Length == 0)
+        {
+            files = Directory.GetFiles(_componentsPath, $"{componentName}.razor", SearchOption.AllDirectories);
+        }
 
         return files.Length == 0 ? null : AnalyzeEntryFile(files[0]);
     }
@@ -126,7 +137,7 @@ public partial class ComponentAnalyzer
             var syntax = symbol?.DeclaringSyntaxReferences.FirstOrDefault()?.GetSyntax();
             if (symbol == null || syntax == null)
             {
-                continue;
+                throw new InvalidDataException($"Service type not found in analyzed sources: {name}");
             }
 
             services.Add(new ComponentInfo
@@ -147,7 +158,8 @@ public partial class ComponentAnalyzer
     /// ComponentInfo records with parameters, methods and source path. The compilation
     /// must include both the extension sources and the core library (for base types).
     /// </summary>
-    public async Task<List<ComponentInfo>> AnalyzeTypesByNameAsync(IEnumerable<string> typeNames, bool resolveRegistration = false)
+    public async Task<List<ComponentInfo>> AnalyzeTypesByNameAsync(IEnumerable<string> typeNames,
+        bool resolveRegistration = false, IReadOnlyList<ExtensionPackage>? registrationPackages = null)
     {
         await EnsureCompilationAsync();
 
@@ -161,7 +173,7 @@ public partial class ComponentAnalyzer
             var syntax = symbol?.DeclaringSyntaxReferences.FirstOrDefault()?.GetSyntax();
             if (symbol == null || syntax == null)
             {
-                continue;
+                throw new InvalidDataException($"Extension type not found in analyzed sources: {name}");
             }
 
             var path = Path.GetFullPath(syntax.SyntaxTree.FilePath);
@@ -176,7 +188,10 @@ public partial class ComponentAnalyzer
                 PublicMethods = CollectMethods(symbol),
                 SourcePath = GetRelativePath(path),
                 IsExtension = extSrc != null && path.StartsWith(extSrc, StringComparison.OrdinalIgnoreCase),
-                Registration = resolveRegistration ? ResolveRegistration(symbol) : null
+                Registrations = resolveRegistration
+                    ? ResolveRegistrations(symbol, registrationPackages?.Where(p => p.Services.Contains(name))
+                        .Select(p => p.Name).ToHashSet(StringComparer.OrdinalIgnoreCase))
+                    : new()
             });
         }
 
@@ -192,15 +207,17 @@ public partial class ComponentAnalyzer
         "TryAddScoped", "TryAddSingleton", "TryAddTransient"
     };
 
-    private Dictionary<INamedTypeSymbol, ServiceRegistration>? _registrationIndex;
+    private Dictionary<INamedTypeSymbol, List<ServiceRegistration>>? _registrationIndex;
 
     /// <summary>
     /// Look up the extension method that registers a service type into DI.
     /// </summary>
-    private ServiceRegistration? ResolveRegistration(INamedTypeSymbol serviceType)
+    private List<ServiceRegistration> ResolveRegistrations(INamedTypeSymbol serviceType, HashSet<string>? packageNames)
     {
         BuildRegistrationIndex();
-        return _registrationIndex!.TryGetValue(serviceType, out var reg) ? reg : null;
+        return _registrationIndex!.TryGetValue(serviceType, out var registrations)
+            ? registrations.Where(reg => packageNames == null || packageNames.Contains(reg.PackageName)).ToList()
+            : new();
     }
 
     /// <summary>
@@ -218,10 +235,14 @@ public partial class ComponentAnalyzer
             return;
         }
 
-        _registrationIndex = new Dictionary<INamedTypeSymbol, ServiceRegistration>(SymbolEqualityComparer.Default);
+        _registrationIndex = new Dictionary<INamedTypeSymbol, List<ServiceRegistration>>(SymbolEqualityComparer.Default);
 
         foreach (var tree in _compilation!.SyntaxTrees)
         {
+            var packageName = _extensionProjects?.FirstOrDefault(project =>
+                Path.GetFullPath(tree.FilePath).StartsWith(
+                    Path.GetFullPath(project.Value) + Path.DirectorySeparatorChar,
+                    StringComparison.OrdinalIgnoreCase)).Key ?? "";
             SemanticModel? model = null;
             foreach (var method in tree.GetRoot().DescendantNodes().OfType<MethodDeclarationSyntax>())
             {
@@ -253,14 +274,21 @@ public partial class ComponentAnalyzer
                         continue;
                     }
 
-                    // First writer wins so the most direct registration method sticks.
-                    if (!_registrationIndex.ContainsKey(serviceType))
+                    if (!_registrationIndex.TryGetValue(serviceType, out var registrations))
                     {
-                        _registrationIndex[serviceType] = new ServiceRegistration
+                        registrations = new();
+                        _registrationIndex[serviceType] = registrations;
+                    }
+
+                    // First writer wins within each package so the most direct registration method sticks.
+                    if (!registrations.Any(reg => reg.PackageName == packageName))
+                    {
+                        registrations.Add(new ServiceRegistration
                         {
+                            PackageName = packageName,
                             MethodName = method.Identifier.Text,
                             Parameters = BuildRegistrationParameters(method)
-                        };
+                        });
                     }
                 }
             }
@@ -298,14 +326,16 @@ public partial class ComponentAnalyzer
 
         // Include the core library and, when provided, the extensions repository so that
         // extension components (which inherit core base types) resolve their full chain.
+        // Solution project paths exclude leftover directories outside the solution.
         var sourceRoots = new List<string> { _sourcePath };
         if (!string.IsNullOrEmpty(_extensionsSourcePath) && Directory.Exists(_extensionsSourcePath))
         {
-            sourceRoots.Add(_extensionsSourcePath);
+            sourceRoots.AddRange(_extensionProjects?.Values ?? new[] { _extensionsSourcePath });
         }
 
         foreach (var root in sourceRoots)
         {
+            var projectUsings = ReadProjectUsings(root);
             foreach (var file in Directory.GetFiles(root, "*.cs", SearchOption.AllDirectories).Where(IsCompilableSource))
             {
                 var fullPath = Path.GetFullPath(file);
@@ -316,6 +346,14 @@ public partial class ComponentAnalyzer
 
                 var code = await File.ReadAllTextAsync(file);
                 var tree = CSharpSyntaxTree.ParseText(code, parseOptions, path: fullPath);
+                if (projectUsings.Count > 0)
+                {
+                    // Keep project imports local to each file in the combined compilation.
+                    var syntaxRoot = tree.GetCompilationUnitRoot();
+                    var imports = projectUsings.Where(import =>
+                        !syntaxRoot.Usings.Any(existing => existing.IsEquivalentTo(import)));
+                    tree = CSharpSyntaxTree.Create(syntaxRoot.AddUsings(imports.ToArray()), parseOptions, fullPath);
+                }
                 trees.Add(tree);
                 _treeByPath[fullPath] = tree;
             }
@@ -339,7 +377,9 @@ public partial class ComponentAnalyzer
                 var shim = await BuildInheritsShimAsync(razorFile);
                 if (shim != null)
                 {
-                    trees.Add(CSharpSyntaxTree.ParseText(shim, parseOptions));
+                    var tree = CSharpSyntaxTree.ParseText(shim, parseOptions, path: razorFile);
+                    trees.Add(tree);
+                    _treeByPath[Path.GetFullPath(razorFile)] = tree;
                 }
             }
         }
@@ -349,6 +389,35 @@ public partial class ComponentAnalyzer
             trees,
             references: null,
             options: new CSharpCompilationOptions(OutputKind.DynamicallyLinkedLibrary));
+    }
+
+    private static List<UsingDirectiveSyntax> ReadProjectUsings(string projectDirectory)
+    {
+        var imports = new List<UsingDirectiveSyntax>();
+        foreach (var projectFile in Directory.EnumerateFiles(projectDirectory, "*.csproj"))
+        {
+            var project = XDocument.Load(projectFile);
+            foreach (var item in project.Descendants("Using"))
+            {
+                var name = (string?)item.Attribute("Include");
+                if (string.IsNullOrWhiteSpace(name))
+                {
+                    continue;
+                }
+
+                var alias = (string?)item.Attribute("Alias");
+                var prefix = !string.IsNullOrWhiteSpace(alias) ? $"{alias} = "
+                    : string.Equals((string?)item.Attribute("Static"), "true", StringComparison.OrdinalIgnoreCase)
+                        ? "static " : "";
+                var syntax = SyntaxFactory.ParseCompilationUnit($"using {prefix}{name};");
+                if (syntax.ContainsDiagnostics)
+                {
+                    throw new InvalidDataException($"Invalid project Using '{name}' in {projectFile}");
+                }
+                imports.AddRange(syntax.Usings);
+            }
+        }
+        return imports;
     }
 
     /// <summary>
@@ -720,6 +789,10 @@ public partial class ComponentAnalyzer
     private static string DeriveClassName(string filePath)
     {
         var fileName = Path.GetFileName(filePath);
+        if (fileName.EndsWith(".razor", StringComparison.OrdinalIgnoreCase))
+        {
+            return fileName[..^".razor".Length];
+        }
         if (fileName.EndsWith(".razor.cs", StringComparison.OrdinalIgnoreCase))
         {
             return fileName[..^".razor.cs".Length];

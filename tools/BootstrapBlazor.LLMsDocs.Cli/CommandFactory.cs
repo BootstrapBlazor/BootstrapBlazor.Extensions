@@ -129,9 +129,9 @@ internal static class CommandFactory
                 Console.Out.Write(await client.GetComponentAsync(name, ct));
                 return 0;
             }
-            catch (FileNotFoundException)
+            catch (FileNotFoundException ex)
             {
-                Console.Error.WriteLine($"error: component '{name}' not found. Try: bb-llms search <keyword>");
+                Console.Error.WriteLine($"error: {ex.Message} Try: bb-llms search <keyword>");
                 return 1;
             }
             catch (Exception ex)

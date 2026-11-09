@@ -1,7 +1,7 @@
 # BootstrapBlazor LLMs Docs CLI（`bb-llms`）
 
 一个轻量命令行工具，用于从 [www.blazor.zone/llms](https://www.blazor.zone/llms)
-拉取 BootstrapBlazor 组件的**官方 API 文档**（参数、事件回调、公开方法、源码链接），
+拉取 BootstrapBlazor 及 BootstrapBlazor.Extensions 组件的**官方 API 文档**（参数、事件回调、公开方法、源码链接），
 供 AI agent（Claude Code / Cursor / Trae / Codex 等经 Bash 调用）和开发者查询。
 
 组件文档由官网的 `BootstrapBlazor.LLMsDocsGenerator`（生产者，CI 侧用 Roslyn 生成并发布）产出，
@@ -49,6 +49,7 @@ dotnet tool uninstall -g BootstrapBlazor.LLMsDocs.Cli
 ```bash
 bb-llms search table          # 按关键词搜索组件，定位准确名称
 bb-llms get Table             # 拉取 Table 组件的完整 API 文档（核心命令）
+bb-llms get SelectCity        # 拉取 Region 扩展包中 SelectCity 的 API 文档
 bb-llms list                  # 列出全部组件
 bb-llms index                 # 打印原始 llms.txt 索引
 ```
@@ -68,10 +69,12 @@ bb-llms index                 # 打印原始 llms.txt 索引
 
 要点：
 
-- `get` / `index` 为**原样透传**，不解析格式，输出即远程 `.txt` 原文。
-- `list` / `search` 默认输出 **JSON**；加 `--format text` 输出纯文本（`Name - 描述` 每行一条）。
+- `get` / `index` 的输出保留远程 `.txt` 原文；`get` 会先解析 `llms.txt`，按名称找到文档路径，再直接读取核心或扩展文档，不通过请求失败来尝试其他目录。本地源也必须包含该索引。
+- `list` / `search` 包括组件和服务，默认输出 **JSON**；`isExtension` 表示文档位于 `extensions/`，不表示接口源码一定声明在扩展仓库。加 `--format text` 输出纯文本（`Name - 描述` 每行一条）。
 - `search --limit` 默认 `20`，取值范围会被限制在 `1~100`。
+- `search` 按文档路径去重后应用结果数量限制，避免多个包共用的服务占满结果；`list` 保留各包的索引项。
 - 找不到组件时 `get` 退出码非 0，并提示用 `bb-llms search <关键词>` 重新定位。
+- 索引缺失、索引中没有对应名称、目标文档缺失均返回非零退出码，并保留具体失败原因；不会把缺少 `llms.txt` 误报为组件不存在。
 
 示例：
 
@@ -80,7 +83,11 @@ bb-llms search button --limit 5      # 最多 5 条，Button 类优先
 bb-llms list --query table           # 仅名称/描述含 "table" 的组件
 bb-llms list --format text           # 纯文本清单
 bb-llms get Table                    # Table 的参数表 / 事件 / 方法 / GitHub 源码链接
+bb-llms get SelectCity               # BootstrapBlazor.Region 扩展包的 SelectCity 文档
+bb-llms get IRecognizerProvider      # 共享服务接口，按包列出 Azure/Baidu 注册方式
 ```
+
+多个扩展包共用一个接口时，各包的索引项指向同一份服务文档；按实际使用的包选择其中一种注册方式，不要全部复制执行。
 
 ### 源与缓存选项（数据命令通用）
 
@@ -119,6 +126,8 @@ bb-llms get Button --base-url ./wwwroot/llms
 - 想强制拿最新：`--refresh`；完全不碰缓存目录：`--no-cache`。
 
 > 含义：官网发版后，最长 24 小时本地才会感知到文档更新（用 `--refresh` 可立即刷新）。
+
+索引同样缓存。`get` 在缓存索引中找不到名称时，会自动回源刷新一次索引后重试，便于发现新增组件或扩展服务；刷新后仍不存在才报错。索引已回源、指定了 `--refresh` / `--no-cache` 或使用本地目录时，不会重复刷新。已有文档内容仍遵循 24 小时缓存，可使用 `bb-llms get SelectCity --refresh` 立即刷新索引及目标文档。此自动刷新行为需要更新到包含该功能的 CLI 版本。
 
 ---
 
@@ -181,12 +190,18 @@ bb-llms install --client claude                       # 2. 装发现层（写入
 
 ## 开发 / 本地运行
 
+在 Extentions 仓库根目录执行 CLI 回归检查：
+
+```powershell
+.\tools\BootstrapBlazor.LLMsDocs.Cli\tests\Verify-Client.ps1
+```
+
 ```bash
 cd tools/BootstrapBlazor.LLMsDocs.Cli
 dotnet build
 dotnet run -- get Button
 dotnet run -- search table --limit 5
-dotnet run -- get Button --base-url ../BootstrapBlazor.LLMsDocsGenerator/<生成目录>/llms
+dotnet run -- get Button --base-url "<生成目录>/wwwroot/llms"
 ```
 
 打包冒烟：
