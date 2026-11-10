@@ -26,8 +26,6 @@ const cerateDockview = (el, options) => {
     return dockview;
 }
 
-// Carry the `maximizing` flag on EVERY exit-maximize, not just the toggle button: the core also exits
-// maximize when a group is removed/hidden/moved/added, and without the flag the restored siblings blank.
 const guardMaximizeExit = dockview => {
     const gridview = dockview.gridview;
     if (!gridview) return;
@@ -45,15 +43,11 @@ const guardMaximizeExit = dockview => {
     };
 }
 
-// Fix "groups evenly split after refresh": while collapsed (size 0) skip overwriting existing
-// proportions, else saveProportions freezes the collapsed equal-minimums as the split. _proportions is
-// undefined only on the first deserialize save — let that through. Upstream fix: add `size > 0` to
-// dockview-core's Splitview.saveProportions, then drop this patch.
 const guardCollapsedSaveProportions = dockview => {
     const splitview = dockview.gridview?.root?.splitview;
     if (!splitview) return;
     const proto = Object.getPrototypeOf(splitview);
-    if (proto.__bbCollapseGuard) return;          // Splitview.prototype is shared by all instances; patch once
+    if (proto.__bbCollapseGuard) return;
     proto.__bbCollapseGuard = true;
     const original = proto.saveProportions;
     proto.saveProportions = function () {
@@ -213,12 +207,10 @@ const initDockview = (dockview, options, template) => {
         saveConfig(dockview)
     })
 
-    // 切标签不改 grid 尺寸，always 下也走不到 onlyWhenVisible 分支；不在这里落盘则 F5 后回退
     dockview.onDidActivePanelChange(() => {
         saveConfig(dockview)
     })
 
-    // 拖拽期 core 会抑制上一条事件，程序化移动也不经 drop 处理器；0ms 合并掉一次操作的连续 fire
     let movePanelTimer = null
     dockview.onDidMovePanel(() => {
         if (movePanelTimer) return
@@ -265,15 +257,12 @@ const setWidth = (target, dockview) => {
     let dropdown = header.querySelector('.dv-right-actions-container>.dropdown')
     if (!dropdown) return
     let dropMenu = dropdown.querySelector('.dropdown-menu')
-    // `shrinking` (a strict width drop) gates the active-panel switch below — it must NOT fire during the
-    // transient expand a group goes through when a hidden view becomes visible (would switch + blank it).
     const group = dockview.params.inited ? dockview.groups.find(g => g.element === header.parentElement) : null
     const shrinking = group && group._lastHeaderWidth !== undefined && header.offsetWidth < group._lastHeaderWidth
     if (group) group._lastHeaderWidth = header.offsetWidth
 
     if (voidWidth === 0) {
         if (tabsContainer.children.length <= 1) return
-        // On shrink, if the active tab would overflow, switch to the first panel before tucking it away.
         if (shrinking) {
             const activeTab = tabsContainer.querySelector('.dv-tab.dv-active-tab')
             if (activeTab && activeTab.offsetLeft + activeTab.offsetWidth > tabsContainer.offsetWidth) {
@@ -304,7 +293,6 @@ const setWidth = (target, dockview) => {
             }
         }
     }
-    // Fallback: keep an active panel when the group has none (e.g. the active one was closed).
     if (group && !group.activePanel) {
         group.panels[0]?.api.setActive()
     }
