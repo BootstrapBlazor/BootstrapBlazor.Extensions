@@ -15,8 +15,7 @@ const observePanelActiveChange = panel => {
         const renderer = dockview.params.options.renderer;
         if (renderer === 'onlyWhenVisible' && dockview.params.inited) {
             if (isVisible) {
-                saveConfig(panel.accessor)
-                const visiblePanels = dockview.groups.map(g => g.panels.find(p => p.params.isActive) || g.panels.find(p => p.api.isVisible))
+                const visiblePanels = dockview.groups.map(g => g.activePanel)
                 dockview._loadTabs?.fire(visiblePanels.filter(p => Boolean(p)).map(p => p.params.key));
             }
             else {
