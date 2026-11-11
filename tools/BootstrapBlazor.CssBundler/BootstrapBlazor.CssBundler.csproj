@@ -1,21 +1,16 @@
 ﻿<Project Sdk="Microsoft.NET.Sdk">
 
   <PropertyGroup>
-    <Version>10.0.1</Version>
+    <Version>11.0.0</Version>
     <OutputType>Exe</OutputType>
-    <TargetFrameworks>net10.0;net11.0</TargetFrameworks>
-    <ImplicitUsings>enable</ImplicitUsings>
-    <Nullable>enable</Nullable>
   </PropertyGroup>
 
   <PropertyGroup>
     <Title>BootstrapBlazor Css Bundler</Title>
+    <Description>Bundles CSS files from a JSON configuration file.</Description>
     <PackageId>BootstrapBlazor.CssBundler</PackageId>
     <PackAsTool>true</PackAsTool>
     <ToolCommandName>css-bundler</ToolCommandName>
-    <Authors>Argo Zhang(Argo@live.ca)</Authors>
-    <Copyright>Copyright 2025</Copyright>
-    <Company>Longbow</Company>
   </PropertyGroup>
 
   <ItemGroup>
