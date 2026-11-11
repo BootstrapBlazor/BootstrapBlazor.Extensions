@@ -10,6 +10,7 @@
 
   <PropertyGroup>
     <Title>BootstrapBlazor Css Bundler</Title>
+    <Description>Bundles CSS files from a JSON configuration file.</Description>
     <PackageId>BootstrapBlazor.CssBundler</PackageId>
     <PackAsTool>true</PackAsTool>
     <ToolCommandName>css-bundler</ToolCommandName>

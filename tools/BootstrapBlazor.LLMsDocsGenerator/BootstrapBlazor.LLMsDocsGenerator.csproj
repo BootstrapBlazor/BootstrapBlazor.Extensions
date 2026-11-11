@@ -11,6 +11,7 @@
 
   <PropertyGroup>
     <Title>BootstrapBlazor LLMs docs Generator</Title>
+    <Description>Generates LLM-friendly API documentation for BootstrapBlazor components from source code.</Description>
     <PackageId>BootstrapBlazor.LLMsDocsGenerator</PackageId>
     <PackAsTool>true</PackAsTool>
     <ToolCommandName>llms-docs</ToolCommandName>
