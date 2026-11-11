@@ -1,9 +1,8 @@
 <Project Sdk="Microsoft.NET.Sdk">
 
   <PropertyGroup>
-    <Version>10.0.6</Version>
+    <Version>11.0.0</Version>
     <OutputType>Exe</OutputType>
-    <TargetFrameworks>net10.0</TargetFrameworks>
     <SatelliteResourceLanguages>false</SatelliteResourceLanguages>
   </PropertyGroup>
 
@@ -17,7 +16,7 @@
   </PropertyGroup>
 
   <ItemGroup>
-    <PackageReference Include="System.CommandLine" Version="2.*" />
+    <PackageReference Include="System.CommandLine" Version="3.*" />
   </ItemGroup>
 
   <ItemGroup>

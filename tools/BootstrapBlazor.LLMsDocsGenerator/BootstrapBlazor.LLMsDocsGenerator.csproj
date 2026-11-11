@@ -1,11 +1,8 @@
 ﻿<Project Sdk="Microsoft.NET.Sdk">
 
   <PropertyGroup>
-    <Version>10.0.5</Version>
+    <Version>11.0.0</Version>
     <OutputType>Exe</OutputType>
-    <TargetFrameworks>net11.0</TargetFrameworks>
-    <ImplicitUsings>enable</ImplicitUsings>
-    <Nullable>enable</Nullable>
     <SatelliteResourceLanguages>false</SatelliteResourceLanguages>
   </PropertyGroup>
 
@@ -15,14 +12,11 @@
     <PackageId>BootstrapBlazor.LLMsDocsGenerator</PackageId>
     <PackAsTool>true</PackAsTool>
     <ToolCommandName>llms-docs</ToolCommandName>
-    <Authors>ice6 (ice6@live.cn)</Authors>
-    <Copyright>Copyright 2026</Copyright>
-    <Company>BootstrapBlazor</Company>
   </PropertyGroup>
 
   <ItemGroup>
     <PackageReference Include="Microsoft.CodeAnalysis.CSharp" Version="5.*" />
-    <PackageReference Include="System.CommandLine" Version="3.0.0-rc.*" />
+    <PackageReference Include="System.CommandLine" Version="3.*" />
   </ItemGroup>
 
   <ItemGroup>
