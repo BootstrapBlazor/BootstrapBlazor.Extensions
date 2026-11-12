@@ -1,4 +1,4 @@
-import { b4 as n, s, b5 as o, b6 as t, b7 as b, b8 as r, b9 as k, ba as m, bb as T, ap as d, bc as i, aq as l, bd as u, M as S, be as c, bf as f, V as E, bg as p, bh as g, bi as y, bj as I, ah as M, t as h, bk as w, bl as C, aY as L, bm as V, bn as q, bo as x, bp as A, a$ as D, bq as K, b0 as P, b1 as R, b2 as j, b3 as B } from "./chunks/wasm-url-asset-DQFmMC86.js";
+import { b4 as n, s, b5 as o, b6 as t, b7 as b, b8 as r, b9 as k, ba as m, bb as T, an as d, bc as i, ao as l, bd as u, M as S, be as c, bf as f, X as E, bg as p, bh as g, bi as y, bj as I, ai as M, t as h, bk as w, bl as C, aY as L, bm as x, bn as A, bo as D, bp as K, a$ as P, bq as R, b0 as V, b1 as j, b2 as q, b3 as B } from "./chunks/wasm-url-asset-BJXsMWLm.js";
 export {
   n as ActionsToken,
   s as AnnotationToken,
@@ -26,15 +26,15 @@ export {
   w as StampToken,
   C as createLayout,
   L as createTestSigner,
-  V as default,
-  q as defaultCommands,
-  x as defaultIcons,
-  A as defaultLayout,
-  D as indexedDbKeyStore,
-  K as initViewer,
-  P as memoryKeyStore,
-  R as personalSigner,
-  j as remoteSigner,
+  x as default,
+  A as defaultCommands,
+  D as defaultIcons,
+  K as defaultLayout,
+  P as indexedDbKeyStore,
+  R as initViewer,
+  V as memoryKeyStore,
+  j as personalSigner,
+  q as remoteSigner,
   B as webCryptoSigner
 };
 //# sourceMappingURL=embedpdf.js.map
