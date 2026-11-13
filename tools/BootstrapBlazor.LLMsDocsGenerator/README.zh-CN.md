@@ -85,7 +85,7 @@ AI 编程助手（Claude Code、Cursor、GitHub Copilot）经常因为缺乏准�
 ## 环境要求
 
 - 与工程 `TargetFrameworks` 匹配的 SDK（当前源码构建使用 .NET 11）。
-- 本地 `BootstrapBlazor` 仓库；`docs.json` 配置了扩展包时，还需要同级的 `BootstrapBlazor.Extensions` 仓库。生成器不会自动克隆仓库。
+- 本地 `BootstrapBlazor` 仓库；未使用 `--core-only` 且 `docs.json` 配置了扩展包时，还需要同级的 `BootstrapBlazor.Extensions` 仓库。生成器不会自动克隆仓库。
 
 ## 安装
 
@@ -117,7 +117,7 @@ dotnet tool uninstall --global BootstrapBlazor.LLMsDocsGenerator
 
 ## 使用方法
 
-两个参数均可省略，各自默认为当前工作目录（`.`）。在 BB 的 `src/BootstrapBlazor.Server` 目录直接执行 `llms-docs` 即可将文档生成到该工程。覆盖 `--root` 不会改变 `--output` 的默认值；使用其他仓库或发布目录时请分别指定。
+两个路径参数均可省略，各自默认为当前工作目录（`.`）。在 BB 的 `src/BootstrapBlazor.Server` 目录直接执行 `llms-docs` 即可将文档生成到该工程。覆盖 `--root` 不会改变 `--output` 的默认值；使用其他仓库或发布目录时请分别指定。
 
 在 Server 工程目录运行时也支持 `dotnet llms-docs --output=bin\Release\publish\`，省略的 `--root` 使用 `.`，相对输出路径也基于当前 Server 目录解析。MSBuild 中可使用 `dotnet llms-docs --output=$(PublishDir)`（路径不含空格时）。
 
@@ -125,12 +125,15 @@ dotnet tool uninstall --global BootstrapBlazor.LLMsDocsGenerator
 |------|------|------|
 | `--root` | 否 | 项目根目录，默认为 `.`。组件源码从 `<root>/../BootstrapBlazor` 读取。 |
 | `--output` | 否 | 发布目录，默认为 `.`。文档生成到 `<output>/wwwroot/llms/`。 |
+| `--core-only` | 否 | 用于 BootstrapBlazor 打包，仅生成核心组件与内置服务文档。默认为 `false`，启用后不分析扩展配置与源码。 |
 
 当 `BootstrapBlazor.Extensions` 仓库与核心 `BootstrapBlazor` 仓库并列存在时，生成器也会分析扩展仓库源码。需在 `src/BootstrapBlazor.Server/docs.json` 的 `extensions` 节中配置要生成文档的扩展包和类型；这是唯一配置位置，文件不存在时生成失败。扩展文档会写入 `extensions/` 目录。
 
 仅扫描 `BootstrapBlazor.Extensions.slnx` 中列出的源码工程，按工程文件名而非目录名匹配扩展包。配置中不属于解决方案的包会输出提示并跳过；解决方案引用了不存在的工程时会报错。磁盘上残留的其他目录不会参与分析。核心库中仅有 `.razor` 文件、通过 `@inherits` 指定基类的组件也支持生成文档。重新生成时会清理带有 `<!-- Generated: ... -->` 标记的过期 `.txt` 文档，保留其他文件。
 
 配置了扩展包但缺少同级扩展源码仓库时，生成会失败且不改动已有文档。配置中的组件或服务类型无法解析时，也会在写入文件、清理过期文档之前报错。多个包共用的服务接口仍使用一份文档，按配置的包分别列出注册方法，使用时选择对应包的注册方式。
+
+使用 `--core-only` 时，无需修改 `docs.json`，生成器会忽略 `extensions` 节；无需扩展仓库或解决方案，即使存在也不会读取。核心分类与内置服务仍从 `docs.json` 获取，因此该文件仍为必需。不生成扩展文档、扩展索引章节或链接；扩展也提供的服务仍保留核心服务文档。输出布局仍为 `<output>/wwwroot/llms/llms.txt` 与 `components/*.txt`，索引使用相对链接，可直接复制到包内。重新生成时会清理已有的带生成标记的扩展 `.txt`，保留无标记文件，因此打包请使用独立输出目录。
 
 源码工程 `.csproj` 中显式声明的 `<Using Include="..." />`（包括别名和静态导入）会应用到该工程的 C# 文件，不会在合并分析时泄漏到其他工程。
 
@@ -140,7 +143,7 @@ dotnet tool uninstall --global BootstrapBlazor.LLMsDocsGenerator
 
 生成错误或显式传入空路径时会返回非零进程退出码，便于 MSBuild 和 CI 中止。
 
-使用 PowerShell 执行集成检查：
+使用 PowerShell 7 执行集成检查；脚本会构建工具，并使用隔离源码夹具调用实际 CLI，验证核心打包与完整官网生成：
 
 ```powershell
 .\tools\BootstrapBlazor.LLMsDocsGenerator\tests\Verify-Generation.ps1
@@ -169,6 +172,16 @@ src/BootstrapBlazor.Server/wwwroot/llms/extensions/*.txt
 ```powershell
 dotnet run --project "..\BootstrapBlazor.Extensions\tools\BootstrapBlazor.LLMsDocsGenerator" --root "src\BootstrapBlazor.Server" --output "src\BootstrapBlazor.Server"
 ```
+
+### BootstrapBlazor NuGet 打包
+
+在 `BootstrapBlazor` 仓库根目录，将核心文档生成到独立的暂存目录：
+
+```powershell
+dotnet llms-docs --core-only --root "src\BootstrapBlazor.Server" --output "artifacts\llms-pack"
+```
+
+将 `artifacts\llms-pack\wwwroot\llms` 的内容复制到 `src\BootstrapBlazor\skills\bootstrapblazor\references` 随包分发，无需再使用移除扩展配置的暂存 `docs.json`。BootstrapBlazor.Server 发布时不要传 `--core-only`，以保持完整官网索引、核心与扩展文档；原有发布命令及输出路径不变。
 
 ## CI/CD 集成
 

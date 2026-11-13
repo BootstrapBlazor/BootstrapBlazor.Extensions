@@ -12,7 +12,7 @@ internal static class DocsGenerator
     /// <summary>
     /// Generate all documentation files
     /// </summary>
-    public static async Task GenerateAllAsync(string rootFolder, string outputFolder)
+    public static async Task GenerateAllAsync(string rootFolder, string outputFolder, bool coreOnly = false)
     {
         var _sourcePath = Path.Combine(rootFolder, "..", "BootstrapBlazor");
         var _outputPath = Path.Combine(outputFolder, "wwwroot", "llms");
@@ -31,7 +31,7 @@ internal static class DocsGenerator
         // <core-repo>/.. / BootstrapBlazor.Extensions / src
         var coreRepoRoot = Path.GetDirectoryName(Path.GetDirectoryName(Path.GetFullPath(_sourcePath)))!;
         var extensionsSrc = Path.Combine(Path.GetDirectoryName(coreRepoRoot)!, "BootstrapBlazor.Extensions", "src");
-        var hasExtensions = Directory.Exists(extensionsSrc);
+        var hasExtensions = !coreOnly && Directory.Exists(extensionsSrc);
 
         var extensionProjects = hasExtensions
             ? ReadExtensionProjects(Path.GetDirectoryName(extensionsSrc)!)
@@ -49,7 +49,7 @@ internal static class DocsGenerator
         var services = await _analyzer.AnalyzeServicesAsync(provider.ParseServices());
         Logger($"Found {services.Count} services");
 
-        var configuredPackages = provider.ParseExtensions();
+        var configuredPackages = coreOnly ? new List<ExtensionPackage>() : provider.ParseExtensions();
         if (!hasExtensions && configuredPackages.Count > 0)
         {
             throw new DirectoryNotFoundException($"Extension sources required by docs.json were not found: {extensionsSrc}");

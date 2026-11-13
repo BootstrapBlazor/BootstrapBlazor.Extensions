@@ -22,11 +22,16 @@ internal static class ArgumentsHelper
             Description = "Set the publish folder of project",
             DefaultValueFactory = _ => defaultFolder
         };
+        var coreOnlyOption = new Option<bool>("--core-only")
+        {
+            Description = "Generate only core components and services for BootstrapBlazor packaging, without extension sources"
+        };
 
         var rootCommand = new RootCommand("BootstrapBlazor LLMs Documentation Generator")
         {
             rootFolderOption,
-            outputFolderOption
+            outputFolderOption,
+            coreOnlyOption
         };
 
         rootCommand.SetAction(async result =>
@@ -43,7 +48,7 @@ internal static class ArgumentsHelper
                 throw new ArgumentException("Publish folder must not be empty.");
             }
 
-            await DocsGenerator.GenerateAllAsync(rootFolder, outputFolder);
+            await DocsGenerator.GenerateAllAsync(rootFolder, outputFolder, result.GetValue(coreOnlyOption));
         });
 
         return rootCommand.Parse(args);

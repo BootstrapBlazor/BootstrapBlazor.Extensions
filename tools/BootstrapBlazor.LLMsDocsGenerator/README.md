@@ -85,7 +85,7 @@ Components are organized in the index by category for easy navigation, but each 
 ## Requirements
 
 - An SDK matching the project's `TargetFrameworks` (currently .NET 11 for source builds).
-- A local `BootstrapBlazor` checkout; when `docs.json` configures extension packages, also check out `BootstrapBlazor.Extensions` beside it. The generator does not clone repositories.
+- A local `BootstrapBlazor` checkout; unless using `--core-only`, when `docs.json` configures extension packages, also check out `BootstrapBlazor.Extensions` beside it. The generator does not clone repositories.
 
 ## Installation
 
@@ -117,7 +117,7 @@ Once installed, the tool is invoked with the command name `llms-docs`.
 
 ## Usage
 
-Both options are optional and independently default to the current working directory (`.`). Run `llms-docs` without arguments from BB's `src/BootstrapBlazor.Server` directory to write documentation into that project. Overriding `--root` does not change the default `--output`; specify both when using another checkout or publish directory.
+Both path options are optional and independently default to the current working directory (`.`). Run `llms-docs` without arguments from BB's `src/BootstrapBlazor.Server` directory to write documentation into that project. Overriding `--root` does not change the default `--output`; specify both when using another checkout or publish directory.
 
 From the Server project directory, `dotnet llms-docs --output=bin\Release\publish\` also works: the omitted `--root` defaults to `.`, and relative output paths are resolved from that same directory. MSBuild can use `dotnet llms-docs --output=$(PublishDir)` when the path contains no spaces.
 
@@ -125,12 +125,15 @@ From the Server project directory, `dotnet llms-docs --output=bin\Release\publis
 |--------|----------|-------------|
 | `--root` | No | Project root folder. Defaults to `.`. Component source is read from `<root>/../BootstrapBlazor`. |
 | `--output` | No | Publish folder. Defaults to `.`. Documentation is written to `<output>/wwwroot/llms/`. |
+| `--core-only` | No | Generate only core components and built-in services for BootstrapBlazor packaging. Defaults to `false`; extension configuration and sources are not analyzed. |
 
 When a `BootstrapBlazor.Extensions` checkout is available beside the core `BootstrapBlazor` checkout, the generator also analyzes the extension sources. The extension types to document are configured under `extensions` in `src/BootstrapBlazor.Server/docs.json`, the only configuration location. Generation fails if the file is missing. Extension docs are written to `extensions/`.
 
 Only source projects listed in `BootstrapBlazor.Extensions.slnx` are scanned. Package names are matched against project filenames, not directory names. Configured packages outside the solution are skipped with a diagnostic; missing solution projects are reported as errors. Leftover directories do not participate in analysis. Core Razor-only components with an `@inherits` directive are also supported. Regeneration removes obsolete `.txt` files carrying the generator's `<!-- Generated: ... -->` marker, while preserving other files.
 
 If extension packages are configured but the sibling extension source checkout is missing, generation fails before changing existing documentation. Unresolved configured component or service types also fail generation before writing files or removing stale documents. Services shared by multiple packages retain one document listing the registration method for each configured package; choose the registration matching the package in use.
+
+With `--core-only`, the `extensions` section is ignored without editing `docs.json`, and no extension checkout or solution is required or read, even when present. Core categories and services still come from `docs.json`, which remains required. No extension documents or extension index sections/links are generated; services also provided by extensions remain in the core service documentation. The layout stays `<output>/wwwroot/llms/llms.txt` and `components/*.txt`, with relative index links suitable for copying into a package. Existing generated extension `.txt` files are removed on regeneration; unmarked files are preserved, so use a dedicated output directory for packaging.
 
 Explicit `<Using Include="..." />` items in each source project's `.csproj` (including aliases and static imports) are applied to that project's C# files, without leaking these imports into other projects in the combined analysis.
 
@@ -140,7 +143,7 @@ Declare extension services by the types actually registered for injection. For e
 
 Generation errors and explicitly empty paths return a nonzero process exit code so MSBuild and CI can stop.
 
-Run the integration checks with PowerShell:
+Run the integration checks with PowerShell 7. They build the tool and invoke its actual CLI against isolated source fixtures for core-only packaging and full website generation:
 
 ```powershell
 .\tools\BootstrapBlazor.LLMsDocsGenerator\tests\Verify-Generation.ps1
@@ -169,6 +172,16 @@ From the same `BootstrapBlazor` repository root, run the sibling source project:
 ```powershell
 dotnet run --project "..\BootstrapBlazor.Extensions\tools\BootstrapBlazor.LLMsDocsGenerator" --root "src\BootstrapBlazor.Server" --output "src\BootstrapBlazor.Server"
 ```
+
+### BootstrapBlazor NuGet packaging
+
+From the `BootstrapBlazor` repository root, generate core-only documentation into a dedicated staging directory:
+
+```powershell
+dotnet llms-docs --core-only --root "src\BootstrapBlazor.Server" --output "artifacts\llms-pack"
+```
+
+Copy the contents of `artifacts\llms-pack\wwwroot\llms` into `src\BootstrapBlazor\skills\bootstrapblazor\references` for packaging. No staging copy of `docs.json` with extensions removed is needed. BootstrapBlazor.Server publishing must omit `--core-only` to keep the full website index, core documentation and extension documentation; its existing command and output paths are unchanged.
 
 ## CI/CD Integration
 
