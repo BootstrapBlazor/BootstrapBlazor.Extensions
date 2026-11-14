@@ -11,4 +11,4 @@ catch
     // Output is redirected and the encoding can't be set; ignore.
 }
 
-return await CommandFactory.Build().Parse(args).InvokeAsync();
+return await CommandFactory.Build().Parse(args.Length == 0 ? ["--help"] : args).InvokeAsync();

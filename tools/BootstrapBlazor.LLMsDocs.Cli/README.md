@@ -29,6 +29,8 @@ bb-llms --help
 bb-llms get Button     # 能打印 Button 的 API 文档即安装成功
 ```
 
+不带参数运行 `bb-llms` 会显示帮助信息。
+
 > 若提示找不到 `bb-llms`，请确认 `~/.dotnet/tools`（Windows 为 `%USERPROFILE%\.dotnet\tools`）
 > 已在 `PATH` 中，或重开一个终端。
 
@@ -202,7 +204,6 @@ bb-llms install --client claude                       # 2. 装发现层（写入
 
 ```powershell
 dotnet build .\tools\BootstrapBlazor.LLMsDocs.Cli\BootstrapBlazor.LLMsDocs.Cli.csproj -c Release
-.\tools\BootstrapBlazor.LLMsDocs.Cli\tests\Verify-Client.ps1
 ```
 
 ```bash
