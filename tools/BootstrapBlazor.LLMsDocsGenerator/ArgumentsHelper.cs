@@ -19,14 +19,19 @@ internal static class ArgumentsHelper
         };
         var outputFolderOption = new Option<string>("--output")
         {
-            Description = "Set the publish folder of project",
+            Description = "Set the output folder (core-only writes directly; default writes to wwwroot/llms)",
             DefaultValueFactory = _ => defaultFolder
+        };
+        var coreOnlyOption = new Option<bool>("--core-only")
+        {
+            Description = "Generate only core components and services for BootstrapBlazor packaging, without extension sources"
         };
 
         var rootCommand = new RootCommand("BootstrapBlazor LLMs Documentation Generator")
         {
             rootFolderOption,
-            outputFolderOption
+            outputFolderOption,
+            coreOnlyOption
         };
 
         rootCommand.SetAction(async result =>
@@ -40,10 +45,10 @@ internal static class ArgumentsHelper
             var outputFolder = result.GetValue(outputFolderOption);
             if (string.IsNullOrEmpty(outputFolder))
             {
-                throw new ArgumentException("Publish folder must not be empty.");
+                throw new ArgumentException("Output folder must not be empty.");
             }
 
-            await DocsGenerator.GenerateAllAsync(rootFolder, outputFolder);
+            await DocsGenerator.GenerateAllAsync(rootFolder, outputFolder, result.GetValue(coreOnlyOption));
         });
 
         return rootCommand.Parse(args);

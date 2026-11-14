@@ -12,10 +12,10 @@ internal static class DocsGenerator
     /// <summary>
     /// Generate all documentation files
     /// </summary>
-    public static async Task GenerateAllAsync(string rootFolder, string outputFolder)
+    public static async Task GenerateAllAsync(string rootFolder, string outputFolder, bool coreOnly = false)
     {
         var _sourcePath = Path.Combine(rootFolder, "..", "BootstrapBlazor");
-        var _outputPath = Path.Combine(outputFolder, "wwwroot", "llms");
+        var _outputPath = coreOnly ? outputFolder : Path.Combine(outputFolder, "wwwroot", "llms");
 
         Logger($"Source path: {_sourcePath}");
         Logger($"Output path: {_outputPath}");
@@ -31,7 +31,7 @@ internal static class DocsGenerator
         // <core-repo>/.. / BootstrapBlazor.Extensions / src
         var coreRepoRoot = Path.GetDirectoryName(Path.GetDirectoryName(Path.GetFullPath(_sourcePath)))!;
         var extensionsSrc = Path.Combine(Path.GetDirectoryName(coreRepoRoot)!, "BootstrapBlazor.Extensions", "src");
-        var hasExtensions = Directory.Exists(extensionsSrc);
+        var hasExtensions = !coreOnly && Directory.Exists(extensionsSrc);
 
         var extensionProjects = hasExtensions
             ? ReadExtensionProjects(Path.GetDirectoryName(extensionsSrc)!)
@@ -40,6 +40,10 @@ internal static class DocsGenerator
             extensionProjects);
         var components = await _analyzer.AnalyzeAllComponentsAsync();
         Logger($"Found {components.Count} components");
+        if (components.Count == 0)
+        {
+            throw new InvalidDataException("No core components found.");
+        }
 
         // Derive index categories, injected services and extension packages from docs.json.
         var serverPath = Path.Combine(Path.GetDirectoryName(Path.GetFullPath(_sourcePath))!, "BootstrapBlazor.Server");
@@ -48,8 +52,12 @@ internal static class DocsGenerator
         Logger($"Found {categories.Count} categories");
         var services = await _analyzer.AnalyzeServicesAsync(provider.ParseServices());
         Logger($"Found {services.Count} services");
+        if (services.Count == 0)
+        {
+            throw new InvalidDataException("No core services found.");
+        }
 
-        var configuredPackages = provider.ParseExtensions();
+        var configuredPackages = coreOnly ? new List<ExtensionPackage>() : provider.ParseExtensions();
         if (!hasExtensions && configuredPackages.Count > 0)
         {
             throw new DirectoryNotFoundException($"Extension sources required by docs.json were not found: {extensionsSrc}");
