@@ -2,7 +2,7 @@
 
 一个轻量命令行工具，用于从 [www.blazor.zone/llms](https://www.blazor.zone/llms)
 拉取 BootstrapBlazor 及 BootstrapBlazor.Extensions 组件的**官方 API 文档**（参数、事件回调、公开方法、源码链接），
-供 AI agent（Claude Code / Cursor / Trae / Codex 等经 Bash 调用）和开发者查询。
+供 AI agent（Copilot CLI / Claude Code / Cursor / Trae / Codex 等）和开发者查询。
 
 组件文档由官网的 `BootstrapBlazor.LLMsDocsGenerator`（生产者，CI 侧用 Roslyn 生成并发布）产出，
 本工具是**消费者**：只负责按需 HTTP 拉取已生成的 `.txt` 文档并本地缓存，
@@ -14,7 +14,7 @@
 
 ### 前置条件
 
-- 已安装 **.NET 10 SDK**（提供 `dotnet tool` 能力）。
+- 已安装 **.NET 11 SDK**（当前源码目标为 `net11.0`）。
 
 ### 全局安装
 
@@ -133,44 +133,52 @@ bb-llms get Button --base-url ./wwwroot/llms
 
 ## 给 AI agent 使用（发现层）
 
-一个躺在 `PATH` 上的 CLI 对 agent 是「隐形」的——必须有指令文件告诉 agent
-「需要 BootstrapBlazor 组件 API 时去跑 `bb-llms get <Name>`」。
-以下两个脚手架命令负责把这层「发现 / 触发」一键装好：
+一个躺在 `PATH` 上的 CLI 对 agent 是「隐形」的。以下脚手架命令安装入口指令：
+涉及 BootstrapBlazor 时，agent 优先发现当前项目实际还原的 NuGet 包内 skill 和参考文档；
+本地找不到所需信息时，才使用 `bb-llms` 查询官网。
 
 ```bash
 bb-llms instructions                 # 打印可粘贴进 CLAUDE.md / AGENTS.md 的通用片段
+bb-llms install --client copilot     # 写 ~/.copilot/skills/bootstrapblazor/SKILL.md
 bb-llms install --client claude      # 写 ~/.claude/skills/bootstrapblazor/SKILL.md
 bb-llms install --client cursor      # 写 ~/.cursor/rules/bootstrapblazor.mdc
 bb-llms install --client trae        # 写 ~/.trae/skills/bootstrapblazor/SKILL.md
 bb-llms install --client codex       # 写 ~/.codex/AGENTS.md
-bb-llms install --client all         # 四者都写（默认）
+bb-llms install --client all         # 五者都写（默认）
 ```
 
 `install` 选项：
 
 ```
---client claude|cursor|trae|codex|all   目标客户端（默认 all）
+--client copilot|claude|cursor|trae|codex|all   目标客户端（默认 all）
 --scope  user|project        user=用户主目录（默认），project=当前目录
 --target <dir>               覆盖写入的根目录
 --force                      覆盖已存在的文件（默认存在则跳过）
 ```
 
-> 默认 scope 为 **user（用户主目录）**：四个客户端的发现文件都装到用户主目录
-> （`~/.claude/skills/`、`~/.cursor/rules/`、`~/.trae/skills/`、`~/.codex/AGENTS.md`），
-> 配合全局安装的 `bb-llms`，在任意项目里都能被自动发现，装一次全局生效。
+> 默认 scope 为 **user（用户主目录）**：发现文件装到各客户端的用户目录，
+> 包括 `~/.copilot/skills/`、`~/.claude/skills/`、`~/.cursor/rules/`、
+> `~/.trae/skills/` 和 `~/.codex/AGENTS.md`。
 > 需要只对当前项目生效时，用 `--scope project` 显式覆盖
-> （如 `bb-llms install --client codex --scope project` 写仓库根目录的 `AGENTS.md`）。
+> （如 `--client copilot --scope project` 写 `.github/skills/`，`--client codex --scope project` 写仓库根目录的 `AGENTS.md`）。
 
-五套生态接入方式：
+自动加载取决于 agent 和权限设置，安装后可重启 agent 或重新加载其 skills。
+入口通过 `dotnet-inspect` 发现还原后的包 skill；首次运行 `dnx` 可能需要联网。
+若工具不可用，agent 仍可通过 `obj/project.assets.json` 定位包内文件。
+包内 skill 名称为 `bb-api`。
+本地缺少文档时查询官网，并说明官网版本可能与项目引用的版本不同。
 
-- **Claude Code**：`bb-llms install --client claude` 在**用户主目录** `~/.claude/skills/`
-  写入一个 skill，Claude Code 会根据其 `description` 在任务涉及 BootstrapBlazor 组件时
-  **自动加载**并调用 `bb-llms`，等效于 MCP server 的自动发现。装一次即对所有项目生效。
+接入方式：
+
+- **Copilot CLI**：`bb-llms install --client copilot` 写入
+  `~/.copilot/skills/bootstrapblazor/SKILL.md`；项目级安装写入
+  `.github/skills/bootstrapblazor/SKILL.md`。
+
+- **Claude Code**：`bb-llms install --client claude` 在用户目录 `~/.claude/skills/`
+  写入一个 skill。
 - **Cursor**：`bb-llms install --client cursor` 在**用户主目录** `~/.cursor/rules/`
   写入规则（匹配 `*.razor` / `*.razor.cs`），全局生效。
-- **Trae**：`bb-llms install --client trae` 在**用户主目录** `~/.trae/skills/` 写入一个 skill。
-  Trae 的 skill 与 Claude 同构（同样的 `SKILL.md` + name/description frontmatter，按描述**自动匹配**），
-  因此复用同一套模板，同样装一次全局生效。
+- **Trae**：`bb-llms install --client trae` 在用户目录 `~/.trae/skills/` 写入与 Claude 共用的 skill。
 - **Codex**：`bb-llms install --client codex` 写入 `~/.codex/AGENTS.md`（用户主目录，默认；
   `--scope project` 则写仓库根目录的 `AGENTS.md`）。Codex 没有独立的 skill/规则机制，统一读 `AGENTS.md`，
   因此复用 `instructions` 的通用片段。
@@ -183,7 +191,7 @@ bb-llms install --client all         # 四者都写（默认）
 ```bash
 dotnet tool install -g BootstrapBlazor.LLMsDocs.Cli   # 1. 装工具
 bb-llms install --client claude                       # 2. 装发现层（写入用户主目录，全局生效）
-# 之后在 Claude Code 中让它写/改组件代码时，会自动用 bb-llms 查权威 API
+# 之后 agent 可按项目版本查询包内 API；本地缺失时查询官网
 ```
 
 ---
@@ -193,6 +201,7 @@ bb-llms install --client claude                       # 2. 装发现层（写入
 在 Extentions 仓库根目录执行 CLI 回归检查：
 
 ```powershell
+dotnet build .\tools\BootstrapBlazor.LLMsDocs.Cli\BootstrapBlazor.LLMsDocs.Cli.csproj -c Release
 .\tools\BootstrapBlazor.LLMsDocs.Cli\tests\Verify-Client.ps1
 ```
 
@@ -218,9 +227,9 @@ bb-llms get Table
 
 | 文件 | 对应命令 |
 |---|---|
-| `Templates/instructions.md` | `bb-llms instructions`（粘进 CLAUDE.md / AGENTS.md 的片段）、`bb-llms install --client codex`（写 AGENTS.md） |
-| `Templates/SKILL.md` | `bb-llms install --client claude` / `--client trae`（Claude / Trae skill） |
-| `Templates/bootstrapblazor.mdc` | `bb-llms install --client cursor`（Cursor 规则） |
+| `Templates/instructions.md` | 共享查询流程，供所有客户端和 `bb-llms instructions` 使用 |
+| `Templates/SKILL.md` | Copilot、Claude、Trae skill 的元数据，与共享流程合并 |
+| `Templates/bootstrapblazor.mdc` | Cursor 规则的元数据，与共享流程合并 |
 
 这些文件以**嵌入资源**编入程序集（见 `.csproj`），因此全局安装后工具仍能在运行时读取到，无需依赖项目源码目录。改完重新 `dotnet build` / `dotnet pack` 即生效。
 
@@ -235,12 +244,11 @@ bb-llms get Table
 
 因此装一次工具，新组件 / 新参数会**自动随远程文档更新**，无需重装。
 
-唯一的隐式契约是 **`llms.txt` 索引行的格式**——只有 `list` / `search` 会解析它
-（`- [Name](components/Name.txt) - 描述` 行 + `### 分类` 标题）。核心命令 `get` / `index`
-是纯透传，**与格式无关**，永远不受生产者格式调整影响。换言之：
+**`llms.txt` 索引行的格式**是数据命令的契约：`list` / `search` 和 `get` 都会解析它
+（`- [Name](components/Name.txt) - 描述` 行 + `### 分类` 标题），`index` 输出原文。换言之：
 
 - 生产者改了文档**正文**：工具零感知，照常透传。
-- 生产者改了**索引行格式**：只需同步 `LlmsDocsClient` 里的两条正则，`get` 不受影响。
+- 生产者改了**索引行格式**：需同步 `LlmsDocsClient` 的解析规则，否则也可能影响 `get`。
 
 ---
 
