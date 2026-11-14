@@ -35,14 +35,14 @@ internal static class CommandFactory
 
     private static Command BuildIndexCommand()
     {
-        var (baseUrl, refresh, noCache) = SourceOptions();
-        var cmd = new Command("index", "Print the raw llms.txt index.") { baseUrl, refresh, noCache };
+        var (baseUrl, refresh, noCache, project, framework) = SourceOptions();
+        var cmd = new Command("index", "Print the documentation index.") { baseUrl, refresh, noCache, project, framework };
         cmd.SetAction(async (result, ct) =>
         {
             try
             {
-                using var client = CreateClient(result, baseUrl, refresh, noCache);
-                Console.Out.Write(await client.GetIndexAsync(ct));
+                using var client = CreateClient(result, baseUrl, refresh, noCache, project, framework);
+                Console.Out.Write(await client.IndexAsync(ct));
                 return 0;
             }
             catch (Exception ex)
@@ -57,16 +57,16 @@ internal static class CommandFactory
     {
         var query = new Option<string?>("--query") { Description = "Optional name/description filter." };
         var format = FormatOption();
-        var (baseUrl, refresh, noCache) = SourceOptions();
+        var (baseUrl, refresh, noCache, project, framework) = SourceOptions();
         var cmd = new Command("list", "List components from the index (default JSON).")
         {
-            query, format, baseUrl, refresh, noCache
+            query, format, baseUrl, refresh, noCache, project, framework
         };
         cmd.SetAction(async (result, ct) =>
         {
             try
             {
-                using var client = CreateClient(result, baseUrl, refresh, noCache);
+                using var client = CreateClient(result, baseUrl, refresh, noCache, project, framework);
                 var entries = await client.ListAsync(result.GetValue(query), ct);
                 WriteEntries(entries, result.GetValue(format));
                 return 0;
@@ -84,16 +84,16 @@ internal static class CommandFactory
         var query = new Argument<string>("query") { Description = "Search term." };
         var limit = new Option<int>("--limit") { Description = "Maximum results (default 20)." };
         var format = FormatOption();
-        var (baseUrl, refresh, noCache) = SourceOptions();
+        var (baseUrl, refresh, noCache, project, framework) = SourceOptions();
         var cmd = new Command("search", "Search components by name or description (default JSON).")
         {
-            query, limit, format, baseUrl, refresh, noCache
+            query, limit, format, baseUrl, refresh, noCache, project, framework
         };
         cmd.SetAction(async (result, ct) =>
         {
             try
             {
-                using var client = CreateClient(result, baseUrl, refresh, noCache);
+                using var client = CreateClient(result, baseUrl, refresh, noCache, project, framework);
                 var max = result.GetValue(limit);
                 if (max <= 0)
                 {
@@ -115,18 +115,18 @@ internal static class CommandFactory
     private static Command BuildGetCommand()
     {
         var component = new Argument<string>("component") { Description = "Component name, e.g. Button." };
-        var (baseUrl, refresh, noCache) = SourceOptions();
+        var (baseUrl, refresh, noCache, project, framework) = SourceOptions();
         var cmd = new Command("get", "Fetch one component's API doc (the core command).")
         {
-            component, baseUrl, refresh, noCache
+            component, baseUrl, refresh, noCache, project, framework
         };
         cmd.SetAction(async (result, ct) =>
         {
             var name = result.GetValue(component)!;
             try
             {
-                using var client = CreateClient(result, baseUrl, refresh, noCache);
-                Console.Out.Write(await client.GetComponentAsync(name, ct));
+                using var client = CreateClient(result, baseUrl, refresh, noCache, project, framework);
+                Console.Out.Write(await client.GetAsync(name, ct));
                 return 0;
             }
             catch (FileNotFoundException ex)
@@ -153,11 +153,11 @@ internal static class CommandFactory
 
     private static Command BuildInstallCommand()
     {
-        var client = new Option<string?>("--client") { Description = "Target client: claude | cursor | trae | codex | all (default all)." };
+        var client = new Option<string?>("--client") { Description = "Target client: copilot | claude | cursor | trae | codex | all (default all)." };
         var scope = new Option<string?>("--scope") { Description = "Where to write: user (home, default) or project (cwd)." };
         var target = new Option<string?>("--target") { Description = "Override base directory to write into." };
         var force = new Option<bool>("--force") { Description = "Overwrite existing files." };
-        var cmd = new Command("install", "Install agent discovery artifacts (Claude Code skill / Cursor rules / Trae skill / Codex AGENTS.md).")
+        var cmd = new Command("install", "Install agent discovery artifacts (Copilot / Claude Code / Cursor / Trae / Codex).")
         {
             client, scope, target, force
         };
@@ -181,7 +181,7 @@ internal static class CommandFactory
 
     // ---- helpers ----------------------------------------------------------
 
-    private static (Option<string?> baseUrl, Option<bool> refresh, Option<bool> noCache) SourceOptions()
+    private static (Option<string?> baseUrl, Option<bool> refresh, Option<bool> noCache, Option<string?> project, Option<string?> framework) SourceOptions()
     {
         var baseUrl = new Option<string?>("--base-url")
         {
@@ -189,15 +189,24 @@ internal static class CommandFactory
         };
         var refresh = new Option<bool>("--refresh") { Description = "Ignore cache TTL and re-fetch from the source." };
         var noCache = new Option<bool>("--no-cache") { Description = "Do not read or write the local cache." };
-        return (baseUrl, refresh, noCache);
+        var project = new Option<string?>("--project") { Description = "Project file or directory to resolve package documentation." };
+        var framework = new Option<string?>("--framework") { Description = "Target framework from project.assets.json." };
+        return (baseUrl, refresh, noCache, project, framework);
     }
 
     private static Option<string?> FormatOption() =>
         new("--format") { Description = "Output format: json (default) or text." };
 
-    private static LlmsDocsClient CreateClient(
-        ParseResult result, Option<string?> baseUrl, Option<bool> refresh, Option<bool> noCache) =>
-        new(result.GetValue(baseUrl), result.GetValue(refresh), result.GetValue(noCache));
+    private static ProjectDocsClient CreateClient(
+        ParseResult result, Option<string?> baseUrl, Option<bool> refresh, Option<bool> noCache,
+        Option<string?> project, Option<string?> framework)
+    {
+        var source = result.GetValue(baseUrl);
+        var automatic = string.IsNullOrWhiteSpace(source)
+            && string.IsNullOrEmpty(Environment.GetEnvironmentVariable(LlmsDocsClient.BaseUrlEnvVar));
+        var packages = automatic ? ProjectDocsResolver.Resolve(result.GetValue(project), result.GetValue(framework)) : [];
+        return new ProjectDocsClient(new LlmsDocsClient(source, result.GetValue(refresh), result.GetValue(noCache), automatic), packages, automatic);
+    }
 
     private static void WriteEntries(IReadOnlyList<ComponentEntry> entries, string? format)
     {

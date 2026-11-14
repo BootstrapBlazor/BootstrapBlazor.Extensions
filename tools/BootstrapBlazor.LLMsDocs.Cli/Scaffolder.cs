@@ -20,9 +20,7 @@ internal static class Scaffolder
     public static string GenericSnippet => ReadTemplate("instructions.md");
 
     /// <summary>
-    /// Skill manifest shared by Claude Code (.claude/skills/bootstrapblazor/SKILL.md)
-    /// and Trae (.trae/skills/bootstrapblazor/SKILL.md): both use the same SKILL.md
-    /// layout with name/description frontmatter, auto-matched by description.
+    /// Skill manifest shared by Copilot, Claude Code and Trae.
     /// </summary>
     public static string SkillMarkdown => ReadTemplate("SKILL.md");
 
@@ -47,12 +45,13 @@ internal static class Scaffolder
     {
         var clients = client.ToLowerInvariant() switch
         {
-            "all" => new[] { "claude", "cursor", "trae", "codex" },
+            "all" => new[] { "copilot", "claude", "cursor", "trae", "codex" },
+            "copilot" => ["copilot"],
             "claude" => ["claude"],
             "cursor" => ["cursor"],
             "trae" => ["trae"],
             "codex" => ["codex"],
-            _ => throw new ArgumentException($"Unknown client: {client} (expected claude|cursor|trae|codex|all)")
+            _ => throw new ArgumentException($"Unknown client: {client} (expected copilot|claude|cursor|trae|codex|all)")
         };
 
         // No explicit --scope defaults to the user home: the tool is installed globally,
@@ -73,6 +72,9 @@ internal static class Scaffolder
         {
             var (path, content) = c switch
             {
+                "copilot" => (scopeKey == "user"
+                        ? Path.Combine(baseDir, ".copilot", "skills", "bootstrapblazor", "SKILL.md")
+                        : Path.Combine(baseDir, ".github", "skills", "bootstrapblazor", "SKILL.md"), SkillMarkdown),
                 "claude" => (Path.Combine(baseDir, ".claude", "skills", "bootstrapblazor", "SKILL.md"), SkillMarkdown),
                 "cursor" => (Path.Combine(baseDir, ".cursor", "rules", "bootstrapblazor.mdc"), CursorRule),
                 // Trae skills mirror Claude skills (.trae/skills/<name>/SKILL.md, same
