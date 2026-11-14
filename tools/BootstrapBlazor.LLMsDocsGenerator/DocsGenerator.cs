@@ -15,7 +15,7 @@ internal static class DocsGenerator
     public static async Task GenerateAllAsync(string rootFolder, string outputFolder, bool coreOnly = false)
     {
         var _sourcePath = Path.Combine(rootFolder, "..", "BootstrapBlazor");
-        var _outputPath = Path.Combine(outputFolder, "wwwroot", "llms");
+        var _outputPath = coreOnly ? outputFolder : Path.Combine(outputFolder, "wwwroot", "llms");
 
         Logger($"Source path: {_sourcePath}");
         Logger($"Output path: {_outputPath}");
@@ -40,6 +40,10 @@ internal static class DocsGenerator
             extensionProjects);
         var components = await _analyzer.AnalyzeAllComponentsAsync();
         Logger($"Found {components.Count} components");
+        if (components.Count == 0)
+        {
+            throw new InvalidDataException("No core components found.");
+        }
 
         // Derive index categories, injected services and extension packages from docs.json.
         var serverPath = Path.Combine(Path.GetDirectoryName(Path.GetFullPath(_sourcePath))!, "BootstrapBlazor.Server");
@@ -48,6 +52,10 @@ internal static class DocsGenerator
         Logger($"Found {categories.Count} categories");
         var services = await _analyzer.AnalyzeServicesAsync(provider.ParseServices());
         Logger($"Found {services.Count} services");
+        if (services.Count == 0)
+        {
+            throw new InvalidDataException("No core services found.");
+        }
 
         var configuredPackages = coreOnly ? new List<ExtensionPackage>() : provider.ParseExtensions();
         if (!hasExtensions && configuredPackages.Count > 0)
@@ -88,7 +96,14 @@ internal static class DocsGenerator
         // Chinese documentation only: the index at the docs root and one file per
         // component (Chinese text extracted from the bilingual <para> blocks) under
         // the components/ directory.
-        Directory.CreateDirectory(_outputPath);
+        if (coreOnly)
+        {
+            PrepareCoreOnlyOutput(_outputPath, _sourcePath, rootFolder);
+        }
+        else
+        {
+            Directory.CreateDirectory(_outputPath);
+        }
         var indexPath = Path.Combine(_outputPath, "llms.txt");
         await File.WriteAllTextAsync(indexPath, MarkdownBuilder.BuildIndexDoc(components, categories, services, extComponents, extServices, extPackages, "zh"));
         Logger($"Generated: {indexPath}");
@@ -127,6 +142,84 @@ internal static class DocsGenerator
         RemoveStaleDocuments(Path.Combine(_outputPath, "extensions"), extComponents.Concat(extServices));
 
         Logger("Documentation generation complete!");
+    }
+
+    private static void PrepareCoreOnlyOutput(string outputPath, string sourcePath, string rootFolder)
+    {
+        var fullOutputPath = Path.TrimEndingDirectorySeparator(Path.GetFullPath(outputPath));
+        var expectedSuffix = Path.Combine("skills", "bootstrapblazor", "references");
+        if (!EndsWithDirectorySequence(fullOutputPath, expectedSuffix)
+            || PathContainsSymbolicLink(fullOutputPath))
+        {
+            throw new ArgumentException(
+                $"Core-only output must be a BootstrapBlazor skill references directory without symbolic links: {fullOutputPath}",
+                nameof(outputPath));
+        }
+
+        var protectedPaths = new[]
+        {
+            Directory.GetCurrentDirectory(),
+            Path.GetFullPath(sourcePath),
+            Path.GetFullPath(rootFolder)
+        };
+        if (protectedPaths.Any(path =>
+            IsSameOrAncestor(fullOutputPath, Path.TrimEndingDirectorySeparator(Path.GetFullPath(path)))))
+        {
+            throw new ArgumentException(
+                $"Core-only output must not be a working or source directory: {fullOutputPath}",
+                nameof(outputPath));
+        }
+
+        Directory.CreateDirectory(fullOutputPath);
+        foreach (var entry in Directory.EnumerateFileSystemEntries(fullOutputPath))
+        {
+            var attributes = File.GetAttributes(entry);
+            if ((attributes & FileAttributes.Directory) != 0)
+            {
+                Directory.Delete(entry, recursive: (attributes & FileAttributes.ReparsePoint) == 0);
+            }
+            else
+            {
+                File.Delete(entry);
+            }
+        }
+    }
+
+    private static bool EndsWithDirectorySequence(string path, string suffix)
+    {
+        var start = path.Length - suffix.Length;
+        return start >= 0
+            && (start == 0 || path[start - 1] == Path.DirectorySeparatorChar)
+            && path.EndsWith(suffix, StringComparison.OrdinalIgnoreCase);
+    }
+
+    private static bool IsSameOrAncestor(string candidate, string path)
+    {
+        return string.Equals(candidate, path, StringComparison.OrdinalIgnoreCase)
+            || path.StartsWith(candidate + Path.DirectorySeparatorChar, StringComparison.OrdinalIgnoreCase);
+    }
+
+    private static bool PathContainsSymbolicLink(string path)
+    {
+        var root = Path.GetPathRoot(path);
+        if (string.IsNullOrEmpty(root))
+        {
+            return false;
+        }
+
+        var current = root;
+        foreach (var segment in path[root.Length..].Split(Path.DirectorySeparatorChar,
+                     StringSplitOptions.RemoveEmptyEntries))
+        {
+            current = Path.Combine(current, segment);
+            if (Directory.Exists(current)
+                && (new DirectoryInfo(current).Attributes & FileAttributes.ReparsePoint) != 0)
+            {
+                return true;
+            }
+        }
+
+        return false;
     }
 
     private static Dictionary<string, string> ReadExtensionProjects(string repositoryRoot)

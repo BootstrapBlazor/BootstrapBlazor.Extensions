@@ -19,7 +19,7 @@ internal static class ArgumentsHelper
         };
         var outputFolderOption = new Option<string>("--output")
         {
-            Description = "Set the publish folder of project",
+            Description = "Set the output folder (core-only clears it; default writes to wwwroot/llms)",
             DefaultValueFactory = _ => defaultFolder
         };
         var coreOnlyOption = new Option<bool>("--core-only")
@@ -45,7 +45,7 @@ internal static class ArgumentsHelper
             var outputFolder = result.GetValue(outputFolderOption);
             if (string.IsNullOrEmpty(outputFolder))
             {
-                throw new ArgumentException("Publish folder must not be empty.");
+                throw new ArgumentException("Output folder must not be empty.");
             }
 
             await DocsGenerator.GenerateAllAsync(rootFolder, outputFolder, result.GetValue(coreOnlyOption));
