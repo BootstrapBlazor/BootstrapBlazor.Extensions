@@ -22,10 +22,10 @@ internal static class Scaffolder
     /// <summary>
     /// Skill manifest shared by Copilot, Claude Code and Trae.
     /// </summary>
-    public static string SkillMarkdown => ReadTemplate("SKILL.md") + "\n" + GenericSnippet;
+    public static string SkillMarkdown => ReadTemplate("SKILL.md");
 
     /// <summary>Cursor project rule (.cursor/rules/bootstrapblazor.mdc).</summary>
-    public static string CursorRule => ReadTemplate("bootstrapblazor.mdc") + "\n" + GenericSnippet;
+    public static string CursorRule => ReadTemplate("bootstrapblazor.mdc");
 
     /// <summary>Print the generic snippet to stdout.</summary>
     public static int Instructions()

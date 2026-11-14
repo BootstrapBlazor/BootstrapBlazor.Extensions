@@ -27,6 +27,11 @@ public sealed partial class LlmsDocsClient : IDisposable
     private readonly string _cacheRoot;
 
     public LlmsDocsClient(string? baseOverride, bool refresh = false, bool noCache = false)
+        : this(baseOverride, refresh, noCache, false)
+    {
+    }
+
+    internal LlmsDocsClient(string? baseOverride, bool refresh, bool noCache, bool isolateOfficialCache)
     {
         var raw = !string.IsNullOrWhiteSpace(baseOverride)
             ? baseOverride!
@@ -56,6 +61,10 @@ public sealed partial class LlmsDocsClient : IDisposable
         _cacheRoot = Path.Combine(
             Environment.GetFolderPath(Environment.SpecialFolder.LocalApplicationData),
             "bb-llms");
+        if (isolateOfficialCache)
+        {
+            _cacheRoot = Path.Combine(_cacheRoot, "official");
+        }
     }
 
     /// <summary>Human-readable description of the resolved source, for diagnostics.</summary>
