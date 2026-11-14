@@ -119,7 +119,7 @@ dotnet tool uninstall --global BootstrapBlazor.LLMsDocsGenerator
 
 ## 使用方法
 
-两个路径参数各自默认为当前工作目录（`.`）。在 BB 的 `src/BootstrapBlazor.Server` 目录直接执行 `llms-docs` 即可将文档生成到该工程。使用 `--core-only` 时，需指定专用的 `--output` 目录：其已有内容会被删除。覆盖 `--root` 不会改变 `--output` 的默认值；使用其他仓库或发布目录时请分别指定。
+两个路径参数各自默认为当前工作目录（`.`）。在 BB 的 `src/BootstrapBlazor.Server` 目录直接执行 `llms-docs` 即可将文档生成到该工程。使用 `--core-only` 时，输出直接写入 `--output` 目录，不会清空已有内容。覆盖 `--root` 不会改变 `--output` 的默认值；使用其他仓库或发布目录时请分别指定。
 
 在 Server 工程目录运行时也支持 `dotnet llms-docs --output=bin\Release\publish\`，省略的 `--root` 使用 `.`，相对输出路径也基于当前 Server 目录解析。MSBuild 中可使用 `dotnet llms-docs --output=$(PublishDir)`（路径不含空格时）。
 
@@ -135,7 +135,7 @@ dotnet tool uninstall --global BootstrapBlazor.LLMsDocsGenerator
 
 配置了扩展包但缺少同级扩展源码仓库时，生成会失败且不改动已有文档。配置中的组件或服务类型无法解析时，也会在写入文件、清理过期文档之前报错。多个包共用的服务接口仍使用一份文档，按配置的包分别列出注册方法，使用时选择对应包的注册方式。
 
-使用 `--core-only` 时，无需修改 `docs.json`，生成器会忽略 `extensions` 节；无需扩展仓库或解决方案，即使存在也不会读取。核心分类与内置服务仍从 `docs.json` 获取，因此该文件仍为必需。不生成扩展文档、扩展索引章节或链接；扩展也提供的服务仍保留核心服务文档。输出为 `<output>/llms.txt` 与 `<output>/components/*.txt`，索引使用适合包内引用的相对链接。生成前会创建不存在的输出目录，或**删除其中全部已有内容**，包括无标记文件和子目录。工作目录、仓库根目录、skill references 以外的源码目录，以及经过符号链接的路径会被拒绝。
+使用 `--core-only` 时，无需修改 `docs.json`，生成器会忽略 `extensions` 节；无需扩展仓库或解决方案，即使存在也不会读取。核心分类与内置服务仍从 `docs.json` 获取，因此该文件仍为必需。不生成扩展文档、扩展索引章节或链接；扩展也提供的服务仍保留核心服务文档。输出为 `<output>/llms.txt` 与 `<output>/components/*.txt`，索引使用适合包内引用的相对链接。不存在的输出目录会自动创建，不会清空已有内容；仅删除带生成器标记的过期文件，无标记文件与子目录会保留。
 
 源码工程 `.csproj` 中显式声明的 `<Using Include="..." />`（包括别名和静态导入）会应用到该工程的 C# 文件，不会在合并分析时泄漏到其他工程。
 

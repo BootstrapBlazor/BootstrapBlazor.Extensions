@@ -119,7 +119,7 @@ Once installed, the tool is invoked with the command name `llms-docs`.
 
 ## Usage
 
-Both path options independently default to the current working directory (`.`). Run `llms-docs` without arguments from BB's `src/BootstrapBlazor.Server` directory to write documentation into that project. With `--core-only`, specify a dedicated `--output` directory: its existing contents will be deleted. Overriding `--root` does not change the default `--output`; specify both when using another checkout or publish directory.
+Both path options independently default to the current working directory (`.`). Run `llms-docs` without arguments from BB's `src/BootstrapBlazor.Server` directory to write documentation into that project. With `--core-only`, output is written directly to the `--output` directory without clearing existing contents. Overriding `--root` does not change the default `--output`; specify both when using another checkout or publish directory.
 
 From the Server project directory, `dotnet llms-docs --output=bin\Release\publish\` also works: the omitted `--root` defaults to `.`, and relative output paths are resolved from that same directory. MSBuild can use `dotnet llms-docs --output=$(PublishDir)` when the path contains no spaces.
 
@@ -135,7 +135,7 @@ Only source projects listed in `BootstrapBlazor.Extensions.slnx` are scanned. Pa
 
 If extension packages are configured but the sibling extension source checkout is missing, generation fails before changing existing documentation. Unresolved configured component or service types also fail generation before writing files or removing stale documents. Services shared by multiple packages retain one document listing the registration method for each configured package; choose the registration matching the package in use.
 
-With `--core-only`, the `extensions` section is ignored without editing `docs.json`, and no extension checkout or solution is required or read, even when present. Core categories and services still come from `docs.json`, which remains required. No extension documents or extension index sections/links are generated; services also provided by extensions remain in the core service documentation. The output is `<output>/llms.txt` and `<output>/components/*.txt`, with relative index links suitable for a package. Before writing, the tool creates the output directory if needed or **deletes all its existing contents**, including unmarked files and subdirectories. Working directories, repository roots, source directories outside the skill references directory, and paths through symbolic links are rejected.
+With `--core-only`, the `extensions` section is ignored without editing `docs.json`, and no extension checkout or solution is required or read, even when present. Core categories and services still come from `docs.json`, which remains required. No extension documents or extension index sections/links are generated; services also provided by extensions remain in the core service documentation. The output is `<output>/llms.txt` and `<output>/components/*.txt`, with relative index links suitable for a package. The output directory is created if needed; existing contents are not cleared. Stale files carrying the generator marker are removed while unmarked files and subdirectories are preserved.
 
 Explicit `<Using Include="..." />` items in each source project's `.csproj` (including aliases and static imports) are applied to that project's C# files, without leaking these imports into other projects in the combined analysis.
 

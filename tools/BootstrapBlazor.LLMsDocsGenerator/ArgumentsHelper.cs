@@ -19,7 +19,7 @@ internal static class ArgumentsHelper
         };
         var outputFolderOption = new Option<string>("--output")
         {
-            Description = "Set the output folder (core-only clears it; default writes to wwwroot/llms)",
+            Description = "Set the output folder (core-only writes directly; default writes to wwwroot/llms)",
             DefaultValueFactory = _ => defaultFolder
         };
         var coreOnlyOption = new Option<bool>("--core-only")
