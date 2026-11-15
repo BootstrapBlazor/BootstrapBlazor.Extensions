@@ -12,10 +12,9 @@ internal static class ArgumentsHelper
     public static ParseResult Parse(string[] args)
     {
         const string defaultFolder = ".";
-        var rootFolderOption = new Option<string>("--root")
+        var rootFolderOption = new Option<string?>("--root")
         {
-            Description = "Set the root folder of project",
-            DefaultValueFactory = _ => defaultFolder
+            Description = "Set the Server project folder (core-only can instead run from the core project)"
         };
         var outputFolderOption = new Option<string>("--output")
         {
@@ -37,7 +36,7 @@ internal static class ArgumentsHelper
         rootCommand.SetAction(async result =>
         {
             var rootFolder = result.GetValue(rootFolderOption);
-            if (string.IsNullOrEmpty(rootFolder))
+            if (rootFolder != null && string.IsNullOrWhiteSpace(rootFolder))
             {
                 throw new ArgumentException("Project root folder must not be empty.");
             }
