@@ -89,7 +89,7 @@ internal static partial class MarkdownBuilder
     [GeneratedRegex("\\s+")]
     private static partial Regex WhitespaceRegex();
 
-    public static string BuildIndexDoc(List<ComponentInfo> components, List<ComponentCategory> categories, List<ComponentInfo> services, List<ComponentInfo> extensionComponents, List<ComponentInfo> extensionServices, List<ExtensionPackage> extensionPackages, string lang)
+    public static string BuildIndexDoc(List<ComponentInfo> components, List<ComponentCategory> categories, List<ComponentInfo> services, List<ComponentInfo> extensionComponents, List<ComponentInfo> extensionServices, List<ExtensionPackage> extensionPackages, string lang, bool coreOnly = false)
     {
         var _sb = new StringBuilder();
         _sb.AppendLine("# BootstrapBlazor");
@@ -182,9 +182,11 @@ internal static partial class MarkdownBuilder
         // Injected services
         if (services.Count > 0)
         {
-            _sb.AppendLine("## 内置服务");
+            _sb.AppendLine(coreOnly ? "## 核心服务及相关接口" : "## 内置服务");
             _sb.AppendLine();
-            _sb.AppendLine("通过依赖注入使用的服务，每个服务在 `components/` 目录下都有独立的文档文件。");
+            _sb.AppendLine(coreOnly
+                ? "核心服务和相关公开接口，每个类型在 `components/` 目录下都有独立的文档文件；并非所有接口都由默认依赖注入注册。"
+                : "通过依赖注入使用的服务，每个服务在 `components/` 目录下都有独立的文档文件。");
             _sb.AppendLine();
             foreach (var service in services)
             {

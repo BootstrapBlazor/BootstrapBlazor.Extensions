@@ -25,7 +25,7 @@ public partial class ComponentAnalyzer
 {
     private readonly string _sourcePath;
     private readonly string _componentsPath;
-    private readonly string _samplesPath;
+    private readonly string? _samplesPath;
     private readonly string? _extensionsSourcePath;
     private readonly IReadOnlyDictionary<string, string>? _extensionProjects;
 
@@ -47,10 +47,18 @@ public partial class ComponentAnalyzer
 
     public ComponentAnalyzer(string sourcePath, string? extensionsSourcePath = null,
         IReadOnlyDictionary<string, string>? extensionProjects = null)
+        : this(sourcePath, extensionsSourcePath, extensionProjects, includeSamples: true)
+    {
+    }
+
+    internal ComponentAnalyzer(string sourcePath, string? extensionsSourcePath,
+        IReadOnlyDictionary<string, string>? extensionProjects, bool includeSamples)
     {
         _sourcePath = sourcePath;
         _componentsPath = Path.Combine(sourcePath, "Components");
-        _samplesPath = Path.Combine(Path.GetDirectoryName(sourcePath)!, "BootstrapBlazor.Server", "Components", "Samples");
+        _samplesPath = includeSamples
+            ? Path.Combine(Path.GetDirectoryName(sourcePath)!, "BootstrapBlazor.Server", "Components", "Samples")
+            : null;
         _extensionsSourcePath = extensionsSourcePath;
         _extensionProjects = extensionProjects;
     }
@@ -91,7 +99,80 @@ public partial class ComponentAnalyzer
             }
         }
 
+        var componentDirectory = Path.GetFullPath(_componentsPath) + Path.DirectorySeparatorChar;
+        var declarations = _compilation!.SyntaxTrees
+            .Where(tree => tree.FilePath.EndsWith(".cs", StringComparison.OrdinalIgnoreCase) &&
+                Path.GetFullPath(tree.FilePath).StartsWith(componentDirectory, StringComparison.OrdinalIgnoreCase))
+            .SelectMany(tree => tree.GetRoot().DescendantNodes().OfType<ClassDeclarationSyntax>())
+            .OrderBy(declaration => string.Equals(Path.GetFileNameWithoutExtension(declaration.SyntaxTree.FilePath),
+                declaration.Identifier.Text, StringComparison.Ordinal) ? 0 : 1)
+            .ThenBy(declaration => declaration.SyntaxTree.FilePath, StringComparer.Ordinal);
+
+        foreach (var declaration in declarations)
+        {
+            var model = _compilation.GetSemanticModel(declaration.SyntaxTree);
+            if (model.GetDeclaredSymbol(declaration) is not INamedTypeSymbol symbol ||
+                symbol.DeclaredAccessibility != Accessibility.Public || symbol.ContainingType != null ||
+                seenTypes.Contains(symbol.ToDisplayString(FullNameFormat)) || !IsComponentType(symbol))
+            {
+                continue;
+            }
+
+            var component = BuildComponentInfo(symbol, declaration, declaration.SyntaxTree.FilePath);
+            if (component.Parameters.Count > 0 && seenTypes.Add(component.FullName))
+            {
+                components.Add(component);
+            }
+        }
+
         return components.OrderBy(c => c.Name).ToList();
+    }
+
+    private bool IsComponentType(INamedTypeSymbol symbol)
+    {
+        var pending = new Stack<INamedTypeSymbol>();
+        var seen = new HashSet<INamedTypeSymbol>(SymbolEqualityComparer.Default);
+        pending.Push(symbol);
+        while (pending.TryPop(out var current))
+        {
+            if (!seen.Add(current))
+            {
+                continue;
+            }
+
+            foreach (var declaration in current.DeclaringSyntaxReferences.Select(reference => reference.GetSyntax())
+                .OfType<TypeDeclarationSyntax>())
+            {
+                if (declaration.BaseList == null)
+                {
+                    continue;
+                }
+
+                var model = _compilation!.GetSemanticModel(declaration.SyntaxTree);
+                foreach (var baseType in declaration.BaseList.Types)
+                {
+                    var type = model.GetTypeInfo(baseType.Type).Type;
+                    if (type == null)
+                    {
+                        continue;
+                    }
+
+                    if (type.Name is "ComponentBase" or "IComponent" &&
+                        (type.TypeKind == TypeKind.Error ||
+                         type.ToDisplayString() == $"Microsoft.AspNetCore.Components.{type.Name}"))
+                    {
+                        return true;
+                    }
+
+                    if (type is INamedTypeSymbol { TypeKind: not TypeKind.Error } baseSymbol)
+                    {
+                        pending.Push(baseSymbol);
+                    }
+                }
+            }
+        }
+
+        return false;
     }
 
     /// <summary>
@@ -134,23 +215,87 @@ public partial class ComponentAnalyzer
             var symbol = _compilation!.GetSymbolsWithName(name, SymbolFilter.Type)
                 .OfType<INamedTypeSymbol>()
                 .FirstOrDefault();
-            var syntax = symbol?.DeclaringSyntaxReferences.FirstOrDefault()?.GetSyntax();
-            if (symbol == null || syntax == null)
+            if (symbol == null || symbol.DeclaringSyntaxReferences.Length == 0)
             {
                 throw new InvalidDataException($"Service type not found in analyzed sources: {name}");
             }
 
-            services.Add(new ComponentInfo
-            {
-                Name = symbol.Name,
-                FullName = symbol.ToDisplayString(FullNameFormat),
-                Summary = ExtractXmlSummary(syntax),
-                SourcePath = GetRelativePath(syntax.SyntaxTree.FilePath),
-                PublicMethods = CollectMethods(symbol)
-            });
+            services.Add(BuildServiceInfo(symbol));
         }
 
         return services;
+    }
+
+    internal async Task<List<ComponentInfo>> AnalyzeCoreServicesAsync(IEnumerable<ComponentInfo> components)
+    {
+        await EnsureCompilationAsync();
+
+        var servicePath = Path.GetFullPath(Path.Combine(_sourcePath, "Services")) + Path.DirectorySeparatorChar;
+        var componentPath = Path.GetFullPath(_componentsPath) + Path.DirectorySeparatorChar;
+        var componentTypes = components.Select(component => component.FullName).ToHashSet(StringComparer.Ordinal);
+        var symbols = new Dictionary<string, INamedTypeSymbol>(StringComparer.OrdinalIgnoreCase);
+
+        foreach (var tree in _compilation!.SyntaxTrees)
+        {
+            var path = Path.GetFullPath(tree.FilePath);
+            var inServices = path.StartsWith(servicePath, StringComparison.OrdinalIgnoreCase);
+            var inComponents = path.StartsWith(componentPath, StringComparison.OrdinalIgnoreCase);
+            if (!inServices && !inComponents)
+            {
+                continue;
+            }
+
+            var model = _compilation.GetSemanticModel(tree);
+            foreach (var declaration in tree.GetRoot().DescendantNodes().OfType<TypeDeclarationSyntax>())
+            {
+                if (model.GetDeclaredSymbol(declaration) is not INamedTypeSymbol symbol ||
+                    symbol.DeclaredAccessibility != Accessibility.Public || symbol.ContainingType != null || symbol.IsStatic ||
+                    symbol.DeclaringSyntaxReferences.Select(reference => reference.GetSyntax())
+                        .OfType<TypeDeclarationSyntax>().SelectMany(type => type.AttributeLists)
+                        .SelectMany(list => list.Attributes).Any(attribute =>
+                            attribute.Name.ToString().Split('.').Last() is "Obsolete" or "ObsoleteAttribute"))
+                {
+                    continue;
+                }
+
+                var isService = symbol.TypeKind == TypeKind.Interface &&
+                    (inServices || symbol.Name.EndsWith("Service", StringComparison.Ordinal) || symbol.Name.EndsWith("Provider", StringComparison.Ordinal))
+                    || symbol.TypeKind == TypeKind.Class && symbol.Name.EndsWith("Service", StringComparison.Ordinal);
+                if (!isService)
+                {
+                    continue;
+                }
+
+                if (componentTypes.Contains(symbol.ToDisplayString(FullNameFormat)))
+                {
+                    continue;
+                }
+
+                if (symbols.TryGetValue(symbol.Name, out var existing) && !SymbolEqualityComparer.Default.Equals(existing, symbol))
+                {
+                    throw new InvalidDataException($"Core service names collide: {existing.ToDisplayString()} and {symbol.ToDisplayString()}");
+                }
+
+                symbols[symbol.Name] = symbol;
+            }
+        }
+
+        return symbols.Values.OrderBy(symbol => symbol.Name, StringComparer.Ordinal)
+            .Select(symbol => BuildServiceInfo(symbol, includeTypeParameters: true)).ToList();
+    }
+
+    private ComponentInfo BuildServiceInfo(INamedTypeSymbol symbol, bool includeTypeParameters = false)
+    {
+        var syntax = symbol.DeclaringSyntaxReferences.First().GetSyntax();
+        return new ComponentInfo
+        {
+            Name = symbol.Name,
+            FullName = symbol.ToDisplayString(FullNameFormat),
+            Summary = ExtractXmlSummary(syntax),
+            TypeParameters = includeTypeParameters ? symbol.TypeParameters.Select(type => type.Name).ToList() : new(),
+            SourcePath = GetRelativePath(syntax.SyntaxTree.FilePath),
+            PublicMethods = CollectMethods(symbol)
+        };
     }
 
     /// <summary>
@@ -910,17 +1055,19 @@ public partial class ComponentAnalyzer
             }
         }
 
-        // Normalize first: _sourcePath is "<root>/../BootstrapBlazor", so without
-        // GetFullPath the ".." segment throws off GetDirectoryName and the result
-        // becomes "../BootstrapBlazor/..." instead of "src/BootstrapBlazor/...".
         var sourceRoot = Path.GetFullPath(_sourcePath);
+        if (full.StartsWith(sourceRoot + Path.DirectorySeparatorChar, StringComparison.OrdinalIgnoreCase))
+        {
+            return Path.Combine("src", "BootstrapBlazor", Path.GetRelativePath(sourceRoot, full)).Replace('\\', '/');
+        }
+
         var basePath = Path.GetDirectoryName(Path.GetDirectoryName(sourceRoot))!;
         return Path.GetRelativePath(basePath, full).Replace('\\', '/');
     }
 
     private string? FindSamplePath(string componentName)
     {
-        if (!Directory.Exists(_samplesPath))
+        if (_samplesPath == null || !Directory.Exists(_samplesPath))
             return null;
 
         // Try common sample file naming patterns

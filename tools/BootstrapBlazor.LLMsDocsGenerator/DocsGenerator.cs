@@ -12,9 +12,9 @@ internal static class DocsGenerator
     /// <summary>
     /// Generate all documentation files
     /// </summary>
-    public static async Task GenerateAllAsync(string rootFolder, string outputFolder, bool coreOnly = false)
+    public static async Task GenerateAllAsync(string? rootFolder, string outputFolder, bool coreOnly = false)
     {
-        var _sourcePath = Path.Combine(rootFolder, "..", "BootstrapBlazor");
+        var _sourcePath = GetSourcePath(rootFolder, coreOnly);
         var _outputPath = coreOnly ? outputFolder : Path.Combine(outputFolder, "wwwroot", "llms");
 
         Logger($"Source path: {_sourcePath}");
@@ -27,17 +27,19 @@ internal static class DocsGenerator
 
         Logger("Analyzing components...");
 
-        // The extensions repository sits next to the core repo:
-        // <core-repo>/.. / BootstrapBlazor.Extensions / src
-        var coreRepoRoot = Path.GetDirectoryName(Path.GetDirectoryName(Path.GetFullPath(_sourcePath)))!;
-        var extensionsSrc = Path.Combine(Path.GetDirectoryName(coreRepoRoot)!, "BootstrapBlazor.Extensions", "src");
+        var extensionsSrc = string.Empty;
+        if (!coreOnly)
+        {
+            var coreRepoRoot = Path.GetDirectoryName(Path.GetDirectoryName(Path.GetFullPath(_sourcePath)))!;
+            extensionsSrc = Path.Combine(Path.GetDirectoryName(coreRepoRoot)!, "BootstrapBlazor.Extensions", "src");
+        }
         var hasExtensions = !coreOnly && Directory.Exists(extensionsSrc);
 
         var extensionProjects = hasExtensions
             ? ReadExtensionProjects(Path.GetDirectoryName(extensionsSrc)!)
             : new Dictionary<string, string>(StringComparer.OrdinalIgnoreCase);
         var _analyzer = new ComponentAnalyzer(_sourcePath, hasExtensions ? extensionsSrc : null,
-            extensionProjects);
+            extensionProjects, includeSamples: !coreOnly);
         var components = await _analyzer.AnalyzeAllComponentsAsync();
         Logger($"Found {components.Count} components");
         if (components.Count == 0)
@@ -45,19 +47,42 @@ internal static class DocsGenerator
             throw new InvalidDataException("No core components found.");
         }
 
-        // Derive index categories, injected services and extension packages from docs.json.
-        var serverPath = Path.Combine(Path.GetDirectoryName(Path.GetFullPath(_sourcePath))!, "BootstrapBlazor.Server");
-        var provider = new CategoryProvider(serverPath);
-        var categories = provider.Parse();
+        CategoryProvider? provider = null;
+        if (!coreOnly)
+        {
+            var serverPath = Path.Combine(Path.GetDirectoryName(Path.GetFullPath(_sourcePath))!, "BootstrapBlazor.Server");
+            provider = new CategoryProvider(serverPath);
+        }
+
+        var categories = coreOnly ? GetCoreCategories(components) : provider!.Parse();
         Logger($"Found {categories.Count} categories");
-        var services = await _analyzer.AnalyzeServicesAsync(provider.ParseServices());
+        var services = coreOnly
+            ? await _analyzer.AnalyzeCoreServicesAsync(components)
+            : await _analyzer.AnalyzeServicesAsync(provider!.ParseServices());
         Logger($"Found {services.Count} services");
         if (services.Count == 0)
         {
             throw new InvalidDataException("No core services found.");
         }
 
-        var configuredPackages = coreOnly ? new List<ExtensionPackage>() : provider.ParseExtensions();
+        if (coreOnly)
+        {
+            var duplicateComponent = components.GroupBy(component => component.Name, StringComparer.OrdinalIgnoreCase)
+                .FirstOrDefault(group => group.Skip(1).Any());
+            if (duplicateComponent != null)
+            {
+                throw new InvalidDataException($"Core component names collide: {duplicateComponent.Key}");
+            }
+
+            var componentNames = components.Select(component => component.Name).ToHashSet(StringComparer.OrdinalIgnoreCase);
+            var duplicate = services.FirstOrDefault(service => componentNames.Contains(service.Name));
+            if (duplicate != null)
+            {
+                throw new InvalidDataException($"Core component and service names collide: {duplicate.Name}");
+            }
+        }
+
+        var configuredPackages = coreOnly ? new List<ExtensionPackage>() : provider!.ParseExtensions();
         if (!hasExtensions && configuredPackages.Count > 0)
         {
             throw new DirectoryNotFoundException($"Extension sources required by docs.json were not found: {extensionsSrc}");
@@ -98,7 +123,7 @@ internal static class DocsGenerator
         // the components/ directory.
         Directory.CreateDirectory(_outputPath);
         var indexPath = Path.Combine(_outputPath, "llms.txt");
-        await File.WriteAllTextAsync(indexPath, MarkdownBuilder.BuildIndexDoc(components, categories, services, extComponents, extServices, extPackages, "zh"));
+        await File.WriteAllTextAsync(indexPath, MarkdownBuilder.BuildIndexDoc(components, categories, services, extComponents, extServices, extPackages, "zh", coreOnly));
         Logger($"Generated: {indexPath}");
 
         var componentsOutputPath = Path.Combine(_outputPath, "components");
@@ -135,6 +160,41 @@ internal static class DocsGenerator
         RemoveStaleDocuments(Path.Combine(_outputPath, "extensions"), extComponents.Concat(extServices));
 
         Logger("Documentation generation complete!");
+    }
+
+    private static string GetSourcePath(string? rootFolder, bool coreOnly)
+    {
+        if (coreOnly && rootFolder == null)
+        {
+            var current = Directory.GetCurrentDirectory();
+            if (File.Exists(Path.Combine(current, "BootstrapBlazor.csproj")))
+            {
+                return current;
+            }
+
+            var repositorySource = Path.Combine(current, "src", "BootstrapBlazor");
+            if (File.Exists(Path.Combine(repositorySource, "BootstrapBlazor.csproj")))
+            {
+                return repositorySource;
+            }
+        }
+
+        return Path.Combine(rootFolder ?? ".", "..", "BootstrapBlazor");
+    }
+
+    private static List<ComponentCategory> GetCoreCategories(IEnumerable<ComponentInfo> components)
+    {
+        return components
+            .Select(component => (Component: component, Parts: component.SourcePath.Split('/')))
+            .Where(item => Array.IndexOf(item.Parts, "Components") is var index && index >= 0 && index + 2 < item.Parts.Length)
+            .GroupBy(item => item.Parts[Array.IndexOf(item.Parts, "Components") + 1], StringComparer.Ordinal)
+            .OrderBy(group => group.Key, StringComparer.Ordinal)
+            .Select(group => new ComponentCategory
+            {
+                Title = group.Key,
+                ComponentNames = group.Select(item => item.Component.Name).OrderBy(name => name, StringComparer.Ordinal).ToList()
+            })
+            .ToList();
     }
 
     private static Dictionary<string, string> ReadExtensionProjects(string repositoryRoot)

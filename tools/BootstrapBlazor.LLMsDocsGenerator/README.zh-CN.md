@@ -56,7 +56,7 @@ AI 编程助手（Claude Code、Cursor、GitHub Copilot）经常因为缺乏准�
 
 ### 1. 源码分析
 
-`ComponentAnalyzer` 使用 Roslyn 解析 C# 源文件，扫描标记了 `[Parameter]` 特性的属性，并提取其 XML 文档注释。
+`ComponentAnalyzer` 使用 Roslyn 解析 C# 源文件，扫描标记了 `[Parameter]` 特性的属性，并提取其 XML 文档注释。纯 `.cs` 文件中定义的公开组件通过 `ComponentBase` 或 `IComponent` 继承链发现。
 
 ### 2. 文档生成
 
@@ -119,13 +119,13 @@ dotnet tool uninstall --global BootstrapBlazor.LLMsDocsGenerator
 
 ## 使用方法
 
-两个路径参数各自默认为当前工作目录（`.`）。在 BB 的 `src/BootstrapBlazor.Server` 目录直接执行 `llms-docs` 即可将文档生成到该工程。使用 `--core-only` 时，输出直接写入 `--output` 目录，不会清空已有内容。覆盖 `--root` 不会改变 `--output` 的默认值；使用其他仓库或发布目录时请分别指定。
+输出路径默认为当前工作目录（`.`）。默认模式下 `--root` 也默认为 `.`，在 BB 的 `src/BootstrapBlazor.Server` 目录直接执行 `llms-docs` 即可将文档生成到该工程。使用 `--core-only` 时，可在核心工程目录或仓库根目录运行，无需指定 `--root`；输出直接写入 `--output` 目录，不会清空已有内容。覆盖 `--root` 不会改变 `--output` 的默认值。
 
 在 Server 工程目录运行时也支持 `dotnet llms-docs --output=bin\Release\publish\`，省略的 `--root` 使用 `.`，相对输出路径也基于当前 Server 目录解析。MSBuild 中可使用 `dotnet llms-docs --output=$(PublishDir)`（路径不含空格时）。
 
 | 选项 | 必需 | 说明 |
 |------|------|------|
-| `--root` | 否 | 项目根目录，默认为 `.`。组件源码从 `<root>/../BootstrapBlazor` 读取。 |
+| `--root` | 否 | Server 工程目录。指定时组件源码从 `<root>/../BootstrapBlazor` 读取；默认模式使用 `.`，核心模式可从核心工程、仓库根目录或 Server 目录发现核心工程。 |
 | `--output` | 否 | 输出目录，默认为 `.`。默认模式生成到 `<output>/wwwroot/llms/`；`--core-only` 直接生成到 `<output>/`。 |
 | `--core-only` | 否 | 用于 BootstrapBlazor 打包，仅生成核心组件与内置服务文档。默认为 `false`，启用后不分析扩展配置与源码。 |
 
@@ -135,7 +135,7 @@ dotnet tool uninstall --global BootstrapBlazor.LLMsDocsGenerator
 
 配置了扩展包但缺少同级扩展源码仓库时，生成会失败且不改动已有文档。配置中的组件或服务类型无法解析时，也会在写入文件、清理过期文档之前报错。多个包共用的服务接口仍使用一份文档，按配置的包分别列出注册方法，使用时选择对应包的注册方式。
 
-使用 `--core-only` 时，无需修改 `docs.json`，生成器会忽略 `extensions` 节；无需扩展仓库或解决方案，即使存在也不会读取。核心分类与内置服务仍从 `docs.json` 获取，因此该文件仍为必需。不生成扩展文档、扩展索引章节或链接；扩展也提供的服务仍保留核心服务文档。输出为 `<output>/llms.txt` 与 `<output>/components/*.txt`，索引使用适合包内引用的相对链接。不存在的输出目录会自动创建，不会清空已有内容；仅删除带生成器标记的过期文件，无标记文件与子目录会保留。
+使用 `--core-only` 时，不读取 Server 的 `docs.json`、示例文件或扩展仓库及解决方案。组件索引按 `Components` 下的第一级目录分组。服务从公开、非过时的顶层类型发现：`Services` 下的接口、`Components` 下以 `Service` 或 `Provider` 结尾的接口，以及这两个目录下以 `Service` 结尾且尚未识别为组件的公开非静态类。这些是服务相关 API，不一定都由依赖注入注册；名称冲突会导致生成失败，避免覆盖文档。不生成扩展文档、扩展索引章节或链接。输出为 `<output>/llms.txt` 与 `<output>/components/*.txt`，索引使用适合包内引用的相对链接。不存在的输出目录会自动创建，不会清空已有内容；仅删除带生成器标记的过期文件，无标记文件与子目录会保留。
 
 源码工程 `.csproj` 中显式声明的 `<Using Include="..." />`（包括别名和静态导入）会应用到该工程的 C# 文件，不会在合并分析时泄漏到其他工程。
 
@@ -145,10 +145,11 @@ dotnet tool uninstall --global BootstrapBlazor.LLMsDocsGenerator
 
 生成错误或显式传入空路径时会返回非零进程退出码，便于 MSBuild 和 CI 中止。
 
-使用 PowerShell 7 执行集成检查；脚本会构建工具，并使用隔离源码夹具调用实际 CLI，验证核心打包与完整官网生成：
+构建工具后，使用 PowerShell 7 执行核心模式集成检查：
 
 ```powershell
-.\tools\BootstrapBlazor.LLMsDocsGenerator\tests\Verify-Generation.ps1
+dotnet build .\tools\BootstrapBlazor.LLMsDocsGenerator -c Release
+.\tools\BootstrapBlazor.LLMsDocsGenerator\tests\Verify-CoreOnly.ps1
 ```
 
 ### 示例
@@ -180,10 +181,10 @@ dotnet run --project "..\BootstrapBlazor.Extensions\tools\BootstrapBlazor.LLMsDo
 在 `BootstrapBlazor` 仓库根目录，将核心文档直接生成到 skill 的 references 目录：
 
 ```powershell
-dotnet llms-docs --core-only --root "src\BootstrapBlazor.Server" --output "src\BootstrapBlazor\skills\bootstrapblazor\references"
+dotnet llms-docs --core-only --output "src\BootstrapBlazor\skills\bb-api\references"
 ```
 
-无需再使用移除扩展配置的暂存 `docs.json`。BootstrapBlazor.Server 发布时不要传 `--core-only`，以保持完整官网索引、核心与扩展文档；原有发布命令及输出路径不变。
+无需 `docs.json`。BootstrapBlazor.Server 发布时不要传 `--core-only`，以保持完整官网索引、核心与扩展文档；原有发布命令及输出路径不变。
 
 ## CI/CD 集成
 
