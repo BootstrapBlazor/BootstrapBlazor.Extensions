@@ -30,10 +30,12 @@ internal static class DocsGenerator
         Logger($"Found {components.Count} components");
         var categories = GetProjectCategories(components);
         var services = await analyzer.AnalyzeProjectServicesAsync(components);
-        Logger($"Found {services.Count} services");
+        var registrationCount = services.Count(service => service.IsServiceRegistrationExtension);
+        Logger($"Found {services.Count - registrationCount} services");
+        Logger($"Found {registrationCount} service registration extensions");
         if (components.Count == 0 && services.Count == 0)
         {
-            throw new InvalidDataException("No components or services found in the project.");
+            throw new InvalidDataException("No components, services or service registration extensions found in the project.");
         }
 
         var duplicateComponent = components.GroupBy(component => component.Name, StringComparer.OrdinalIgnoreCase)
@@ -63,7 +65,7 @@ internal static class DocsGenerator
             var filePath = Path.Combine(componentsOutputPath, $"{type.Name}.txt");
             await File.WriteAllTextAsync(filePath, content);
         }
-        Logger($"Generated {components.Count} component and {services.Count} service files in {componentsOutputPath}");
+        Logger($"Generated {components.Count} component, {services.Count - registrationCount} service and {registrationCount} registration extension files in {componentsOutputPath}");
         RemoveStaleDocuments(componentsOutputPath, components.Concat(services));
 
         Logger("Documentation generation complete!");

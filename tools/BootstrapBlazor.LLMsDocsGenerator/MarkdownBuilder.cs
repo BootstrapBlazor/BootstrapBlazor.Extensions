@@ -157,13 +157,15 @@ internal static partial class MarkdownBuilder
         }
 
         // Injected services
-        if (services.Count > 0)
+        var serviceTypes = services.Where(service => !service.IsServiceRegistrationExtension).ToList();
+        var registrationExtensions = services.Where(service => service.IsServiceRegistrationExtension).ToList();
+        if (serviceTypes.Count > 0)
         {
             _sb.AppendLine("## 服务及相关接口");
             _sb.AppendLine();
             _sb.AppendLine("公开的服务和相关接口；并非所有接口都由依赖注入注册。");
             _sb.AppendLine();
-            foreach (var service in services)
+            foreach (var service in serviceTypes)
             {
                 var localized = Localize(service.Summary, lang);
                 var summary = !string.IsNullOrEmpty(localized) ? $" - {TruncateSummary(localized, 60)}" : "";
@@ -172,11 +174,28 @@ internal static partial class MarkdownBuilder
             _sb.AppendLine();
         }
 
+        if (registrationExtensions.Count > 0)
+        {
+            _sb.AppendLine("## 服务注册扩展");
+            _sb.AppendLine();
+            _sb.AppendLine("公开的 IServiceCollection 注册扩展方法；扩展类本身不是可注入的服务。");
+            _sb.AppendLine();
+            foreach (var extension in registrationExtensions)
+            {
+                _sb.AppendLine($"- [{extension.Name}](components/{extension.Name}.txt)");
+            }
+            _sb.AppendLine();
+        }
+
         // Footer
         _sb.AppendLine("---");
         _sb.AppendLine($"生成时间: {DateTime.UtcNow:yyyy-MM-dd}");
         _sb.AppendLine($"组件总数: {components.Count}");
-        _sb.AppendLine($"服务总数: {services.Count}");
+        _sb.AppendLine($"服务总数: {serviceTypes.Count}");
+        if (registrationExtensions.Count > 0)
+        {
+            _sb.AppendLine($"服务注册扩展类型总数: {registrationExtensions.Count}");
+        }
 
         return _sb.ToString();
     }
@@ -233,6 +252,12 @@ internal static partial class MarkdownBuilder
                 _sb.AppendLine(summary);
                 _sb.AppendLine();
             }
+        }
+
+        if (component.IsServiceRegistrationExtension)
+        {
+            _sb.AppendLine("此类型提供服务注册扩展方法，不是可注入的服务。外部服务接口及配置类型的 API 请查阅项目实际引用版本的文档。");
+            _sb.AppendLine();
         }
 
         // Service registration (DI): extension services must be registered before use.
@@ -348,7 +373,7 @@ internal static partial class MarkdownBuilder
             foreach (var method in component.PublicMethods.OrderBy(m => m.Name))
             {
                 var paramStr = string.Join(", ", method.Parameters.Select(p => $"{p.Item1} {p.Item2}"));
-                _sb.AppendLine($"- `{method.ReturnType} {method.Name}({paramStr})`");
+                _sb.AppendLine($"- `{method.Signature ?? $"{method.ReturnType} {method.Name}({paramStr})"}`");
                 var methodDescription = Localize(method.Description, lang);
                 if (!string.IsNullOrEmpty(methodDescription))
                 {

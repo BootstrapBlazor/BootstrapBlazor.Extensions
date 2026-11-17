@@ -68,6 +68,8 @@ public class ComponentInfo
 
     public bool SuppressSourceLink { get; set; }
 
+    public bool IsServiceRegistrationExtension { get; set; }
+
     /// <summary>
     /// Dependency-injection registration for an extension service, resolved from the
     /// <c>AddXxx(this IServiceCollection)</c> extension method that registers this type.
@@ -157,6 +159,11 @@ public class ParameterInfo
 /// </summary>
 public class MethodInfo
 {
+    /// <summary>
+    /// Source signature for registration extensions, including defaults and generic constraints.
+    /// </summary>
+    public string? Signature { get; set; }
+
     /// <summary>
     /// Method name
     /// </summary>
