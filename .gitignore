@@ -392,3 +392,6 @@ src/**/wwwroot/**/uploader
 
 # AI
 **/.workbuddy/
+
+# generated skill references packed into BootstrapBlazor.nupkg
+src/**/skills/bb-*/references/
