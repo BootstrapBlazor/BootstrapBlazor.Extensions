@@ -50,6 +50,7 @@ dotnet tool uninstall -g BootstrapBlazor.LLMsDocs.Cli
 ```bash
 bb-llms search table          # 按关键词搜索组件，定位准确名称
 bb-llms get Table             # 拉取 Table 组件的完整 API 文档（核心命令）
+bb-llms get Markdown          # 从项目还原的 BootstrapBlazor.Markdown 包读取文档
 bb-llms get SelectCity        # 拉取 Region 扩展包中 SelectCity 的 API 文档
 bb-llms list                  # 列出全部组件
 bb-llms index                 # 打印文档索引
@@ -105,7 +106,9 @@ bb-llms get IRecognizerProvider      # 共享服务接口，按包列出 Azure/B
 **文档源解析优先级**：`--base-url` > 环境变量 `BB_LLMS_BASE_URL` > 当前项目还原的包内文档 > 官网。
 显式指定源时不进行项目发现，沿用该源原有行为。自动模式查找当前目录或父目录中的项目；若没有，再查找当前目录下的项目。项目或还原目标不唯一时必须分别用 `--project` 或 `--framework` 指定，不能任意选择版本；带运行时标识的目标使用完整名称，如 `net8.0/win-x64`。项目尚未还原时回退官网；当前只读取项目目录下 `obj/project.assets.json`。
 
-包内核心文档支持 `skills/bb-api` 和旧版 `skills/bootstrapblazor`；扩展包读取 `docs/llms`。自动模式下的官网缓存与显式源缓存隔离。
+包内文档按项目实际还原的包版本读取：扫描每个 `BootstrapBlazor` / `BootstrapBlazor.*` 包的 `skills/*/SKILL.md`，从对应的 `references/llms.txt` 建立组件与文档的映射，支持一个包提供多个 skill。`Table` 从 `BootstrapBlazor` 包读取，`Markdown` 从 `BootstrapBlazor.Markdown` 包读取；组件所属包以索引为准，不根据组件名猜测。
+
+核心包的 `skills/bb-api` 和旧版 `skills/bootstrapblazor` 均兼容；扩展包没有可用的 skill 文档索引时，回退旧版 `docs/llms`。同一个包的多个 skill 收录同名类型时，按 skill 目录名的顺序优先读取第一项，列表不重复展示。不扫描项目未引用的包或全局缓存中的其他版本；对应包未还原或未携带所需文档时，仍按上述规则回退官网。自动模式下的官网缓存与显式源缓存隔离。
 
 ```bash
 # 用环境变量指向自建/镜像源

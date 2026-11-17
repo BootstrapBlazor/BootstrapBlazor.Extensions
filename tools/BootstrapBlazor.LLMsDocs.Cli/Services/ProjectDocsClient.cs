@@ -99,7 +99,7 @@ internal sealed partial class ProjectDocsClient(LlmsDocsClient fallback, IReadOn
     {
         var entries = local.Select(e => e.Entry).ToList();
         var names = entries.Select(e => e.Name).ToHashSet(StringComparer.OrdinalIgnoreCase);
-        Console.Error.WriteLine($"Source: project packages ({string.Join(", ", packages.Select(p => $"{p.Package} {p.Version}"))}).");
+        Console.Error.WriteLine($"Source: project packages ({string.Join(", ", packages.Select(p => $"{p.Package} {p.Version}").Distinct(StringComparer.OrdinalIgnoreCase))}).");
         try
         {
             using var timeout = CancellationTokenSource.CreateLinkedTokenSource(ct);
@@ -129,11 +129,13 @@ internal sealed partial class ProjectDocsClient(LlmsDocsClient fallback, IReadOn
     private List<LocalEntry> ReadLocalEntries()
     {
         var entries = new List<LocalEntry>();
+        var names = new HashSet<string>(StringComparer.OrdinalIgnoreCase);
         foreach (var package in packages)
         {
             try
             {
-                entries.AddRange(ReadPackageEntries(package));
+                entries.AddRange(ReadPackageEntries(package)
+                    .Where(entry => names.Add($"{package.Package}/{entry.Entry.Name}")));
             }
             catch (Exception ex) when (ex is IOException or UnauthorizedAccessException)
             {
