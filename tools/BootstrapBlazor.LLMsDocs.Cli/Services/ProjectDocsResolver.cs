@@ -99,15 +99,22 @@ internal static class ProjectDocsResolver
                 {
                     continue;
                 }
-                var candidates = core
-                    ? new[] { Path.Combine(packageRoot, "skills", "bb-api", "references"), Path.Combine(packageRoot, "skills", "bootstrapblazor", "references") }
-                    : [Path.Combine(packageRoot, "docs", "llms")];
-                var docs = candidates.FirstOrDefault(p => File.Exists(Path.Combine(p, "llms.txt"))
-                    && (!core || File.Exists(Path.Combine(Path.GetDirectoryName(p)!, "SKILL.md"))));
-                if (docs is not null)
+                var skillsRoot = Path.Combine(packageRoot, "skills");
+                var docs = Directory.Exists(skillsRoot)
+                    ? Directory.GetDirectories(skillsRoot).Order(StringComparer.Ordinal)
+                        .Where(p => File.Exists(Path.Combine(p, "SKILL.md"))
+                            && File.Exists(Path.Combine(p, "references", "llms.txt")))
+                        .Select(p => Path.Combine(p, "references")).ToArray()
+                    : [];
+                if (docs.Length == 0 && !core)
                 {
-                    packages.Add(new PackageDocs(name, item.Name[(separator + 1)..], docs, !core));
+                    var legacyDocs = Path.Combine(packageRoot, "docs", "llms");
+                    if (File.Exists(Path.Combine(legacyDocs, "llms.txt")))
+                    {
+                        docs = [legacyDocs];
+                    }
                 }
+                packages.AddRange(docs.Select(directory => new PackageDocs(name, item.Name[(separator + 1)..], directory, !core)));
                 break;
             }
         }
