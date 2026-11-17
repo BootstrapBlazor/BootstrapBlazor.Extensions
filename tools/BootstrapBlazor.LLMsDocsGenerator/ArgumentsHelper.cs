@@ -12,42 +12,36 @@ internal static class ArgumentsHelper
     public static ParseResult Parse(string[] args)
     {
         const string defaultFolder = ".";
-        var rootFolderOption = new Option<string?>("--root")
-        {
-            Description = "Set the Server project folder (core-only can instead run from the core project)"
-        };
         var outputFolderOption = new Option<string>("--output")
         {
-            Description = "Set the output folder (core-only writes directly; default writes to wwwroot/llms)",
+            Description = "Set the output folder (defaults to the current directory)",
             DefaultValueFactory = _ => defaultFolder
         };
-        var coreOnlyOption = new Option<bool>("--core-only")
+        var projectOption = new Option<string?>("--project")
         {
-            Description = "Generate only core components and services for BootstrapBlazor packaging, without extension sources"
+            Description = "Project file or directory to analyze (defaults to the current directory)"
         };
 
         var rootCommand = new RootCommand("BootstrapBlazor LLMs Documentation Generator")
         {
-            rootFolderOption,
             outputFolderOption,
-            coreOnlyOption
+            projectOption
         };
 
         rootCommand.SetAction(async result =>
         {
-            var rootFolder = result.GetValue(rootFolderOption);
-            if (rootFolder != null && string.IsNullOrWhiteSpace(rootFolder))
-            {
-                throw new ArgumentException("Project root folder must not be empty.");
-            }
-
             var outputFolder = result.GetValue(outputFolderOption);
             if (string.IsNullOrEmpty(outputFolder))
             {
                 throw new ArgumentException("Output folder must not be empty.");
             }
 
-            await DocsGenerator.GenerateAllAsync(rootFolder, outputFolder, result.GetValue(coreOnlyOption));
+            var project = result.GetValue(projectOption);
+            if (project != null && string.IsNullOrWhiteSpace(project))
+            {
+                throw new ArgumentException("--project requires a nonempty path.");
+            }
+            await DocsGenerator.GenerateAllAsync(outputFolder, project);
         });
 
         return rootCommand.Parse(args);

@@ -2,265 +2,94 @@
 
 [English](./README.md) | 简体中文
 
-自动为 BootstrapBlazor 组件生成 LLM 友好文档的 .NET 工具。
-
-## 目的
-
-AI 编程助手（Claude Code、Cursor、GitHub Copilot）经常因为缺乏准确的组件 API 信息而生成错误的 UI 代码。本工具通过以下方式解决这个问题：
-
-1. **使用 Roslyn 自动生成参数表** - 从源代码提取
-2. **提供 GitHub 源码链接** - 方便深入查阅
-3. **每个组件单独成文件** - 让 Agent 只加载所需的 API
-
-## 架构
-
-```
-┌─────────────────────────────────────────────────────────────┐
-│                BootstrapBlazor.LLMsDocsGenerator             │
-├─────────────────────────────────────────────────────────────┤
-│  ComponentAnalyzer     → 基于 Roslyn 的源码解析器            │
-│  MarkdownBuilder       → 生成 Markdown 文档                  │
-│  DocsGenerator         → 协调生成流程                        │
-└─────────────────────────────────────────────────────────────┘
-                              │
-                              ▼
-┌─────────────────────────────────────────────────────────────┐
-│          默认输出目录: <output>/wwwroot/llms/               │
-├─────────────────────────────────────────────────────────────┤
-│  llms.txt              → 索引文件，包含快速入门指南           │
-│  components/           → 单独的组件文档目录                   │
-│    ├── Button.txt      → Button 组件 API 参考                │
-│    ├── Table.txt       → Table 组件 API 参考                 │
-│    ├── Select.txt      → Select 组件 API 参考                │
-│    └── ...             → 每个组件一个文件                     │
-│  extensions/           → BootstrapBlazor.Extensions 文档     │
-│    ├── SelectCity.txt  → 扩展组件 API 参考                   │
-│    └── ...             → 每个扩展类型一个文件                 │
-└─────────────────────────────────────────────────────────────┘
-```
-
-使用 `--core-only` 时，输出目录为 `<output>` 本身。
-
-### 为什么每个组件单独一个文件？
-
-这种设计针对 LLM 和 Code Agent 进行了优化：
-
-| 方面 | 按分类（旧方案） | 按组件（新方案） |
-|------|-----------------|-----------------|
-| **精确性** | ❌ 加载无关组件 | ✅ 只加载需要的 API |
-| **Token 效率** | ❌ 浪费 token 在无关数据上 | ✅ 最小化上下文加载 |
-| **缓存友好** | ❌ 需重新生成整个分类 | ✅ 只更新单个文件 |
-| **RAG 检索** | ❌ 粗粒度匹配 | ✅ 细粒度匹配 |
-
-## 工作原理
-
-### 1. 源码分析
-
-`ComponentAnalyzer` 使用 Roslyn 解析 C# 源文件，扫描标记了 `[Parameter]` 特性的属性，并提取其 XML 文档注释。纯 `.cs` 文件中定义的公开组件通过 `ComponentBase` 或 `IComponent` 继承链发现。
-
-### 2. 文档生成
-
-`MarkdownBuilder` 生成结构化的 Markdown，包含：
-
-- 参数表（名称、类型、默认值、描述）
-- 事件回调部分
-- 公共方法
-- GitHub 源码链接
-
-### 3. 组件组织
-
-组件在索引中按类别组织便于导航，但每个组件有独立的文档文件：
-
-| 类别 | 组件示例 |
-|------|----------|
-| table | Table, SelectTable, TableToolbar |
-| input | BootstrapInput, Textarea, OtpInput |
-| select | Select, AutoComplete, Cascader |
-| button | Button, PopConfirmButton |
-| dialog | Modal, Drawer, Toast |
-| nav | Menu, Tab, Breadcrumb |
-| card | Card, Collapse, GroupBox |
-| treeview | TreeView, Tree |
-| form | ValidateForm, EditorForm |
-| other | 其他所有组件 |
+从工程的组件与服务源码生成适合 LLM 阅读的 API 文档。单工程生成只需要目标工程，不依赖同级的其他源码仓库。
 
 ## 环境要求
 
-- 与工程 `TargetFrameworks` 匹配的 SDK（当前源码构建使用 .NET 11）。
-- 本地 `BootstrapBlazor` 仓库；未使用 `--core-only` 且 `docs.json` 配置了扩展包时，还需要同级的 `BootstrapBlazor.Extensions` 仓库。生成器不会自动克隆仓库。
+- 与工具工程目标框架匹配的 SDK（当前源码构建使用 .NET 11）。
+- 目标工程的 `.csproj` 和源码文件。
 
 ## 安装
 
-### 从源代码运行
-
-在 `BootstrapBlazor.Extensions` 仓库根目录执行：
+在本仓库根目录打包并安装工具：
 
 ```powershell
-dotnet run --project tools\BootstrapBlazor.LLMsDocsGenerator --root "..\BootstrapBlazor\src\BootstrapBlazor.Server" --output "..\BootstrapBlazor\src\BootstrapBlazor.Server"
+dotnet pack tools\BootstrapBlazor.LLMsDocsGenerator -c Release
+dotnet tool install --global --add-source .\tools\BootstrapBlazor.LLMsDocsGenerator\bin\Release BootstrapBlazor.LLMsDocsGenerator
 ```
 
-### 作为全局工具安装
+更新或卸载：
 
-从本地构建产物打包并安装：
-
-```bash
-dotnet pack tools/BootstrapBlazor.LLMsDocsGenerator -c Release
-dotnet tool install --global --add-source ./tools/BootstrapBlazor.LLMsDocsGenerator/bin/Release BootstrapBlazor.LLMsDocsGenerator
-```
-
-更新 / 卸载：
-
-```bash
+```powershell
 dotnet tool update --global BootstrapBlazor.LLMsDocsGenerator
 dotnet tool uninstall --global BootstrapBlazor.LLMsDocsGenerator
 ```
 
-安装后，使用 `llms-docs` 命令调用。
+安装后的命令名为 `llms-docs`。
 
-## 使用方法
+## 单工程用法
 
-输出路径默认为当前工作目录（`.`）。默认模式下 `--root` 也默认为 `.`，在 BB 的 `src/BootstrapBlazor.Server` 目录直接执行 `llms-docs` 即可将文档生成到该工程。使用 `--core-only` 时，可在核心工程目录或仓库根目录运行，无需指定 `--root`；输出直接写入 `--output` 目录，不会清空已有内容。覆盖 `--root` 不会改变 `--output` 的默认值。
+在目标工程目录运行：
 
-在 Server 工程目录运行时也支持 `dotnet llms-docs --output=bin\Release\publish\`，省略的 `--root` 使用 `.`，相对输出路径也基于当前 Server 目录解析。MSBuild 中可使用 `dotnet llms-docs --output=$(PublishDir)`（路径不含空格时）。
+```powershell
+llms-docs --output ".\artifacts\llms"
+```
 
-| 选项 | 必需 | 说明 |
-|------|------|------|
-| `--root` | 否 | Server 工程目录。指定时组件源码从 `<root>/../BootstrapBlazor` 读取；默认模式使用 `.`，核心模式可从核心工程、仓库根目录或 Server 目录发现核心工程。 |
-| `--output` | 否 | 输出目录，默认为 `.`。默认模式生成到 `<output>/wwwroot/llms/`；`--core-only` 直接生成到 `<output>/`。 |
-| `--core-only` | 否 | 用于 BootstrapBlazor 打包，仅生成核心组件与内置服务文档。默认为 `false`，启用后不分析扩展配置与源码。 |
+也可以从其他目录指定工程：
 
-当 `BootstrapBlazor.Extensions` 仓库与核心 `BootstrapBlazor` 仓库并列存在时，生成器也会分析扩展仓库源码。需在 `src/BootstrapBlazor.Server/docs.json` 的 `extensions` 节中配置要生成文档的扩展包和类型；这是唯一配置位置，文件不存在时生成失败。扩展文档会写入 `extensions/` 目录。
+```powershell
+llms-docs --project ".\src\MyComponents\MyComponents.csproj" --output ".\artifacts\llms"
+```
 
-仅扫描 `BootstrapBlazor.Extensions.slnx` 中列出的源码工程，按工程文件名而非目录名匹配扩展包。配置中不属于解决方案的包会输出提示并跳过；解决方案引用了不存在的工程时会报错。磁盘上残留的其他目录不会参与分析。核心库中仅有 `.razor` 文件、通过 `@inherits` 指定基类的组件也支持生成文档。默认模式重新生成时会清理带有 `<!-- Generated: ... -->` 标记的过期 `.txt` 文档，保留其他文件。
+`--project` 也接受恰好包含一个 `.csproj` 的目录。
 
-配置了扩展包但缺少同级扩展源码仓库时，生成会失败且不改动已有文档。配置中的组件或服务类型无法解析时，也会在写入文件、清理过期文档之前报错。多个包共用的服务接口仍使用一份文档，按配置的包分别列出注册方法，使用时选择对应包的注册方式。
+| 选项 | 说明 |
+|------|------|
+| `--project` | 目标工程文件或目录。省略时分析当前工作目录下的工程。 |
+| `--output` | 输出目录，默认为当前工作目录，文档直接写入该目录。 |
 
-使用 `--core-only` 时，不读取 Server 的 `docs.json`、示例文件或扩展仓库及解决方案。组件索引按 `Components` 下的第一级目录分组。服务从公开、非过时的顶层类型发现：`Services` 下的接口、`Components` 下以 `Service` 或 `Provider` 结尾的接口，以及这两个目录下以 `Service` 结尾且尚未识别为组件的公开非静态类。这些是服务相关 API，不一定都由依赖注入注册；名称冲突会导致生成失败，避免覆盖文档。不生成扩展文档、扩展索引章节或链接。输出为 `<output>/llms.txt` 与 `<output>/components/*.txt`，索引使用适合包内引用的相对链接。不存在的输出目录会自动创建，不会清空已有内容；仅删除带生成器标记的过期文件，无标记文件与子目录会保留。
+直接运行 `llms-docs` 会分析当前工作目录下的工程，并将文档写入当前目录，不会向父目录、子目录或同级目录寻找其他工程。相对路径基于当前工作目录解析。生成错误或显式传入空路径时返回非零退出码。
 
-源码工程 `.csproj` 中显式声明的 `<Using Include="..." />`（包括别名和静态导入）会应用到该工程的 C# 文件，不会在合并分析时泄漏到其他工程。
+## 输出
 
-此工具进行源码分析，不执行完整的 MSBuild 求值：不处理条件、属性展开、导入的 `.props`/`.targets` 及 `Using Remove`。纯 Razor 支持仅合成继承声明，不编译 Razor，也不提取 `@code` 块中的成员。
+```text
+<output>\
+  llms.txt
+  components\
+    MyComponent.txt
+    IExampleService.txt
+```
 
-扩展服务应配置实际用于依赖注入的注册类型。例如，两个语音包均使用 `"services": ["IRecognizerProvider", "ISynthesizerProvider"]`，而不是 Provider 实现类。
+`llms.txt` 使用相对链接索引工程中的组件与服务，每个类型各自生成一份 Markdown 文档，供 Agent 按需读取：
 
-生成错误或显式传入空路径时会返回非零进程退出码，便于 MSBuild 和 CI 中止。
+- 参数、类型、默认值及说明
+- 事件回调与公开方法
+- 泛型参数与基类
+- 可识别的服务注册方法
+- 仓库可识别时的源码链接
 
-构建工具后，使用 PowerShell 7 执行核心模式集成检查：
+文档优先提取双语 XML 注释中的中文，无中文时使用已有文本。支持只有组件或只有服务的工程；未找到可识别的类型时生成失败。类型名称冲突可能覆盖文件时也会报错。
+
+输出目录不存在时自动创建，不会清空已有内容；仅清理带有生成器标记的过期 `.txt` 文档，保留无标记文件及子目录。
+
+## 分析范围与限制
+
+分析器使用 Roslyn 扫描工程源码，提取 `[Parameter]` 属性、事件回调、公开方法和 XML 注释，并收录本地可解析的继承成员。服务从公开、非过时的顶层类型中发现：`Services` 目录下的接口、以 `Service` 或 `Provider` 结尾的接口，以及以 `Service` 或 `Provider` 结尾的非静态类。
+
+这是源码分析，不是完整的 MSBuild 或 Razor 编译：
+
+- 外部基类成员与服务接口可能未收录。
+- Razor 仅合成继承声明，不提取 `@code` 中的成员。
+- 支持工程中显式声明的 `<Using Include="..." />`，包括别名和静态导入。
+- 不处理条件、属性展开、导入的 `.props`/`.targets` 及 `Using Remove`。
+
+索引中会提示源码分析的限制。生成器只产出参考文档，不创建或安装 skill。
+
+## 验证
+
+在本仓库根目录构建，并使用 PowerShell 7 执行集成检查：
 
 ```powershell
 dotnet build .\tools\BootstrapBlazor.LLMsDocsGenerator -c Release
-.\tools\BootstrapBlazor.LLMsDocsGenerator\tests\Verify-CoreOnly.ps1
-```
-
-### 示例
-
-将 `BootstrapBlazor` 与 `BootstrapBlazor.Extensions` 仓库放在同级目录后，在 BootstrapBlazor 仓库根目录执行，两个选项都指向 Server 项目：
-
-```bash
-llms-docs --root src/BootstrapBlazor.Server --output src/BootstrapBlazor.Server
-```
-
-它会从 `src/BootstrapBlazor` 读取组件，并生成：
-
-```
-src/BootstrapBlazor.Server/wwwroot/llms/llms.txt
-src/BootstrapBlazor.Server/wwwroot/llms/components/*.txt
-src/BootstrapBlazor.Server/wwwroot/llms/extensions/*.txt
-```
-
-索引会按扩展包分组，例如 `BootstrapBlazor.Region`；`SelectCity` 文档生成到 `extensions/SelectCity.txt`。
-
-仍在 `BootstrapBlazor` 仓库根目录，通过同级仓库的源码工程执行：
-
-```powershell
-dotnet run --project "..\BootstrapBlazor.Extensions\tools\BootstrapBlazor.LLMsDocsGenerator" --root "src\BootstrapBlazor.Server" --output "src\BootstrapBlazor.Server"
-```
-
-### BootstrapBlazor NuGet 打包
-
-在 `BootstrapBlazor` 仓库根目录，将核心文档直接生成到 skill 的 references 目录：
-
-```powershell
-dotnet llms-docs --core-only --output "src\BootstrapBlazor\skills\bb-api\references"
-```
-
-无需 `docs.json`。BootstrapBlazor.Server 发布时不要传 `--core-only`，以保持完整官网索引、核心与扩展文档；原有发布命令及输出路径不变。
-
-## CI/CD 集成
-
-将两个仓库检出到同级目录，使用与生成器工程匹配的 SDK。以下步骤假定工作流位于 `dotnetcore/BootstrapBlazor` 仓库；构建发布版本时请固定兼容的 ref：
-
-```yaml
-- uses: actions/checkout@v4
-  with:
-    path: BootstrapBlazor
-- uses: actions/checkout@v4
-  with:
-    repository: BootstrapBlazor/BootstrapBlazor.Extensions
-    path: BootstrapBlazor.Extensions
-- uses: actions/setup-dotnet@v4
-  with:
-    dotnet-version: '11.0.x'
-    dotnet-quality: 'preview'
-- name: Generate LLM Documentation
-  working-directory: BootstrapBlazor
-  run: >
-    dotnet run --project ../BootstrapBlazor.Extensions/tools/BootstrapBlazor.LLMsDocsGenerator
-    --root src/BootstrapBlazor.Server
-    --output src/BootstrapBlazor.Server
-```
-
-BB Server 的发布 target 则还原并运行 BB 的 `dotnet-tools.json` 固定版本的本地 `llms-docs` 工具。执行目录固定为 Server 工程目录（`$(MSBuildThisFileDirectory)`），使用默认 `--root`，仅传入实际发布目录的绝对路径 `--output`。修改生成器源码不会自动更新该工具包；使用简化后的 target 前，需发布支持默认参数的新版本并更新工具清单。
-
-## 输出格式
-
-文档统一生成中文版本，从 XML 注释的双语 `<para lang="zh">` 块中提取。每个组件文件（`components/<组件名>.txt`）的 Markdown 内容形如：
-
-```markdown
-# BootstrapBlazor Table
-
-来自 XML 注释的组件描述
-
-### Type Parameters
-- `TItem` - 泛型类型参数
-
-### Parameters
-| Parameter | Type | Default | Description |
-|-----------|------|---------|-------------|
-| Items | `List<TItem>` | - | 数据源 |
-| ShowToolbar | `bool` | false | 显示工具栏 |
-
-### Event Callbacks
-| Event | Type | Description |
-|-------|------|-------------|
-| OnClick | `EventCallback` | 点击处理器 |
-
-### Public Methods
-- `Task RefreshAsync()` - 刷新数据
-
-### Source
-- 组件: [src/.../Component.razor.cs](GitHub 链接)
-- 示例: [src/.../Samples/Components.razor](GitHub 链接)
-```
-
-## 库用户使用指南
-
-用户可以在自己的项目中创建 `llms.txt` 来引用本文档：
-
-```markdown
-# 我的项目
-
-## 依赖
-
-### BootstrapBlazor
-- 文档索引: https://www.blazor.zone/llms/llms.txt
-- Button: https://www.blazor.zone/llms/components/Button.txt
-- Table: https://www.blazor.zone/llms/components/Table.txt
-- Modal: https://www.blazor.zone/llms/components/Modal.txt
-```
-
-LLM 代理可以：
-
-1. 先读取 `llms.txt` 了解有哪些组件
-2. 然后获取 `components/{组件名}.txt` 获取详细 API 信息
+.\tools\BootstrapBlazor.LLMsDocsGenerator\tests\Verify-SingleProject.ps1
 ```

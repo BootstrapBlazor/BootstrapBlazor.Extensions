@@ -14,9 +14,7 @@ namespace BootstrapBlazorLLMsDocsGenerator;
 internal static partial class MarkdownBuilder
 {
     private const string GitHubRawBaseUrl = "https://raw.githubusercontent.com/dotnetcore/BootstrapBlazor/refs/heads/main/";
-    private const string GitHubRepositoryUrl = "https://github.com/dotnetcore/BootstrapBlazor";
     private const string GitHubExtensionsRawUrl = "https://raw.githubusercontent.com/BootstrapBlazor/BootstrapBlazor.Extensions/refs/heads/master/";
-    private const string GitHubExtensionsRepositoryUrl = "https://github.com/BootstrapBlazor/BootstrapBlazor.Extensions";
 
     /// <summary>
     /// Extract the text for a single language from a doc string that may contain
@@ -89,37 +87,19 @@ internal static partial class MarkdownBuilder
     [GeneratedRegex("\\s+")]
     private static partial Regex WhitespaceRegex();
 
-    public static string BuildIndexDoc(List<ComponentInfo> components, List<ComponentCategory> categories, List<ComponentInfo> services, List<ComponentInfo> extensionComponents, List<ComponentInfo> extensionServices, List<ExtensionPackage> extensionPackages, string lang, bool coreOnly = false)
+    public static string BuildIndexDoc(List<ComponentInfo> components, List<ComponentCategory> categories, List<ComponentInfo> services, string lang, string projectName)
     {
         var _sb = new StringBuilder();
-        _sb.AppendLine("# BootstrapBlazor");
+        _sb.AppendLine($"# {projectName}");
         _sb.AppendLine();
-        _sb.AppendLine("> 基于 Bootstrap 5 的企业级 Blazor UI 组件库");
+        _sb.AppendLine("> 本文档仅分析当前工程源码；外部基类、外部服务接口及 Razor @code 中的成员可能未收录。");
         _sb.AppendLine();
 
         // Quick Start section
         _sb.AppendLine("## 快速开始");
         _sb.AppendLine();
         _sb.AppendLine("```bash");
-        _sb.AppendLine("dotnet add package BootstrapBlazor");
-        _sb.AppendLine("```");
-        _sb.AppendLine();
-        _sb.AppendLine("### 配置");
-        _sb.AppendLine();
-        _sb.AppendLine("```csharp");
-        _sb.AppendLine("// Program.cs");
-        _sb.AppendLine("builder.Services.AddBootstrapBlazor();");
-        _sb.AppendLine("```");
-        _sb.AppendLine();
-        _sb.AppendLine("```razor");
-        _sb.AppendLine("@* _Imports.razor *@");
-        _sb.AppendLine("@using BootstrapBlazor.Components");
-        _sb.AppendLine("```");
-        _sb.AppendLine();
-        _sb.AppendLine("```html");
-        _sb.AppendLine("<!-- App.razor or _Host.cshtml -->");
-        _sb.AppendLine("<link href=\"_content/BootstrapBlazor/css/bootstrap.blazor.bundle.min.css\" rel=\"stylesheet\" />");
-        _sb.AppendLine("<script src=\"_content/BootstrapBlazor/js/bootstrap.blazor.bundle.min.js\"></script>");
+        _sb.AppendLine($"dotnet add package {projectName}");
         _sb.AppendLine("```");
         _sb.AppendLine();
 
@@ -130,8 +110,6 @@ internal static partial class MarkdownBuilder
         _sb.AppendLine("使用 `components/{ComponentName}.txt` 获取详细的 API 信息。");
         _sb.AppendLine();
 
-        // Group components using the docs.json categories. Each category lists its
-        // component type names directly, so a name lookup is all that is needed.
         var byName = components
             .GroupBy(c => c.Name, StringComparer.Ordinal)
             .ToDictionary(g => g.Key, g => g.First(), StringComparer.Ordinal);
@@ -166,7 +144,6 @@ internal static partial class MarkdownBuilder
             _sb.AppendLine();
         }
 
-        // Anything not listed in docs.json falls back to "Other".
         var others = components.Where(c => !used.Contains(c.Name)).OrderBy(c => c.Name).ToList();
         if (others.Count > 0)
         {
@@ -182,11 +159,9 @@ internal static partial class MarkdownBuilder
         // Injected services
         if (services.Count > 0)
         {
-            _sb.AppendLine(coreOnly ? "## 核心服务及相关接口" : "## 内置服务");
+            _sb.AppendLine("## 服务及相关接口");
             _sb.AppendLine();
-            _sb.AppendLine(coreOnly
-                ? "核心服务和相关公开接口，每个类型在 `components/` 目录下都有独立的文档文件；并非所有接口都由默认依赖注入注册。"
-                : "通过依赖注入使用的服务，每个服务在 `components/` 目录下都有独立的文档文件。");
+            _sb.AppendLine("公开的服务和相关接口；并非所有接口都由依赖注入注册。");
             _sb.AppendLine();
             foreach (var service in services)
             {
@@ -197,104 +172,11 @@ internal static partial class MarkdownBuilder
             _sb.AppendLine();
         }
 
-        // Extension components & services (from BootstrapBlazor.Extensions)
-        void AppendExtensionLink(ComponentInfo item)
-        {
-            var localized = Localize(item.Summary, lang);
-            var s = !string.IsNullOrEmpty(localized) ? $" - {TruncateSummary(localized, 60)}" : "";
-            _sb.AppendLine($"- [{item.Name}](extensions/{item.Name}.txt){s}");
-        }
-
-        // Group extension items under their owning package (docs.json "extensions"
-        // order), so the index mirrors the per-package layout of the source repo.
-        void AppendExtensionByPackage(List<ComponentInfo> items, Func<ExtensionPackage, List<string>> selector)
-        {
-            var byName = items
-                .GroupBy(c => c.Name, StringComparer.Ordinal)
-                .ToDictionary(g => g.Key, g => g.First(), StringComparer.Ordinal);
-
-            foreach (var pkg in extensionPackages)
-            {
-                var members = selector(pkg)
-                    .Where(byName.ContainsKey)
-                    .Select(n => byName[n])
-                    .ToList();
-                if (members.Count == 0)
-                {
-                    continue;
-                }
-
-                _sb.AppendLine($"### {pkg.Name}");
-                _sb.AppendLine();
-                foreach (var item in members)
-                {
-                    AppendExtensionLink(item);
-                }
-                _sb.AppendLine();
-            }
-        }
-
-        if (extensionComponents.Count > 0)
-        {
-            _sb.AppendLine("## 扩展组件");
-            _sb.AppendLine();
-            _sb.AppendLine("来自 BootstrapBlazor.Extensions 扩展库的组件，按扩展包分组，每个在 `extensions/` 目录下都有独立的文档文件。");
-            _sb.AppendLine();
-            AppendExtensionByPackage(extensionComponents, p => p.Components);
-        }
-
-        if (extensionServices.Count > 0)
-        {
-            _sb.AppendLine("## 扩展服务");
-            _sb.AppendLine();
-            _sb.AppendLine("来自 BootstrapBlazor.Extensions 扩展库的服务，按扩展包分组，每个在 `extensions/` 目录下都有独立的文档文件。");
-            _sb.AppendLine();
-            AppendExtensionByPackage(extensionServices, p => p.Services);
-        }
-
-        // Source Code Reference
-        _sb.AppendLine("## 源码参考");
-        _sb.AppendLine();
-        _sb.AppendLine($"GitHub 仓库: {GitHubRepositoryUrl}");
-        _sb.AppendLine();
-        _sb.AppendLine("当文档不足时，请查阅源码：");
-        _sb.AppendLine();
-        _sb.AppendLine("### 文件结构");
-        _sb.AppendLine();
-        _sb.AppendLine("```");
-        _sb.AppendLine($"{GitHubRawBaseUrl}/src/BootstrapBlazor/Components/{{ComponentName}}/");
-        _sb.AppendLine("├── {Component}.razor          # Razor 模板");
-        _sb.AppendLine("├── {Component}.razor.cs       # 组件逻辑与参数");
-        _sb.AppendLine("├── {Component}Base.cs         # 基类（如果存在）");
-        _sb.AppendLine("├── {Component}Option.cs       # 配置选项");
-        _sb.AppendLine("└── {Component}Service.cs      # 服务类（Dialog、Toast 等）");
-        _sb.AppendLine("```");
-        _sb.AppendLine();
-        _sb.AppendLine("### 示例");
-        _sb.AppendLine();
-        _sb.AppendLine("```");
-        _sb.AppendLine($"{GitHubRawBaseUrl}src/BootstrapBlazor.Server/Components/Samples/{{ComponentName}}s.razor");
-        _sb.AppendLine("```");
-        _sb.AppendLine();
-        _sb.AppendLine("### 读取组件参数");
-        _sb.AppendLine();
-        _sb.AppendLine("查找带有 `[Parameter]` 特性的属性：");
-        _sb.AppendLine();
-        _sb.AppendLine("```csharp");
-        _sb.AppendLine("/// <summary>");
-        _sb.AppendLine("/// 获得/设置 是否显示工具栏");
-        _sb.AppendLine("/// </summary>");
-        _sb.AppendLine("[Parameter]");
-        _sb.AppendLine("public bool ShowToolbar { get; set; }");
-        _sb.AppendLine("```");
-        _sb.AppendLine();
-
         // Footer
         _sb.AppendLine("---");
         _sb.AppendLine($"生成时间: {DateTime.UtcNow:yyyy-MM-dd}");
         _sb.AppendLine($"组件总数: {components.Count}");
         _sb.AppendLine($"服务总数: {services.Count}");
-        _sb.AppendLine($"仓库地址: {GitHubRepositoryUrl}");
 
         return _sb.ToString();
     }
@@ -482,7 +364,7 @@ internal static partial class MarkdownBuilder
         }
 
         // Source reference with GitHub URLs
-        if (!string.IsNullOrEmpty(component.SourcePath))
+        if (!component.SuppressSourceLink && !string.IsNullOrEmpty(component.SourcePath))
         {
             _sb.AppendLine("### 源码");
             _sb.AppendLine();
