@@ -1,6 +1,7 @@
 <Project Sdk="Microsoft.NET.Sdk.Razor">
 
   <PropertyGroup>
+    <SkillName>bb-imagehelper</SkillName>
     <Version>11.0.0</Version>
   </PropertyGroup>
   

@@ -1,6 +1,7 @@
 <Project Sdk="Microsoft.NET.Sdk.Razor">
 
   <PropertyGroup>
+    <SkillName>bb-live2ddisplay</SkillName>
     <Version>11.0.0</Version>
   </PropertyGroup>
 

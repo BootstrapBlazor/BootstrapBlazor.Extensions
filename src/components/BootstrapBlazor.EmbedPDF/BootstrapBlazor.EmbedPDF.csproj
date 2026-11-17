@@ -1,6 +1,7 @@
 <Project Sdk="Microsoft.NET.Sdk.Razor">
 
   <PropertyGroup>
+    <SkillName>bb-embedpdf</SkillName>
     <Version>11.0.2</Version>
   </PropertyGroup>
 
