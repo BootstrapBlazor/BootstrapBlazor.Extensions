@@ -2,6 +2,7 @@
 
   <PropertyGroup>
     <Version>11.0.1</Version>
+    <SkillName>bb-tableexport</SkillName>
   </PropertyGroup>
 
   <PropertyGroup>

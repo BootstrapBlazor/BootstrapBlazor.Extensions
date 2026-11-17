@@ -1,8 +1,8 @@
 <Project Sdk="Microsoft.NET.Sdk.Razor">
 
   <PropertyGroup>
-    <SkillName>bb-vditor</SkillName>
     <Version>11.0.0</Version>
+    <SkillName>bb-vditor</SkillName>
   </PropertyGroup>
 
   <PropertyGroup>

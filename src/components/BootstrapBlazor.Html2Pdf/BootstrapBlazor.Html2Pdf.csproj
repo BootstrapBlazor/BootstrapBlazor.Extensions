@@ -2,6 +2,7 @@
 
   <PropertyGroup>
     <Version>11.0.1</Version>
+    <SkillName>bb-html2pdf</SkillName>
   </PropertyGroup>
 
   <PropertyGroup>
