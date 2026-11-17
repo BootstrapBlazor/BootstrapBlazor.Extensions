@@ -1,0 +1,17 @@
+<Project>
+
+  <Target Name="GeneratePackageSkillDocs" BeforeTargets="_GetPackageFiles" Condition="'$(IsPackable)' == 'true' and '$(SkillName)' != ''">
+    <PropertyGroup>
+      <SkillDocsPath>$(MSBuildProjectDirectory)\skills\$(SkillName)\references</SkillDocsPath>
+    </PropertyGroup>
+    <Message Text="Generating $(SkillName) package skill docs ..." Importance="high" />
+    <Exec Command="dotnet tool restore" WorkingDirectory="$(MSBuildProjectDirectory)" />
+    <RemoveDir Directories="$(SkillDocsPath)" />
+    <Exec Command='dotnet llms-docs --output "$(SkillDocsPath)"' WorkingDirectory="$(MSBuildProjectDirectory)" />
+
+    <ItemGroup>
+      <None Include="$(MSBuildProjectDirectory)\skills\$(SkillName)\**\*" Pack="true" PackagePath="skills/$(SkillName)" />
+    </ItemGroup>
+  </Target>
+
+</Project>
