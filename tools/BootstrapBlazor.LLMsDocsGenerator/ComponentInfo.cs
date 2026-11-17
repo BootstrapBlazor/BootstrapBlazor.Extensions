@@ -66,6 +66,8 @@ public class ComponentInfo
     /// </summary>
     public bool IsExtension { get; set; }
 
+    public bool SuppressSourceLink { get; set; }
+
     /// <summary>
     /// Dependency-injection registration for an extension service, resolved from the
     /// <c>AddXxx(this IServiceCollection)</c> extension method that registers this type.
