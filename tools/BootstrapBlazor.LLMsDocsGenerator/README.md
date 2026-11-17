@@ -58,6 +58,7 @@ Without arguments, `llms-docs` analyzes the project in the current working direc
   components\
     MyComponent.txt
     IExampleService.txt
+    ServiceCollectionExtensions.txt
 ```
 
 `llms.txt` indexes the project's components and services using relative links. Each type has its own Markdown document, so an agent can load only the API it needs:
@@ -68,13 +69,15 @@ Without arguments, `llms-docs` analyzes the project in the current working direc
 - Discoverable service registration methods
 - Source links when the repository is recognized
 
-Documentation uses Chinese text from bilingual XML comments, falling back to available text. Component-only and service-only projects are supported; generation fails if no supported types are found. Duplicate names that would overwrite files also cause generation to fail.
+Documentation uses Chinese text from bilingual XML comments, falling back to available text. Component-only, service-only and registration-extension-only projects are supported; generation fails if no supported types are found. Duplicate names that would overwrite files also cause generation to fail.
 
 The output directory is created if needed. Existing contents are not cleared; only stale `.txt` documents carrying the generator's marker are removed. Unmarked files and subdirectories are preserved.
 
 ## Analysis scope and limitations
 
 The analyzer uses Roslyn to scan project source and collect `[Parameter]` properties, event callbacks, public methods and XML comments. Locally resolvable base members are included. Services are discovered from public, non-obsolete top-level types: interfaces under `Services`, interfaces ending in `Service` or `Provider`, and non-static classes ending in `Service` or `Provider`.
+
+Public, non-obsolete top-level static classes containing public, non-obsolete `Add*` or `TryAdd*` extension methods on `IServiceCollection` are also included. Only those registration methods are documented, preserving their source signatures, including the `this` receiver, generic parameters and constraints, and optional defaults. They appear in a separate index section, not as injectable services. Receiver types are matched by name because dependency metadata is not loaded; external service interfaces, implementations and configuration types are not copied into the output.
 
 This is source analysis, not a complete MSBuild or Razor compilation:
 

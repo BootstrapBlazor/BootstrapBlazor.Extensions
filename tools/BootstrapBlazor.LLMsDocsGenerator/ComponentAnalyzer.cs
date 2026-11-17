@@ -255,7 +255,7 @@ public partial class ComponentAnalyzer
             foreach (var declaration in tree.GetRoot().DescendantNodes().OfType<TypeDeclarationSyntax>())
             {
                 if (model.GetDeclaredSymbol(declaration) is not INamedTypeSymbol symbol ||
-                    symbol.DeclaredAccessibility != Accessibility.Public || symbol.ContainingType != null || symbol.IsStatic ||
+                    symbol.DeclaredAccessibility != Accessibility.Public || symbol.ContainingType != null ||
                     symbol.DeclaringSyntaxReferences.Select(reference => reference.GetSyntax())
                         .OfType<TypeDeclarationSyntax>().SelectMany(type => type.AttributeLists)
                         .SelectMany(list => list.Attributes).Any(attribute =>
@@ -264,12 +264,14 @@ public partial class ComponentAnalyzer
                     continue;
                 }
 
-                var isService = symbol.TypeKind == TypeKind.Interface &&
+                var isService = !symbol.IsStatic && (symbol.TypeKind == TypeKind.Interface &&
                     (inServices || symbol.Name.EndsWith("Service", StringComparison.Ordinal) || symbol.Name.EndsWith("Provider", StringComparison.Ordinal))
                     || symbol.TypeKind == TypeKind.Class &&
                     (symbol.Name.EndsWith("Service", StringComparison.Ordinal) ||
-                     _singleProject && symbol.Name.EndsWith("Provider", StringComparison.Ordinal));
-                if (!isService)
+                     _singleProject && symbol.Name.EndsWith("Provider", StringComparison.Ordinal)));
+                var isRegistrationExtension = _singleProject && symbol.IsStatic &&
+                    symbol.GetMembers().OfType<IMethodSymbol>().Any(IsServiceRegistrationMethod);
+                if (!isService && !isRegistrationExtension)
                 {
                     continue;
                 }
@@ -291,18 +293,21 @@ public partial class ComponentAnalyzer
         return symbols.Values.OrderBy(symbol => symbol.Name, StringComparer.Ordinal)
             .Select(symbol =>
             {
-                var info = BuildServiceInfo(symbol, includeTypeParameters: true);
+                var info = BuildServiceInfo(symbol, includeTypeParameters: true, serviceRegistrationsOnly: symbol.IsStatic);
                 if (_singleProject)
                 {
                     info.IsExtension = _extensionRepository != null;
                     info.SuppressSourceLink = _extensionRepository == null;
-                    info.Registrations = ResolveRegistrations(symbol, null);
+                    if (!symbol.IsStatic)
+                    {
+                        info.Registrations = ResolveRegistrations(symbol, null);
+                    }
                 }
                 return info;
             }).ToList();
     }
 
-    private ComponentInfo BuildServiceInfo(INamedTypeSymbol symbol, bool includeTypeParameters = false)
+    private ComponentInfo BuildServiceInfo(INamedTypeSymbol symbol, bool includeTypeParameters = false, bool serviceRegistrationsOnly = false)
     {
         var syntax = symbol.DeclaringSyntaxReferences.First().GetSyntax();
         return new ComponentInfo
@@ -312,7 +317,8 @@ public partial class ComponentAnalyzer
             Summary = ExtractXmlSummary(syntax),
             TypeParameters = includeTypeParameters ? symbol.TypeParameters.Select(type => type.Name).ToList() : new(),
             SourcePath = GetRelativePath(syntax.SyntaxTree.FilePath),
-            PublicMethods = CollectMethods(symbol)
+            PublicMethods = CollectMethods(symbol, serviceRegistrationsOnly),
+            IsServiceRegistrationExtension = serviceRegistrationsOnly
         };
     }
 
@@ -789,11 +795,22 @@ public partial class ComponentAnalyzer
         return parameters.OrderBy(p => p.Name).ToList();
     }
 
+    private static bool IsServiceRegistrationMethod(IMethodSymbol method)
+    {
+        return method.DeclaredAccessibility == Accessibility.Public && method.IsExtensionMethod &&
+            (method.Name.StartsWith("Add", StringComparison.Ordinal) || method.Name.StartsWith("TryAdd", StringComparison.Ordinal)) &&
+            method.Parameters[0].Type.Name == "IServiceCollection" &&
+            !method.DeclaringSyntaxReferences.Select(reference => reference.GetSyntax())
+                .OfType<MethodDeclarationSyntax>().SelectMany(declaration => declaration.AttributeLists)
+                .SelectMany(list => list.Attributes).Any(attribute =>
+                    attribute.Name.ToString().Split('.').Last() is "Obsolete" or "ObsoleteAttribute");
+    }
+
     /// <summary>
     /// Collect public methods declared on the component itself (partials merged),
     /// excluding overrides, constructors, accessors and operators.
     /// </summary>
-    private List<MethodInfo> CollectMethods(INamedTypeSymbol type)
+    private List<MethodInfo> CollectMethods(INamedTypeSymbol type, bool serviceRegistrationsOnly = false)
     {
         var methods = new List<MethodInfo>();
 
@@ -802,7 +819,8 @@ public partial class ComponentAnalyzer
             if (method.DeclaredAccessibility != Accessibility.Public ||
                 method.IsOverride ||
                 method.IsImplicitlyDeclared ||
-                method.MethodKind != MethodKind.Ordinary)
+                method.MethodKind != MethodKind.Ordinary ||
+                serviceRegistrationsOnly && !IsServiceRegistrationMethod(method))
             {
                 continue;
             }
@@ -814,6 +832,10 @@ public partial class ComponentAnalyzer
 
             methods.Add(new MethodInfo
             {
+                Signature = serviceRegistrationsOnly && syntax != null
+                    ? syntax.WithAttributeLists(default).WithBody(null).WithExpressionBody(null)
+                        .WithSemicolonToken(default).WithoutTrivia().NormalizeWhitespace(indentation: "", eol: " ").ToFullString()
+                    : null,
                 Name = method.Name,
                 ReturnType = method.ReturnType.ToDisplayString(TypeFormat),
                 Description = ResolveDescription(method),
