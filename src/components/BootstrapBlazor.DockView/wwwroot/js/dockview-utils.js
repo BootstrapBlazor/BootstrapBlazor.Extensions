@@ -4,6 +4,7 @@ import { onAddGroup, addGroupWithPanel, toggleLock, observeFloatingGroupLocation
 import { onAddPanel, onRemovePanel, getPanelsFromOptions, findContentFromPanels } from "./dockview-panel.js"
 import { initDockviewFromConfig, saveConfig } from './dockview-config.js'
 import { syncHiddenSash } from './dockview-extensions.js'
+import './dockview-autohide.js'
 
 // 浮窗拖拽护栏：可以拖出当前 dockview（嵌套是常态用法），但不能拖出浏览器视口。
 // core 的 floatingGroupBounds 只能夹到容器，必须放开（负大值 = 不夹）；视口约束在公开钩子
@@ -309,6 +310,7 @@ const toggleGroupLock = (dockview, options) => {
         toggleLock(group, group.header.rightActionsContainer, options.lock)
     })
 }
+
 // 标记"当前视图容器里第一个可见的 .dv-view"，CSS 用它去掉前导分隔线：隐藏占位列宽 0 后，右侧第一个
 // 可见视图在 DOM 里已不是首个子节点，core 仍给它画 ::before。但 [可见][隐藏][可见] 里后一个可见视图的
 // ::before 正是两侧面板之间的线、必须保留 —— 只能按"是不是第一个可见"判定，不能用相邻兄弟近似。

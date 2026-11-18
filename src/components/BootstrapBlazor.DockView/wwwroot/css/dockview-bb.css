@@ -276,11 +276,155 @@
             margin-top: .5rem;
         }
 
+/* ── auto-hide peek（dockview-autohide.js）：点收起条 tab 滑出，覆盖内容不重排网格 ──
+   三层：固定裁剪框 / 滑动背景层 999 / 标题栏 1001。z 是被 core 逼出来的 —— forceVisible 的
+   always 浮层会被抬到 1000，背景层只能留 999 让内容盖得住，标题栏再上 1001 压住 always。 */
+
 /* 把 core 的 inline visibility:hidden 补全成"整棵子树不可见"：visibility 是继承属性，后代自己
    写着 visible 就能翻回来（实测报表每行一个 i.fa-solid，只剩一串小箭头）。opacity 不被后代覆盖；
    core 一清掉 visibility 规则即失效、自动恢复，不需要另建开关状态。 */
 .bb-dockview .dv-render-overlay[style*="visibility: hidden"],
 .bb-dockview .dv-render-overlay[style*="visibility:hidden"] {
     opacity: 0;
+}
+
+.bb-dockview .bb-edge-peek-clip {
+    position: absolute;
+    box-sizing: border-box;
+    overflow: hidden;
+    pointer-events: none;   /* 只有背景层重新打开 */
+}
+
+/* 外框：整块（含标题栏）的内边缘描边/投影。单独一层是因为裁剪框从标题栏下沿开始，
+   描边挂上去会在标题栏那段断开；不吃事件，只画线 + 承载把手。 */
+.bb-dockview .bb-edge-peek-frame {
+    position: absolute;
+    z-index: 1002;
+    box-sizing: border-box;
+    pointer-events: none;
+}
+
+    .bb-dockview .bb-edge-peek-frame-left {
+        border-right: var(--bs-border-width) solid var(--bs-border-color);   /* 只补内边缘：上下边与容器边重合，整圈会叠成双线 */
+        box-shadow: 2px 0 10px rgba(0, 0, 0, .08);
+    }
+
+    .bb-dockview .bb-edge-peek-frame-right {
+        border-left: var(--bs-border-width) solid var(--bs-border-color);
+        box-shadow: -4px 0 10px rgba(0, 0, 0, .08);
+    }
+
+    .bb-dockview .bb-edge-peek-frame-top {
+        border-bottom: var(--bs-border-width) solid var(--bs-border-color);
+        box-shadow: 0 4px 10px rgba(0, 0, 0, .08);
+    }
+
+    .bb-dockview .bb-edge-peek-frame-bottom {
+        border-top: var(--bs-border-width) solid var(--bs-border-color);
+        box-shadow: 0 -4px 10px rgba(0, 0, 0, .08);
+    }
+
+/* 背景层：在裁剪框里满铺，靠 transform 滑入（JS 手写 rAF 驱动，见 _slideIn） */
+.bb-dockview .bb-edge-peek {
+    position: absolute;
+    left: 0;
+    top: 0;
+    width: 100%;
+    height: 100%;
+    box-sizing: border-box;
+    overflow: hidden;
+    z-index: 999;
+    pointer-events: auto;
+    background: var(--dv-background-color, var(--dv-theme-background-color, #fff));
+}
+
+/* 标题栏：title 左 / pin+close 右（VS 观感）。高度必须与面板 tabs 栏同源（同一个 css 变量）：
+   硬编码 2rem 会比 30px 的 header 高 2px，与结构面板并排时肉眼能看出来。 */
+.bb-dockview .bb-edge-peek-titlebar {
+    position: absolute;
+    z-index: 1001;
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    height: var(--dv-tabs-and-actions-container-height, 30px);
+    box-sizing: border-box;
+    padding: 0 .5rem 0 .75rem;
+    pointer-events: auto;
+    background: var(--dv-groupview-background-color, var(--dv-background-color, #f3f3f3));
+    border-bottom: 1px solid var(--dv-groupview-border-color, var(--dv-border-color, #ddd));
+}
+
+    .bb-dockview .bb-edge-peek-titlebar .bb-edge-peek-title {
+        font-size: .8125rem;
+        white-space: nowrap;
+        overflow: hidden;
+        text-overflow: ellipsis;
+    }
+
+    /* 与面板标题栏动作区一致：无圆角/无 hover 底色，相邻图标间距 .5rem */
+    .bb-dockview .bb-edge-peek-titlebar .bb-edge-peek-actions {
+        display: flex;
+        align-items: center;
+    }
+
+        .bb-dockview .bb-edge-peek-titlebar .bb-edge-peek-actions > div {
+            cursor: pointer;
+        }
+
+            .bb-dockview .bb-edge-peek-titlebar .bb-edge-peek-actions > div:not(:first-child) {
+                margin-left: .5rem;
+            }
+
+/* 内边缘拖拽把手：挂外框（不随背景层滑动、不被它盖住），自建拉伸 —— 浮层本身不提供 */
+.bb-dockview .bb-edge-peek-handle {
+    position: absolute;
+    z-index: 1;
+    top: 0;
+    bottom: 0;
+    width: 5px;
+    cursor: ew-resize;
+    background: transparent;
+    pointer-events: auto;
+}
+
+    .bb-dockview .bb-edge-peek-handle-left {
+        right: 0;
+    }
+
+    .bb-dockview .bb-edge-peek-handle-right {
+        left: 0;
+    }
+
+    .bb-dockview .bb-edge-peek-handle-top,
+    .bb-dockview .bb-edge-peek-handle-bottom {
+        top: auto;
+        bottom: auto;
+        left: 0;
+        right: 0;
+        width: auto;
+        height: 5px;
+        cursor: ns-resize;
+    }
+
+    .bb-dockview .bb-edge-peek-handle-top {
+        bottom: 0;
+    }
+
+    .bb-dockview .bb-edge-peek-handle-bottom {
+        top: 0;
+    }
+
+/* 内容区：装从边缘组 reparent 来的 .dv-content-container（宽高由 JS 设 100%） */
+.bb-dockview .bb-edge-peek > .dv-content-container {
+    /* 与结构面板一致的内边距（结构里由 .dv-groupview > .dv-content-container 提供，
+       peek 里内容容器被 reparent 出来，需要单独补） */
+    padding: var(--bb-dockview-padding);
+    overflow: auto;
+}
+
+/* 收起条（auto-hide 工具窗）不显示操作按钮：peek 浮层标题栏提供 停靠/关闭；
+   取消钉住 = 先在浮层点"展开停靠"，再点边条上的图钉 */
+.bb-dockview .dv-edge-collapsed .dv-right-actions-container {
+    display: none;
 }
 

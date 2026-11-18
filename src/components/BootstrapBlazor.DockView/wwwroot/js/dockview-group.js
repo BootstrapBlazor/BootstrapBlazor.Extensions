@@ -23,6 +23,7 @@ const onAddGroup = group => {
         saveConfig(dockview);
         markFirstVisibleElement(group)
     })
+    // edge 组的 tab 点击拦截由 dockview-autohide.js 的模块负责（onDidAddGroup 时挂 capture 监听）
     createGroupActions(group);
 }
 
