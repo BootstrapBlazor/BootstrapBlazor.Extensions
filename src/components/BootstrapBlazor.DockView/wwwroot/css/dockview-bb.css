@@ -276,3 +276,11 @@
             margin-top: .5rem;
         }
 
+/* 把 core 的 inline visibility:hidden 补全成"整棵子树不可见"：visibility 是继承属性，后代自己
+   写着 visible 就能翻回来（实测报表每行一个 i.fa-solid，只剩一串小箭头）。opacity 不被后代覆盖；
+   core 一清掉 visibility 规则即失效、自动恢复，不需要另建开关状态。 */
+.bb-dockview .dv-render-overlay[style*="visibility: hidden"],
+.bb-dockview .dv-render-overlay[style*="visibility:hidden"] {
+    opacity: 0;
+}
+
