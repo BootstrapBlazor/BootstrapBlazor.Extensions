@@ -166,6 +166,8 @@
         .bb-dockview .dv-right-actions-container:not(.bb-show-maximize) .bb-dockview-control-icon-full,
         .bb-dockview .dv-right-actions-container:not(.bb-show-maximize) .bb-dockview-control-icon-restore,
         .bb-dockview .dv-right-actions-container:not(.bb-maximize) .bb-dockview-control-icon-restore,
+        /* 最大化状态下 down 不可用：几何会缩到标题栏，但 rect.isMaximized 仍是 true、图标还停在"还原" */
+        .bb-dockview .dv-right-actions-container.bb-maximize .bb-dockview-control-icon-down,
         .bb-dockview .dv-right-actions-container.bb-maximize .bb-dockview-control-icon-full {
             display: none;
         }
