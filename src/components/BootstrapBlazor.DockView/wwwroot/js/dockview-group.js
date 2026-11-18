@@ -1,7 +1,7 @@
 import { getIcons, getIcon } from "./dockview-icon.js"
 import { deleteInvisiblePanel, findContentFromPanels, moveAlwaysRenderPanel } from "./dockview-panel.js"
 import { saveConfig } from "./dockview-config.js"
-import { observeGroup, markFirstVisibleElement } from "./dockview-utils.js"
+import { markFirstVisibleElement } from "./dockview-utils.js"
 import EventHandler from '../../BootstrapBlazor/modules/event-handler.js'
 
 const onAddGroup = group => {
@@ -24,7 +24,6 @@ const onAddGroup = group => {
         markFirstVisibleElement(group)
     })
     createGroupActions(group);
-    dockview.params.inited && observeGroup(group)
 }
 
 const addGroupWithPanel = (dockview, panel, panels, index) => {
@@ -45,10 +44,14 @@ const addPanelWidthGroupId = (dockview, panel, index) => {
         const counterpart = dockview.api.getGroup(getFloatingId(panel.groupId))
         if (counterpart && counterpart.panels.length > 0) group = counterpart
     }
+    // 钉起期间从边条删除的面板：取消钉住后边条组已销毁，回它钉起前的原占位组（而不是新建浮窗）
+    if (!group && panel.params?.edgeOrigin) {
+        group = dockview.api.getGroup(panel.params.edgeOrigin)
+    }
     // Empty pre-existing group = deleted-side placeholder (deferred actions + collapsed branch); a populated one is healthy.
     const reusedEmptyGroup = !!group && group.panels.length === 0;
     const isNewFloatingGroup = !group;
-    let { rect = {}, packup, floatType, drawer, direction = 'left', currentPosition } = panel.params || {}
+    let { rect = {}, packup, currentPosition } = panel.params || {}
     if (!group) {
         group = dockview.createGroup({ id: panel.groupId })
         const width = dockview.width > 500 ? 500 : (dockview.width - 10)
@@ -61,20 +64,10 @@ const addPanelWidthGroupId = (dockview, panel, index) => {
             : rect) || {
             width, height: packup?.isPackup ? packup.height : height, position: { left, top }
         }
-        if (floatType == 'drawer') {
-            floatingGroupRect = {
-                width: drawer.width || 300,
-                height: dockview.height,
-                position: { [direction]: 0, top: 0 }
-            }
-        }
         dockview.addFloatingGroup(group, { ...floatingGroupRect, skipRemoveGroup: true })
         const overlay = dockview.floatingGroups.find(fg => fg.group.id == group.id).overlay
         observeOverlayChange(overlay, group)
-        createGroupActions(group, floatType);
-        if (floatType == 'drawer') {
-            setTimeout(() => createDrawerHandle(group, direction == 'right'), 0);
-        }
+        createGroupActions(group);
     }
     else {
         if (group.api.location.type === 'grid') {
@@ -178,7 +171,7 @@ const getOrientation = function (child, group) {
     }
 }
 
-const createGroupActions = (group, groupType) => {
+const createGroupActions = group => {
     const actionContainer = group.header.element.querySelector('.dv-right-actions-container');
     getIcons().forEach(item => {
         if (item.name !== 'bar') {
@@ -187,8 +180,7 @@ const createGroupActions = (group, groupType) => {
         }
     });
     setTimeout(() => {
-        groupType = groupType || group.getParams()?.floatType
-        resetActionStates(group, actionContainer, groupType);
+        resetActionStates(group, actionContainer);
         if (showUp(group) && getUpState(group)) {
             group.panels.forEach(panel => panel.view.content.element.classList.add('bb-overflowHidden'))
         }
@@ -197,22 +189,19 @@ const createGroupActions = (group, groupType) => {
 }
 
 const disposeGroup = group => {
-    const { observer } = group.api.accessor.params;
-    if (observer) {
-        observer.unobserve(group.header.element);
-        observer.unobserve(group.header.tabs._tabsList);
-    }
     if (group.mutationObserver) {
         group.mutationObserver.disconnect();
     }
     removeActionEvent(group);
 }
 
-const resetActionStates = (group, actionContainer, groupType) => {
+const resetActionStates = (group, actionContainer) => {
     const dockview = group.api.accessor;
     // Empty group: `[].every()` is vacuously true so every show*() falls back to options defaults, wrongly showing
     // buttons that stick once re-filled. Defer until it has panels (re-rendered on insert in addPanelWidthGroupId).
     if (group.panels.length === 0) return;
+    // Edge groups are structural: no float / no maximize, but pin must stay reachable (that's "取消钉住")
+    const isEdge = group.model.location.type == 'edge'
     // bb-show-lock only gates the button; apply the lock STATE regardless so a locked group stays locked when showLock=false.
     if (showLock(dockview, group)) {
         actionContainer.classList.add('bb-show-lock');
@@ -220,19 +209,19 @@ const resetActionStates = (group, actionContainer, groupType) => {
     if (getLockState(dockview, group)) {
         toggleLock(group, actionContainer, true, false)
     }
-    if (showPin(dockview, group) && showFloat(dockview, group)) {
+    // 边缘组必须始终留一个"取消钉住"的入口，否则面板可能被永久钉死在侧边
+    if (isEdge || (showPin(dockview, group) && showFloat(dockview, group))) {
         actionContainer.classList.add('bb-show-pin');
-        if (getPinState(dockview, group, groupType)) {
-            actionContainer.classList.add('bb-pin');
-        }
+        // toggle 而非 add：组在网格/浮窗/边条之间迁移时会带着旧类，必须清掉
+        actionContainer.classList.toggle('bb-pin', getPinState(group));
     }
-    if (showMaximize(dockview, group)) {
+    if (!isEdge && showMaximize(dockview, group)) {
         actionContainer.classList.add('bb-show-maximize');
         if (getMaximizeState(group)) {
             setGroupMaximizeClass(group, true);
         }
     }
-    if (showFloat(dockview, group)) {
+    if (!isEdge && showFloat(dockview, group)) {
         actionContainer.classList.add('bb-show-float');
         if (getFloatState(group)) {
             actionContainer.classList.add('bb-float');
@@ -261,8 +250,9 @@ const showPin = (dockview, group) => {
         ? options.showPin
         : group.panels.some(panel => panel.params.showPin === true)
 }
-const getPinState = (dockview, group, groupType) => {
-    return group.model.location.type == 'grid'
+const getPinState = group => {
+    // 已钉起 = 边缘组。网格组/浮窗都是"可钉起"态（空心图钉），边条是"已钉起"（实心图钉）
+    return group.model.location.type == 'edge'
 }
 
 const getLockState = (dockview, group) => {
@@ -345,133 +335,147 @@ const addActionEvent = group => {
             });
         }
         else if (ele.classList.contains('bb-dockview-control-icon-pin') || ele.classList.contains('bb-dockview-control-icon-pushpin')) {
-            autoHide(group)
+            pinToEdge(group)
         }
     });
 }
 
-const autoHide = group => {
-    const dockview = group.api.accessor;
-    const type = group.model.location.type
-    if (type == 'floating') {
-        dock(group, 'drawer')
-    }
-    if (type == 'grid') {
-        if (!canFloat(group)) return;
-        const { drawer = { width: 300, visible: true } } = group.getParams()
+// 钉起 = 把组搬到官方 Edge Group。折叠/展开、竖排 tab 切换、尺寸与折叠状态的序列化全交给 dockview。
+const EDGE_PREFIX = 'bb-edge-'
+// 边条展开后的默认宽度 / 可拖到的最小尺寸（peek 浮层同用这个下限，见 dockview-autohide.js）
+const EDGE_INITIAL_SIZE = 300
+const EDGE_MIN_SIZE = 180
 
-        const left = getOffsetFromDockview(group.element)
+const findEdgeGroup = (dockview, position) =>
+    dockview.groups.find(g => g.model.location.type == 'edge' && g.model.location.position == position)
+
+// 钉起选边：组中心落在结构区左半边就左、右半边就右，正好在中线取左（就近吸附的直觉）
+const getEdgeSide = group => {
+    const dockview = group.api.accessor
+    const root = dockview.gridview?.element ?? dockview.element
+    if (!root) return 'left'
+    const rect = group.element.getBoundingClientRect()
+    const rootRect = root.getBoundingClientRect()
+    if (!(rect.width > 0) || !(rootRect.width > 0)) {
+        // 无布局环境（如尚未渲染/隐藏）：退化为"贴右缘 → 右，否则左"
+        const left = group.element.offsetLeft
         const width = group.element.offsetWidth
-        const dockviewWidth = dockview.element.querySelector('&>.dv-dockview').offsetWidth
-        const isRight = ((left + width) == dockviewWidth && left > 0) || left > (dockviewWidth / 2)
-
-        const rect = {
-            position: {
-                [isRight ? 'right' : 'left']: 0,
-                top: 0
-            },
-            width: drawer.width,
-            height: '100%',
-            className: 'dv-resize-container-drawer'
-        }
-        group.setParams({ drawer, floatType: 'drawer', direction: isRight ? 'right' : 'left' })
-
-        const floatingGroup = createFloatingGroup(group, rect, 'drawer')
-        if (floatingGroup) {
-            setTimeout(() => {
-                createDrawerHandle(floatingGroup, isRight)
-            }, 0);
-            setTimeout(() => {
-                saveConfig(dockview)
-            }, 100);
-        }
+        return left > 0 && Math.abs(left + width - root.offsetWidth) <= 1 ? 'right' : 'left'
     }
+    return rect.left + rect.width / 2 <= rootRect.left + rootRect.width / 2 ? 'left' : 'right'
 }
 
-function getOffsetFromDockview(element) {
-    let offsetLeft = element.offsetLeft;
-    let parent = element.offsetParent;
-    while (parent && !parent.classList.contains('dv-dockview')) {
-        offsetLeft += parent.offsetLeft;
-        parent = parent.offsetParent;
+// 钉边前记下来源网格组：浮窗的 id 是 "<origin>_floating"
+const getOriginGroupId = group =>
+    group.model.location.type == 'floating' ? group.id.split('_')[0] : group.id
+
+const pinToEdge = group => {
+    const dockview = group.api.accessor
+    if (group.locked) return
+    if (group.model.location.type == 'edge') return unpinFromEdge(group)
+
+    // 浮窗先落回网格（复用 dock 的已验证路径），之后按网格组处理
+    let floatingSide
+    if (group.model.location.type == 'floating') {
+        // 只认 wrapper 自己建的浮窗（id 约定 <origin>_floating）；对不上就不钉，避免留下空浮窗
+        const origin = dockview.groups.find(g => g.id.split('_')[0] == group.id.split('_')[0] && g.id != group.id)
+        if (!origin) return
+        // 选边用浮窗"当前所在位置"（回仓后它的位置就不代表用户意图了）
+        floatingSide = getEdgeSide(group)
+        dock(group)
+        group = origin
+        if (group.model.location.type != 'grid') return
     }
-    return offsetLeft
-}
+    if (group.panels.length == 0) return
 
-const createDrawerHandle = (floatingGroup, isRight) => {
-    const className = isRight ? 'bb-resize-container-right' : 'bb-resize-container-left'
-    floatingGroup.element.parentElement.classList.add('dv-resize-container-drawer')
-    floatingGroup.element.parentElement.classList.add(className)
-    floatingGroup.activePanel.view.content.element.parentElement.classList.add('dv-render-overlay-float-drawer')
-    createDrawerBtn(floatingGroup, isRight)
-}
+    const position = floatingSide ?? getEdgeSide(group)
+    const originId = group.id
+    // 边条宽度沿用组上次的宽度：老布局把它存在 drawer.width 里，没有就取默认值
+    const { drawer = {} } = group.getParams()
+    const initialSize = drawer.width || EDGE_INITIAL_SIZE
 
-const createDrawerBtn = (floatingGroup, isRight) => {
-    const dockview = floatingGroup.api.accessor
-    const btn = document.createElement('div')
-    const title = floatingGroup.activePanel?.title || floatingGroup.panels[0]?.title
-    btn.innerHTML = title
-    btn.setAttribute('groupid', dockview.id + '_' + floatingGroup.id)
-    btn.classList.add('bb-dockview-aside-button')
-    if (floatingGroup.element.parentElement.classList.contains('active')) {
-        btn.classList.add('active')
-    }
-
-    btn.addEventListener('click', () => {
-        const fgWrapper = floatingGroup.element.parentElement
-        const activePanel = floatingGroup.activePanel
-        const parentElement = activePanel.view.content.element.parentElement
-        const direction = fgWrapper.style.left == 'auto' ? 'right' : 'left'
-        dockview.floatingGroups.forEach(item => {
-            const params = item.group.getParams()
-            if (params.floatType == 'drawer' && item.group != floatingGroup) {
-                item.group.element.parentElement.classList.remove('active')
-                if (activePanel?.renderer == 'always' && parentElement) {
-                    item.group.activePanel.view.content.element.parentElement.classList.remove('active');
-                }
-            }
+    let edgeGroup = findEdgeGroup(dockview, position)
+    if (!edgeGroup) {
+        dockview.addEdgeGroup(position, {
+            id: `${EDGE_PREFIX}${position}`,
+            initialSize,
+            minimumSize: EDGE_MIN_SIZE,
+            collapsedSize: 35,
+            // auto-hide 工具窗模式：收起条点 tab = peek 浮层（不挤占网格），只有浮层的 pin 才展开停靠
+            autoHide: true
         })
-        btn.parentElement.parentElement.querySelectorAll('&>.bb-dockview-aside>.bb-dockview-aside-button').forEach(btnEle => {
-            btnEle.classList.remove('active')
-        })
+        edgeGroup = findEdgeGroup(dockview, position)
+    }
+    if (!edgeGroup) return
 
-        if (fgWrapper.classList.contains('active')) {
-            fgWrapper.classList.remove('active')
-            if (activePanel?.renderer == 'always' && parentElement) {
-                parentElement.classList.remove('active')
-            }
-        } else {
-            btn.classList.add('active')
-            fgWrapper.classList.add('active')
-            if (parentElement) {
-                parentElement.classList.add('active')
-            }
-        }
-        saveConfig(dockview)
+    const panels = [...group.panels]
+    panels.forEach(panel => {
+        panel.params.edgeOrigin = originId
+        dockview.moveGroupOrPanel({
+            from: { groupId: group.id, panelId: panel.id },
+            to: { group: edgeGroup, position: 'center' },
+            keepEmptyGroups: true
+        })
     })
-    const dvEleBox = dockview.element
-    const className = `bb-dockview-aside-${isRight ? 'right' : 'left'}`
-    let btnWrapper = dvEleBox.querySelector(`&>.${className}`)
-    if (!btnWrapper) {
-        btnWrapper = document.createElement('aside')
-        btnWrapper.className = className + ' bb-dockview-aside'
-        isRight ? dvEleBox.append(btnWrapper) : dvEleBox.prepend(btnWrapper)
+
+    // 网格组留一个隐藏的空占位，取消钉住时原位还原
+    dockview.setVisible(group, false)
+    reRenderActionStates(group)
+
+    // 钉起默认收起（有内容后 edge 组会自己展开，所以搬完再收一次）
+    edgeGroup.api.collapse()
+    reRenderActionStates(edgeGroup)
+    saveConfig(dockview)
+}
+
+// 取消钉住。originId 有值时只返还该来源组的面板（VS 语义：按钉起时的分组取消）；
+// 不传则返还整条边条（展开态边条上的组级图钉走这条）。
+const unpinFromEdge = (group, originId) => {
+    const dockview = group.api.accessor
+    const position = group.model.location.position
+    const panels = [...group.panels]
+    if (panels.length == 0) {
+        dockview.removeEdgeGroup(position)
+        saveConfig(dockview)
+        return
     }
-    btnWrapper.append(btn)
-}
 
-const removeDrawerBtn = group => {
-    const parentEle = group.api.accessor.element.parentElement.parentElement
-    const btnList = parentEle?.querySelectorAll(`[groupid="${group.api.accessor.id}_${group.id}"]`)
-    btnList?.forEach(btn => btn.remove())
-}
+    // 边缘组可能收了多个来源组的面板：按 edgeOrigin 分组，各自搬回原来的占位组
+    const byOrigin = new Map()
+    panels.forEach(panel => {
+        const key = panel.params.edgeOrigin || ''
+        if (!byOrigin.has(key)) byOrigin.set(key, [])
+        byOrigin.get(key).push(panel)
+    })
 
-const setDrawerTitle = group => {
-    const title = group.activePanel?.title || group.panels[0]?.title
-    const groupId = group.api.accessor.id + '_' + group.id
-    const btnEle = group.api.accessor.element.parentElement.parentElement.querySelector(`.bb-dockview-aside>[groupId="${groupId}"]`)
-    if (!btnEle) return
-    btnEle.innerHTML = title
+    let fallback
+    byOrigin.forEach((list, key) => {
+        if (originId !== undefined && key !== originId) return
+        let target = key ? dockview.groups.find(g => g.id === key) : null
+        if (!target) {
+            // 占位组没了（例如换了布局）：在对应侧新建一个网格组兜底，多个来源共用这一个
+            if (!fallback) {
+                fallback = dockview.addGroup({ direction: position == 'right' ? 'right' : 'left' })
+            }
+            target = fallback
+        }
+        if (!target) return
+        dockview.setVisible(target, true)
+        list.forEach(panel => {
+            dockview.moveGroupOrPanel({
+                from: { groupId: group.id, panelId: panel.id },
+                to: { group: target, position: 'center' },
+                keepEmptyGroups: true
+            })
+            delete panel.params.edgeOrigin
+        })
+        reRenderActionStates(target)
+    })
+
+    if (group.panels.length == 0 && dockview.getEdgeGroup(position)) {
+        dockview.removeEdgeGroup(position)
+    }
+    saveConfig(dockview)
 }
 
 const removeActionEvent = group => {
@@ -515,6 +519,7 @@ const onMaximizedGroupChange = event => {
 const toggleFull = (group, maximize) => {
     const dockview = group.api.accessor;
     const type = group.model.location.type;
+    if (type == 'edge') return;
     dockview.params.maximizing = true;
     try {
         if (type === 'grid') {
@@ -554,6 +559,8 @@ const float = group => {
 
 const canFloat = group => {
     if (group.locked) return false;
+    // 边缘组是布局结构，官方明确不支持浮动/最大化
+    if (group.model.location.type == 'edge') return false;
     const dockview = group.api.accessor;
     const gridGroups = dockview.groups.filter(g => g.panels.length > 0 && g.model.location.type === 'grid')
     if (gridGroups.length <= 1) return false;
@@ -562,7 +569,7 @@ const canFloat = group => {
     return true
 }
 
-const createFloatingGroup = (group, rect, groupType) => {
+const createFloatingGroup = (group, rect) => {
     const dockview = group.api.accessor
     const floatingGroup = dockview.createGroup({ id: getFloatingId(group.id) });
     observeFloatingGroupLocationChange(floatingGroup)
@@ -579,30 +586,14 @@ const createFloatingGroup = (group, rect, groupType) => {
     activePanel.api.setActive()
     const overlay = dockview.floatingGroups.find(fg => fg.group.id == floatingGroup.id).overlay
     observeOverlayChange(overlay, floatingGroup)
-    observeGroup(floatingGroup)
-    createGroupActions(floatingGroup, groupType)
+    createGroupActions(floatingGroup)
     if (floatingGroup.panels.length == 1) {
         moveAlwaysRenderPanel(floatingGroup.activePanel)
     }
     return floatingGroup
 }
 const observeOverlayChange = (overlay, group) => {
-    overlay.onDidChangeEnd(e => {
-        if (e.eventType == 'drag' && group.getParams().floatType == 'drawer') {
-            removeDrawerBtn(group)
-            const parentEle = group.element.parentElement
-            parentEle.style.height = `${parentEle.getBoundingClientRect().height}px`
-            parentEle.classList.remove('dv-resize-container-drawer')
-            parentEle.classList.remove('bb-resize-container-right')
-            parentEle.classList.remove('bb-resize-container-left')
-            group.activePanel.view.content.element.parentElement.classList.remove('active')
-            group.activePanel.view.content.element.parentElement.classList.remove('dv-render-overlay-float-drawer')
-            group.removePropsOfParams('floatType')
-            group.removePropsOfParams('direction')
-            group.header.rightActionsContainer.classList.remove('bb-show-autohide')
-            group.header.rightActionsContainer.classList.add('bb-show-float')
-            group.header.rightActionsContainer.querySelector('.bb-dockview-control-icon-down').style.display = 'block'
-        }
+    overlay.onDidChangeEnd(() => {
         saveConfig(group.api.accessor)
     })
 }
@@ -617,10 +608,10 @@ const observeFloatingGroupLocationChange = group => {
                     dockview.removeGroup(originalGroup)
                     dockview.params.reset = false
                     group.header.rightActionsContainer.classList.remove('bb-float')
+                    group.header.rightActionsContainer.classList.remove('bb-pin')
                     saveConfig(dockview)
                 }
             }, 0)
-            removeDrawerBtn(group)
             group.header.rightActionsContainer.classList.add('bb-pin')
         }
     })
@@ -638,7 +629,7 @@ const dock = (group, floatType) => {
     dockview.setVisible(originGroup, true)
     originGroup.header.rightActionsContainer.classList.remove('bb-maximize')
     originGroup.element.parentElement.classList.remove('bb-maximize')
-    const { drawer, rect = {} } = group.getParams()
+    const { rect = {} } = group.getParams()
     const inset = group.element.parentElement.style.inset.split(' ').map(item => isNaN(parseFloat(item)) ? item : parseFloat(item))
     if (!rect.isMaximized) {
         rect.width = group.width + 2;
@@ -651,17 +642,7 @@ const dock = (group, floatType) => {
         })
     }
     rect.isMaximized = false
-    if (floatType == 'drawer') {
-        group.setParams({ drawer: { ...drawer, width: rect.width } })
-        group.removePropsOfParams('floatType')
-        group.removePropsOfParams('direction')
-        removeDrawerBtn(group)
-        group.activePanel.view.content.element.parentElement.classList.remove('active')
-        group.activePanel.view.content.element.parentElement.classList.remove('dv-render-overlay-float-drawer')
-    }
-    else {
-        group.setParams({ rect })
-    }
+    group.setParams({ rect })
     dockview.moveGroup({
         from: { group: group },
         to: { group: originGroup, position: 'center' }
@@ -697,10 +678,25 @@ const down = (group, actionContainer) => {
     saveConfig(group.api.accessor)
 }
 
-const close = group => {
-    if (!group.locked) {
-        group.api.close()
+// 边缘组是布局结构：先逐个关面板（每个都要触发 visibleChanged），再整条摘掉，
+// 否则会留下一条没有面板的空边条。官方 removeGroup 没有 edge 分支，这里是统一入口。
+const closeEdgeGroup = (dockview, group) => {
+    const position = group.model.location.position
+    ;[...group.panels].forEach(panel => panel.api.close())
+    if (dockview.getEdgeGroup(position)) {
+        dockview.removeEdgeGroup(position)
     }
+}
+
+const close = group => {
+    if (group.locked) return
+    const dockview = group.api.accessor
+    if (group.model.location.type == 'edge') {
+        closeEdgeGroup(dockview, group)
+        saveConfig(dockview)
+        return
+    }
+    group.api.close()
 }
 
 const floatingMaximize = group => {
@@ -778,4 +774,4 @@ const setWidth = (observerList) => {
     })
 }
 
-export { onAddGroup, addGroupWithPanel, toggleLock, disposeGroup, observeFloatingGroupLocationChange, observeOverlayChange, createDrawerHandle, removeDrawerBtn, setDrawerTitle, onMaximizedGroupChange };
+export { onAddGroup, addGroupWithPanel, toggleLock, disposeGroup, closeEdgeGroup, observeFloatingGroupLocationChange, observeOverlayChange, onMaximizedGroupChange, unpinFromEdge };

@@ -1,6 +1,6 @@
 import { DockviewComponent } from "./dockview-core.esm.js"
 import { DockviewPanelContent } from "./dockview-content.js"
-import { onAddGroup, addGroupWithPanel, toggleLock, observeFloatingGroupLocationChange, observeOverlayChange, createDrawerHandle, onMaximizedGroupChange } from "./dockview-group.js"
+import { onAddGroup, addGroupWithPanel, toggleLock, observeFloatingGroupLocationChange, observeOverlayChange, onMaximizedGroupChange } from "./dockview-group.js"
 import { onAddPanel, onRemovePanel, getPanelsFromOptions, findContentFromPanels } from "./dockview-panel.js"
 import { initDockviewFromConfig, saveConfig } from './dockview-config.js'
 import './dockview-extensions.js'
@@ -17,7 +17,6 @@ const cerateDockview = (el, options) => {
             dndOverlayMounting: 'absolute',
             dndPanelOverlay: 'group'
         },
-        disableTabsOverflowList: true,
         createComponent: option => new DockviewPanelContent(option)
     });
     guardCollapsedSaveProportions(dockview);
@@ -56,47 +55,14 @@ const guardCollapsedSaveProportions = dockview => {
     };
 }
 
-const removeDrawerButtons = dockview => {
-    dockview.element?.querySelectorAll(':scope > .bb-dockview-aside').forEach(el => el.remove());
-}
-
 const postLayoutInit = (dockview, options) => {
     if (dockview._isDisposed) {
         return
     }
-    const { floatingGroups } = dockview.params
     dockview.floatingGroups.forEach(fg => {
-        const saved = floatingGroups.find(g => g.data.id == fg.group.id);
-        if (saved?.position) {
-            const { top, right, bottom, left } = saved.position;
-
-            fg.group.element.parentElement.style.inset = [top, right, bottom, left]
-                .map(item => typeof item == 'number' ? (item + 'px') : 'auto').join(' ')
-        }
-
         observeOverlayChange(fg.overlay, fg.group)
-        const { floatType, direction } = fg.group.getParams();
-        if (floatType == 'drawer') {
-            createDrawerHandle(fg.group, direction == 'right')
-        }
         observeFloatingGroupLocationChange(fg.group)
     })
-
-    dockview.groups.forEach(group => {
-        observeGroup(group)
-    })
-
-    if (!dockview.params.drawerHandlerBound) {
-        dockview.params.drawerHandlerBound = true;
-        dockview.element.querySelector('&>.dv-dockview>.dv-branch-node')?.addEventListener('click', function (e) {
-            this.parentElement.querySelectorAll('&>.dv-resize-container-drawer, &>.dv-render-overlay-float-drawer')?.forEach(item => {
-                item.classList.remove('active')
-            })
-            this.closest('.bb-dockview').querySelectorAll('&>.bb-dockview-aside>.bb-dockview-aside-button')?.forEach(item => {
-                item.classList.remove('active')
-            })
-        })
-    }
 
     dockview.params.inited = true;
 
@@ -125,7 +91,7 @@ const postLayoutInit = (dockview, options) => {
 }
 
 const initDockview = (dockview, options, template) => {
-    dockview.params = { panels: [], options, template, observer: null, layoutSeq: 0 };
+    dockview.params = { panels: [], options, template, layoutSeq: 0 };
     dockview.init = function (options) {
         initDockviewFromConfig(this, options);
         postLayoutInit(this, options);
@@ -162,7 +128,6 @@ const initDockview = (dockview, options, template) => {
         dockview.params.inited = false;
         dockview.params.reset = true;
         dockview.params.layoutSeq++;
-        removeDrawerButtons(dockview);
         try {
             dockview.init(options);
         }
@@ -221,81 +186,12 @@ const initDockview = (dockview, options, template) => {
         }, 0)
     })
 
-    dockview._rootDropTarget.onDrop(() => {
+    // 8.x 起 rootDropTarget 移入 rootDropTargetService（模块注册表），事件仍是 onDrop
+    dockview._rootDropTargetService?.onDrop(() => {
         saveConfig(dockview)
     })
 
     dockview.init(options);
-}
-
-export const observeGroup = (group) => {
-    const dockview = group.api.accessor
-    if (dockview.params.observer === null) {
-        dockview.params.observer = new ResizeObserver(observerList => requestAnimationFrame(() => resizeObserverHandle(observerList, dockview)));
-    }
-    dockview.params.observer.observe(group.header.element)
-    dockview.params.observer.observe(group.header.tabs._tabsList)
-}
-
-const resizeObserverHandle = (observerList, dockview) => {
-    observerList.forEach(({ target }) => {
-        setWidth(target, dockview)
-    })
-}
-const setWidth = (target, dockview) => {
-    let header, tabsContainer
-    if (target.classList.contains('dv-tabs-container')) {
-        header = target.parentElement.parentElement
-        tabsContainer = target
-    }
-    else {
-        header = target
-        tabsContainer = header.querySelector('.dv-tabs-container')
-    }
-    if (header.offsetWidth == 0) return
-    let voidWidth = header.querySelector('.dv-void-container').offsetWidth
-    let dropdown = header.querySelector('.dv-right-actions-container>.dropdown')
-    if (!dropdown) return
-    let dropMenu = dropdown.querySelector('.dropdown-menu')
-    const group = dockview.params.inited ? dockview.groups.find(g => g.element === header.parentElement) : null
-    const shrinking = group && group._lastHeaderWidth !== undefined && header.offsetWidth < group._lastHeaderWidth
-    if (group) group._lastHeaderWidth = header.offsetWidth
-
-    if (voidWidth === 0) {
-        if (tabsContainer.children.length <= 1) return
-        if (shrinking) {
-            const activeTab = tabsContainer.querySelector('.dv-tab.dv-active-tab')
-            if (activeTab && activeTab.offsetLeft + activeTab.offsetWidth > tabsContainer.offsetWidth) {
-                group.panels[0]?.api.setActive()
-            }
-        }
-        const tabs = tabsContainer.querySelectorAll('.dv-tab')
-        for (let i = tabs.length - 1; i >= 0; i--) {
-            const lastTab = tabs[i]
-            if (lastTab.offsetLeft + lastTab.offsetWidth > tabsContainer.offsetWidth) {
-                const aEle = document.createElement('a')
-                const liEle = document.createElement('li')
-                aEle.className = 'dropdown-item'
-                liEle.tabWidth = lastTab.offsetWidth;
-                aEle.append(lastTab)
-                liEle.append(aEle)
-                dropMenu.insertAdjacentElement("afterbegin", liEle)
-            }
-        }
-    }
-    else {
-        const firstLi = dropMenu.children[0]
-        if (firstLi) {
-            const firstTab = firstLi.querySelector('.dv-tab')
-            if (voidWidth > firstLi.tabWidth || tabsContainer.children.length == 0) {
-                firstTab && tabsContainer.append(firstTab)
-                firstLi.remove()
-            }
-        }
-    }
-    if (group && !group.activePanel) {
-        group.panels[0]?.api.setActive()
-    }
 }
 
 const cleanUndefined = (obj) => Object.fromEntries(

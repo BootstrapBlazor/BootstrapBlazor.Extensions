@@ -7,10 +7,6 @@
     --bb-dockview-control-icon-width: 12px;
     --bb-dockview-control-icon-color: var(--bs-body-color);
     --bb-dockview-control-icon-lock-color: #b5b5c3;
-    --bb-dockview-control-dropdown-padding-y: .25rem;
-    --bb-dockview-control-dropdown-item-padding-x: 0;
-    --bb-dockview-control-dropdown-item-padding-y: 3px;
-    --bb-dockview-aside-width: calc(1.5em + .25rem);
     --dv-tabs-and-actions-container-font-size: 13px;
     --dv-tabs-and-actions-container-height: 35px;
     --dv-active-sash-color: #bcbcbc;
@@ -100,10 +96,6 @@
         --bb-dockview-control-icon-color: #dee2e6;
     }
 
-    .bb-dockview .dv-tabs-and-actions-container .dv-tabs-container {
-        overflow: hidden;
-    }
-
     .bb-dockview .dv-tabs-and-actions-container:has(.bb-lock) .void-container {
         cursor: default;
     }
@@ -131,8 +123,8 @@
         .bb-dockview .dv-tabs-and-actions-container:has(.dv-tab-on) > .dv-right-actions-container > .bb-dockview-control-icon-close,
         .bb-dockview .dv-right-actions-container:not(.bb-show-pin) .bb-dockview-control-icon-pin,
         .bb-dockview .dv-right-actions-container:not(.bb-show-pin) .bb-dockview-control-icon-pushpin,
-        .bb-dockview .dv-right-actions-container:not(.bb-pin) .bb-dockview-control-icon-pin,
-        .bb-dockview .dv-right-actions-container.bb-pin .bb-dockview-control-icon-pushpin,
+        .bb-dockview .dv-right-actions-container:not(.bb-pin) .bb-dockview-control-icon-pushpin,
+        .bb-dockview .dv-right-actions-container.bb-pin .bb-dockview-control-icon-pin,
         .bb-dockview .dv-right-actions-container:not(.bb-show-lock) .bb-dockview-control-icon-lock,
         .bb-dockview .dv-right-actions-container:not(.bb-show-lock) .bb-dockview-control-icon-unlock,
         .bb-dockview .dv-right-actions-container:not(.bb-lock) .bb-dockview-control-icon-lock,
@@ -141,8 +133,6 @@
         .bb-dockview .dv-right-actions-container:not(.bb-show-float) .bb-dockview-control-icon-dock,
         .bb-dockview .dv-right-actions-container:not(.bb-float) .bb-dockview-control-icon-dock,
         .bb-dockview .dv-right-actions-container:not(.bb-float) .bb-dockview-control-icon-down,
-        .bb-dockview .dv-right-actions-container:not(:has(.dv-tab)) .bb-dockview-control-icon-dropdown,
-        .bb-dockview .dv-right-actions-container .bb-dockview-control-icon-dropdown li:not(:has(.dv-tab)),
         .bb-dockview .dv-right-actions-container.bb-float .bb-dockview-control-icon-float,
         .bb-dockview .dv-right-actions-container:not(.bb-show-maximize) .bb-dockview-control-icon-full,
         .bb-dockview .dv-right-actions-container:not(.bb-show-maximize) .bb-dockview-control-icon-restore,
@@ -151,18 +141,17 @@
             display: none;
         }
 
+        /* 图标"禁用（浅灰）"只由 bb-lock 触发。抽屉时代另有一批
+           :has(.dv-resize-container) / :has(.bb-show-pin) 的推断规则，在 8.x 下误伤：
+           浮窗 overlay 挂在网格内部、嵌套 dockview 又在内容容器里，:has() 会命中网格组
+           与祖先组，把结构面板和浮窗的图钉/浮动图标错误地判成禁用。现已删除；
+           浮窗可钉起、浮动图标在浮窗里由 dock 图标取代，这两处都不该再灰。 */
         .bb-dockview .dv-tabs-and-actions-container:has(.bb-lock) .dv-default-tab-content + .dv-default-tab-action svg > *,
         .bb-dockview .dv-right-actions-container.bb-lock .bb-dockview-control-icon-close > svg > *,
         .bb-dockview .dv-right-actions-container.bb-lock .bb-dockview-control-icon-float > svg > *,
         .bb-dockview .dv-right-actions-container.bb-lock .bb-dockview-control-icon-dock > svg > *,
         .bb-dockview .dv-right-actions-container.bb-lock .bb-dockview-control-icon-pin > svg > *,
-        .bb-dockview .dv-right-actions-container.bb-lock .bb-dockview-control-icon-pushpin > svg > *,
-        .bb-dockview .dv-groupview:has(.dv-resize-container) > .dv-tabs-and-actions-container > .dv-right-actions-container .bb-dockview-control-icon-pin > svg > *,
-        .bb-dockview .dv-groupview:has(.dv-resize-container) > .dv-tabs-and-actions-container > .dv-right-actions-container .bb-dockview-control-icon-float > svg > *,
-        .bb-dockview .dv-tabs-and-actions-container:has(.bb-show-pin):has(.dv-right-actions-container:not(.bb-pin)) + .dv-content-container .bb-dockview .bb-dockview-control-icon-pin > svg > *,
-        .bb-dockview .dv-tabs-and-actions-container:has(.bb-show-pin):has(.dv-right-actions-container:not(.bb-pin)) + .dv-content-container .bb-dockview .bb-dockview-control-icon-float > svg > *,
-        .bb-dockview .dv-tabs-and-actions-container:has(.bb-show-float.bb-float) + .dv-content-container .bb-dockview .bb-dockview-control-icon-pin > svg > *,
-        .bb-dockview .dv-tabs-and-actions-container:has(.bb-show-float.bb-float) + .dv-content-container .bb-dockview .bb-dockview-control-icon-float > svg > * {
+        .bb-dockview .dv-right-actions-container.bb-lock .bb-dockview-control-icon-pushpin > svg > * {
             stroke: var(--bb-dockview-control-icon-lock-color);
         }
 
@@ -183,12 +172,6 @@
         transition: transform .3s linear;
     }
 
-    .bb-dockview .bb-dockview-control-icon-dropdown .dropdown-menu {
-        --bs-dropdown-padding-y: var(--bb-dockview-control-dropdown-padding-y);
-        --bs-dropdown-item-padding-x: var(--bb-dockview-control-dropdown-item-padding-x);
-        --bs-dropdown-item-padding-y: var(--bb-dockview-control-dropdown-item-padding-y);
-    }
-
 .dv-split-view-container .dv-sash-container .dv-sash:not(.disabled):hover {
     transition-delay: unset;
     transition-duration: .3s;
@@ -204,90 +187,6 @@
         overflow: initial !important;
     }
 
-
-.bb-dockview > div:has(> .bb-dockview-aside-left > div) {
-    padding-left: var(--bb-dockview-aside-width);
-}
-
-.bb-dockview > div:has(> .bb-dockview-aside-right > div) {
-    padding-right: var(--bb-dockview-aside-width);
-}
-
-.bb-dockview .bb-dockview-aside {
-    position: absolute;
-    height: 100%;
-    top: 0;
-    width: var(--bb-dockview-aside-width);
-    display: flex;
-    align-items: flex-start;
-    justify-content: flex-start;
-    flex-direction: column;
-}
-
-    .bb-dockview .bb-dockview-aside:empty {
-        width: 0;
-    }
-
-.bb-dockview .bb-dockview-aside-left {
-    left: 0;
-    border-right: 1px solid var(--bs-border-color);
-}
-
-.bb-dockview .bb-dockview-aside-right {
-    right: 0;
-    border-left: 1px solid var(--bs-border-color);
-}
-
-.bb-dockview .bb-dockview-aside > .bb-dockview-aside-button {
-    position: relative;
-    margin: .25rem 2px;
-    padding-inline: .5rem;
-    cursor: pointer;
-    user-select: none;
-    writing-mode: vertical-lr;
-    text-orientation: sideways;
-    color: var(--dv-inactivegroup-visiblepanel-tab-color);
-    border-radius: 5px;
-}
-
-    .bb-dockview .bb-dockview-aside > .bb-dockview-aside-button:hover,
-    .bb-dockview .bb-dockview-aside > .bb-dockview-aside-button.active {
-        color: var(--dv-activegroup-visiblepanel-tab-color);
-        background-color: var(--dv-icon-hover-background-color);
-    }
-
-.bb-dockview .bb-dockview-aside-right > .bb-dockview-aside-button:hover::after,
-.bb-dockview .bb-dockview-aside-right > .bb-dockview-aside-button.active::after {
-    right: 0;
-}
-
-.bb-dockview .dv-resize-container-drawer {
-    height: 100% !important;
-}
-
-    .bb-dockview .dv-resize-container-drawer:not(.active),
-    .bb-dockview .dv-render-overlay-float-drawer:not(.active) {
-        z-index: -1 !important;
-    }
-
-.bb-dockview .dv-resize-container.dv-resize-container-drawer.bb-resize-container-right {
-    box-shadow: -8px 8px 8px 0px rgba(83, 89, 93, 0.5);
-}
-
-    .bb-dockview .dv-resize-container.dv-resize-container-drawer.bb-resize-container-right > div:not(.dv-resize-handle-left):not(.dv-groupview-floating),
-    .bb-dockview .dv-resize-container.dv-resize-container-drawer.bb-resize-container-left > div:not(.dv-resize-handle-right):not(.dv-groupview-floating),
-    .bb-dockview .dv-resize-container.dv-resize-container-drawer > .dv-groupview-floating > .dv-tabs-and-actions-container .bb-dockview-control-icon-float,
-    .bb-dockview .dv-resize-container.dv-resize-container-drawer > .dv-groupview-floating > .dv-tabs-and-actions-container .bb-dockview-control-icon-dock,
-    .bb-dockview .dv-resize-container.dv-resize-container-drawer > .dv-groupview-floating > .dv-tabs-and-actions-container .bb-dockview-control-icon-down,
-    .bb-dockview .dv-resize-container:not(.dv-resize-container-drawer) > .dv-groupview-floating > .dv-tabs-and-actions-container .bb-dockview-control-icon-pin,
-    .bb-dockview .dv-resize-container:not(.dv-resize-container-drawer) > .dv-groupview-floating > .dv-tabs-and-actions-container .bb-dockview-control-icon-pushpin {
-        display: none;
-    }
-
-.bb-dockview .dv-tabs-and-actions-container:has(.dropdown-item) .dv-scrollbar-horizontal {
-    display: none;
-}
-
 .bb-dockview .dv-tab.dv-inactive-tab .dv-default-tab .dv-default-tab-action {
     visibility: visible;
 }
@@ -299,6 +198,30 @@
 .bb-dockview .dv-render-overlay-float {
     z-index: -1 !important;
 }
+
+/* 边条（钉起的组）上的 tab 不展示"删除"按钮：关闭入口统一在 peek 浮层标题栏。
+   `.dv-groupview-edge` 由 core 一直挂在边条组上（展开/收起都在），一条规则覆盖两种形态。
+   必须排除 `.bb-dockview-item-title-icon`：C# 的标题栏按钮（DockViewTitleBar.razor，那个 ≡）
+   复用了 core 的 `dv-default-tab-action` 类名来借样式，它不是关闭按钮，不能被隐藏。
+   只隐藏展示、不删按钮本身——JS 侧已保证点击能正常关闭（见 dockview-autohide.js 的放行判断）。 */
+.bb-dockview .dv-groupview-edge .dv-default-tab-action:not(.bb-dockview-item-title-icon) {
+    display: none;
+}
+
+/* 钉起：Edge Group。收起时标题栏是竖排的窄条（也就是"钉住的把手"），展开后由 JS 切回顶部横排。 */
+/* .bb-dockview .dv-tabs-and-actions-container.dv-groupview-header-vertical {
+    padding: .25rem 0;
+} */
+
+    .bb-dockview .dv-tabs-and-actions-container.dv-groupview-header-vertical > .dv-right-actions-container {
+        margin-right: 0;
+    }
+
+        .bb-dockview .dv-tabs-and-actions-container.dv-groupview-header-vertical > .dv-right-actions-container > div:not(:first-child) {
+            margin-left: 0;
+            margin-top: .5rem;
+        }
+
 
 .bb-dockview .dv-split-view-container.dv-vertical > .dv-view-container > .dv-view:not(:first-child):not(.visible):before,
 .bb-dockview .dv-split-view-container.dv-vertical > .dv-view-container > .dv-view:first-child:not(.visible) + .dv-view.visible:before,

@@ -1,6 +1,5 @@
 import { saveConfig } from "./dockview-config.js";
 import { getIcon } from "./dockview-icon.js"
-import { setDrawerTitle } from "./dockview-group.js"
 
 const onAddPanel = panel => {
     updateCloseButton(panel);
@@ -21,10 +20,6 @@ const observePanelActiveChange = panel => {
             else {
                 movePanelContentToTemplate(panel, false)
             }
-        }
-
-        if (isVisible && panel.group.getParams().floatType == 'drawer') {
-            setDrawerTitle(panel.group)
         }
         const handler = setTimeout(function () {
             clearTimeout(handler)

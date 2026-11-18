@@ -1,7 +1,7 @@
 import { DockviewComponent, DockviewGroupPanel, DockviewGroupPanelModel, getGridLocation, getRelativeLocation, DockviewEmitter } from "./dockview-core.esm.js"
 import { saveConfig } from "./dockview-config.js"
 import { movePanelContentToTemplate } from "./dockview-panel.js"
-import { disposeGroup, removeDrawerBtn } from "./dockview-group.js"
+import { disposeGroup, closeEdgeGroup } from "./dockview-group.js"
 import { markFirstVisibleElement } from "./dockview-utils.js"
 
 DockviewComponent.prototype.on = function (eventType, callback) {
@@ -11,7 +11,6 @@ DockviewComponent.prototype.on = function (eventType, callback) {
 
 const dispose = DockviewComponent.prototype.dispose;
 DockviewComponent.prototype.dispose = function () {
-    this.params.observer?.disconnect();
     this.groups.forEach(group => {
         if (group.mutationObserver) {
             group.mutationObserver.disconnect();
@@ -60,8 +59,12 @@ DockviewComponent.prototype.removeGroup = function (...args) {
         })
         this.setVisible(group, false)
     }
+    else if (type == 'edge') {
+        // 官方没有 removeGroup 的 edge 分支：走同一套"先关面板、再摘边条"
+        closeEdgeGroup(this, group)
+        return
+    }
     else if (type == 'floating') {
-        removeDrawerBtn(group)
         // Close panels (like the grid path) so each fires _panelVisibleChanged; the last close re-enters empty and removes the group.
         const panels = [...group.panels]
         if (panels.length === 0) {

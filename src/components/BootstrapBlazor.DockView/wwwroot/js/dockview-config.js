@@ -256,6 +256,20 @@ const pruneOrphanViews = layout => {
     if (Array.isArray(layout.floatingGroups)) {
         layout.floatingGroups = layout.floatingGroups.filter(fg => !pruneViews(fg.data));
     }
+    // Edge groups carry their own serialized group; same orphan rule applies there
+    if (layout.edgeGroups) {
+        Object.keys(layout.edgeGroups).forEach(position => {
+            const entry = layout.edgeGroups[position];
+            if (!entry?.group) {
+                delete layout.edgeGroups[position];
+                return;
+            }
+            const emptied = pruneViews(entry.group);
+            if (emptied) {
+                delete layout.edgeGroups[position];
+            }
+        });
+    }
 };
 
 // Strip maximize residue: drop maximizedNode and re-show non-empty hidden grid leaves
@@ -434,6 +448,20 @@ const _removePanelIdsFromLayout = (layout, idsToDelete) => {
         }
     };
     pruneNode(layout.grid.root, null);
+
+    if (layout.edgeGroups) {
+        Object.keys(layout.edgeGroups).forEach(position => {
+            const group = layout.edgeGroups[position]?.group;
+            if (!group?.views) return;
+            group.views = group.views.filter(id => !idsToDelete.has(id));
+            if (idsToDelete.has(group.activeView)) {
+                group.activeView = group.views[0] ?? '';
+            }
+            if (group.views.length === 0) {
+                delete layout.edgeGroups[position];
+            }
+        });
+    }
 
     if (layout.floatingGroups?.length) {
         layout.floatingGroups.forEach(fg => {
