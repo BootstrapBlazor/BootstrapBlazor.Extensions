@@ -591,8 +591,87 @@ const createFloatingGroup = (group, rect) => {
     createGroupActions(floatingGroup)
     return floatingGroup
 }
+// 浮窗尺寸下限。core 的 Overlay.MINIMUM_WIDTH/HEIGHT 是私有常量 20；我们又为"能拖出容器"把
+// minimumInViewportWidth/Height 设成 -10000，一旦左/上缘出界（left < 0）下限就被整个废掉、能压到 0。
+// 这里按语义补回来：宽度 200（网格面板最小 100，但标题栏还要摆 ≡/图钉/最大化/关闭，摆不下）；
+// 高度对齐标题栏 —— down 的语义就是"收到只剩一条标题栏"。
+const MIN_FLOAT_WIDTH = 200
+const clampFloatingSize = (overlay, group) => {
+    const shell = floatingShell(group)
+    if (!shell) return
+    const width = parseFloat(shell.style.width)
+    const height = parseFloat(shell.style.height)
+    const minHeight = collapsedHeight(group) || 30
+    const bounds = {}
+    if (Number.isFinite(width) && width < MIN_FLOAT_WIDTH - 0.5) {
+        bounds.width = MIN_FLOAT_WIDTH
+    }
+    if (Number.isFinite(height) && height < minHeight - 0.5) {
+        bounds.height = minHeight
+    }
+    if ('width' in bounds || 'height' in bounds) {
+        overlay.setBounds(bounds)
+    }
+}
+// 高度语义归一化，两个方向共用容差 12（手柄松开前常带几像素惯性，4 太紧）：
+//   收起态被拖高 → 展开（清 packup、图标回 bb-up、取消内容裁剪）
+//   展开态被压到标题栏 → 收起（补齐 down 的整套状态）
+// 只改几何不改状态会错位（看着收起了、图标还停在展开，点一下先收起再展开）。
+// 再展开取最近一次稳定的展开高度（onDidChangeEnd 记），没记录退回 down 的默认 460。
+const FLOAT_HEIGHT_SLACK = 12
+const lastExpandedHeight = new WeakMap()
+const rememberExpandedHeight = group => {
+    const shell = floatingShell(group)
+    const height = shell ? parseFloat(shell.style.height) : NaN
+    if (Number.isFinite(height) && height > (collapsedHeight(group) || 30) + FLOAT_HEIGHT_SLACK) {
+        lastExpandedHeight.set(group, height)
+    }
+}
+const normalizePackupByHeight = (overlay, group) => {
+    const shell = floatingShell(group)
+    const height = shell ? parseFloat(shell.style.height) : NaN
+    if (!Number.isFinite(height)) return
+    const minHeight = collapsedHeight(group) || 30
+    const { packup } = group.getParams()
+    const collapsed = !!packup?.isPackup
+    const actionContainer = group.header.rightActionsContainer
+    if (collapsed && height > minHeight + FLOAT_HEIGHT_SLACK) {
+        group.setParams({ packup: undefined })
+        actionContainer?.classList.add('bb-up')
+        group.panels.forEach(panel => panel.view.content.element.classList.remove('bb-overflowHidden'))
+    }
+    else if (!collapsed && height <= minHeight + FLOAT_HEIGHT_SLACK) {
+        const restore = lastExpandedHeight.get(group)
+        group.setParams({ packup: { isPackup: true, height: Number.isFinite(restore) ? restore : 460 } })
+        actionContainer?.classList.remove('bb-up')
+        group.panels.forEach(panel => panel.view.content.element.classList.add('bb-overflowHidden'))
+    }
+    // 最终是收起态就把残余像素抹平到标题栏（含"本来就收起、又被轻拖几像素"），免得留半截被裁的内容
+    if (group.getParams()?.packup?.isPackup && height > minHeight && height <= minHeight + FLOAT_HEIGHT_SLACK) {
+        setFloatingHeight(overlay, group, minHeight)
+    }
+}
 const observeOverlayChange = (overlay, group) => {
+    // 缩放中实时兜底：setBounds 会再触发一次 onDidChange，用 clamping 挡掉这层重入，
+    // 免得和 core 的 pointermove 互相打架
+    let clamping = false
+    overlay.onDidChange(() => {
+        if (clamping) return
+        clamping = true
+        try {
+            clampFloatingSize(overlay, group)
+        }
+        finally {
+            clamping = false
+        }
+    })
+    // 旧布局里存下来的浮窗可能本来就小于下限，挂上监听时先校正一次
+    clampFloatingSize(overlay, group)
+    rememberExpandedHeight(group)
+    // 浮窗拖动/缩放结束：高度语义归一化 + 保存
     overlay.onDidChangeEnd(() => {
+        rememberExpandedHeight(group)
+        normalizePackupByHeight(overlay, group)
         saveConfig(group.api.accessor)
     })
 }
@@ -601,7 +680,8 @@ const observeFloatingGroupLocationChange = group => {
     group.api.onDidLocationChange(e => {
         if (e.location.type == 'grid') {
             setTimeout(() => {
-                let originalGroup = dockview.groups.find(g => g.id.split('_')[0] == group.id.split('_')[0])
+                // 排除自身：浮窗落回网格后 id 可能已无 _floating 后缀，按前缀匹配会命中自己
+                let originalGroup = dockview.groups.find(g => g.id != group.id && g.id.split('_')[0] == group.id.split('_')[0])
                 if (originalGroup) {
                     dockview.params.reset = true
                     dockview.removeGroup(originalGroup)
@@ -618,6 +698,43 @@ const observeFloatingGroupLocationChange = group => {
 const getFloatingId = id => {
     const arr = id.split('_')
     return arr.length == 1 ? id + '_floating' : arr[0]
+}
+
+// 8.x 的浮窗组不再直接挂在 .dv-resize-container 下，中间多了内部网格：
+//   groupview ← .dv-view ← .dv-view-container ← .dv-split-view-container ← … ← .dv-grid-view ← .dv-resize-container
+// 5.x 里 parentElement 就是外壳；8.x 直接写会落到内层 .dv-view 上（窗口不动、内容被挤到右下角）。
+// 浮窗几何一律走这个 helper。
+const floatingShell = group => group.element.closest('.dv-resize-container')
+
+// 浮窗尺寸以"外壳自身的 style.width/height"为准 —— core 定位/缩放写的就是这两个值。
+// 旧代码用 group.width + 2（5.x 补 1px 边框×2），8.x 外壳已 border:none ⇒ 每次最大化/还原窗口涨 2px。
+const floatingOverlay = group => group.api.accessor.floatingGroups?.find(f => f.group === group)?.overlay
+
+// 收起高度 = 顶部拖动条（启用 floatingGroupDragHandle:'titlebar' 时才有，22px）+ 头部高度。
+// 老代码只算头部（30），一旦切回 titlebar 模式，30px 装不下 22+30 ⇒ tab 条被压成 8px。
+const collapsedHeight = group => {
+    const shell = floatingShell(group)
+    const titlebar = shell?.querySelector('.dv-floating-titlebar')
+    return (titlebar?.offsetHeight || 0) + (group.header.element.offsetHeight || 30)
+}
+
+const setFloatingHeight = (overlay, group, height) => {
+    // 找不到外壳时退回 parentElement（与 down() 一致）：宁可写错一层，也别让 down 静默失效。
+    const shell = floatingShell(group) ?? group.element.parentElement
+    if (!shell) return
+    if (!overlay) {
+        shell.style.height = `${height}px`
+        return
+    }
+    const host = shell.parentElement
+    const rect = shell.getBoundingClientRect()
+    const hostRect = host?.getBoundingClientRect()
+    // 无布局环境（rect 全 0）时退回只写高度，交给核心按当前锚定边处理
+    if (!(rect.width > 0) || !hostRect || !(hostRect.width > 0 || hostRect.height > 0)) {
+        overlay.setBounds({ height })
+        return
+    }
+    overlay.setBounds({ top: rect.top - hostRect.top, height })
 }
 
 const dock = (group, floatType) => {
@@ -652,28 +769,28 @@ const dock = (group, floatType) => {
 }
 
 const down = (group, actionContainer) => {
-    const parentEle = group.element.parentElement
-    const { top, bottom, height } = parentEle.style
-    const tabHeight = group.header.element.offsetHeight || 30
-    const { packup } = group.getParams();
-    if (packup?.isPackup) {
+    const shell = floatingShell(group) ?? group.element.parentElement
+    const overlay = floatingOverlay(group)
+    const { packup } = group.getParams()
+    const expand = !!packup?.isPackup
+    // 走 Overlay.setBounds（core 自己的拖动/缩放路径）：锚定归一化与 clamp 都由它处理，不用手算 bottom；
+    // 但"上边为基准"要自己带上（见 setFloatingHeight）。
+    const setHeight = height => setFloatingHeight(overlay, group, height)
+    const current = parseFloat(shell.style.height)
+
+    if (expand) {
         group.setParams({ packup: { ...packup, isPackup: false } })
-        parentEle.style.height = `${packup.height}px`;
-        if (top == 'auto') {
-            parentEle.style.bottom = parseFloat(bottom) - (packup.height - tabHeight) + 'px'
-        }
+        setHeight(packup.height || 460)
         actionContainer.classList.add('bb-up');
         group.panels.forEach(panel => panel.view.content.element.classList.remove('bb-overflowHidden'))
     }
     else {
-        group.setParams({ packup: { isPackup: true, height: parseFloat(height) } });
-        parentEle.style.height = `${tabHeight}px`;
-        if (top == 'auto') {
-            parentEle.style.bottom = parseFloat(bottom) + (parseFloat(height) - tabHeight) + 'px'
-        }
+        group.setParams({ packup: { isPackup: true, height: Number.isFinite(current) ? current : 460 } });
+        setHeight(collapsedHeight(group))
         actionContainer.classList.remove('bb-up')
         group.panels.forEach(panel => panel.view.content.element.classList.add('bb-overflowHidden'))
     }
+    // 不禁用高度手柄：收起状态下拖高 = 想展开，由 observeOverlayChange 的归一化清掉 packup，只留一个真相
     saveConfig(group.api.accessor)
 }
 
