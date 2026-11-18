@@ -235,6 +235,15 @@
     display: none;
 }
 
+/* 收起边条没有内容展示，active tab 不该有选中观感：把"选中面板"的颜色变量换成"隐藏面板"的，
+   core 自己的 tab 规则会跟着变。排除 .bb-edge-peeking：peek 打开时内容在显示，选中态要恢复。 */
+.bb-dockview .dv-groupview.dv-edge-collapsed:not(.bb-edge-peeking) > .dv-tabs-and-actions-container {
+    --dv-activegroup-visiblepanel-tab-background-color: var(--dv-activegroup-hiddenpanel-tab-background-color);
+    --dv-activegroup-visiblepanel-tab-color: var(--dv-activegroup-hiddenpanel-tab-color);
+    --dv-inactivegroup-visiblepanel-tab-background-color: var(--dv-inactivegroup-hiddenpanel-tab-background-color);
+    --dv-inactivegroup-visiblepanel-tab-color: var(--dv-inactivegroup-hiddenpanel-tab-color);
+}
+
 /* 隐藏占位列的分隔线：只归零"隐藏视图自己"和"第一个可见视图"两处。
    - 隐藏视图自身宽/高 0，画线没有意义；
    - 第一个可见视图（.first-visible，由 JS 标记）左边是容器边缘或全隐藏区，也不该有线；

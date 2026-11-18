@@ -251,6 +251,8 @@ class BBAutoHideService {
             showCloseOf: p => (p?.params?.showClose ?? this._host.options?.showClose ?? true) !== false,
             container, restore, size: 0, renderLayer: null, disposables: new DockviewCompositeDisposable()
         }
+        // peek 打开后内容已显示，边条 tab 要恢复选中态；core 的 isPeeking 不落 DOM，只能自己标
+        group.element.classList.add('bb-edge-peeking')
 
         // 先就位再上内容：_switch 里的 _anchorRenderLayer 要把已定位的 clip 当裁剪窗口用
         this._layoutPeek(session)
@@ -498,6 +500,7 @@ class BBAutoHideService {
         const s = this._session
         if (!s) return
         this._session = null
+        s.group.element.classList.remove('bb-edge-peeking')
         // 先按内容层，再动 core 状态（下面每一步都可能排一轮 rAF 重排）：收起态下组内没有面板该可见。
         this._hideRenderLayers(s.group, null, s.renderLayer)
         this._host.setEdgeGroupPeeking(s.group, false)
