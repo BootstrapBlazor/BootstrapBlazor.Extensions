@@ -3,7 +3,7 @@ import { DockviewPanelContent } from "./dockview-content.js"
 import { onAddGroup, addGroupWithPanel, toggleLock, observeFloatingGroupLocationChange, observeOverlayChange, onMaximizedGroupChange } from "./dockview-group.js"
 import { onAddPanel, onRemovePanel, getPanelsFromOptions, findContentFromPanels } from "./dockview-panel.js"
 import { initDockviewFromConfig, saveConfig } from './dockview-config.js'
-import './dockview-extensions.js'
+import { syncHiddenSash } from './dockview-extensions.js'
 
 // 浮窗拖拽护栏：可以拖出当前 dockview（嵌套是常态用法），但不能拖出浏览器视口。
 // core 的 floatingGroupBounds 只能夹到容器，必须放开（负大值 = 不夹）；视口约束在公开钩子
@@ -113,6 +113,21 @@ const postLayoutInit = (dockview, options) => {
     dockview.groups.forEach(group => markFirstVisibleElement(group))
     dockview.onDidLayoutFromJSON(() => {
         dockview.groups.forEach(group => markFirstVisibleElement(group))
+    })
+
+    // 隐藏占位列边界的 sash 不可拖：立即算一次；之后每次布局变化（含钉起/取消、刷新恢复后的首帧）
+    // 用 rAF 去重再算一次，保证 sash 位置变动后标记跟得上。
+    syncHiddenSash(dockview)
+    let pendingSashSync = false
+    // onDidLayoutChange 是网格基类的必存在实例属性（baseComponentGridview），不需要可选链：
+    // 真写成 ?. 反而会在它缺失时静默失效，sash 标记再也不更新。
+    dockview.onDidLayoutChange(() => {
+        if (pendingSashSync) return
+        pendingSashSync = true
+        requestAnimationFrame(() => {
+            pendingSashSync = false
+            if (!dockview._isDisposed) syncHiddenSash(dockview)
+        })
     })
 
     dockview.params.inited = true;

@@ -246,6 +246,13 @@
     height: 0;
 }
 
+/* 隐藏占位列的边界不可拖：那条缝看起来"不该有手柄"，拖它只会改变相邻可见面板宽度。
+   由 JS（dockview-extensions.js 的 syncHiddenSash）按隐藏视图的真实坐标给对应 sash 打标记。
+   手柄本身透明，禁用后视觉无变化，只是压上去不再出现 ↔ / ↕ 光标。 */
+.bb-dockview .dv-sash.bb-sash-locked {
+    pointer-events: none;
+}
+
 /* 横排（列布局）镜像：core 给每个"非第一个"视图画 1px 前导分隔线（.dv-view::before），
    隐藏的占位列（0 宽）也会画，于是钉起后原位置留着一条竖线；刷新后尤其明显，
    因为运行时那条线是靠 JS 的 z-index:-1 盖住的。竖排这边早就 height:0，横排漏了 width:0。 */
