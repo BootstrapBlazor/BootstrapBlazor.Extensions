@@ -126,7 +126,7 @@ const getPanels = (contentItem, options, parent = {}, panels = []) => {
             id: contentItem.id,
             groupId: contentItem.groupId,
             title: contentItem.title,
-            // renderer: contentItem.renderer || options.renderer,
+            renderer: contentItem.renderer || options.renderer,
             tabComponent: contentItem.componentName,
             contentComponent: contentItem.componentName,
             params: { ...contentItem, parentType: parent.type, parentId: parent.id }

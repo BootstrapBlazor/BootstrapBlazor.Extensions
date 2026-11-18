@@ -179,6 +179,7 @@ const getGroupNode = (contentItem, size, boxSize, parent, panels, getGroupId, op
         panels[item.id] = {
             id: item.id,
             title: item.title,
+            renderer: item.renderer || options.renderer,
             tabComponent: item.componentName,
             contentComponent: item.componentName,
             params: { ...item, parentId: parent.id }
@@ -215,6 +216,7 @@ const getLeafNode = (contentItem, size, boxSize, parent, panels, getGroupId, opt
     panels[contentItem.id] = {
         id: contentItem.id,
         title: contentItem.title,
+        renderer: contentItem.renderer || options.renderer,
         tabComponent: contentItem.componentName,
         contentComponent: contentItem.componentName,
         params: { ...contentItem, parentId: parent.id }
