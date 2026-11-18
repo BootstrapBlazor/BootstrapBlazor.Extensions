@@ -21,28 +21,13 @@ const observePanelActiveChange = panel => {
                 movePanelContentToTemplate(panel, false)
             }
         }
-        const handler = setTimeout(function () {
-            clearTimeout(handler)
-            if (dockview._isDisposed) return;
-            moveAlwaysRenderPanel(panel)
-        }, 0)
     })
 }
 
-const moveAlwaysRenderPanel = panel => {
-    if (panel.group.model.location.type === 'floating' && panel.renderer == 'always') {
-        if (panel === panel.group.activePanel) {
-            const contentContainerEle = panel.group.element.querySelector('.dv-content-container');
-            const contentEle = panel.view.content.element;
-            contentEle.parentEle = contentEle.parentElement
-            contentContainerEle.appendChild(contentEle);
-        }
-        else {
-            panel.view.content.element.parentEle?.appendChild(panel.view.content.element);
-            panel.view.content.element.parentEle && delete panel.view.content.element.parentEle;
-        }
-    }
-}
+// 5.x 这里有个 moveAlwaysRenderPanel()：把 always 面板的内容手工搬进 .dv-content-container
+// （当年 core 把 always 面板渲染在脱离浮窗的容器里，不搬就不显示）。
+// 8.x 改为 .dv-render-overlay + overlayRenderContainer 自行定位，内容始终 connected 且跟随组，
+// 手工搬反而会把元素从 overlay 里拽出来、破坏 core 的定位 —— 已删除（见文档 §7.2）。
 
 const onRemovePanel = event => {
     const dockview = event.accessor
@@ -171,4 +156,4 @@ export const movePanelContentToTemplate = (panel, titleMenu = false) => {
     }
 }
 
-export { onAddPanel, observePanelActiveChange, moveAlwaysRenderPanel, onRemovePanel, getPanelsFromOptions, findContentFromPanels, deleteInvisiblePanel };
+export { onAddPanel, observePanelActiveChange, onRemovePanel, getPanelsFromOptions, findContentFromPanels, deleteInvisiblePanel };

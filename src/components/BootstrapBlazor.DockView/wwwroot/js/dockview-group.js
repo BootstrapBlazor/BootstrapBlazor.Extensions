@@ -1,5 +1,5 @@
 import { getIcons, getIcon } from "./dockview-icon.js"
-import { deleteInvisiblePanel, findContentFromPanels, moveAlwaysRenderPanel } from "./dockview-panel.js"
+import { deleteInvisiblePanel, findContentFromPanels } from "./dockview-panel.js"
 import { saveConfig } from "./dockview-config.js"
 import { markFirstVisibleElement } from "./dockview-utils.js"
 import EventHandler from '../../BootstrapBlazor/modules/event-handler.js'
@@ -587,9 +587,6 @@ const createFloatingGroup = (group, rect) => {
     const overlay = dockview.floatingGroups.find(fg => fg.group.id == floatingGroup.id).overlay
     observeOverlayChange(overlay, floatingGroup)
     createGroupActions(floatingGroup)
-    if (floatingGroup.panels.length == 1) {
-        moveAlwaysRenderPanel(floatingGroup.activePanel)
-    }
     return floatingGroup
 }
 const observeOverlayChange = (overlay, group) => {

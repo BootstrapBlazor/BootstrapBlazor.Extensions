@@ -195,10 +195,6 @@
     overflow: hidden;
 }
 
-.bb-dockview .dv-render-overlay-float {
-    z-index: -1 !important;
-}
-
 /* 边条（钉起的组）上的 tab 不展示"删除"按钮：关闭入口统一在 peek 浮层标题栏。
    `.dv-groupview-edge` 由 core 一直挂在边条组上（展开/收起都在），一条规则覆盖两种形态。
    必须排除 `.bb-dockview-item-title-icon`：C# 的标题栏按钮（DockViewTitleBar.razor，那个 ≡）
