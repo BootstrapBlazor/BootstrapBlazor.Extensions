@@ -718,6 +718,18 @@ const collapsedHeight = group => {
     return (titlebar?.offsetHeight || 0) + (group.header.element.offsetHeight || 30)
 }
 
+const floatingSize = group => {
+    const shell = floatingShell(group)
+    const width = shell ? parseFloat(shell.style.width) : NaN
+    const height = shell ? parseFloat(shell.style.height) : NaN
+    return {
+        width: Number.isFinite(width) ? width : group.width,
+        height: Number.isFinite(height) ? height : group.height
+    }
+}
+
+// 只改高度时必须把「上边」钉住：setBounds({height}) 会沿用当前锚定边（浮窗拖到下半区后是 bottom），
+// 高度就从顶部缩、标题栏整块往下跳。做法是把当前 rect 相对宿主的 top 连同 height 一起写。
 const setFloatingHeight = (overlay, group, height) => {
     // 找不到外壳时退回 parentElement（与 down() 一致）：宁可写错一层，也别让 down 静默失效。
     const shell = floatingShell(group) ?? group.element.parentElement
@@ -737,7 +749,7 @@ const setFloatingHeight = (overlay, group, height) => {
     overlay.setBounds({ top: rect.top - hostRect.top, height })
 }
 
-const dock = (group, floatType) => {
+const dock = group => {
     if (group.locked) return;
     const dockview = group.api.accessor
     const originGroup = dockview.groups.find(g => g.id.split('_')[0] == group.id.split('_')[0] && g.id != group.id)
@@ -746,10 +758,11 @@ const dock = (group, floatType) => {
     originGroup.header.rightActionsContainer.classList.remove('bb-maximize')
     originGroup.element.parentElement.classList.remove('bb-maximize')
     const { rect = {} } = group.getParams()
-    const inset = group.element.parentElement.style.inset.split(' ').map(item => isNaN(parseFloat(item)) ? item : parseFloat(item))
+    const inset = (floatingShell(group) ?? group.element.parentElement).style.inset.split(' ').map(item => isNaN(parseFloat(item)) ? item : parseFloat(item))
     if (!rect.isMaximized) {
-        rect.width = group.width + 2;
-        rect.height = group.height + 2;
+        const size = floatingSize(group);
+        rect.width = size.width;
+        rect.height = size.height;
         rect.position = {};
         ;['top', 'right', 'bottom', 'left'].forEach((key, index) => {
             if (typeof inset[index] == 'number') {
@@ -816,12 +829,11 @@ const close = group => {
 }
 
 const floatingMaximize = group => {
-    const parentEle = group.element.parentElement
+    const parentEle = floatingShell(group) ?? group.element.parentElement
     const { width: maxWidth, height: maxHeight } = group.api.accessor;
     const inset = parentEle.style.inset.split(' ').map(item => isNaN(parseFloat(item)) ? item : parseFloat(item))
     const rect = {
-        width: group.width + 2,
-        height: group.height + 2,
+        ...floatingSize(group),
         isMaximized: true,
         position: {}
     }
@@ -832,62 +844,36 @@ const floatingMaximize = group => {
         })
     group.setParams({ rect })
 
-    parentEle.style.left = 0;
-    parentEle.style.top = 0;
-    parentEle.style.width = `${maxWidth}px`;
-    parentEle.style.height = `${maxHeight}px`;
+    const bounds = { left: 0, top: 0, width: maxWidth, height: maxHeight }
+    const overlay = floatingOverlay(group)
+    if (overlay) overlay.setBounds(bounds)
+    else {
+        parentEle.style.left = 0;
+        parentEle.style.top = 0;
+        parentEle.style.width = `${maxWidth}px`;
+        parentEle.style.height = `${maxHeight}px`;
+    }
 }
 
 const floatingExitMaximized = group => {
-    const parentEle = group.element.parentElement
-    const { rect, rect: position } = group.getParams()
-    const { top, right, bottom, left } = rect.position
+    const parentEle = floatingShell(group) ?? group.element.parentElement
+    const { rect = {} } = group.getParams()
+    const { position = {} } = rect
+    const { top, right, bottom, left } = position
 
-    parentEle.style.inset = [top, right, bottom, left]
-        .map(item => typeof item == 'number' ? (item + 'px') : 'auto').join(' ')
-    parentEle.style.width = `${rect.width}px`;
-    parentEle.style.height = `${rect.height}px`;
-    group.setParams({ rect: { ...rect, isMaximized: false } })
-}
-
-const setWidth = (observerList) => {
-    observerList.forEach(({ target }) => {
-        let header, tabsContainer
-        if (target.classList.contains('dv-tabs-container')) {
-            header = target.parentElement
-            tabsContainer = target
-        }
-        else {
-            header = target
-            tabsContainer = header.querySelector('.dv-tabs-container')
-        }
-        let voidWidth = header.querySelector('.dv-void-container').offsetWidth
-        let dropdown = header.querySelector('.dv-right-actions-container>.dropdown')
-        if (!dropdown) return
-        let dropMenu = dropdown.querySelector('.dropdown-menu')
-        if (voidWidth === 0) {
-            if (tabsContainer.children.length <= 1) return
-            const inactiveTabs = header.querySelectorAll('.dv-tabs-container>.dv-inactive-tab')
-            const lastTab = inactiveTabs[inactiveTabs.length - 1]
-            const aEle = document.createElement('a')
-            const liEle = document.createElement('li')
-            aEle.className = 'dropdown-item'
-            liEle.tabWidth = lastTab.offsetWidth;
-            aEle.append(lastTab)
-            liEle.append(aEle)
-            dropMenu.insertAdjacentElement("afterbegin", liEle)
-        }
-        else {
-            let firstLi = dropMenu.querySelector('li:has(.dv-active-tab)') || dropMenu.children[0]
-            if (firstLi) {
-                let firstTab = firstLi.querySelector('.dv-tab')
-                if (voidWidth > firstLi.tabWidth || tabsContainer.children.length == 0) {
-                    firstTab && tabsContainer.append(firstTab)
-                    firstLi.remove()
-                }
-            }
-        }
+    const bounds = { width: rect.width, height: rect.height }
+    ;['top', 'right', 'bottom', 'left'].forEach(key => {
+        if (typeof position[key] == 'number') bounds[key] = position[key]
     })
+    const overlay = floatingOverlay(group)
+    if (overlay) overlay.setBounds(bounds)
+    else {
+        parentEle.style.inset = [top, right, bottom, left]
+            .map(item => typeof item == 'number' ? (item + 'px') : 'auto').join(' ')
+        parentEle.style.width = `${rect.width}px`;
+        parentEle.style.height = `${rect.height}px`;
+    }
+    group.setParams({ rect: { ...rect, isMaximized: false } })
 }
 
 export { onAddGroup, addGroupWithPanel, toggleLock, disposeGroup, closeEdgeGroup, observeFloatingGroupLocationChange, observeOverlayChange, onMaximizedGroupChange, unpinFromEdge };
