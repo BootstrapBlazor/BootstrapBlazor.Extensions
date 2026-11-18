@@ -5,6 +5,31 @@ import { onAddPanel, onRemovePanel, getPanelsFromOptions, findContentFromPanels 
 import { initDockviewFromConfig, saveConfig } from './dockview-config.js'
 import './dockview-extensions.js'
 
+// 浮窗拖拽护栏：可以拖出当前 dockview（嵌套是常态用法），但不能拖出浏览器视口。
+// core 的 floatingGroupBounds 只能夹到容器，必须放开（负大值 = 不夹）；视口约束在公开钩子
+// transformFloatingGroupDrag 里做（每帧在 setBounds 前跑，返回值覆盖 proposed 位置）。
+const viewportSize = () => ({
+    width: document.documentElement.clientWidth || window.innerWidth || 0,
+    height: document.documentElement.clientHeight || window.innerHeight || 0
+})
+const keepFloatingInsideViewport = ({ group, proposed }) => {
+    const shell = group.element?.closest('.dv-resize-container')
+    const host = shell?.parentElement
+    if (!host || !(proposed.width > 0) || !(proposed.height > 0)) return undefined
+    const view = viewportSize()
+    if (!(view.width > 0) || !(view.height > 0)) return undefined
+    // 浮层坐标以宿主为原点，先量出宿主在视口里的位置再换算
+    const rect = host.getBoundingClientRect()
+    const minLeft = -rect.left
+    const minTop = -rect.top
+    const maxLeft = Math.max(minLeft, view.width - proposed.width - rect.left)
+    const maxTop = Math.max(minTop, view.height - proposed.height - rect.top)
+    const left = Math.min(Math.max(proposed.left, minLeft), maxLeft)
+    const top = Math.min(Math.max(proposed.top, minTop), maxTop)
+    if (left === proposed.left && top === proposed.top) return undefined
+    return { left, top }
+}
+
 const cerateDockview = (el, options) => {
     const theme = options.theme || "dockview-theme-light";
     const template = el.querySelector('template');
@@ -21,6 +46,17 @@ const cerateDockview = (el, options) => {
             dndOverlayMounting: 'absolute',
             dndPanelOverlay: 'group'
         },
+        // 容器方向放开：允许拖出当前 dockview（嵌套场景必需，见 keepFloatingInsideViewport 注释）。
+        // 注意不能传 0 或正数 —— 但凡给个非负值，core 就会把窗口夹在容器内，等于禁止出界。
+        floatingGroupBounds: {
+            minimumWidthWithinViewport: -10000,
+            minimumHeightWithinViewport: -10000
+        },
+        // 视口方向由这里兜住：不允许整窗出浏览器视口
+        transformFloatingGroupDrag: keepFloatingInsideViewport,
+        // 8.x 默认会给浮窗加一条 22px 的空 FloatingTitleBar（纯拖拽条、无文字）；
+        // 'tabbar' 恢复旧行为：不渲染该条，拖 tab 栏空白处移动窗口
+        floatingGroupDragHandle: 'tabbar',
         createComponent: option => new DockviewPanelContent(option)
     });
     guardCollapsedSaveProportions(dockview);
@@ -63,6 +99,9 @@ const postLayoutInit = (dockview, options) => {
     if (dockview._isDisposed) {
         return
     }
+    // 浮窗位置由 core 自己恢复（deserializeFloatingWindows → addFloatingGroup，getAnchoredBox 连锚定边
+    // 一起还原；8.9.0 的 setBounds 还有 hasLayout 早退，rect 为 0×0 时不反写位置）。5.1.0 时代必须在这里
+    // 再贴一次 style.inset 的两个理由都已修好，留着反而绕过 Overlay 的锚定归一化/clamp。
     dockview.floatingGroups.forEach(fg => {
         observeOverlayChange(fg.overlay, fg.group)
         observeFloatingGroupLocationChange(fg.group)
