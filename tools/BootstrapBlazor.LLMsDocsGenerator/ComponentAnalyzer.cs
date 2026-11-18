@@ -29,7 +29,8 @@ public partial class ComponentAnalyzer
     private readonly string? _extensionsSourcePath;
     private readonly IReadOnlyDictionary<string, string>? _extensionProjects;
     private readonly bool _singleProject;
-    private readonly string? _extensionRepository;
+    private readonly string? _repositoryRoot;
+    private readonly bool _isExtensionRepository;
 
     private CSharpCompilation? _compilation;
     private readonly Dictionary<string, SyntaxTree> _treeByPath = new(StringComparer.OrdinalIgnoreCase);
@@ -59,8 +60,9 @@ public partial class ComponentAnalyzer
         _sourcePath = sourcePath;
         _singleProject = singleProject;
         _componentsPath = singleProject ? sourcePath : Path.Combine(sourcePath, "Components");
-        _extensionRepository = singleProject
-            ? FindExtensionRepository(sourcePath) : null;
+        var repository = singleProject ? FindSourceRepository(sourcePath) : null;
+        _repositoryRoot = repository?.Root;
+        _isExtensionRepository = repository?.IsExtension ?? false;
         _samplesPath = includeSamples
             ? Path.Combine(Path.GetDirectoryName(sourcePath)!, "BootstrapBlazor.Server", "Components", "Samples")
             : null;
@@ -296,8 +298,8 @@ public partial class ComponentAnalyzer
                 var info = BuildServiceInfo(symbol, includeTypeParameters: true, serviceRegistrationsOnly: symbol.IsStatic);
                 if (_singleProject)
                 {
-                    info.IsExtension = _extensionRepository != null;
-                    info.SuppressSourceLink = _extensionRepository == null;
+                    info.IsExtension = _isExtensionRepository;
+                    info.SuppressSourceLink = _repositoryRoot == null;
                     if (!symbol.IsStatic)
                     {
                         info.Registrations = ResolveRegistrations(symbol, null);
@@ -725,8 +727,8 @@ public partial class ComponentAnalyzer
             TypeParameters = symbol.TypeParameters.Select(t => t.Name).ToList(),
             BaseClass = GetBaseClassName(symbol),
             SourcePath = GetRelativePath(filePath),
-            IsExtension = _singleProject && _extensionRepository != null,
-            SuppressSourceLink = _singleProject && _extensionRepository == null,
+            IsExtension = _singleProject && _isExtensionRepository,
+            SuppressSourceLink = _singleProject && _repositoryRoot == null,
             LastModified = File.GetLastWriteTimeUtc(filePath),
             SamplePath = FindSamplePath(symbol.Name),
             Parameters = CollectParameters(symbol),
@@ -1092,7 +1094,7 @@ public partial class ComponentAnalyzer
         var full = Path.GetFullPath(fullPath);
         if (_singleProject)
         {
-            return Path.GetRelativePath(_extensionRepository ?? _sourcePath, full).Replace('\\', '/');
+            return Path.GetRelativePath(_repositoryRoot ?? _sourcePath, full).Replace('\\', '/');
         }
 
         // Extension sources live in a separate repository; make the path relative to
@@ -1118,13 +1120,17 @@ public partial class ComponentAnalyzer
         return Path.GetRelativePath(basePath, full).Replace('\\', '/');
     }
 
-    private static string? FindExtensionRepository(string sourcePath)
+    private static (string Root, bool IsExtension)? FindSourceRepository(string sourcePath)
     {
         for (var directory = new DirectoryInfo(Path.GetFullPath(sourcePath)); directory != null; directory = directory.Parent)
         {
             if (File.Exists(Path.Combine(directory.FullName, "BootstrapBlazor.Extensions.slnx")))
             {
-                return directory.FullName;
+                return (directory.FullName, true);
+            }
+            if (File.Exists(Path.Combine(directory.FullName, "BootstrapBlazor.slnx")))
+            {
+                return (directory.FullName, false);
             }
         }
         return null;
