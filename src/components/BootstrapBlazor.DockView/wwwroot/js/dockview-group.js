@@ -393,9 +393,8 @@ const pinToEdge = group => {
 
     const position = floatingSide ?? getEdgeSide(group)
     const originId = group.id
-    // 边条宽度沿用组上次的宽度：老布局把它存在 drawer.width 里，没有就取默认值
-    const { drawer = {} } = group.getParams()
-    const initialSize = drawer.width || EDGE_INITIAL_SIZE
+    // 旧布局里的边条宽度只是展示参数，不再参与钉起；统一用默认初始宽度
+    const initialSize = EDGE_INITIAL_SIZE
 
     let edgeGroup = findEdgeGroup(dockview, position)
     if (!edgeGroup) {
