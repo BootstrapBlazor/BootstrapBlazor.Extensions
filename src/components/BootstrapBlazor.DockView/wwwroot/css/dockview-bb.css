@@ -235,6 +235,26 @@
     display: none;
 }
 
+/* 隐藏占位列的分隔线：只归零"隐藏视图自己"和"第一个可见视图"两处。
+   - 隐藏视图自身宽/高 0，画线没有意义；
+   - 第一个可见视图（.first-visible，由 JS 标记）左边是容器边缘或全隐藏区，也不该有线；
+   - 中间隐藏时，后面那个可见视图的线**必须保留**——那正是两侧可见面板之间的分隔线
+     （用 "+ .dv-view" 相邻兄弟近似会把它一起干掉，导致"隐藏中间面板后剩下两个面板之间没有线"）。 */
+.bb-dockview .dv-split-view-container.dv-vertical > .dv-view-container > .dv-view:not(:first-child):not(.visible):before,
+.bb-dockview .dv-split-view-container.dv-vertical > .dv-view-container > .dv-view:first-child:not(.visible) + .dv-view.visible:before,
+.bb-dockview .dv-split-view-container.dv-vertical > .dv-view-container > .dv-view.first-visible::before {
+    height: 0;
+}
+
+/* 横排（列布局）镜像：core 给每个"非第一个"视图画 1px 前导分隔线（.dv-view::before），
+   隐藏的占位列（0 宽）也会画，于是钉起后原位置留着一条竖线；刷新后尤其明显，
+   因为运行时那条线是靠 JS 的 z-index:-1 盖住的。竖排这边早就 height:0，横排漏了 width:0。 */
+.bb-dockview .dv-split-view-container.dv-horizontal > .dv-view-container > .dv-view:not(:first-child):not(.visible)::before,
+.bb-dockview .dv-split-view-container.dv-horizontal > .dv-view-container > .dv-view:first-child:not(.visible) + .dv-view.visible::before,
+.bb-dockview .dv-split-view-container.dv-horizontal > .dv-view-container > .dv-view.first-visible::before {
+    width: 0;
+}
+
 /* 钉起：Edge Group。收起时标题栏是竖排的窄条（也就是"钉住的把手"），展开后由 JS 切回顶部横排。 */
 /* .bb-dockview .dv-tabs-and-actions-container.dv-groupview-header-vertical {
     padding: .25rem 0;
@@ -249,9 +269,3 @@
             margin-top: .5rem;
         }
 
-
-.bb-dockview .dv-split-view-container.dv-vertical > .dv-view-container > .dv-view:not(:first-child):not(.visible):before,
-.bb-dockview .dv-split-view-container.dv-vertical > .dv-view-container > .dv-view:first-child:not(.visible) + .dv-view.visible:before,
-.bb-dockview .dv-split-view-container.dv-vertical > .dv-view-container > .dv-view.first-visible::before {
-    height: 0;
-}

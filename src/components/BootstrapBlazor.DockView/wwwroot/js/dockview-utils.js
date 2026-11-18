@@ -107,6 +107,14 @@ const postLayoutInit = (dockview, options) => {
         observeFloatingGroupLocationChange(fg.group)
     })
 
+    // 刷新恢复（fromJSON）不走组件级 setVisible ⇒ first-visible 要补一遍，否则隐藏占位列在最左时，
+    // 右侧可见视图会多一条前导分隔线。fromJSON 在 initDockviewFromConfig 里同步执行完（事件已 fire），
+    // 订阅只能接住"运行时再次 fromJSON"，所以先直接补一次。
+    dockview.groups.forEach(group => markFirstVisibleElement(group))
+    dockview.onDidLayoutFromJSON(() => {
+        dockview.groups.forEach(group => markFirstVisibleElement(group))
+    })
+
     dockview.params.inited = true;
 
     queueMicrotask(() => {
@@ -204,12 +212,6 @@ const initDockview = (dockview, options, template) => {
         }
     })
 
-    dockview.onDidLayoutFromJSON(() => {
-        dockview.groups.forEach(group => {
-            markFirstVisibleElement(group);
-        })
-    })
-
     dockview.gridview.onDidChange(event => {
         dockview._groupSizeChanged.fire()
         saveConfig(dockview)
@@ -292,10 +294,16 @@ const toggleGroupLock = (dockview, options) => {
         toggleLock(group, group.header.rightActionsContainer, options.lock)
     })
 }
+// 标记"当前视图容器里第一个可见的 .dv-view"，CSS 用它去掉前导分隔线：隐藏占位列宽 0 后，右侧第一个
+// 可见视图在 DOM 里已不是首个子节点，core 仍给它画 ::before。但 [可见][隐藏][可见] 里后一个可见视图的
+// ::before 正是两侧面板之间的线、必须保留 —— 只能按"是不是第一个可见"判定，不能用相邻兄弟近似。
 export const markFirstVisibleElement = group => {
     if (!group) return
-    const viewContainerEle = group.element.parentElement.parentElement;
-    if (!viewContainerEle) return
+    const viewContainerEle = group.element.parentElement?.parentElement;
+    // 只认 splitview 的视图容器：边条组不在 splitview 里，它的 parentElement.parentElement 会落到更外层，
+    // 在那里 querySelector('.visible') 是瞎猜。CSS 规则都限定在 .dv-view-container > .dv-view，打错无影响，
+    // 但没必要，直接不处理。
+    if (!viewContainerEle?.classList.contains('dv-view-container')) return
     const className = 'first-visible';
     [...viewContainerEle.children].forEach(ele => {
         if (ele.classList.contains(className)) {

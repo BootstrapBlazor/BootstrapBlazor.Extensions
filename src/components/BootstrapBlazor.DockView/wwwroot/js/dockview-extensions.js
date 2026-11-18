@@ -91,31 +91,6 @@ DockviewGroupPanelModel.prototype.closePanel = function (panel, triggerVisibleCh
 const setVisible = DockviewComponent.prototype.setVisible
 DockviewComponent.prototype.setVisible = function (...args) {
     setVisible.apply(this, args);
-    const branch = getBranchByGroup(args[0])
-    const { orientation, splitview: { sashes } } = branch
-
-    if (args[1] === true) {
-        args[0].element.parentElement.style.zIndex = 'initial'
-        sashes?.forEach(sash => {
-            if (sash.container.style.zIndex == '-1') {
-                sash.container.style.zIndex = '99'
-            }
-        });
-    }
-    else if (args[1] === false) {
-        args[0].element.parentElement.style.zIndex = '-1'
-        const sizeStr = branch.size - 2 + 'px'
-        sashes?.forEach(sash => {
-            const { left, top } = sash.container.style
-            if (
-                (left == '0px' && top == '0px')
-                || (orientation == 'HORIZONTAL' && left == sizeStr)
-                || (orientation == 'VERTICAL' && top == sizeStr)
-            ) {
-                sash.container.style.zIndex = '-1'
-            }
-        });
-    }
     markFirstVisibleElement(args[0])
 }
 function getBranchByGroup(group) {
