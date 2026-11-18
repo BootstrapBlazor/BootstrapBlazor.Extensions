@@ -59,11 +59,13 @@ const addPanelWidthGroupId = (dockview, panel, index) => {
         const left = (dockview.width - width) / 2
         const top = (dockview.height - height) / 2
         // Prefer currentPosition (saved on hide) over rect (only refreshed on un-float) to keep last size & position.
-        let floatingGroupRect = (currentPosition?.width > 0
+        // 过滤异常尺寸：边条（收起态）宽约 35px、或未布局环境，都不能当作浮窗尺寸
+        const validPosition = (currentPosition?.width ?? 0) >= 120 && (currentPosition?.height ?? 0) >= 80
+        const floatingGroupRect = validPosition
             ? { width: currentPosition.width, height: currentPosition.height, position: { top: currentPosition.top, left: currentPosition.left } }
-            : rect) || {
-            width, height: packup?.isPackup ? packup.height : height, position: { left, top }
-        }
+            : ((rect?.width ?? 0) > 0
+                ? rect
+                : { width, height: packup?.isPackup ? packup.height : height, position: { left, top } })
         dockview.addFloatingGroup(group, { ...floatingGroupRect, skipRemoveGroup: true })
         const overlay = dockview.floatingGroups.find(fg => fg.group.id == group.id).overlay
         observeOverlayChange(overlay, group)

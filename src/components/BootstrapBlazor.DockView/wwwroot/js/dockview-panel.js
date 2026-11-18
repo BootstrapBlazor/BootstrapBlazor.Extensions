@@ -33,23 +33,35 @@ const onRemovePanel = event => {
     const dockview = event.accessor
     // Data-driven channels (showClose=false) must not enter invisiblePanels, else suppressed by the visible filter
     const isDataChannel = event.params?.showClose === false;
+    // 在钉起的边条组里删除：currentPosition 会是边条（35px）的几何，补加时会把面板还原成一条窄浮窗，
+    // 所以这种情况不记位置，仅保留 edgeOrigin（补加时回原占位组）
+    const isEdgeGroup = event.group.api.location.type === 'edge';
+    const params = { ...event.params };
+    if (isEdgeGroup) {
+        // params 是浅拷，可能带着"更早在浮窗里关闭时"记下的 currentPosition。边条分支不清掉它，
+        // 等这条边条和原占位组都没了再补加时，会被当成合法浮窗几何还原成浮窗（应回网格）。这里显式删掉。
+        delete params.currentPosition;
+    }
+    else {
+        // 浮窗组的几何要取外壳（.dv-resize-container）；parentElement 在 8.x 是内层 .dv-view，
+        // 它的 offsetTop/Left 恒为 0，会把"浮窗里的面板关掉再补加"还原到左上角
+        const geoEle = event.group.element.closest('.dv-resize-container') ?? event.group.element.parentElement;
+        params.currentPosition = {
+            width: geoEle.offsetWidth,
+            height: geoEle.offsetHeight,
+            // offsetTop/Left, not style.top/left which can be 'auto' -> parseFloat NaN -> lost position.
+            top: geoEle.offsetTop,
+            left: geoEle.offsetLeft
+        };
+    }
+    params.index = event.group.delPanelIndex;
     let invisiblePanel = {
         id: event.id,
         title: event.title,
         component: event.view.contentComponent,
         renderer: event.renderer,
         groupId: event.group.id,
-        params: {
-            ...event.params,
-            currentPosition: {
-                width: event.group.element.parentElement.offsetWidth,
-                height: event.group.element.parentElement.offsetHeight,
-                // offsetTop/Left, not style.top/left which can be 'auto' -> parseFloat NaN -> lost position.
-                top: event.group.element.parentElement.offsetTop,
-                left: event.group.element.parentElement.offsetLeft
-            },
-            index: event.group.delPanelIndex
-        }
+        params
     }
     if (!isDataChannel) {
         saveInvisiblePanel(dockview, invisiblePanel)
