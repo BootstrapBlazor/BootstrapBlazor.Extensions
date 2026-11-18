@@ -411,6 +411,8 @@ const pinToEdge = group => {
     if (!edgeGroup) return
 
     const panels = [...group.panels]
+    // 搬的过程中 core 会依次激活，搬完定稿回原来的 active（同 createFloatingGroup）。
+    const activePanel = group.activePanel
     panels.forEach(panel => {
         panel.params.edgeOrigin = originId
         dockview.moveGroupOrPanel({
@@ -419,6 +421,7 @@ const pinToEdge = group => {
             keepEmptyGroups: true
         })
     })
+    activePanel.api.setActive()
 
     // 网格组留一个隐藏的空占位，取消钉住时原位还原
     dockview.setVisible(group, false)
@@ -442,6 +445,9 @@ const unpinFromEdge = (group, originId) => {
         return
     }
 
+    // 边条激活的面板跟着回原组；多来源组时只保它所属那组，其余保持 core 默认。
+    const activePanel = group.activePanel
+
     // 边缘组可能收了多个来源组的面板：按 edgeOrigin 分组，各自搬回原来的占位组
     const byOrigin = new Map()
     panels.forEach(panel => {
@@ -463,6 +469,7 @@ const unpinFromEdge = (group, originId) => {
         }
         if (!target) return
         dockview.setVisible(target, true)
+        const keepActive = list.includes(activePanel) ? activePanel : undefined
         list.forEach(panel => {
             dockview.moveGroupOrPanel({
                 from: { groupId: group.id, panelId: panel.id },
@@ -471,6 +478,7 @@ const unpinFromEdge = (group, originId) => {
             })
             delete panel.params.edgeOrigin
         })
+        keepActive?.api.setActive()
         reRenderActionStates(target)
     })
 
