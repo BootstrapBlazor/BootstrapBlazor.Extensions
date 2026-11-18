@@ -8,9 +8,13 @@ import './dockview-extensions.js'
 const cerateDockview = (el, options) => {
     const theme = options.theme || "dockview-theme-light";
     const template = el.querySelector('template');
+    // C# 的 Renderer 枚举经 [JsonEnumConverter(true)] 序列化成 camelCase，默认值被 JsonIgnore 省略（undefined）。
+    // 必须显式落成 onlyWhenVisible：core 的 ?? 兜底只作用于 defaultRenderer，而 postLayoutInit /
+    // observePanelActiveChange 都是精确比较 'onlyWhenVisible'，undefined 会让按需加载断链。
     options.renderer ??= 'onlyWhenVisible';
     const dockview = new DockviewComponent(el, {
         parentElement: el,
+        defaultRenderer: options.renderer,
         theme: {
             name: "bb-dockview",
             className: theme,
