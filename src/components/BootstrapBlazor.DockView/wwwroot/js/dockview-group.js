@@ -37,6 +37,16 @@ const addGroupWithPanel = (dockview, panel, panels, index) => {
     deleteInvisiblePanel(dockview, panel)
 }
 
+const getOriginBase = id => id.split('_')[0]
+// 边条 id 与来源组无派生关系，按条内面板的 edgeOrigin 反查。
+const findEdgeGroupByOrigin = (dockview, groupId) => {
+    const originId = getOriginBase(groupId)
+    return dockview.groups.find(g =>
+        g.model.location.type === 'edge' &&
+        g.panels.some(p => p.params?.edgeOrigin && getOriginBase(p.params.edgeOrigin) === originId)
+    )
+}
+
 const addPanelWidthGroupId = (dockview, panel, index) => {
     let group = dockview.api.getGroup(panel.groupId)
     // The group may have moved (floated/docked) since this panel was closed; getFloatingId toggles its grid<->floating
@@ -44,6 +54,14 @@ const addPanelWidthGroupId = (dockview, panel, index) => {
     if (!group || group.panels.length === 0) {
         const counterpart = dockview.api.getGroup(getFloatingId(panel.groupId))
         if (counterpart && counterpart.panels.length > 0) group = counterpart
+    }
+    // 组被钉起后原网格组只剩隐藏空占位：补回跟随边条表示；edgeOrigin 必须写入，否则取消钉起会分到新建组。
+    if (!group || group.panels.length === 0) {
+        const edgeGroup = findEdgeGroupByOrigin(dockview, panel.groupId)
+        if (edgeGroup) {
+            group = edgeGroup
+            panel.params = { ...panel.params, edgeOrigin: getOriginBase(panel.groupId) }
+        }
     }
     // 钉起期间从边条删除的面板：取消钉住后边条组已销毁，回它钉起前的原占位组（而不是新建浮窗）
     if (!group && panel.params?.edgeOrigin) {
@@ -105,6 +123,11 @@ const addPanelWidthGroupId = (dockview, panel, index) => {
     // addPanel is inactive; activate so a freshly created floating group isn't blank.
     if (isNewFloatingGroup) {
         group.panels.find(p => p.id === panel.id)?.api.setActive();
+    }
+
+    // 面板集合变了，动作按钮显隐/锁定态取 every/some，需重算。
+    if (group.api.location.type === 'edge') {
+        reRenderActionStates(group)
     }
 
     // Placeholder deferred its action states while empty (see resetActionStates); re-render now it has a panel.
