@@ -48,9 +48,11 @@ const onRemovePanel = event => {
         delete params.currentPosition;
     }
     else {
-        // 浮窗组的几何要取外壳（.dv-resize-container）；parentElement 在 8.x 是内层 .dv-view，
-        // 它的 offsetTop/Left 恒为 0，会把"浮窗里的面板关掉再补加"还原到左上角
-        const geoEle = event.group.element.closest('.dv-resize-container') ?? event.group.element.parentElement;
+        // 浮窗组取自己的外壳（.dv-view 的 offsetTop/Left 恒为 0）；grid 组取 .dv-view，
+        // 避免嵌套 DockView 时 closest 命中外层浮窗壳。
+        const geoEle = event.group.api.location.type === 'floating'
+            ? (event.group.element.closest('.dv-resize-container') ?? event.group.element.parentElement)
+            : event.group.element.parentElement;
         params.currentPosition = {
             width: geoEle.offsetWidth,
             height: geoEle.offsetHeight,
