@@ -147,7 +147,7 @@ const findContentFromPanels = (panels, content) => {
 }
 
 const saveInvisiblePanel = (dockview, invisiblePanel) => {
-    const { invisiblePanels, options } = dockview.params;
+    const { invisiblePanels } = dockview.params;
     if (!invisiblePanels) return
     invisiblePanels.push(invisiblePanel)
     const timer = setTimeout(() => {
@@ -157,7 +157,7 @@ const saveInvisiblePanel = (dockview, invisiblePanel) => {
 }
 
 const deleteInvisiblePanel = (dockview, invisiblePanel) => {
-    const { invisiblePanels, options } = dockview.params;
+    const { invisiblePanels } = dockview.params;
 
     dockview.params.invisiblePanels = invisiblePanels.filter(p => p.params.key !== invisiblePanel.params.key)
     saveConfig(dockview)

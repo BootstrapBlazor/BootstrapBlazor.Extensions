@@ -12,7 +12,7 @@
 // 的 always 浮层会被抬到 1000，背景层只能留 999、标题栏再上 1001，否则要靠透明穿透去补。
 
 import {
-    defineModule, registerModules, DockviewCompositeDisposable, DockviewMutableDisposable,
+    defineModule, registerModules, DockviewCompositeDisposable,
     createDismissableLayer, prefersReducedMotion
 } from './dockview-core.esm.js'
 import { getIcon } from './dockview-icon.js'
@@ -522,7 +522,7 @@ const BBAutoHideModule = defineModule({
     name: 'AutoHideEdgeGroup',
     serviceKey: 'autoHideEdgeGroupService',
     create: host => new BBAutoHideService(host),
-    init: (host, service) => {
+    init: (_, service) => {
         service.init()
         return service
     }

@@ -319,7 +319,6 @@ const getFloatState = group => group.model.location.type === 'floating';
 
 const addActionEvent = group => {
     const actionContainer = group.header.element.querySelector('.dv-right-actions-container');
-    const tabsContainer = group.header.tabContainer
 
     EventHandler.on(actionContainer, 'click', '.bb-dockview-control-icon', e => {
         const ele = e.delegateTarget;
@@ -390,10 +389,6 @@ const getEdgeSide = group => {
     }
     return rect.left + rect.width / 2 <= rootRect.left + rootRect.width / 2 ? 'left' : 'right'
 }
-
-// 钉边前记下来源网格组：浮窗的 id 是 "<origin>_floating"
-const getOriginGroupId = group =>
-    group.model.location.type == 'floating' ? group.id.split('_')[0] : group.id
 
 const pinToEdge = group => {
     const dockview = group.api.accessor
@@ -586,7 +581,7 @@ const float = group => {
     finally {
         dockview.params.maximizing = false;
     }
-    const floatingGroup = createFloatingGroup(group, floatingGroupRect)
+    createFloatingGroup(group, floatingGroupRect)
     saveConfig(dockview)
 }
 

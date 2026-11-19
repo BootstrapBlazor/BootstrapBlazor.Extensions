@@ -192,10 +192,6 @@ const getSize = (size, rate) => {
     return rate ? size * (rate / 100) : false
 }
 
-const getActualSize = (width, height, widthRate, heightRate, defaultSize) => (width ?? height) === null
-    ? defaultSize
-    : width ? width * widthRate / 100 : height * heightRate / 100;
-
 const getGroupNode = (contentItem, size, boxSize, parent, panels, getGroupId, options) => {
     const views = contentItem.content.map(item => {
         panels[item.id] = {
@@ -657,17 +653,6 @@ const _insertLeafNextToSibling = (node, siblingId, newPanelId) => {
 const _findFirstBranch = node => {
     if (node.type === 'branch') return node;
     if (node.type === 'leaf') return null;
-    return null;
-}
-
-const _findFirstLeaf = node => {
-    if (node.type === 'leaf') return node;
-    if (node.type === 'branch') {
-        for (const child of node.data) {
-            const found = _findFirstLeaf(child);
-            if (found) return found;
-        }
-    }
     return null;
 }
 

@@ -1,5 +1,4 @@
-import { DockviewComponent, DockviewGroupPanel, DockviewGroupPanelModel, getGridLocation, getRelativeLocation, DockviewEmitter } from "./dockview-core.esm.js"
-import { saveConfig } from "./dockview-config.js"
+import { DockviewComponent, DockviewGroupPanel, DockviewGroupPanelModel, DockviewEmitter } from "./dockview-core.esm.js"
 import { movePanelContentToTemplate } from "./dockview-panel.js"
 import { disposeGroup, closeEdgeGroup } from "./dockview-group.js"
 import { markFirstVisibleElement } from "./dockview-utils.js"
