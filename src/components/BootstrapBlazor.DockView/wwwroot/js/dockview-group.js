@@ -38,6 +38,11 @@ const addGroupWithPanel = (dockview, panel, panels, index) => {
 }
 
 const getOriginBase = id => id.split('_')[0]
+// 浮窗的配对来源组（id 约定 <origin>_floating）。兜底浮窗没有对应组，dock/pin 无处可回。
+const findOriginGroup = group => {
+    const key = getOriginBase(group.id)
+    return group.api.accessor.groups.find(g => g.id !== group.id && getOriginBase(g.id) === key)
+}
 // 边条 id 与来源组无派生关系，按条内面板的 edgeOrigin 反查。
 const findEdgeGroupByOrigin = (dockview, groupId) => {
     const originId = getOriginBase(groupId)
@@ -88,6 +93,8 @@ const addPanelWidthGroupId = (dockview, panel, index) => {
         dockview.addFloatingGroup(group, { ...floatingGroupRect, skipRemoveGroup: true })
         const overlay = dockview.floatingGroups.find(fg => fg.group.id == group.id).overlay
         observeOverlayChange(overlay, group)
+        // 兜底浮窗没有占位可删，整组拖回网格时同样要清理浮窗态（见 observeFloatingGroupLocationChange）
+        observeFloatingGroupLocationChange(group)
         createGroupActions(group);
     }
     else {
@@ -228,6 +235,9 @@ const resetActionStates = (group, actionContainer) => {
     if (group.panels.length === 0) return;
     // Edge groups are structural: no float / no maximize, but pin must stay reachable (that's "取消钉住")
     const isEdge = group.model.location.type == 'edge'
+    // 兜底浮窗（原组已销毁）没有回舱目标，dock/pin 会空转；用户可直接拖回网格组
+    const noOrigin = group.model.location.type == 'floating' && !findOriginGroup(group)
+    actionContainer.classList.toggle('bb-no-origin', noOrigin)
     // bb-show-lock only gates the button; apply the lock STATE regardless so a locked group stays locked when showLock=false.
     if (showLock(dockview, group)) {
         actionContainer.classList.add('bb-show-lock');
@@ -236,7 +246,7 @@ const resetActionStates = (group, actionContainer) => {
         toggleLock(group, actionContainer, true, false)
     }
     // 边缘组必须始终留一个"取消钉住"的入口，否则面板可能被永久钉死在侧边
-    if (isEdge || (showPin(dockview, group) && showFloat(dockview, group))) {
+    if (isEdge || (showPin(dockview, group) && showFloat(dockview, group) && !noOrigin)) {
         actionContainer.classList.add('bb-show-pin');
         // toggle 而非 add：组在网格/浮窗/边条之间迁移时会带着旧类，必须清掉
         actionContainer.classList.toggle('bb-pin', getPinState(group));
@@ -399,7 +409,7 @@ const pinToEdge = group => {
     let floatingSide
     if (group.model.location.type == 'floating') {
         // 只认 wrapper 自己建的浮窗（id 约定 <origin>_floating）；对不上就不钉，避免留下空浮窗
-        const origin = dockview.groups.find(g => g.id.split('_')[0] == group.id.split('_')[0] && g.id != group.id)
+        const origin = findOriginGroup(group)
         if (!origin) return
         // 选边用浮窗"当前所在位置"（回仓后它的位置就不代表用户意图了）
         floatingSide = getEdgeSide(group)
@@ -707,15 +717,17 @@ const observeFloatingGroupLocationChange = group => {
         if (e.location.type == 'grid') {
             setTimeout(() => {
                 // 排除自身：浮窗落回网格后 id 可能已无 _floating 后缀，按前缀匹配会命中自己
-                let originalGroup = dockview.groups.find(g => g.id != group.id && g.id.split('_')[0] == group.id.split('_')[0])
+                const originalGroup = findOriginGroup(group)
                 if (originalGroup) {
                     dockview.params.reset = true
                     dockview.removeGroup(originalGroup)
                     dockview.params.reset = false
-                    group.header.rightActionsContainer.classList.remove('bb-float')
-                    group.header.rightActionsContainer.classList.remove('bb-pin')
                     saveConfig(dockview)
                 }
+                // 落回网格后它就是普通网格组（兜底浮窗没有占位可删）：清浮窗态并重算按钮，避免 bb-no-origin/pin 残留
+                group.header.rightActionsContainer.classList.remove('bb-float')
+                group.header.rightActionsContainer.classList.remove('bb-pin')
+                reRenderActionStates(group)
             }, 0)
             group.header.rightActionsContainer.classList.add('bb-pin')
         }
@@ -778,7 +790,7 @@ const setFloatingHeight = (overlay, group, height) => {
 const dock = group => {
     if (group.locked) return;
     const dockview = group.api.accessor
-    const originGroup = dockview.groups.find(g => g.id.split('_')[0] == group.id.split('_')[0] && g.id != group.id)
+    const originGroup = findOriginGroup(group)
     if (!originGroup) return
     dockview.setVisible(originGroup, true)
     originGroup.header.rightActionsContainer.classList.remove('bb-maximize')

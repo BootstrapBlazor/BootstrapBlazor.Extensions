@@ -161,6 +161,8 @@
         .bb-dockview .dv-right-actions-container:not(.bb-show-float) .bb-dockview-control-icon-float,
         .bb-dockview .dv-right-actions-container:not(.bb-show-float) .bb-dockview-control-icon-dock,
         .bb-dockview .dv-right-actions-container:not(.bb-float) .bb-dockview-control-icon-dock,
+        /* 兜底浮窗无回舱目标：只隐藏 dock（bb-float 仍留给 down 控制） */
+        .bb-dockview .dv-right-actions-container.bb-no-origin .bb-dockview-control-icon-dock,
         .bb-dockview .dv-right-actions-container:not(.bb-float) .bb-dockview-control-icon-down,
         .bb-dockview .dv-right-actions-container.bb-float .bb-dockview-control-icon-float,
         .bb-dockview .dv-right-actions-container:not(.bb-show-maximize) .bb-dockview-control-icon-full,
