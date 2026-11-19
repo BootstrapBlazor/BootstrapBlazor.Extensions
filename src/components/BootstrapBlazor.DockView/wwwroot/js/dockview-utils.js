@@ -112,24 +112,29 @@ const postLayoutInit = (dockview, options) => {
     // 右侧可见视图会多一条前导分隔线。fromJSON 在 initDockviewFromConfig 里同步执行完（事件已 fire），
     // 订阅只能接住"运行时再次 fromJSON"，所以先直接补一次。
     dockview.groups.forEach(group => markFirstVisibleElement(group))
-    dockview.onDidLayoutFromJSON(() => {
-        dockview.groups.forEach(group => markFirstVisibleElement(group))
-    })
 
     // 隐藏占位列边界的 sash 不可拖：立即算一次；之后每次布局变化（含钉起/取消、刷新恢复后的首帧）
     // 用 rAF 去重再算一次，保证 sash 位置变动后标记跟得上。
     syncHiddenSash(dockview)
-    let pendingSashSync = false
-    // onDidLayoutChange 是网格基类的必存在实例属性（baseComponentGridview），不需要可选链：
-    // 真写成 ?. 反而会在它缺失时静默失效，sash 标记再也不更新。
-    dockview.onDidLayoutChange(() => {
-        if (pendingSashSync) return
-        pendingSashSync = true
-        requestAnimationFrame(() => {
-            pendingSashSync = false
-            if (!dockview._isDisposed) syncHiddenSash(dockview)
+
+    // 组件级订阅只注册一次：postLayoutInit 每次 reset 都会重跑，不能在这里重复订阅
+    if (!dockview.params.layoutEventsInited) {
+        dockview.params.layoutEventsInited = true
+        dockview.onDidLayoutFromJSON(() => {
+            dockview.groups.forEach(group => markFirstVisibleElement(group))
         })
-    })
+        let pendingSashSync = false
+        // onDidLayoutChange 是网格基类的必存在实例属性（baseComponentGridview），不需要可选链：
+        // 真写成 ?. 反而会在它缺失时静默失效，sash 标记再也不更新。
+        dockview.onDidLayoutChange(() => {
+            if (pendingSashSync) return
+            pendingSashSync = true
+            requestAnimationFrame(() => {
+                pendingSashSync = false
+                if (!dockview._isDisposed) syncHiddenSash(dockview)
+            })
+        })
+    }
 
     dockview.params.inited = true;
 
