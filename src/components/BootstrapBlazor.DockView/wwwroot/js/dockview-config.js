@@ -1,4 +1,23 @@
-import { getPanelsFromOptions, getRootContent } from "./dockview-panel.js"
+import { getPanelsFromOptions, getRootContent, movePanelContentToTemplate } from "./dockview-panel.js"
+
+// core 的 fromJSON 只清 edge 组的面板、不摘组（deserialize 也只加不删），旧边条会以空条残留并被
+// toJSON 写回存档。每次 fromJSON 前先摘掉已有 edge 组（目标布局里的按存档重建）；removeEdgeGroup
+// 内部走 removePanel，不经 closePanel，所以移除后显式把内容元素放回 <template>。
+const EDGE_POSITIONS = ['left', 'right', 'top', 'bottom']
+const removeEdgeGroups = dockview => {
+    EDGE_POSITIONS.forEach(position => {
+        // getEdgeGroup() 返回 api，取面板要用 getEdgeGroupPanel()
+        const group = dockview.getEdgeGroupPanel?.(position)
+        if (!group) return
+        const panels = [...group.panels]
+        dockview.removeEdgeGroup(position)
+        panels.forEach(panel => movePanelContentToTemplate(panel, true))
+    })
+}
+const loadLayout = (dockview, layout) => {
+    removeEdgeGroups(dockview)
+    dockview.fromJSON(layout)
+}
 
 const initDockviewFromConfig = (dockview, options) => {
     const { layoutConfig, enableLocalStorage } = options;
@@ -46,17 +65,20 @@ const initDockviewFromConfig = (dockview, options) => {
             const { layout, invisiblePanels } = config;
             normalizeMaximizeState(layout?.grid);
             pruneOrphanViews(layout);
-            dockview.fromJSON(layout);
+            loadLayout(dockview, layout);
             dockview.params.invisiblePanels = invisiblePanels || [];
             dockview.params.floatingGroups = layout.floatingGroups || []
         }
         catch (error) {
             console.error('Invalid localStorage JSON string:', error);
-            dockview.fromJSON(getConfigFromContent(options));
+            loadLayout(dockview, getConfigFromContent(options));
+            // 回退到完整默认布局：清掉失败布局留下的不可见记录，避免 toggleComponent 跳过补加。
+            dockview.params.invisiblePanels = [];
+            dockview.params.floatingGroups = [];
         }
     }
     else {
-        dockview.fromJSON(getConfigFromContent(options));
+        loadLayout(dockview, getConfigFromContent(options));
         dockview.params.invisiblePanels = [];
         dockview.params.floatingGroups = [];
     }
@@ -258,7 +280,8 @@ const pruneOrphanViews = layout => {
     if (Array.isArray(layout.floatingGroups)) {
         layout.floatingGroups = layout.floatingGroups.filter(fg => !pruneViews(fg.data));
     }
-    // Edge groups carry their own serialized group; same orphan rule applies there
+    // Edge groups carry their own serialized group; empty entries (nothing to show) are dropped too,
+    // otherwise a refresh rebuilds a blank 35px strip.
     if (layout.edgeGroups) {
         Object.keys(layout.edgeGroups).forEach(position => {
             const entry = layout.edgeGroups[position];
@@ -266,11 +289,14 @@ const pruneOrphanViews = layout => {
                 delete layout.edgeGroups[position];
                 return;
             }
-            const emptied = pruneViews(entry.group);
-            if (emptied) {
+            pruneViews(entry.group);
+            if (!entry.group.views?.length) {
                 delete layout.edgeGroups[position];
             }
         });
+        if (Object.keys(layout.edgeGroups).length === 0) {
+            delete layout.edgeGroups;
+        }
     }
 };
 
@@ -316,6 +342,17 @@ const saveConfig = dockview => {
     }
     // Maximize is transient; don't persist it.
     normalizeMaximizeState(gridJson.grid);
+    // 空边条不落盘，否则刷新后会被重新建出来。
+    if (gridJson.edgeGroups) {
+        Object.keys(gridJson.edgeGroups).forEach(position => {
+            if (!gridJson.edgeGroups[position]?.group?.views?.length) {
+                delete gridJson.edgeGroups[position];
+            }
+        });
+        if (Object.keys(gridJson.edgeGroups).length === 0) {
+            delete gridJson.edgeGroups;
+        }
+    }
     if (dockview.floatingGroups && dockview.floatingGroups.length > 0) {
         gridJson.floatingGroups.forEach((fg, index) => {
             const group = dockview.floatingGroups[index].group
