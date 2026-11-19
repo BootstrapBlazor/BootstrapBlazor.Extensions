@@ -311,23 +311,23 @@ const toggleGroupLock = (dockview, options) => {
     })
 }
 
-// 标记"当前视图容器里第一个可见的 .dv-view"，CSS 用它去掉前导分隔线：隐藏占位列宽 0 后，右侧第一个
-// 可见视图在 DOM 里已不是首个子节点，core 仍给它画 ::before。但 [可见][隐藏][可见] 里后一个可见视图的
-// ::before 正是两侧面板之间的线、必须保留 —— 只能按"是不是第一个可见"判定，不能用相邻兄弟近似。
+// 标记视图容器内第一个可见的 .dv-view，供 CSS 去掉隐藏占位列留下的前导分隔线
+// （不能用相邻兄弟近似：[可见][隐藏][可见] 里后一个的线是两侧面板之间的真实分隔线）。
+// 只扫直接子节点：querySelector('.visible') 会被隐藏视图内嵌套 DockView 的同名视图抢先命中。
 export const markFirstVisibleElement = group => {
     if (!group) return
     const viewContainerEle = group.element.parentElement?.parentElement;
-    // 只认 splitview 的视图容器：边条组不在 splitview 里，它的 parentElement.parentElement 会落到更外层，
-    // 在那里 querySelector('.visible') 是瞎猜。CSS 规则都限定在 .dv-view-container > .dv-view，打错无影响，
-    // 但没必要，直接不处理。
+    // 边条组不在 splitview 里，parentElement.parentElement 会落到更外层。
     if (!viewContainerEle?.classList.contains('dv-view-container')) return
     const className = 'first-visible';
+    let firstVisible = null;
     [...viewContainerEle.children].forEach(ele => {
-        if (ele.classList.contains(className)) {
-            ele.classList.remove(className)
+        ele.classList.remove(className);
+        if (!firstVisible && ele.classList.contains('dv-view') && ele.classList.contains('visible')) {
+            firstVisible = ele;
         }
     })
-    viewContainerEle.querySelector('.visible')?.classList.add(className);
+    firstVisible?.classList.add(className);
 }
 
 export { cerateDockview };
