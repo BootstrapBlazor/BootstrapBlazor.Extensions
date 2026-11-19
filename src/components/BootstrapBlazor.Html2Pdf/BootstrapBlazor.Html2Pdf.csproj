@@ -1,7 +1,7 @@
 <Project Sdk="Microsoft.NET.Sdk.Razor">
 
   <PropertyGroup>
-    <Version>11.0.2</Version>
+    <Version>11.0.3</Version>
     <SkillName>bb-html2pdf</SkillName>
   </PropertyGroup>
 
@@ -11,7 +11,7 @@
   </PropertyGroup>
 
   <PropertyGroup>
-    <PuppeteerSharpVersion>25.17.1</PuppeteerSharpVersion>
+    <PuppeteerSharpVersion>25.18.1</PuppeteerSharpVersion>
   </PropertyGroup>
 
   <ItemGroup>
