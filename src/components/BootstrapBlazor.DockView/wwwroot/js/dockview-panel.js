@@ -31,6 +31,11 @@ const observePanelActiveChange = panel => {
 
 const onRemovePanel = event => {
     const dockview = event.accessor
+    // core 的 fromJSON 清场/回退会直接 removePanel（edge 组尤其），不经过 removeGroup 的归还分支；
+    // 这里把内容元素放回 <template>，否则会永久丢失、下次同 key 创建时 appendChild(null)。重复归还幂等。
+    if (dockview.params.reset) {
+        movePanelContentToTemplate(event, true)
+    }
     // Data-driven channels (showClose=false) must not enter invisiblePanels, else suppressed by the visible filter
     const isDataChannel = event.params?.showClose === false;
     // 在钉起的边条组里删除：currentPosition 会是边条（35px）的几何，补加时会把面板还原成一条窄浮窗，
