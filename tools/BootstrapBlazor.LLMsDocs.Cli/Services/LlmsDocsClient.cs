@@ -69,6 +69,7 @@ public sealed partial class LlmsDocsClient : IDisposable
 
     /// <summary>Human-readable description of the resolved source, for diagnostics.</summary>
     public string SourceDescription => _isRemote ? _baseUri!.ToString().TrimEnd('/') : _baseDir;
+    internal bool IsLocalSource => !_isRemote;
 
     public Task<string> GetIndexAsync(CancellationToken ct = default) => FetchAsync("llms.txt", ct);
 

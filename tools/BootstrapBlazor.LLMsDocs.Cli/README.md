@@ -1,5 +1,7 @@
 # BootstrapBlazor LLMs Docs CLI（`bb-llms`）
 
+[English MCP guide](README.en.md)
+
 一个轻量命令行工具，用于查询项目已还原的 NuGet 包及 [www.blazor.zone/llms](https://www.blazor.zone/llms)
 中的 BootstrapBlazor 和 BootstrapBlazor.Extensions API 文档（参数、事件回调、公开方法、源码链接），
 供 AI agent（Copilot CLI / Claude Code / Cursor / Trae / Codex 等）和开发者查询。
@@ -33,6 +35,45 @@ bb-llms get Button     # 能打印 Button 的 API 文档即安装成功
 
 > 若提示找不到 `bb-llms`，请确认 `~/.dotnet/tools`（Windows 为 `%USERPROFILE%\.dotnet\tools`）
 > 已在 `PATH` 中，或重开一个终端。
+
+### 本地 MCP 服务
+
+同一个工具包包含 stdio MCP 服务，不需要安装独立 MCP 包：
+
+```bash
+bb-llms mcp
+```
+
+Claude Desktop 配置示例：
+
+```json
+{
+  "mcpServers": {
+    "bootstrapblazor": {
+      "command": "bb-llms",
+      "args": ["mcp"]
+    }
+  }
+}
+```
+
+VS Code 的 `.vscode/mcp.json` 示例：
+
+```json
+{
+  "servers": {
+    "bootstrapblazor": {
+      "type": "stdio",
+      "command": "bb-llms",
+      "args": ["mcp"]
+    }
+  }
+}
+```
+
+服务只实现 MCP **2024-11-05** stdio 基础交互（`initialize`、`ping`、`tools/list`、`tools/call`），提供 `search_components`、`get_component_api`、`list_components` 三个只读工具；不提供 HTTP、resources 或 prompts。它在 stdout 使用 UTF-8 无 BOM 的逐行 JSON-RPC，诊断写入 stderr。客户端必须能使用该协议版本和 stdio transport；这里不承诺所有 MCP 客户端均已互操作。
+
+`get_component_api` 返回文档来源、包名和已还原版本；使用官网回退时会给出可能版本不匹配的提示。项目或目标框架不唯一时显式传入 `project` / `framework`；同名组件可用 `package` 消歧。工具错误以 MCP `isError` 返回，缺失和歧义不会猜测。索引类工具会标明使用的来源及可确认的包版本。
 
 ### 更新 / 卸载
 
