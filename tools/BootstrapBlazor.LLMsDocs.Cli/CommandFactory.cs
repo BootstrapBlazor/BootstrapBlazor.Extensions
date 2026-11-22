@@ -6,9 +6,7 @@ using BootstrapBlazor.LLMsDocs.Cli.Services;
 namespace BootstrapBlazor.LLMsDocs.Cli;
 
 /// <summary>
-/// Wires up the <c>bb-llms</c> command surface: four data commands
-/// (index / list / search / get) plus two scaffolding commands
-/// (instructions / install).
+/// Wires up the <c>bb-llms</c> command surface.
 /// </summary>
 internal static class CommandFactory
 {
@@ -28,8 +26,31 @@ internal static class CommandFactory
         BuildSearchCommand(),
         BuildGetCommand(),
         BuildInstructionsCommand(),
-        BuildInstallCommand()
+        BuildInstallCommand(),
+        BuildMcpCommand()
     };
+
+    private static Command BuildMcpCommand()
+    {
+        var cmd = new Command("mcp", "Start the local stdio MCP server.");
+        cmd.SetAction(async (result, ct) =>
+        {
+            try
+            {
+                await McpServer.StartAsync(ct);
+                return 0;
+            }
+            catch (OperationCanceledException) when (ct.IsCancellationRequested)
+            {
+                return 0;
+            }
+            catch (Exception ex)
+            {
+                return Fail(ex);
+            }
+        });
+        return cmd;
+    }
 
     // ---- data commands ----------------------------------------------------
 

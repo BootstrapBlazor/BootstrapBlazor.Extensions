@@ -3,6 +3,14 @@ using System.Text.RegularExpressions;
 
 namespace BootstrapBlazor.LLMsDocs.Cli.Services;
 
+internal sealed record DocumentationResult(
+    string Content,
+    string Source,
+    string? Package,
+    string? PackageVersion,
+    string? Location,
+    string? Warning);
+
 internal sealed partial class ProjectDocsClient(LlmsDocsClient fallback, IReadOnlyList<PackageDocs> packages, bool automatic) : IDisposable
 {
     private sealed record LocalEntry(ComponentEntry Entry, string File, PackageDocs Package);
@@ -30,6 +38,67 @@ internal sealed partial class ProjectDocsClient(LlmsDocsClient fallback, IReadOn
             Console.Error.WriteLine("Local documentation not found; online documentation may differ from the project version.");
         }
         return await fallback.GetComponentAsync(name, ct);
+    }
+
+    public async Task<DocumentationResult> ResolveAsync(string name, string? package, CancellationToken ct)
+    {
+        var matches = ReadLocalEntries()
+            .Where(e => e.Entry.Name.Equals(name, StringComparison.OrdinalIgnoreCase))
+            .ToList();
+        if (!string.IsNullOrWhiteSpace(package))
+        {
+            matches = matches
+                .Where(e => e.Package.Package.Equals(package, StringComparison.OrdinalIgnoreCase))
+                .ToList();
+            if (matches.Count == 0)
+            {
+                throw new FileNotFoundException(
+                    $"Component '{name}' was not found in restored package '{package}'.");
+            }
+        }
+        if (matches.Count > 1)
+        {
+            var candidates = string.Join(", ", matches
+                .Select(e => $"{e.Package.Package} {e.Package.Version}")
+                .Distinct(StringComparer.OrdinalIgnoreCase));
+            throw new InvalidOperationException(
+                $"Ambiguous component '{name}'. Specify package. Available packages: {candidates}");
+        }
+
+        var entry = matches.FirstOrDefault();
+        if (entry is not null)
+        {
+            try
+            {
+                var content = await File.ReadAllTextAsync(entry.File, ct);
+                Console.Error.WriteLine($"Source: {entry.Package.Package} {entry.Package.Version} ({entry.File})");
+                return new DocumentationResult(content, "package",
+                    entry.Package.Package, entry.Package.Version, entry.File, null);
+            }
+            catch (Exception ex) when (ex is IOException or UnauthorizedAccessException)
+            {
+                Console.Error.WriteLine($"Cannot read local documentation: {ex.Message}");
+                if (!string.IsNullOrWhiteSpace(package))
+                {
+                    throw new IOException(
+                        $"Cannot read component '{name}' from restored package '{package}'.", ex);
+                }
+            }
+        }
+
+        if (automatic)
+        {
+            Console.Error.WriteLine("Local documentation not found; online documentation may differ from the project version.");
+        }
+        var online = await fallback.GetComponentAsync(name, ct);
+        var source = fallback.IsLocalSource
+            ? "local"
+            : automatic ? "official" : "remote";
+        var warning = automatic
+            ? "Official documentation may not match the project package version."
+            : null;
+        return new DocumentationResult(online, source, null, null,
+            fallback.SourceDescription, warning);
     }
 
     public async Task<string> IndexAsync(CancellationToken ct)

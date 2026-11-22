@@ -1,14 +1,14 @@
 <Project Sdk="Microsoft.NET.Sdk">
 
   <PropertyGroup>
-    <Version>11.0.2</Version>
+    <Version>11.0.3</Version>
     <OutputType>Exe</OutputType>
     <SatelliteResourceLanguages>false</SatelliteResourceLanguages>
   </PropertyGroup>
 
   <PropertyGroup>
     <Title>BootstrapBlazor LLMs Docs CLI</Title>
-    <Description>CLI for fetching and searching BootstrapBlazor component API documentation for AI agents and developers.</Description>
+    <Description>CLI and local stdio MCP server for BootstrapBlazor component API documentation.</Description>
     <PackageId>BootstrapBlazor.LLMsDocs.Cli</PackageId>
     <PackAsTool>true</PackAsTool>
     <ToolCommandName>bb-llms</ToolCommandName>
@@ -25,6 +25,7 @@
 
   <ItemGroup>
     <None Include="README.md" Pack="true" PackagePath="" />
+    <None Include="README.en.md" Pack="true" PackagePath="docs/" />
   </ItemGroup>
 
   <ItemGroup>
