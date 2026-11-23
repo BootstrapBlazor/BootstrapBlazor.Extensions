@@ -65,7 +65,7 @@ class DefaultTableExport(IServiceProvider serviceProvider) : ITableExport
         }
 
         var lookupService = serviceProvider.GetRequiredService<ILookupService>();
-        var value = new ExportDataReader<TModel>(items, cols, options, lookupService);
+        var value = GetExportRowsAsync(items, cols, options, lookupService);
 
         using var stream = new MemoryStream();
         await MiniExcel.SaveAsAsync(stream, value, excelType: excelType, configuration: configuration);
@@ -77,6 +77,29 @@ class DefaultTableExport(IServiceProvider serviceProvider) : ITableExport
         return true;
 
         string GetExtension() => excelType == ExcelType.XLSX ? "xlsx" : "csv";
+    }
+
+    private static async IAsyncEnumerable<IDictionary<string, object?>> GetExportRowsAsync<TModel>(IEnumerable<TModel> items, IEnumerable<ITableColumn> cols, TableExportOptions options, ILookupService lookupService)
+    {
+        foreach (var item in items)
+        {
+            if (item is null)
+            {
+                continue;
+            }
+
+            var row = new Dictionary<string, object?>();
+            foreach (var col in cols)
+            {
+                var value = Utility.GetPropertyValue(item, col.GetFieldName());
+                if (value != null)
+                {
+                    value = await col.FormatValueAsync(value, options, lookupService);
+                }
+                row.Add(col.GetDisplayName(), value);
+            }
+            yield return row;
+        }
     }
 
     /// <summary>
