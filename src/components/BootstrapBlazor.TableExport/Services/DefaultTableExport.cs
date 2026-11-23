@@ -65,11 +65,7 @@ class DefaultTableExport(IServiceProvider serviceProvider) : ITableExport
         }
 
         var lookupService = serviceProvider.GetRequiredService<ILookupService>();
-#if NET6_0 || NET7_0
-        var value = new ExportDataReader<TModel>(items, cols, options, lookupService);
-#else
         var value = GetExportRowsAsync(items, cols, options, lookupService);
-#endif
 
         using var stream = new MemoryStream();
         await MiniExcel.SaveAsAsync(stream, value, excelType: excelType, configuration: configuration);
