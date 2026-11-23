@@ -542,6 +542,16 @@ const _insertPanelIntoLayout = (layout, optionPanel, optionPanels, localIdByKey)
                     }
                 }
             }
+
+            // 兄弟在边条（钉起）：跟入同一条并继承 edgeOrigin，取消钉起时一起回原占位组
+            for (const position of EDGE_POSITIONS) {
+                const edge = layout.edgeGroups?.[position]?.group;
+                if (!edge?.views?.includes(siblingLocalId)) continue;
+                edge.views.push(optionPanel.id);
+                const origin = layout.panels[siblingLocalId]?.params?.edgeOrigin;
+                if (origin) layout.panels[optionPanel.id].params.edgeOrigin = origin;
+                return;
+            }
         }
     }
     else {
