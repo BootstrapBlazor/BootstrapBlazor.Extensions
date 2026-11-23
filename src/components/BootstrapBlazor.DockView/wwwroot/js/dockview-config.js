@@ -468,11 +468,13 @@ const _removePanelIdsFromLayout = (layout, idsToDelete) => {
 
     const pruneNode = (node, parent) => {
         if (node.type === 'leaf') {
+            // 只删本次删除后才变空的 leaf；本来就空的是钉起/浮起占位，取消钉起/回舱要用
+            const before = node.data.views.length;
             node.data.views = node.data.views.filter(id => !idsToDelete.has(id));
             if (idsToDelete.has(node.data.activeView)) {
                 node.data.activeView = node.data.views[0] ?? '';
             }
-            if (node.data.views.length === 0 && parent) {
+            if (before > 0 && node.data.views.length === 0 && parent) {
                 parent.data = parent.data.filter(n => n !== node);
             }
         } else if (node.type === 'branch') {
