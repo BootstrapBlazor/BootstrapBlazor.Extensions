@@ -435,6 +435,7 @@ class BBAutoHideService {
             body.style.cursor = axis.inline ? 'ew-resize' : 'ns-resize'
             body.style.userSelect = 'none'
             const move = moveEvent => {
+                if (this._session !== session) return cleanup()
                 if (moveEvent.buttons === 0) return up()
                 const delta = (axis.inline ? moveEvent.clientX : moveEvent.clientY) - start
                 session.size = Math.max(PEEK_MIN_SIZE, Math.min(max, startSize + delta * dir))
@@ -443,12 +444,10 @@ class BBAutoHideService {
                 this._anchorRenderLayer(session)
             }
             const up = () => {
-                doc.removeEventListener('pointermove', move)
-                doc.removeEventListener('pointerup', up)
-                doc.removeEventListener('pointercancel', up)
-                body.style.cursor = prevCursor
-                body.style.userSelect = prevSelect
-                if (!session.size) return
+                const active = this._session === session
+                cleanup()
+                // 会话已收回（Esc / resize / 关面板）：尺寸未定稿、组可能已移除，不写回
+                if (!active || !session.size) return
                 // 写回边缘组展开尺寸：收起态等价于 restoreExpandedSize，随 toJSON 落盘
                 const group = session.group
                 if (group && group.model.location.type === 'edge') {
@@ -456,6 +455,16 @@ class BBAutoHideService {
                     saveConfig(group.api.accessor)
                 }
             }
+            // teardown 也调用：摘监听 + 恢复 body 样式（防指针在窗口外释放时残留）
+            const cleanup = () => {
+                doc.removeEventListener('pointermove', move)
+                doc.removeEventListener('pointerup', up)
+                doc.removeEventListener('pointercancel', up)
+                body.style.cursor = prevCursor
+                body.style.userSelect = prevSelect
+                if (session.dragCleanup === cleanup) session.dragCleanup = null
+            }
+            session.dragCleanup = cleanup
             doc.addEventListener('pointermove', move)
             doc.addEventListener('pointerup', up)
             doc.addEventListener('pointercancel', up)
@@ -500,6 +509,8 @@ class BBAutoHideService {
         const s = this._session
         if (!s) return
         this._session = null
+        // 拖拽中收回：先摘临时监听、恢复光标，再拆 DOM
+        s.dragCleanup?.()
         s.group.element.classList.remove('bb-edge-peeking')
         // 先按内容层，再动 core 状态（下面每一步都可能排一轮 rAF 重排）：收起态下组内没有面板该可见。
         this._hideRenderLayers(s.group, null, s.renderLayer)
