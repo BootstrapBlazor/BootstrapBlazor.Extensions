@@ -441,6 +441,7 @@ const syncLayoutWithOptions = (layout, options, invisiblePanels = []) => {
             title: optionPanel.title ?? localPanel.title,
             tabComponent: optionPanel.tabComponent ?? localPanel.tabComponent,
             contentComponent: optionPanel.contentComponent ?? localPanel.contentComponent,
+            renderer: optionPanel.renderer ?? localPanel.renderer,
             params: {
                 ...localPanel.params,
                 ...optionPanel.params,
