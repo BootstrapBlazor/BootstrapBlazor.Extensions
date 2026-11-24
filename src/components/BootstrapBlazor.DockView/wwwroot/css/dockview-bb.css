@@ -30,30 +30,27 @@
         --dv-background-color: var(--bs-body-bg);
     }
 
+    /* overflow:hidden 会裁掉手柄外侧，圆角下沉到 gridview；手柄外扩 4px 避开 always 浮层 */
     .bb-dockview .dv-resize-container {
         border: none;
+        border-radius: var(--bs-border-radius);
+        overflow: visible;
+    }
+
+    .bb-dockview .dv-resize-container > .dv-grid-view {
         border-radius: var(--bs-border-radius);
         overflow: hidden;
     }
 
-    /* ── 浮窗八向缩放手柄 ──
-       核心把手柄画在容器边缘"外 2px"（top/left: -2px），这里给容器加了
-       overflow: hidden + 圆角，靠外那 2px 会被裁掉（手柄内侧仍有 2px 可用）。
-       但手柄的 z-index 写的是 z-index: var(--dv-overlay-z-index)，而容器上那条
-       --dv-overlay-z-index 是自引用（--x: var(--x, 999)）按规范失效 ⇒ 手柄退化成
-       z-index: auto；内容那层 .dv-view 是绝对定位（z-index: auto，DOM 在把手之后）
-       ⇒ 后绘制，把左右/下缘的手柄整片盖住。顶部还能拖，是因为那条缝压在非定位的
-       .dv-floating-titlebar 上，只有它没被内容盖。
-       所以把 8 个手柄显式抬到内容之上即可。若觉得贴边只有 2px 太难点，可放开下面
-       注掉的"加宽"三条（只加尺寸、不动偏移，外侧 2px 照样被裁，内侧变 6px / 10px）：
-       .bb-dockview .dv-resize-container > .dv-resize-handle-top,
-       .bb-dockview .dv-resize-container > .dv-resize-handle-bottom { height: 8px; }
-       .bb-dockview .dv-resize-container > .dv-resize-handle-left,
-       .bb-dockview .dv-resize-container > .dv-resize-handle-right { width: 8px; }
-       .bb-dockview .dv-resize-container > .dv-resize-handle-topleft,
-       .bb-dockview .dv-resize-container > .dv-resize-handle-topright,
-       .bb-dockview .dv-resize-container > .dv-resize-handle-bottomleft,
-       .bb-dockview .dv-resize-container > .dv-resize-handle-bottomright { width: 12px; height: 12px; } */
+    .bb-dockview .dv-resize-container-with-titlebar > .dv-grid-view {
+        border-radius: 0 0 var(--bs-border-radius) var(--bs-border-radius);
+    }
+
+    .bb-dockview .dv-resize-container-with-titlebar > .dv-floating-titlebar {
+        border-top-left-radius: var(--bs-border-radius);
+        border-top-right-radius: var(--bs-border-radius);
+    }
+
     .bb-dockview .dv-resize-container > .dv-resize-handle-top,
     .bb-dockview .dv-resize-container > .dv-resize-handle-bottom,
     .bb-dockview .dv-resize-container > .dv-resize-handle-left,
@@ -63,6 +60,64 @@
     .bb-dockview .dv-resize-container > .dv-resize-handle-bottomleft,
     .bb-dockview .dv-resize-container > .dv-resize-handle-bottomright {
         z-index: 10;
+    }
+
+    .bb-dockview .dv-resize-container > .dv-resize-handle-top,
+    .bb-dockview .dv-resize-container > .dv-resize-handle-bottom {
+        height: 6px;
+        left: 6px;
+        width: calc(100% - 12px);
+    }
+
+    .bb-dockview .dv-resize-container > .dv-resize-handle-top {
+        top: -4px;
+    }
+
+    .bb-dockview .dv-resize-container > .dv-resize-handle-bottom {
+        bottom: -4px;
+    }
+
+    .bb-dockview .dv-resize-container > .dv-resize-handle-left,
+    .bb-dockview .dv-resize-container > .dv-resize-handle-right {
+        width: 6px;
+        top: 6px;
+        height: calc(100% - 12px);
+    }
+
+    .bb-dockview .dv-resize-container > .dv-resize-handle-left {
+        left: -4px;
+    }
+
+    .bb-dockview .dv-resize-container > .dv-resize-handle-right {
+        right: -4px;
+    }
+
+    .bb-dockview .dv-resize-container > .dv-resize-handle-topleft,
+    .bb-dockview .dv-resize-container > .dv-resize-handle-topright,
+    .bb-dockview .dv-resize-container > .dv-resize-handle-bottomleft,
+    .bb-dockview .dv-resize-container > .dv-resize-handle-bottomright {
+        width: 8px;
+        height: 8px;
+    }
+
+    .bb-dockview .dv-resize-container > .dv-resize-handle-topleft {
+        top: -4px;
+        left: -4px;
+    }
+
+    .bb-dockview .dv-resize-container > .dv-resize-handle-topright {
+        top: -4px;
+        right: -4px;
+    }
+
+    .bb-dockview .dv-resize-container > .dv-resize-handle-bottomleft {
+        bottom: -4px;
+        left: -4px;
+    }
+
+    .bb-dockview .dv-resize-container > .dv-resize-handle-bottomright {
+        bottom: -4px;
+        right: -4px;
     }
 
     .bb-dockview .bb-dockview-panel {
