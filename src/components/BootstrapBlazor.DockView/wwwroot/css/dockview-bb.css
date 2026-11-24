@@ -23,8 +23,11 @@
         --dv-tabs-and-actions-container-font-size: 12px;
     }
 
+    /* 主题类在 .dv-shell（宿主子元素）上，必须用后代选择器 */
     .bb-dockview .dockview-theme-light {
         --dv-floating-box-shadow: 0px 0px 0px 1px var(--bs-border-color), 0px 6px 12px -3px #25292e0a, 0px 6px 18px 0px #25292e1f;
+        --dv-separator-border: var(--bs-border-color);
+        --dv-background-color: var(--bs-body-bg);
     }
 
     .bb-dockview .dv-resize-container {
@@ -102,26 +105,19 @@
         outline-offset: 0;
     }
 
-    .bb-dockview.dockview-theme-light {
-        --dv-separator-border: var(--bs-border-color);
-        --dv-background-color: var(--bs-body-bg);
-        --dv-floating-box-shadow: var(--bs-box-shadow);
-        --dv-tab-divider-color: var(--bs-border-color);
-    }
-
-    .bb-dockview.dockview-theme-dark {
+    .bb-dockview .dockview-theme-dark {
         --bb-dockview-control-icon-color: #dee2e6;
     }
 
-    .bb-dockview.dockview-theme-vs {
+    .bb-dockview .dockview-theme-vs {
         --bb-dockview-control-icon-color: #dee2e6;
     }
 
-    .bb-dockview.dockview-theme-abyss {
+    .bb-dockview .dockview-theme-abyss {
         --bb-dockview-control-icon-color: #dee2e6;
     }
 
-    .bb-dockview.dockview-theme-dracula {
+    .bb-dockview .dockview-theme-dracula {
         --bb-dockview-control-icon-color: #dee2e6;
     }
 
