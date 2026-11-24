@@ -67,7 +67,7 @@
         width: 100%;
     }
 
-    .bb-dockview .dv-groupview > .dv-content-container, .dv-render-overlay {
+    .bb-dockview .dv-groupview > .dv-content-container, .bb-dockview .dv-render-overlay {
         padding: var(--bb-dockview-padding);
     }
 
@@ -438,4 +438,3 @@
 .bb-dockview .dv-edge-collapsed .dv-right-actions-container {
     display: none;
 }
-

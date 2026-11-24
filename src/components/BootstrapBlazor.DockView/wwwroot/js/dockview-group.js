@@ -221,12 +221,7 @@ const createGroupActions = group => {
     addActionEvent(group, actionContainer);
 }
 
-const disposeGroup = group => {
-    if (group.mutationObserver) {
-        group.mutationObserver.disconnect();
-    }
-    removeActionEvent(group);
-}
+const disposeGroup = group => removeActionEvent(group)
 
 const resetActionStates = (group, actionContainer) => {
     const dockview = group.api.accessor;

@@ -8,16 +8,6 @@ DockviewComponent.prototype.on = function (eventType, callback) {
     this['_' + eventType].event(callback)
 }
 
-const dispose = DockviewComponent.prototype.dispose;
-DockviewComponent.prototype.dispose = function () {
-    this.groups.forEach(group => {
-        if (group.mutationObserver) {
-            group.mutationObserver.disconnect();
-        }
-    })
-    dispose.call(this);
-}
-
 const groupDispose = DockviewGroupPanel.prototype.dispose
 DockviewGroupPanel.prototype.dispose = function () {
     disposeGroup(this)
