@@ -114,9 +114,11 @@ const getConfigFromContent = options => {
     const panels = {}, rootType = rootContent.type
     const orientation = rootType === 'column' ? 'VERTICAL' : 'HORIZONTAL';
     const root = getTree(rootContent, { width, height, orientation }, rootParent, panels, getGroupId, options)
+    // core 要求 grid.root 为 branch；根是 Group/Component 时包一层
+    const gridRoot = root.type === 'branch' ? root : { type: 'branch', size: root.size, data: [root] }
     return {
         activeGroup: pickActiveGroup(groups),
-        grid: { width, height, orientation, root },
+        grid: { width, height, orientation, root: gridRoot },
         panels
     }
 }
