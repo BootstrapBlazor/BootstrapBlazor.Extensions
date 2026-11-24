@@ -21,10 +21,14 @@ public static class ServiceCollectionExtensions
     /// <param name="services"><para lang="zh">服务集合</para><para lang="en">The service collection</para></param>
     /// <returns><para lang="zh">服务集合</para><para lang="en">The service collection</para></returns>
     /// <remarks>
-    /// <para lang="zh">在 WebAssembly 宿主中调用 AddBootstrapBlazor 后调用此方法。离线发送会失败，消息不会排队或重放</para>
-    /// <para lang="en">Call this method after AddBootstrapBlazor in the WebAssembly host. Offline sends fail; messages are not queued or replayed</para>
-    /// <para lang="zh">服务端需注册并映射对应 Hub，Subscribe 方法需返回 bool，以区分订阅拒绝与可重试的执行失败。连接快照查询需在服务端单独启用并授权客户端访问</para>
-    /// <para lang="en">The server must register and map a corresponding Hub whose Subscribe method returns bool to distinguish subscription rejection from retryable execution failures. Connection snapshot queries require explicit server-side opt-in and client authorization</para>
+    /// <para lang="zh">
+    ///     <para>在 WebAssembly 宿主中调用 AddBootstrapBlazor 后调用此方法。离线发送会失败，消息不会排队或重放</para>
+    ///     <para>服务端需注册并映射对应 Hub，Subscribe 方法需返回 bool，以区分订阅拒绝与可重试的执行失败。连接快照查询需在服务端单独启用并授权客户端访问</para>
+    /// </para>
+    /// <para lang="en">
+    ///     <para>Call this method after AddBootstrapBlazor in the WebAssembly host. Offline sends fail; messages are not queued or replayed</para>
+    ///     <para>The server must register and map a corresponding Hub whose Subscribe method returns bool to distinguish subscription rejection from retryable execution failures. Connection snapshot queries require explicit server-side opt-in and client authorization</para>
+    /// </para>
     /// </remarks>
     public static IServiceCollection AddBootstrapBlazorHub(this IServiceCollection services)
     {

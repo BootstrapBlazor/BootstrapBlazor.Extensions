@@ -20,10 +20,14 @@ public static class ServiceCollectionExtensions
     /// <para><version>11.0.0</version></para>
     /// </summary>
     /// <remarks>
-    /// <para lang="zh">应在 AddBootstrapBlazor 后调用，未配置的类型仅在服务端本地分发。单服务解析使用此注册，枚举分发服务时仍包含默认实现。</para>
-    /// <para lang="en">Call after AddBootstrapBlazor. Unlisted types remain server-local. Single-service resolution uses this registration; enumerating dispatch services also includes the default implementation.</para>
-    /// <para lang="zh">消息不持久化，重连后不补发。同一 Hub 支持连接心跳，快照查询需显式启用。</para>
-    /// <para lang="en">Messages are not persisted or replayed after reconnecting. The same Hub accepts connection heartbeats; snapshot queries require explicit opt-in.</para>
+    /// <para lang="zh">
+    ///     <para>应在 AddBootstrapBlazor 后调用，未配置的类型仅在服务端本地分发。单服务解析使用此注册，枚举分发服务时仍包含默认实现。</para>
+    ///     <para>消息不持久化，重连后不补发。同一 Hub 支持连接心跳，快照查询需显式启用。</para>
+    /// </para>
+    /// <para lang="en">
+    ///     <para>Call after AddBootstrapBlazor. Unlisted types remain server-local. Single-service resolution uses this registration; enumerating dispatch services also includes the default implementation.</para>
+    ///     <para>Messages are not persisted or replayed after reconnecting. The same Hub accepts connection heartbeats; snapshot queries require explicit opt-in.</para>
+    /// </para>
     /// </remarks>
     /// <param name="services"></param>
     /// <param name="configure"></param>
