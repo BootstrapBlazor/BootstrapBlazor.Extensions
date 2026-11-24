@@ -99,12 +99,13 @@ const syncLayoutToContainer = dockview => {
 
 const getConfigFromContent = options => {
     const { width, height } = { width: 800, height: 600 };
-    const getGroupId = getGroupIdFunc()
+    const groups = [];
+    const getGroupId = getGroupIdFunc(groups);
     options = filterEmptyContent(options)
     const rootContent = getRootContent(options)
     if (!rootContent) {
         return {
-            activeGroup: '1',
+            activeGroup: '',
             grid: { width, height, orientation: 'HORIZONTAL', root: { type: 'branch', size: 0, data: [] } },
             panels: {}
         }
@@ -114,10 +115,17 @@ const getConfigFromContent = options => {
     const orientation = rootType === 'column' ? 'VERTICAL' : 'HORIZONTAL';
     const root = getTree(rootContent, { width, height, orientation }, rootParent, panels, getGroupId, options)
     return {
-        activeGroup: '1',
+        activeGroup: pickActiveGroup(groups),
         grid: { width, height, orientation, root },
         panels
     }
+}
+
+// 历史默认激活第二个组；不存在或不可见时回退第一个可见组，避免指向被关闭的隐藏空组
+const pickActiveGroup = groups => {
+    const second = groups[1];
+    if (second?.visible) return second.id;
+    return groups.find(g => g.visible)?.id ?? '';
 }
 
 const mergeLayoutWithOptions = (config, options) => {
@@ -140,10 +148,14 @@ const mergeLayoutWithOptions = (config, options) => {
     config.layout = syncLayoutWithOptions(layout, options, cleaned);
 }
 
-const getGroupIdFunc = () => {
+const getGroupIdFunc = groups => {
     let currentId = 0;
-    return () => `${currentId++}`;
-}
+    return visible => {
+        const id = `${currentId++}`;
+        groups.push({ id, visible });
+        return id;
+    };
+};
 
 const filterEmptyContent = function (data) {
     if (!data || typeof data !== 'object') return data;
@@ -193,6 +205,7 @@ const getSize = (size, rate) => {
 }
 
 const getGroupNode = (contentItem, size, boxSize, parent, panels, getGroupId, options) => {
+    const visible = contentItem.content.some(item => item.visible !== false);
     const views = contentItem.content.map(item => {
         panels[item.id] = {
             id: item.id,
@@ -210,7 +223,7 @@ const getGroupNode = (contentItem, size, boxSize, parent, panels, getGroupId, op
         size: getSize(boxSize, contentItem.width || contentItem.height) || size,
         visible: contentItem.content.length > 0 || contentItem.content.some(item => item.visible !== false),
         data: {
-            id: getGroupId(),
+            id: getGroupId(visible),
             activeView: contentItem.content[0]?.id || '',
             hideHeader: contentItem.content.length === 1 && contentItem.content[0].showHeader === false,
             views: views
@@ -225,7 +238,7 @@ const getLeafNode = (contentItem, size, boxSize, parent, panels, getGroupId, opt
         visible: true,
         size: getSize(boxSize, contentItem.width || contentItem.height) || size,
         data: {
-            id: getGroupId(),
+            id: getGroupId(visible),
             activeView: contentItem.id,
             hideHeader: contentItem.showHeader === false,
             views: [contentItem.id]
