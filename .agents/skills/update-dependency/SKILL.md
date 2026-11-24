@@ -1,11 +1,15 @@
 ---
 name: update-dependency
 description: >-
-  按依赖参数将 BootstrapBlazor.Extensions 的组件依赖更新到最新版本，验证构建并提交 Pull Request。
+  按依赖参数检查或更新 BootstrapBlazor.Extensions 的组件依赖，并按用户授权验证和交付。
   适用于更新 dom2image、tableexport、driverjs、html2pdf 等已登记组件的 npm 内嵌产物或 NuGet 包。
 ---
 
 # 更新组件依赖
+
+## 确定交付范围
+
+按用户请求确定操作范围。仅检查版本时，比较并报告版本后结束，不修改仓库文件。仅准备改动时，完成更新、构建和差异核对后结束，不提交、推送或创建 PR。提交、推送和创建或更新 PR 按用户授权执行；授权不明确时，停在已授权的步骤并说明。
 
 ## 选择依赖
 
@@ -20,7 +24,7 @@ description: >-
 
 新增条目时，从仓库引用和官方发布源核实包名，登记参数、依赖类型、目标文件、版本记录位置及提交标题用名。注明用于构建的组件项目及各目标框架的版本约束，并同步下面的参数选择。npm 条目还须登记归档中的产物路径。
 
-从仓库根目录开启 PowerShell 7，将 `$dep` 设为用户指定的参数，在同一会话中依次运行各节的示例。
+从仓库根目录开启 PowerShell 7，将 `$dep` 设为用户指定的参数，在同一会话中按交付范围运行各节的示例。
 
 ```powershell
 $targetVersion = $null
@@ -172,4 +176,4 @@ if ($targetVersion) {
 
 按 `feat(<Component>): update <Lib> to vX.Y.Z` 生成提交信息。组件名和库名用映射表中的写法，版本号用此次更新的依赖版本。例如 `feat(Dom2Image): update SnapDOM to v3.8.3`。
 
-构建通过且差异核对完成后，按现有流程提交、推送和创建或复用 PR。返回依赖版本变化、构建结果和 PR 链接，PR 保持待审，禁止自动合并。[github-issue-pr 技能](../github-issue-pr/SKILL.md)
+构建通过且差异核对完成后，仅按用户授权提交、推送和创建或复用 PR。返回依赖版本变化、实际构建结果和已创建或复用的 PR 链接；PR 保持待审，禁止自动合并。[github-issue-pr 技能](../github-issue-pr/SKILL.md)
