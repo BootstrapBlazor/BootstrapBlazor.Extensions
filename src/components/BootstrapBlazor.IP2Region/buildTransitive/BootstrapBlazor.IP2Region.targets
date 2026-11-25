@@ -1,0 +1,19 @@
+<Project>
+  <ItemGroup>
+    <None Include="$(MSBuildThisFileDirectory)..\contentFiles\ip2region_v*.xdb"
+          Link="ip2region\%(Filename)%(Extension)"
+          CopyToOutputDirectory="Always"
+          CopyToPublishDirectory="Always"
+          ExcludeFromSingleFile="true" />
+  </ItemGroup>
+
+  <Target Name="IP2RegionReportBuildOutput" AfterTargets="Build"
+          Condition="'$(TargetDir)' != '' And Exists('$(TargetDir)ip2region\ip2region_v4.xdb') And Exists('$(TargetDir)ip2region\ip2region_v6.xdb')">
+    <Message Text="[IP2Region] XDB files available in $(TargetDir)ip2region\" Importance="high" />
+  </Target>
+
+  <Target Name="IP2RegionReportPublishOutput" AfterTargets="Publish"
+          Condition="'$(PublishDir)' != '' And Exists('$(PublishDir)ip2region\ip2region_v4.xdb') And Exists('$(PublishDir)ip2region\ip2region_v6.xdb')">
+    <Message Text="[IP2Region] XDB files available in $(PublishDir)ip2region\" Importance="high" />
+  </Target>
+</Project>
