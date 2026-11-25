@@ -63,7 +63,28 @@ const cerateDockview = (el, options) => {
     guardCollapsedSaveProportions(dockview);
     guardMaximizeExit(dockview);
     initDockview(dockview, options, template);
+    promoteNestedPopupRoot(el, dockview);
     return dockview;
+}
+
+// 嵌套 DockView 的 popup anchor 挂自身 shell 时，浮窗拖出后下拉会被夹回；
+// 提升到最外层 shell 只放宽夹取边界，坐标仍按点击位置计算。
+const promoteNestedPopupRoot = (el, dockview) => {
+    const parentHost = el.parentElement?.closest('.bb-dockview')
+    if (!parentHost) return
+
+    let topHost = parentHost
+    for (let parent = parentHost.parentElement?.closest('.bb-dockview'); parent; parent = parent.parentElement?.closest('.bb-dockview')) {
+        topHost = parent
+    }
+
+    const topShell = topHost.querySelector(':scope > .dv-shell') ?? topHost.querySelector('.dv-shell')
+    const popup = dockview.popupService
+    if (!topShell || !popup) return
+
+    popup.updateRoot(topShell)
+    // anchor 已搬走，销毁时清理，避免外层 shell 残留空节点
+    popup.addDisposables({ dispose: () => popup._element?.remove() })
 }
 
 const guardMaximizeExit = dockview => {
