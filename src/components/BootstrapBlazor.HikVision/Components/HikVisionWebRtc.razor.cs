@@ -1,0 +1,42 @@
+// Copyright (c) BootstrapBlazor & Argo Zhang (argo@live.ca). All rights reserved.
+// Licensed under the Apache License, Version 2.0. See License.txt in the project root for license information.
+// Website: https://www.blazor.zone or https://argozhang.github.io/
+
+using Microsoft.AspNetCore.Components;
+
+namespace BootstrapBlazor.Components;
+
+/// <summary>
+/// <para lang="zh">通过 MediaMTX 播放页面以 WebRTC 方式实时预览海康威视摄像机</para>
+/// <para lang="en">Displays a live WebRTC preview from a Hikvision camera using the MediaMTX player page</para>
+/// <para><version>11.0.2</version></para>
+/// </summary>
+public partial class HikVisionWebRtc
+{
+    /// <summary>
+    /// <para lang="zh">获得/设置 浏览器可访问的 MediaMTX 播放页面地址，默认值为 http://127.0.0.1:8889/hikvision/</para>
+    /// <para lang="en">Gets or sets the browser-accessible MediaMTX player page URL. Defaults to http://127.0.0.1:8889/hikvision/</para>
+    /// <para><version>11.0.2</version></para>
+    /// </summary>
+    [Parameter]
+    public string GatewayUrl { get; set; } = "http://127.0.0.1:8889/hikvision/";
+
+    /// <summary>
+    /// <para lang="zh">获得/设置 播放器的无障碍标题</para>
+    /// <para lang="en">Gets or sets the accessible title of the player</para>
+    /// <para><version>11.0.2</version></para>
+    /// </summary>
+    [Parameter]
+    public string Title { get; set; } = "WebRTC";
+
+    private string? ClassString => CssBuilder.Default("ratio ratio-16x9")
+        .AddClassFromAttributes(AdditionalAttributes)
+        .Build();
+
+    private string? StyleString => CssBuilder.Default()
+        .AddStyleFromAttributes(AdditionalAttributes)
+        .Build();
+
+    private Uri? PlayerUrl => Uri.TryCreate(GatewayUrl, UriKind.Absolute, out var url) &&
+        url.Scheme is ("http" or "https") && url.UserInfo.Length == 0 ? url : null;
+}
