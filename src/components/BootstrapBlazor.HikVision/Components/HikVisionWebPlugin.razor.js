@@ -27,7 +27,7 @@ export async function login(id, ip, port, userName, password, loginType) {
             zeroChannels: vision.zeroChannels
         });
     }
-    return logined;
+    return { logined, errorCode: vision.loginErrorCode, errorMessage: vision.loginErrorMsg };
 }
 
 export { logout, startRealPlay, stopRealPlay, openSound, closeSound, setVolume, capturePicture, capturePictureAndDownload, startRecord, stopRecord, changeWndNum }

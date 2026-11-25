@@ -111,6 +111,16 @@ public partial class HikVisionWebPlugin
     public bool IsLogin { get; private set; }
 
     /// <summary>
+    /// 获得最近一次登录失败时的错误码
+    /// </summary>
+    public int? LoginErrorCode { get; private set; }
+
+    /// <summary>
+    /// 获得最近一次登录失败时的错误信息
+    /// </summary>
+    public string? LoginErrorMessage { get; private set; }
+
+    /// <summary>
     /// 获得 是否正在实时预览
     /// </summary>
     public bool IsRealPlaying { get; private set; }
@@ -153,12 +163,22 @@ public partial class HikVisionWebPlugin
     public async Task<bool> Login(string ip, int port, string userName, string password, HikVisionLoginType loginType = HikVisionLoginType.Http)
     {
         ThrowIfNotInited();
-        IsLogin = await InvokeAsync<bool?>("login", Id, ip, port, userName, password, (int)loginType) ?? false;
+        var result = await InvokeAsync<LoginResult>("login", Id, ip, port, userName, password, (int)loginType);
+        IsLogin = result?.Logined == true;
+        LoginErrorCode = result?.ErrorCode;
+        LoginErrorMessage = result?.ErrorMessage;
         if (IsLogin)
         {
             await TriggerLogin();
         }
         return IsLogin;
+    }
+
+    private sealed class LoginResult
+    {
+        public bool Logined { get; set; }
+        public int? ErrorCode { get; set; }
+        public string? ErrorMessage { get; set; }
     }
 
     private async Task TriggerLogin()
