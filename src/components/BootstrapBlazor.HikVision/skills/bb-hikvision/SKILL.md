@@ -14,55 +14,21 @@ description: 随 BootstrapBlazor.HikVision NuGet 包提供的 API 参考。需�
 
 ## WebRTC 预览
 
-`HikVisionWebRtc` 将 MediaMTX 的 WebRTC 播放页面嵌入 16:9 的 iframe，无需安装海康威视 Web 插件。本组件只负责显示播放页面，不读取摄像机凭据、不管理 RTSP 流，也不启动网关。
+`HikVisionWebRtc` 将 MediaMTX 的 WebRTC 播放页面嵌入 iframe，无需安装海康威视 Web 插件。先在服务端启动 MediaMTX 并配置摄像机的 RTSP 源；本组件不读取摄像机凭据、不管理 RTSP 流，也不启动网关。
 
-网关和摄像头可由 `BootstrapBlazor.MediaMtx` 包管理：注册 `AddRtspService()` 并配置 `Rtsp:MediaMtxPath` 托管 MediaMTX，再在服务端调用 `IRtspService.AddAsync` 登记摄像头，将返回的播放 URL 传给 `GatewayUrl`。注册、配置和摄像头管理的细节以该包的 `bb-mediamtx` skill 为准。
-
-```razor
-@inject IRtspService RtspService
-
-<Button Text="预览" OnClick="PreviewAsync" />
-
-@if (_playerUrl is not null)
-{
-    <HikVisionWebRtc GatewayUrl="@_playerUrl" Title="入口摄像头" />
-}
-
-@code {
-    private readonly RtspCameraOptions _camera = new()
-    {
-        Path = "entrance",
-        Url = "rtsp://192.168.1.100:554/Streaming/Channels/101"
-    };
-
-    private string? _playerUrl;
-
-    private async Task PreviewAsync()
-    {
-        _playerUrl = await RtspService.AddAsync(_camera);
-    }
-}
-```
-
-- `IRtspService` 只能在服务端调用（如 Interactive Server 页面）；`UserName`、`Password` 由服务端管理界面提交原始值，不要写入 `Url`、页面标记或浏览器存储。
-- `GatewayUrl` 没有默认值。值为空、不是绝对 HTTP(S) 地址或包含用户信息时，组件不渲染 iframe，而是显示错误提示。
-- 同一路径重复调用 `AddAsync` 会报错，不要放在可能重复执行的生命周期方法中（如预渲染时的 `OnInitializedAsync`）；已登记的路径可调用 `UpdateAsync` 替换源配置并获取播放 URL。
-- 关闭页面或移除组件不会删除路径；需要删除时由服务端调用 `RemoveAsync(path)`，这会影响该路径的所有观看者。
-
-## 播放地址
-
-`AddAsync` 返回 `http://127.0.0.1:<WebRtcPort>/<Path>/`，网关的 HTTP 和 ICE 端口仅监听回环地址，只适合浏览器与网关同机。远程浏览器的 `127.0.0.1` 指向客户端自身，需要另外配置可达的信令和媒体路径、HTTPS 与鉴权，仅替换主机名不够；HTTPS 页面应使用 HTTPS 播放地址。已配置好的远程网关可直接传入完整播放地址：
+在同一台机器上运行浏览器和网关时，可以直接使用组件，默认播放 `http://127.0.0.1:8889/hikvision/`：
 
 ```razor
-<HikVisionWebRtc GatewayUrl="https://video.example.com/entrance/" />
+<HikVisionWebRtc />
 ```
 
-- `GatewayUrl` 是 MediaMTX 播放页面地址，不是摄像机 RTSP 地址或 Control API 地址，也不应包含凭据；播放路径不是访问令牌。
-- 如需启停预览，在调用页面中用 `@if` 显示或移除组件；这不会修改 MediaMTX 的流配置。
-- `class`、`style` 等附加属性作用于外层容器，可用于控制尺寸。
-- `IsMuted` 默认为 `true`（静音），设置 `IsMuted="false"` 可取消静音。组件会覆盖播放地址中的 `muted` 查询参数并保留其他参数。有声自动播放受浏览器策略限制，可能仍需用户点击播放器；无声音时检查摄像头是否启用浏览器支持的音频编码（如 PCMU、PCMA）。
+使用不同端口、流名称或远程网关时，传入浏览器可访问的完整 HTTP(S) 播放页面地址：
 
-## 注意事项
+```razor
+<HikVisionWebRtc GatewayUrl="https://video.example.com/hikvision/" />
+```
+
+如需启停预览，在调用页面中用 `@if` 显示或移除组件；这不会修改 MediaMTX 的流配置。`GatewayUrl` 不是摄像机 RTSP 地址或 Control API 地址，也不应包含摄像机凭据。远程浏览器的 `127.0.0.1` 指向客户端自身，应配置浏览器可访问的播放地址和 WebRTC 媒体端口；HTTPS 页面应使用 HTTPS 播放地址。
 
 以文档中的参数、事件回调和公开方法签名为准；需要服务注册时，检查对应文档中的注册说明。不要将其他包中名称相似的组件或服务混用。
 
