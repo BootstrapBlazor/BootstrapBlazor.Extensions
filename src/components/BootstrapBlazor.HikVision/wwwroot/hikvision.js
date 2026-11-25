@@ -1,8 +1,10 @@
 import { addScript, registerBootstrapBlazorModule } from '../BootstrapBlazor/modules/utility.js';
 import Data from '../BootstrapBlazor/modules/data.js';
+import { initHikVisionHacks } from './hikvision-hacks.js';
 
 export async function init(id) {
     await addScript('./_content/BootstrapBlazor.HikVision/webVideoCtrl.js');
+    initHikVisionHacks(checkVisibility);
 
     if (window.$ === void 0) {
         await addScript('./_content/BootstrapBlazor.HikVision/jquery-1.7.1.min.js');
@@ -34,73 +36,6 @@ export async function init(id) {
     return true;
 }
 
-const hackJSResize = function () {
-    const originalResize = JSVideoPlugin.prototype.JS_Resize;
-    JSVideoPlugin.prototype.JS_Resize = function (e, t) {
-        const { szId } = this.oOptions;
-        const el = document.getElementById(szId);
-        if (el) {
-            const visible = checkVisibility(el);
-            if (visible) {
-                return originalResize.call(this, e, t);
-            }
-            else {
-                WebVideoCtrl.I_HidPlugin();
-            }
-        }
-    }
-}
-
-const hackJSShowWnd = function () {
-    const originalShowWnd = JSVideoPlugin.prototype.JS_ShowWnd;
-    JSVideoPlugin.prototype.JS_ShowWnd = function () {
-        const { szId } = this.oOptions;
-        const el = document.getElementById(szId);
-        if (el) {
-            const visible = checkVisibility(el);
-            if (visible) {
-                return originalShowWnd.call(this);
-            }
-            else {
-                return new Promise((resolve, reject) => {
-                    resolve();
-                });
-            }
-        }
-    }
-}
-
-const hackJSDestroyPlugin = function () {
-    const originalDestroy = JSVideoPlugin.prototype.JS_DestroyPlugin;
-    JSVideoPlugin.prototype.JS_DestroyPlugin = function (n) {
-        const origianlSendRequestProxy = this.oPlugin.oRequest.oRequest.sendRequest;
-        this.oPlugin.oRequest.oRequest.sendRequest = function (r) {
-            if (this.oWebSocket && WebSocket.OPEN === this.oWebSocket.readyState) {
-                return origianlSendRequestProxy.call(this, r);
-            }
-        }
-        this.oPlugin.JS_DestroyPlugin(true);
-
-        JSVideoPlugin = null;
-        delete window.JSVideoPlugin;
-        removePlugin();
-
-        return new Promise((resolve, reject) => {
-            resolve();
-        });
-    }
-}
-
-const removePlugin = () => {
-    const scripts = [...document.head.querySelectorAll('script')]
-    const nodes = scripts.filter(function (link) {
-        return link.src.indexOf('/jsVideoPlugin-1.0.0.min.js') > -1
-    })
-    for (let index = 0; index < nodes.length; index++) {
-        document.head.removeChild(nodes[index])
-    }
-}
-
 const initWindow = (id, cb) => {
     const result = { inited: null };
     WebVideoCtrl.I_InitPlugin({
@@ -129,9 +64,6 @@ const initWindow = (id, cb) => {
         const handler = setInterval(() => {
             if (result.inited === false || (result.inited && result.iWndIndex !== -1)) {
                 clearInterval(handler);
-                hackJSResize();
-                hackJSShowWnd();
-                hackJSDestroyPlugin();
                 resolve(result);
             }
         }, 16);
@@ -141,8 +73,12 @@ const initWindow = (id, cb) => {
 export async function login(id, ip, port, userName, password, loginType) {
     const vision = Data.get(id);
     const { inited, logined } = vision;
-    if (inited !== true || ip.length === 0 || port <= 0 || userName.length === 0 || password.length === 0) {
+    vision.loginErrorCode = null;
+    vision.loginErrorMsg = null;
+    if (inited !== true || !ip || port <= 0 || !userName || !password) {
         vision.logined = false;
+        vision.loginErrorCode = 1002;
+        vision.loginErrorMsg = 'Invalid login parameters.';
         return false;
     }
     if (logined === true) {
@@ -151,37 +87,44 @@ export async function login(id, ip, port, userName, password, loginType) {
 
     vision.szDeviceIdentify = `${ip}_${port}`;
     vision.logined = null;
-    vision.loginErrorCode = null;
-    vision.loginErrorMsg = null;
 
-    WebVideoCtrl.I_Login(ip, loginType, port, userName, password, {
-        timeout: 3000,
-        success: function (xmlDoc) {
-            getChannelList(vision).then(() => {
-                vision.logined = true;
-            });
-        },
-        error: function (oError) {
-            const ERROR_CODE_LOGIN_REPEATLOGIN = 2001;
-            if (oError.errorCode === ERROR_CODE_LOGIN_REPEATLOGIN) {
-                vision.logined = true;
-                return true;
-            }
-
-            vision.logined = false;
-            vision.loginErrorCode = oError.errorCode;
-            vision.loginErrorMsg = oError.errorMsg;
+    let timer;
+    try {
+        await Promise.race([
+            new Promise((resolve, reject) => {
+                WebVideoCtrl.I_Login(ip, loginType, port, userName, password, {
+                    timeout: 3000,
+                    success: resolve
+                }).catch(reject);
+            }),
+            new Promise((_, reject) => {
+                timer = setTimeout(() => reject(new Error('Login timed out.')), 10000);
+            })
+        ]);
+    }
+    catch (error) {
+        const code = Number(error?.errorCode ?? error ?? NaN);
+        if (code === 2001) {
+            vision.logined = true;
+            return true;
         }
-    });
 
-    return new Promise((resolve, reject) => {
-        const handler = setInterval(async () => {
-            if (vision.logined !== null) {
-                clearInterval(handler)
-                resolve(vision.logined);
-            }
-        }, 16);
-    });
+        const detail = error?.errorMsg ?? error?.message;
+        const message = typeof detail?.getElementsByTagName === 'function'
+            ? getTagNameFirstValue(detail, 'subStatusCode', '') || getTagNameFirstValue(detail, 'statusString', '')
+            : typeof detail === 'string' ? detail : detail?.subStatusCode ?? detail?.statusString;
+        vision.logined = false;
+        vision.loginErrorCode = Number.isInteger(code) ? code : null;
+        vision.loginErrorMsg = typeof message === 'string' && message.length > 0 ? message : 'Login failed.';
+        return false;
+    }
+    finally {
+        clearTimeout(timer);
+    }
+
+    await getChannelList(vision);
+    vision.logined = true;
+    return true;
 }
 
 const getChannelList = vision => {
