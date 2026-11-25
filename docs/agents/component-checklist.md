@@ -3,7 +3,7 @@
 ## 公开契约
 
 - 核对项目边界。Razor 组件检查 `[Parameter]`、默认值、回调及生命周期，服务包检查公开接口、DI 注册方法和生命周期，中间件检查注册入口和请求行为。保留已有调用方式和所支持框架的行为。[DriverJs 组件](../../src/components/BootstrapBlazor.DriverJs/Components/DriverJs.razor.cs) · [Dom2Image 注册](../../src/components/BootstrapBlazor.Dom2Image/Extensions/ServiceCollectionExtensions.cs) · [中间件入口](../../src/middleware/BootstrapBlazor.Middleware/BootstrapBlazorApplicationBuilderExtensions.cs)
-- XML 文档沿用当前项目已有格式。DriverJs 等组件用 `<para lang="zh">` 和 `<para lang="en">`，已有版本标记的 API 也应保持该项目的标记方式。[DriverJs 组件](../../src/components/BootstrapBlazor.DriverJs/Components/DriverJs.razor.cs) · [中间件选项](../../src/middleware/BootstrapBlazor.Middleware/BootstrapBlazorHubOptions.cs)
+- XML 注释遵循 [BB 组件规范](https://github.com/dotnetcore/BootstrapBlazor/blob/main/docs/agents/component-checklist.md#参数与-api)。新增 API 时标记其所属扩展包计划发布的正式版本；修改已有 API 时保留其引入版本。
 
 ## 浏览器资源与本地化
 
