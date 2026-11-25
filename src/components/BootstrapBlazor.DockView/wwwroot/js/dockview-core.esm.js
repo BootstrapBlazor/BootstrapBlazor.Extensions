@@ -13180,8 +13180,7 @@ var Overlay = class Overlay extends CompositeDisposable {
 				const moveBottom = () => {
 					top = startPosition.originTop;
 					const minHeight = top < 0 && typeof this.options.minimumInViewportHeight === "number" ? -top + this.options.minimumInViewportHeight : Overlay.MINIMUM_HEIGHT;
-					const maxHeight = containerRect.height - Math.max(0, top);
-					height = clamp(startPosition.originalHeight + (y - startPosition.originalY), minHeight, maxHeight);
+					height = clamp(startPosition.originalHeight + (y - startPosition.originalY), minHeight, Number.MAX_VALUE);
 					bottom = containerRect.height - top - height;
 				};
 				const moveLeft = () => {
@@ -13193,8 +13192,7 @@ var Overlay = class Overlay extends CompositeDisposable {
 				const moveRight = () => {
 					left = startPosition.originLeft;
 					const minWidth = left < 0 && typeof this.options.minimumInViewportWidth === "number" ? -left + this.options.minimumInViewportWidth : Overlay.MINIMUM_WIDTH;
-					const maxWidth = containerRect.width - Math.max(0, left);
-					width = clamp(startPosition.originalWidth + (x - startPosition.originalX), minWidth, maxWidth);
+					width = clamp(startPosition.originalWidth + (x - startPosition.originalX), minWidth, Number.MAX_VALUE);
 					right = containerRect.width - left - width;
 				};
 				switch (direction) {
