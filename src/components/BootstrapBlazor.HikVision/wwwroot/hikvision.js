@@ -1,8 +1,10 @@
 import { addScript, registerBootstrapBlazorModule } from '../BootstrapBlazor/modules/utility.js';
 import Data from '../BootstrapBlazor/modules/data.js';
+import { initHikVisionHacks } from './hikvision-hacks.js';
 
 export async function init(id) {
     await addScript('./_content/BootstrapBlazor.HikVision/webVideoCtrl.js');
+    initHikVisionHacks(checkVisibility);
 
     if (window.$ === void 0) {
         await addScript('./_content/BootstrapBlazor.HikVision/jquery-1.7.1.min.js');
@@ -34,73 +36,6 @@ export async function init(id) {
     return true;
 }
 
-const hackJSResize = function () {
-    const originalResize = JSVideoPlugin.prototype.JS_Resize;
-    JSVideoPlugin.prototype.JS_Resize = function (e, t) {
-        const { szId } = this.oOptions;
-        const el = document.getElementById(szId);
-        if (el) {
-            const visible = checkVisibility(el);
-            if (visible) {
-                return originalResize.call(this, e, t);
-            }
-            else {
-                WebVideoCtrl.I_HidPlugin();
-            }
-        }
-    }
-}
-
-const hackJSShowWnd = function () {
-    const originalShowWnd = JSVideoPlugin.prototype.JS_ShowWnd;
-    JSVideoPlugin.prototype.JS_ShowWnd = function () {
-        const { szId } = this.oOptions;
-        const el = document.getElementById(szId);
-        if (el) {
-            const visible = checkVisibility(el);
-            if (visible) {
-                return originalShowWnd.call(this);
-            }
-            else {
-                return new Promise((resolve, reject) => {
-                    resolve();
-                });
-            }
-        }
-    }
-}
-
-const hackJSDestroyPlugin = function () {
-    const originalDestroy = JSVideoPlugin.prototype.JS_DestroyPlugin;
-    JSVideoPlugin.prototype.JS_DestroyPlugin = function (n) {
-        const origianlSendRequestProxy = this.oPlugin.oRequest.oRequest.sendRequest;
-        this.oPlugin.oRequest.oRequest.sendRequest = function (r) {
-            if (this.oWebSocket && WebSocket.OPEN === this.oWebSocket.readyState) {
-                return origianlSendRequestProxy.call(this, r);
-            }
-        }
-        this.oPlugin.JS_DestroyPlugin(true);
-
-        JSVideoPlugin = null;
-        delete window.JSVideoPlugin;
-        removePlugin();
-
-        return new Promise((resolve, reject) => {
-            resolve();
-        });
-    }
-}
-
-const removePlugin = () => {
-    const scripts = [...document.head.querySelectorAll('script')]
-    const nodes = scripts.filter(function (link) {
-        return link.src.indexOf('/jsVideoPlugin-1.0.0.min.js') > -1
-    })
-    for (let index = 0; index < nodes.length; index++) {
-        document.head.removeChild(nodes[index])
-    }
-}
-
 const initWindow = (id, cb) => {
     const result = { inited: null };
     WebVideoCtrl.I_InitPlugin({
@@ -129,9 +64,6 @@ const initWindow = (id, cb) => {
         const handler = setInterval(() => {
             if (result.inited === false || (result.inited && result.iWndIndex !== -1)) {
                 clearInterval(handler);
-                hackJSResize();
-                hackJSShowWnd();
-                hackJSDestroyPlugin();
                 resolve(result);
             }
         }, 16);
