@@ -1,0 +1,24 @@
+﻿<Project Sdk="Microsoft.NET.Sdk">
+
+  <PropertyGroup>
+    <Version>11.0.0-beta01</Version>
+    <Description>Server-side RTSP to WebRTC gateway hosting with MediaMTX.</Description>
+    <PackageTags>BootstrapBlazor RTSP WebRTC MediaMTX</PackageTags>
+    <PackageReadmeFile>README.Rtsp.md</PackageReadmeFile>
+  </PropertyGroup>
+
+  <ItemGroup>
+    <SupportedPlatform Remove="browser" />
+    <FrameworkReference Include="Microsoft.AspNetCore.App" />
+    <None Remove="readme.md;tools\win-x64\mediamtx.exe;tools\*\mediamtx;buildTransitive\BootstrapBlazor.Rtsp.targets" />
+    <None Include="README.Rtsp.md" Pack="true" PackagePath="" />
+    <None Include="tools\win-x64\mediamtx.exe;
+                   tools\linux-x64\mediamtx;tools\linux-arm64\mediamtx;tools\linux-arm\mediamtx;
+                   tools\osx-x64\mediamtx;tools\osx-arm64\mediamtx"
+          Pack="true" PackagePath="%(RelativeDir)" />
+    <None Include="buildTransitive\BootstrapBlazor.Rtsp.targets" Pack="true" PackagePath="buildTransitive\" />
+  </ItemGroup>
+
+  <Import Project="buildTransitive\BootstrapBlazor.Rtsp.targets" />
+
+</Project>
