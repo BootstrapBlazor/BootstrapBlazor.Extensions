@@ -1,7 +1,7 @@
 <Project Sdk="Microsoft.NET.Sdk.Razor">
 
   <PropertyGroup>
-    <Version>11.0.1</Version>
+    <Version>11.0.2</Version>
     <SkillName>bb-ip2region</SkillName>
   </PropertyGroup>
 
@@ -11,9 +11,9 @@
   </PropertyGroup>
 
   <ItemGroup>
-    <Content Include="Build\*.targets" PackagePath="build\" />
-    <Content Include="Data\ip2region_v4.xdb" PackagePath="contentFiles\ip2region_v4.xdb" />
-    <Content Include="Data\ip2region_v6.xdb" PackagePath="contentFiles\ip2region_v6.xdb" />
+    <Content Include="buildTransitive\*.targets" PackagePath="buildTransitive\" />
+    <Content Include="contentFiles\ip2region_v4.xdb" PackagePath="contentFiles\ip2region_v4.xdb" />
+    <Content Include="contentFiles\ip2region_v6.xdb" PackagePath="contentFiles\ip2region_v6.xdb" />
   </ItemGroup>
 
   <ItemGroup>
