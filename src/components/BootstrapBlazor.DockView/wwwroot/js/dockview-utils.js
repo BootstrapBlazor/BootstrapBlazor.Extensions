@@ -1,7 +1,7 @@
 import { DockviewComponent } from "./dockview-core.esm.js"
 import { DockviewPanelContent } from "./dockview-content.js"
 import { onAddGroup, addGroupWithPanel, toggleLock, observeFloatingGroupLocationChange, observeOverlayChange, onMaximizedGroupChange } from "./dockview-group.js"
-import { onAddPanel, onRemovePanel, getPanelsFromOptions, findContentFromPanels } from "./dockview-panel.js"
+import { onAddPanel, onRemovePanel, getPanelsFromOptions, findContentFromPanels, syncLoadTabs } from "./dockview-panel.js"
 import { initDockviewFromConfig, saveConfig } from './dockview-config.js'
 import { syncHiddenSash } from './dockview-extensions.js'
 import './dockview-autohide.js'
@@ -117,7 +117,7 @@ const guardCollapsedSaveProportions = dockview => {
     };
 }
 
-const postLayoutInit = (dockview, options) => {
+const postLayoutInit = dockview => {
     if (dockview._isDisposed) {
         return
     }
@@ -175,10 +175,7 @@ const postLayoutInit = (dockview, options) => {
             }
         })
 
-        if (options.renderer === 'onlyWhenVisible') {
-            const visiblePanels = dockview.groups.filter(g => g.isVisible).map(g => g.activePanel)
-            dockview._loadTabs?.fire(visiblePanels.filter(p => p && p.params.key).map(p => p.params.key));
-        }
+        syncLoadTabs(dockview)
         dockview._initialized?.fire();
     })
 }
@@ -187,7 +184,7 @@ const initDockview = (dockview, options, template) => {
     dockview.params = { panels: [], options, template, layoutSeq: 0 };
     dockview.init = function (options) {
         initDockviewFromConfig(this, options);
-        postLayoutInit(this, options);
+        postLayoutInit(this);
     }
 
     dockview.switchTheme = theme => {

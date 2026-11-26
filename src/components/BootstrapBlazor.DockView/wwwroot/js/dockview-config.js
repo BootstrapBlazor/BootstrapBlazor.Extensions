@@ -1,4 +1,4 @@
-import { getPanelsFromOptions, getRootContent, movePanelContentToTemplate } from "./dockview-panel.js"
+import { getPanelsFromOptions, getRootContent, movePanelContentToTemplate, normalizeRenderer } from "./dockview-panel.js"
 
 // core 的 fromJSON 只清 edge 组的面板、不摘组（deserialize 也只加不删），旧边条会以空条残留并被
 // toJSON 写回存档。每次 fromJSON 前先摘掉已有 edge 组（目标布局里的按存档重建）；removeEdgeGroup
@@ -212,7 +212,7 @@ const getGroupNode = (contentItem, size, boxSize, parent, panels, getGroupId, op
         panels[item.id] = {
             id: item.id,
             title: item.title,
-            renderer: item.renderer || options.renderer,
+            renderer: normalizeRenderer(item.renderer, options.renderer),
             tabComponent: item.componentName,
             contentComponent: item.componentName,
             params: { ...item, parentId: parent.id }
@@ -249,7 +249,7 @@ const getLeafNode = (contentItem, size, boxSize, parent, panels, getGroupId, opt
     panels[contentItem.id] = {
         id: contentItem.id,
         title: contentItem.title,
-        renderer: contentItem.renderer || options.renderer,
+        renderer: normalizeRenderer(contentItem.renderer, options.renderer),
         tabComponent: contentItem.componentName,
         contentComponent: contentItem.componentName,
         params: { ...contentItem, parentId: parent.id }

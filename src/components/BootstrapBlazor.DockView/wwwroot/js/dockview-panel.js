@@ -7,21 +7,31 @@ const onAddPanel = panel => {
     observePanelActiveChange(panel)
 }
 
+// 面板失活只负责把内容落叶；loadTabs 的触发在组级（可见性 + activePanel），见 dockview-group.js
 const observePanelActiveChange = panel => {
     panel.api.onDidVisibilityChange(({ isVisible }) => {
         const dockview = panel.accessor;
-        if (dockview._isDisposed || dockview.params.maximizing) return;
-        const renderer = dockview.params.options.renderer;
-        if (renderer === 'onlyWhenVisible' && dockview.params.inited) {
-            if (isVisible) {
-                const visiblePanels = dockview.groups.map(g => g.activePanel)
-                dockview._loadTabs?.fire(visiblePanels.filter(p => Boolean(p)).map(p => p.params.key));
-            }
-            else {
-                movePanelContentToTemplate(panel, false)
-            }
+        if (dockview._isDisposed || dockview.params.maximizing || !dockview.params.inited) return;
+
+        // 模板搬运只看面板 renderer：全局 Always + 结构宿主 onlyWhenVisible 也要能落叶
+        if (!isVisible && panel.api.renderer === 'onlyWhenVisible') {
+            movePanelContentToTemplate(panel, false)
         }
     })
+}
+
+// loadTabs 快照 = 每个组的 activePanel，不按组可见性过滤：最大化期间其它组仍需保持渲染（§9.11.7）。
+// 允许空集合清空 C# Render；不做同集合去重 —— C# 覆盖幂等，多余通知只是一次空 diff（§9.11.5）。
+const syncLoadTabs = dockview => {
+    if (dockview._isDisposed || !dockview.params || dockview.params.maximizing || !dockview.params.inited) return;
+    if (dockview.params.options.renderer !== 'onlyWhenVisible') return;
+
+    const keys = dockview.groups
+        .map(g => g.activePanel)
+        .filter(p => p && p.params.key && p.api.renderer === 'onlyWhenVisible')
+        .map(p => p.params.key);
+
+    dockview._loadTabs?.fire(keys);
 }
 
 // 5.x 这里有个 moveAlwaysRenderPanel()：把 always 面板的内容手工搬进 .dv-content-container
@@ -119,6 +129,13 @@ const updateTitle = panel => {
 }
 
 export const getRootContent = options => options.content.find(c => c.layoutName === options.layoutName) || options.content[0]
+// 全局 Only 下把面板 always 规范化为 only（C# 不支持面板级 always）；Always 下允许面板 only 作结构宿主覆盖。
+const normalizeRenderer = (renderer, fallback) => {
+    if (fallback === 'onlyWhenVisible' && renderer === 'always') return 'onlyWhenVisible';
+    // 空值（含 0/''）取全局默认；其它非法值原样透传，由 core 在创建面板时抛错
+    return renderer || fallback;
+}
+
 const getPanelsFromOptions = options => {
     const rootContent = getRootContent(options)
     return rootContent ? getPanels(rootContent, options) : []
@@ -130,7 +147,7 @@ const getPanels = (contentItem, options, parent = {}, panels = []) => {
             id: contentItem.id,
             groupId: contentItem.groupId,
             title: contentItem.title,
-            renderer: contentItem.renderer || options.renderer,
+            renderer: normalizeRenderer(contentItem.renderer, options.renderer),
             tabComponent: contentItem.componentName,
             contentComponent: contentItem.componentName,
             params: { ...contentItem, parentType: parent.type, parentId: parent.id }
@@ -175,4 +192,4 @@ export const movePanelContentToTemplate = (panel, titleMenu = false) => {
     }
 }
 
-export { onAddPanel, observePanelActiveChange, onRemovePanel, getPanelsFromOptions, findContentFromPanels, deleteInvisiblePanel };
+export { onAddPanel, observePanelActiveChange, onRemovePanel, getPanelsFromOptions, findContentFromPanels, deleteInvisiblePanel, normalizeRenderer, syncLoadTabs };

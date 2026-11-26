@@ -1,5 +1,5 @@
 import { getIcons, getIcon } from "./dockview-icon.js"
-import { deleteInvisiblePanel, findContentFromPanels } from "./dockview-panel.js"
+import { deleteInvisiblePanel, findContentFromPanels, syncLoadTabs } from "./dockview-panel.js"
 import { saveConfig } from "./dockview-config.js"
 import { markFirstVisibleElement } from "./dockview-utils.js"
 import EventHandler from '../../BootstrapBlazor/modules/event-handler.js'
@@ -23,6 +23,9 @@ const onAddGroup = group => {
         saveConfig(dockview);
         markFirstVisibleElement(group)
     })
+    // 集合 = 每个组的 activePanel（不按可见性过滤，§9.11.7）；可见性事件负责关闭最后面板后的收缩。
+    group.api.onDidVisibilityChange(() => syncLoadTabs(dockview))
+    group.api.onDidActivePanelChange(() => syncLoadTabs(dockview))
     // edge 组的 tab 点击拦截由 dockview-autohide.js 的模块负责（onDidAddGroup 时挂 capture 监听）
     createGroupActions(group);
 }

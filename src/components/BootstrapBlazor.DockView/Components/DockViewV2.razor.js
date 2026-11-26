@@ -34,9 +34,6 @@ export async function init(id, invoke, options, styleUrl) {
         invoke.invokeMethodAsync(options.splitterCallback);
     });
     dockview.on('loadTabs', tabs => {
-        if (tabs.length === 0) {
-            return;
-        }
         invoke.invokeMethodAsync(options.loadTabs, tabs);
     });
     dockview.on('saveConfig', json => {
