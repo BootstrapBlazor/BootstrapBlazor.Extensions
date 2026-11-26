@@ -2,7 +2,7 @@
 name: update-dependency
 description: >-
   按依赖参数检查或更新 BootstrapBlazor.Extensions 的组件依赖，并按用户授权验证和交付。
-  适用于更新 dom2image、tableexport、driverjs、html2pdf 等已登记组件的 npm 内嵌产物或 NuGet 包。
+  适用于更新 dom2image、tableexport、driverjs、html2pdf、embedpdf 等已登记组件的内嵌产物或 NuGet 包。
 ---
 
 # 更新组件依赖
@@ -21,6 +21,7 @@ description: >-
 | `tableexport` | NuGet 包 | `MiniExcel` | `src/components/BootstrapBlazor.TableExport/BootstrapBlazor.TableExport.csproj` | 同一 `.csproj` 中，`net8.0` 至 `net11.0` 的 `PackageReference` 共用 `<MiniExcelVersion>`，`net6.0` 和 `net7.0` 的 `PackageReference` 各自固定为 `1.47.1`。组件 `<Version>` 增加一个 patch 版本。 | `TableExport` / `MiniExcel` |
 | `driverjs` | npm 内嵌产物 | `driver.js` | `src/components/BootstrapBlazor.DriverJs/wwwroot/driver.js.mjs` 和 `src/components/BootstrapBlazor.DriverJs/wwwroot/driver.css`，分别取同一 npm 归档内的 `package/dist/driver.js.mjs` 和 `package/dist/driver.css`；`src/components/BootstrapBlazor.DriverJs/BootstrapBlazor.DriverJs.csproj` | 从最近一次更新这两份产物的依赖提交标题读取版本，并与对应 npm 归档的两份产物核对。组件 `.csproj` 的 `<Version>` 增加一个 patch 版本。 | `DriverJs` / `DriverJs` |
 | `html2pdf` | NuGet 包 | `PuppeteerSharp` | `src/components/BootstrapBlazor.Html2Pdf/BootstrapBlazor.Html2Pdf.csproj`。范围仅限主项目，Playwright 和 Select 的依赖独立维护，当前分支未包含 QuestPdf 项目。 | 同一 `.csproj` 中，`net8.0` 至 `net11.0` 的 `PackageReference` 共用 `<PuppeteerSharpVersion>`，`net6.0` 和 `net7.0` 的 `PackageReference` 各自固定为 `20.2.6`。组件 `<Version>` 增加一个 patch 版本。 | `Html2Pdf` / `PuppeteerSharp` |
+| `embedpdf` | GitHub Release 内嵌产物 | `embedpdf/embed-pdf-viewer` | `src/components/BootstrapBlazor.EmbedPDF/wwwroot/` 中的 `embedpdf.js`、`embedpdf-worker.js`、`encoder-worker.js`、`embedpdf.wasm` 和 `chunks/*.js`，取同一 Release 的 `embedpdf-viewer-dist.zip` 中对应的 `dist/` 文件；同目录 `readme.txt` 和 `src/components/BootstrapBlazor.EmbedPDF/BootstrapBlazor.EmbedPDF.csproj`。 | `wwwroot/readme.txt` 中的当前版本；核对该版本官方归档中的运行时文件。组件 `.csproj` 的 `<Version>` 增加一个 patch 版本。项目按 `src/Frameworks.props` 构建 `net6.0` 至 `net11.0`，所有框架共用这组浏览器资源。 | `EmbedPDF` / `EmbedPDF` |
 
 新增条目时，从仓库引用和官方发布源核实包名，登记参数、依赖类型、目标文件、版本记录位置及提交标题用名。注明用于构建的组件项目及各目标框架的版本约束，并同步下面的参数选择。npm 条目还须登记归档中的产物路径。
 
@@ -28,7 +29,7 @@ description: >-
 
 ```powershell
 $targetVersion = $null
-$dep = 'dom2image' # 可选 dom2image、driverjs、tableexport、html2pdf
+$dep = 'dom2image' # 可选 dom2image、driverjs、tableexport、html2pdf、embedpdf
 $dependencies = @{
     dom2image = @{
         Component = 'Dom2Image'
@@ -52,6 +53,11 @@ $dependencies = @{
         Component = 'Html2Pdf'
         Package = 'PuppeteerSharp'
         VersionProperty = 'PuppeteerSharpVersion'
+    }
+    embedpdf = @{
+        Component = 'EmbedPDF'
+        Package = 'embedpdf/embed-pdf-viewer'
+        ReleaseAsset = 'embedpdf-viewer-dist.zip'
     }
 }
 $dependency = $dependencies[$dep]
@@ -87,7 +93,20 @@ function Expand-NpmRelease {
 }
 
 $targetVersion = $null
-if ($dependency.Artifacts) {
+if ($dep -eq 'embedpdf') {
+    $readme = Get-Content -Raw -LiteralPath (Join-Path $componentDir 'wwwroot/readme.txt') -ErrorAction Stop
+    $versionMatch = [regex]::Match($readme, '(?m)^当前版本：v(?<version>\d+\.\d+\.\d+)\s*$')
+    $currentVersion = $versionMatch.Groups['version'].Value
+    $releaseJson = gh api "repos/$packageName/releases/latest"
+    if ($LASTEXITCODE -ne 0) { throw "查询 $packageName Release 失败" }
+    $release = $releaseJson | ConvertFrom-Json
+    if ($release.draft -or $release.prerelease -or $release.tag_name -cnotmatch '^v(?<version>\d+\.\d+\.\d+)$') {
+        throw '最新 Release 不是可识别的稳定版本'
+    }
+    $latestVersion = $Matches['version']
+    $asset = @($release.assets | Where-Object { $_.name -ceq $dependency.ReleaseAsset })
+    if ($asset.Count -ne 1) { throw '最新 Release 缺少唯一的 EmbedPDF 运行时归档' }
+} elseif ($dependency.Artifacts) {
     $artifactPaths = @($dependency.Artifacts.Keys)
     if ($dep -eq 'dom2image') {
         $modulePath = Join-Path $componentDir $dependency.Artifacts[$artifactPaths[0]]
@@ -129,7 +148,7 @@ if (-not $currentVersion -or -not $latestVersion) { throw "无法核实 $package
 if ([semver]$latestVersion -gt [semver]$currentVersion) { $targetVersion = $latestVersion }
 ```
 
-版本相同或仓库版本更高时，`$targetVersion` 为空，报告两个版本并结束流程。只有确认存在更新且适用的版本后才修改文件。
+版本相同或仓库版本更高时，`$targetVersion` 为空，报告两个版本并结束流程。只有确认存在更新且适用的版本后才修改文件。EmbedPDF 仅检查版本时不下载或修改运行时文件；准备更新时按下文先核对当前版本和目标版本的归档。
 
 ## 更新文件
 
@@ -153,6 +172,14 @@ if ($targetVersion -and $dependency.Artifacts) {
 
 核实后将所有提取的产物按原内容复制到映射中的目标文件。保留产物的文件头、许可证和导出。
 
+### EmbedPDF GitHub Release 产物
+
+以 `wwwroot/readme.txt` 的版本和 `$release.tag_name` 分别从 `embedpdf/embed-pdf-viewer` 对应的正式 Release 获取 `embedpdf-viewer-dist.zip`，不要使用 npm 的 `@embedpdf/snippet` 或重新构建产物。核对 Release 标签、唯一资源名及下载文件的 SHA-256 与 Release 资源的 `digest` 一致；无法核实则暂停。先在系统临时目录安全解压，拒绝越界路径，确认归档内 `dist/embedpdf.js`、`dist/embedpdf-worker.js`、`dist/encoder-worker.js`、`dist/embedpdf.wasm` 和 `dist/chunks/*.js` 均存在，并检查入口与依赖引用；布局或运行时资源范围变化时先核实，不能机械套用旧映射。
+
+更新前，逐文件比较当前版本归档和仓库的运行时文件字节及文件集合，包括全部 `chunks/*.js`。若不一致，先说明差异并询问，不覆盖已有改动。目标版本核实后，将上述运行时文件作为一组按原字节替换，并删除仅属于旧版本、目标归档中已不存在的哈希 chunk；保留 `readme.txt` 和其他非上游文件，不添加 source map 或声明文件。更新 `readme.txt` 的版本和组件项目的 patch 版本。核对 `EmbedPDF.razor.js` 使用的默认导出、初始化配置、文档和 stage API、worker/WASM 路径及动态 chunk 引用；查看上游发布说明，若需要适配或跨大版本涉及不兼容变更，报告影响并等待用户确认适配范围。
+
+除构建外，使用适用的 Blazor 宿主或最小复现检查 PDF 加载、页码和滚动、切换文档、主题、语言及释放，并确认本地 worker、WASM 和动态 chunk 加载成功；明确区分最小复现和完整宿主验证。核对目标归档与替换后的全部运行时文件字节和集合，确认没有遗漏或过期 chunk。
+
 ### NuGet 包
 
 核对新版 NuGet 包支持的目标框架。TableExport 和 Html2Pdf 的常规更新是在 `$projectPath` 中找到 `$dependency.VersionProperty` 指定的共享属性，将它更新为 `$targetVersion`，覆盖 `net8.0` 至 `net11.0`。若涉及 `net6.0` 或 `net7.0` 的固定版本，先核实这些目标框架支持的包版本和现有 API。
@@ -171,6 +198,8 @@ if ($targetVersion) {
 ```
 
 构建通过后，用 `git diff --check` 和 `git diff -- <本次涉及的路径>` 核对依赖产物或版本、组件版本以及经确认的适配改动。
+
+EmbedPDF 的上游生成文件可能包含空白告警；不得为了消除告警改写发布产物。区分生成文件与手写文件的 `git diff --check` 结果，并报告告警及字节核对结果。
 
 ## 提交和 PR
 
