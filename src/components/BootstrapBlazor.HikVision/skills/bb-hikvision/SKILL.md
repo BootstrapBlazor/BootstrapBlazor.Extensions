@@ -60,7 +60,7 @@ description: 随 BootstrapBlazor.HikVision NuGet 包提供的 API 参考。需�
 - `GatewayUrl` 是 MediaMTX 播放页面地址，不是摄像机 RTSP 地址或 Control API 地址，也不应包含凭据；播放路径不是访问令牌。
 - 如需启停预览，在调用页面中用 `@if` 显示或移除组件；这不会修改 MediaMTX 的流配置。
 - `class`、`style` 等附加属性作用于外层容器，可用于控制尺寸。
-- MediaMTX 播放页默认静音，用户需在播放器中取消静音；无声音时检查摄像头是否启用浏览器支持的音频编码（如 PCMU、PCMA）。
+- `IsMuted` 默认为 `true`（静音），设置 `IsMuted="false"` 可取消静音。组件会覆盖播放地址中的 `muted` 查询参数并保留其他参数。有声自动播放受浏览器策略限制，可能仍需用户点击播放器；无声音时检查摄像头是否启用浏览器支持的音频编码（如 PCMU、PCMA）。
 
 ## 注意事项
 
