@@ -34,5 +34,6 @@ dotnet test ./test/UnitTestHoliday --collect:"XPlat Code Coverage"
 
 - 排查依赖来源或版本约定时读 [依赖说明](docs/agents/dependencies.md)，按已登记组件更新依赖时读 [update-dependency](.agents/skills/update-dependency/SKILL.md)。
 - 准备提交或 PR 时读 [提交与 PR 指南](docs/agents/pr-guide.md) 和 [提交信息模板](docs/agents/commit_msg_template.md)。创建、复用或更新 GitHub Issue / PR 时读 [github-issue-pr](.agents/skills/github-issue-pr/SKILL.md)。
+- 用户提示去除首尾空白后恰为 `review`、`代码审查` 或 `审查代码` 时，按 [快捷代码审查流程](.agents/skills/bb-review/SKILL.md) 执行。
 - 修改组件、服务、静态资源或打包行为时读 [组件自检](docs/agents/component-checklist.md)。
 - 接入仓库技能或查询发布包的 API 参考时读 [仓库技能](docs/agents/skills.md)。编写协作任务时可参考 [AI 协作提示词](.github/AI-TEAM-PROMPTS.md)。
