@@ -2,7 +2,11 @@
 
   <PropertyGroup>
     <Version>11.0.0-beta01</Version>
-    <Description>Server-side RTSP to WebRTC gateway hosting with MediaMTX.</Description>
+    <SkillName>bb-rtsp</SkillName>
+  </PropertyGroup>
+
+  <PropertyGroup>
+    <Description>Hosts a MediaMTX RTSP to WebRTC gateway in ASP.NET Core and manages cameras at runtime. MediaMTX is not bundled; place it at mediamtx/mediamtx.exe under the app directory or set Rtsp:MediaMtxPath.</Description>
     <PackageTags>BootstrapBlazor RTSP WebRTC MediaMTX</PackageTags>
     <PackageReadmeFile>README.Rtsp.md</PackageReadmeFile>
   </PropertyGroup>

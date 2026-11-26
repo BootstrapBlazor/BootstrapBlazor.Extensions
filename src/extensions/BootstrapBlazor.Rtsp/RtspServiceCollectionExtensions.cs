@@ -4,6 +4,7 @@
 // Maintainer: Argo Zhang(argo@live.ca) Website: https://www.blazor.zone
 
 using BootstrapBlazor.Components;
+using Microsoft.Extensions.DependencyInjection.Extensions;
 
 namespace Microsoft.Extensions.DependencyInjection;
 
@@ -15,14 +16,14 @@ namespace Microsoft.Extensions.DependencyInjection;
 public static class RtspServiceCollectionExtensions
 {
     /// <summary>
-    /// <para lang="zh">从 Rtsp 配置节绑定选项，并注册一个由宿主管理的 MediaMTX 网关。</para>
-    /// <para lang="en">Binds options from the Rtsp configuration section and registers one MediaMTX gateway managed by the host.</para>
+    /// <para lang="zh">从 Rtsp 配置节绑定选项，并注册一个由宿主管理的 MediaMTX 网关。默认查找应用目录下的 mediamtx\mediamtx.exe，文件不存在时网关不启动。</para>
+    /// <para lang="en">Binds options from the Rtsp configuration section and registers one MediaMTX gateway managed by the host. By default it looks for mediamtx\mediamtx.exe under the application directory; the gateway is not started when the file does not exist.</para>
     /// <para><version>11.0.0</version></para>
     /// </summary>
     /// <param name="services"><para lang="zh">宿主服务集合。</para><para lang="en">The host's service collection.</para></param>
     /// <param name="configureOptions"><para lang="zh">可选的回调，用于覆盖从配置节绑定的选项。</para><para lang="en">An optional callback to override options bound from the configuration section.</para></param>
     /// <returns><para lang="zh">宿主服务集合。</para><para lang="en">The host's service collection.</para></returns>
-    public static IServiceCollection AddRtspServer(this IServiceCollection services, Action<RtspOptions>? configureOptions = null)
+    public static IServiceCollection AddRtspService(this IServiceCollection services, Action<RtspOptions>? configureOptions = null)
     {
         var options = services.AddOptions<RtspOptions>().BindConfiguration("Rtsp");
         if (configureOptions is not null)
@@ -30,17 +31,7 @@ public static class RtspServiceCollectionExtensions
             options.Configure(configureOptions);
         }
 
+        services.TryAddSingleton<IRtspService, RtspService>();
         return services.AddHostedService<RtspHostedService>();
     }
-
-    /// <summary>
-    /// <para lang="zh">从 Rtsp 配置节绑定选项，并注册一个由宿主管理的 MediaMTX 网关。</para>
-    /// <para lang="en">Binds options from the Rtsp configuration section and registers one MediaMTX gateway managed by the host.</para>
-    /// <para><version>11.0.0</version></para>
-    /// </summary>
-    /// <param name="services"><para lang="zh">宿主服务集合。</para><para lang="en">The host's service collection.</para></param>
-    /// <param name="configureOptions"><para lang="zh">可选的回调，用于覆盖从配置节绑定的选项。</para><para lang="en">An optional callback to override options bound from the configuration section.</para></param>
-    /// <returns><para lang="zh">宿主服务集合。</para><para lang="en">The host's service collection.</para></returns>
-    public static IServiceCollection AddRtspService(this IServiceCollection services, Action<RtspOptions>? configureOptions = null) =>
-        services.AddRtspServer(configureOptions);
 }
