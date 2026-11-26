@@ -14,12 +14,12 @@ namespace BootstrapBlazor.Components;
 public partial class HikVisionWebRtc
 {
     /// <summary>
-    /// <para lang="zh">获得/设置 浏览器可访问的 MediaMTX 播放页面地址，默认值为 http://127.0.0.1:8889/hikvision/</para>
-    /// <para lang="en">Gets or sets the browser-accessible MediaMTX player page URL. Defaults to http://127.0.0.1:8889/hikvision/</para>
+    /// <para lang="zh">获得/设置浏览器可访问的 MediaMTX 播放页面地址，例如动态登记摄像头后返回的 URL。127.0.0.1 仅适用于浏览器与网关同机。</para>
+    /// <para lang="en">Gets or sets the browser-accessible MediaMTX player URL, such as the URL returned after dynamic camera registration. Loopback addresses require the browser and gateway to run on the same device.</para>
     /// <para><version>11.0.2</version></para>
     /// </summary>
     [Parameter]
-    public string GatewayUrl { get; set; } = "http://127.0.0.1:8889/hikvision/";
+    public string? GatewayUrl { get; set; }
 
     /// <summary>
     /// <para lang="zh">获得/设置 播放器的无障碍标题</para>

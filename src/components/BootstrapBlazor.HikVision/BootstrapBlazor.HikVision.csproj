@@ -6,8 +6,8 @@
   </PropertyGroup>
 
   <PropertyGroup>
-    <PackageTags>Bootstrap Blazor WebAssembly wasm UI Components Graph</PackageTags>
-    <Description>Bootstrap UI components extensions of Graph</Description>
+    <PackageTags>Bootstrap Blazor WebAssembly wasm UI Components HikVision WebRTC</PackageTags>
+    <Description>Bootstrap UI components extensions of HikVision</Description>
   </PropertyGroup>
 
   <ItemGroup>
