@@ -13,32 +13,18 @@ namespace BootstrapBlazor.Components;
 public sealed class RtspOptions
 {
     /// <summary>
-    /// <para lang="zh">获得/设置不含凭据的绝对 RTSP 或 RTSPS 源地址，必须指定端口和流路径。</para>
-    /// <para lang="en">Gets or sets the absolute RTSP or RTSPS source URL without credentials. An explicit port and stream path are required.</para>
+    /// <para lang="zh">获得/设置仅供服务端使用的回环 Control API 端口，默认为 9997。</para>
+    /// <para lang="en">Gets or sets the server-only loopback Control API port. Defaults to 9997.</para>
     /// <para><version>11.0.0</version></para>
     /// </summary>
-    public string? Url { get; set; }
+    public int ApiPort { get; set; } = 9997;
 
     /// <summary>
-    /// <para lang="zh">获得/设置可选的源用户名；直接提供原始值，不要进行 URL 编码。</para>
-    /// <para lang="en">Gets or sets the optional source user name. Provide the original value without URL encoding.</para>
+    /// <para lang="zh">获得/设置 MediaMTX 可执行文件路径，默认为应用目录下的 mediamtx\mediamtx.exe（Windows 布局）。Linux、macOS 或其他位置需配置完整路径，例如 mediamtx/mediamtx。相对路径以应用目录为基准；设为空或文件不存在时不启动网关。</para>
+    /// <para lang="en">Gets or sets the MediaMTX executable path. Defaults to mediamtx\mediamtx.exe under the application directory (Windows layout). On Linux, macOS or for other locations, set the full path, such as mediamtx/mediamtx. Relative paths are resolved against the application directory. The gateway is not started when the path is empty or the file does not exist.</para>
     /// <para><version>11.0.0</version></para>
     /// </summary>
-    public string? UserName { get; set; }
-
-    /// <summary>
-    /// <para lang="zh">获得/设置可选的源密码；通过服务器私有配置提供原始值，不要进行 URL 编码。</para>
-    /// <para lang="en">Gets or sets the optional source password. Supply the original value through private server configuration without URL encoding.</para>
-    /// <para><version>11.0.0</version></para>
-    /// </summary>
-    public string? Password { get; set; }
-
-    /// <summary>
-    /// <para lang="zh">获得/设置 MediaMTX 可执行文件路径。相对路径以应用目录为基准。默认为空，自动从 tools 下与当前进程平台匹配的 RID 子目录选择内置工具。</para>
-    /// <para lang="en">Gets or sets the MediaMTX executable path. Relative paths are resolved against the application directory. Defaults to an empty string, which selects the bundled executable from the tools subdirectory matching the current process runtime identifier.</para>
-    /// <para><version>11.0.0</version></para>
-    /// </summary>
-    public string ExecutablePath { get; set; } = string.Empty;
+    public string MediaMtxPath { get; set; } = "mediamtx\\mediamtx.exe";
 
     /// <summary>
     /// <para lang="zh">获得/设置 WebRTC 播放页面和信令使用的回环 TCP 端口，默认为 8889。</para>
