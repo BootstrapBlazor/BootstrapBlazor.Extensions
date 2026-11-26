@@ -210,7 +210,8 @@ const initDockview = (dockview, options, template) => {
             dockview.reset(dockview.params.options);
         }
         else {
-            toggleComponent(dockview, options);
+            // 用归一化后的 options：原始值可能缺 renderer（C# 默认枚举被省略），会漏掉面板级 always 归一化
+            toggleComponent(dockview, dockview.params.options);
         }
     }
 
