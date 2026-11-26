@@ -6,6 +6,7 @@
 using Microsoft.Extensions.Hosting;
 using Microsoft.Extensions.Logging;
 using Microsoft.Extensions.Options;
+using System.ComponentModel;
 using System.Diagnostics;
 using System.Net;
 using System.Net.Sockets;
@@ -17,7 +18,7 @@ sealed class RtspHostedService(IOptions<RtspOptions> options, ILogger<RtspHosted
 {
     private const string Loopback = "127.0.0.1";
     private const string ReleaseUrl = "https://github.com/bluenviron/mediamtx/releases";
-    private const string RestartHint = "A previous abnormal shutdown may have left MediaMTX running. Manually stop the process occupying the address, then restart the application.";
+    private const string RestartHint = "Check the port configuration and stop any other process occupying the address, then restart the application.";
     private static readonly TimeSpan _startupTimeout = TimeSpan.FromSeconds(10);
     private static readonly TimeSpan _stopTimeout = TimeSpan.FromSeconds(5);
     private Process? _process;
@@ -59,6 +60,8 @@ sealed class RtspHostedService(IOptions<RtspOptions> options, ILogger<RtspHosted
             return false;
         }
 
+        await StopExistingGatewaysAsync(executable, cancellationToken);
+
         if (!IsPortAvailable(settings.WebRtcPort, ProtocolType.Tcp) |
             !IsPortAvailable(settings.ApiPort, ProtocolType.Tcp) |
             !IsPortAvailable(settings.WebRtcIcePort, ProtocolType.Udp))
@@ -95,7 +98,7 @@ sealed class RtspHostedService(IOptions<RtspOptions> options, ILogger<RtspHosted
         {
             BaseAddress = new Uri($"http://{apiAddress}/v3/")
         };
-        using var request = client.CreateApiRequest(HttpMethod.Get, "info", apiPassword);
+        using var request = client.CreateAuthorizationRequest(HttpMethod.Get, "info", apiPassword);
         using var response = await client.SendAsync(request, HttpCompletionOption.ResponseHeadersRead, timeout.Token);
         if (response.StatusCode != HttpStatusCode.OK)
         {
@@ -126,6 +129,57 @@ sealed class RtspHostedService(IOptions<RtspOptions> options, ILogger<RtspHosted
                 Loopback, port, protocol, exception.SocketErrorCode, RestartHint);
             return false;
         }
+    }
+
+    private async Task StopExistingGatewaysAsync(string executable, CancellationToken cancellationToken)
+    {
+        var comparison = OperatingSystem.IsWindows() ? StringComparison.OrdinalIgnoreCase : StringComparison.Ordinal;
+        foreach (var process in Process.GetProcessesByName(Path.GetFileNameWithoutExtension(executable)))
+        {
+            using (process)
+            {
+                string? path;
+                try
+                {
+                    if (process.HasExited)
+                    {
+                        continue;
+                    }
+                    path = process.MainModule?.FileName;
+                }
+                catch (Exception exception) when (exception is Win32Exception or InvalidOperationException)
+                {
+                    logger.LogWarning(exception, "Could not inspect MediaMTX process {ProcessId}; it will not be stopped.", process.Id);
+                    continue;
+                }
+
+                if (!string.Equals(path, executable, comparison))
+                {
+                    continue;
+                }
+
+                logger.LogInformation("Stopping existing MediaMTX process {ProcessId} at {ExecutablePath}.", process.Id, executable);
+                await StopProcessAsync(process, cancellationToken);
+            }
+        }
+    }
+
+    private static async Task StopProcessAsync(Process process, CancellationToken cancellationToken)
+    {
+        if (!process.HasExited)
+        {
+            try
+            {
+                process.Kill();
+            }
+            catch (InvalidOperationException) when (process.HasExited)
+            {
+                // The process exited before Kill completed.
+            }
+        }
+        using var timeout = CancellationTokenSource.CreateLinkedTokenSource(cancellationToken);
+        timeout.CancelAfter(_stopTimeout);
+        await process.WaitForExitAsync(timeout.Token);
     }
 
     private Process StartMediaMtx(string executable, string configPath, string httpAddress, string iceAddress,
@@ -213,9 +267,7 @@ sealed class RtspHostedService(IOptions<RtspOptions> options, ILogger<RtspHosted
                 _process = null;
                 using (process)
                 {
-                    process.Kill();
-                    using var timeout = new CancellationTokenSource(_stopTimeout);
-                    await process.WaitForExitAsync(timeout.Token);
+                    await StopProcessAsync(process, CancellationToken.None);
                 }
             }
 

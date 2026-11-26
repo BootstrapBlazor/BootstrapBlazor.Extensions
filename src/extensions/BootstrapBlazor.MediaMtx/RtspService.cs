@@ -4,9 +4,7 @@
 // Maintainer: Argo Zhang(argo@live.ca) Website: https://www.blazor.zone
 
 using Microsoft.Extensions.Options;
-using System.Diagnostics.CodeAnalysis;
 using System.Net.Http.Json;
-using System.Text.RegularExpressions;
 
 namespace BootstrapBlazor.Components;
 
@@ -43,21 +41,18 @@ sealed class RtspService(IOptions<RtspOptions> options) : IRtspService, IDisposa
     public Task<string> UpdateAsync(RtspCameraOptions camera, CancellationToken cancellationToken = default) =>
         ConfigureAsync("patch", camera, cancellationToken);
 
+    public async Task RemoveAsync(string path, CancellationToken cancellationToken = default)
+    {
+        await SendAsync(HttpMethod.Delete, $"config/paths/delete/{path}", null, cancellationToken);
+    }
+
     private async Task<string> ConfigureAsync(string operation, RtspCameraOptions camera, CancellationToken cancellationToken)
     {
-        ArgumentNullException.ThrowIfNull(camera);
         var path = camera.Path;
-        ValidatePath(path);
         var source = BuildSource(camera);
         await SendAsync(operation == "add" ? HttpMethod.Post : HttpMethod.Patch,
             $"config/paths/{operation}/{path}", new { source, rtspTransport = "tcp", sourceOnDemand = true }, cancellationToken);
         return $"http://127.0.0.1:{options.Value.WebRtcPort}/{path}/";
-    }
-
-    public async Task RemoveAsync(string path, CancellationToken cancellationToken = default)
-    {
-        ValidatePath(path);
-        await SendAsync(HttpMethod.Delete, $"config/paths/delete/{path}", null, cancellationToken);
     }
 
     private async Task SendAsync(HttpMethod method, string route, object? content, CancellationToken cancellationToken)
@@ -69,7 +64,7 @@ sealed class RtspService(IOptions<RtspOptions> options) : IRtspService, IDisposa
             {
                 throw new InvalidOperationException("The MediaMTX gateway is not running.");
             }
-            using var request = _client.CreateApiRequest(method, route, apiPassword);
+            using var request = _client.CreateAuthorizationRequest(method, route, apiPassword);
             if (content is not null)
             {
                 request.Content = JsonContent.Create(content);
@@ -85,14 +80,6 @@ sealed class RtspService(IOptions<RtspOptions> options) : IRtspService, IDisposa
         finally
         {
             _gate.Release();
-        }
-    }
-
-    private static void ValidatePath([NotNull] string? path)
-    {
-        if (path is null or "all" || !Regex.IsMatch(path, @"\A[a-z][a-z0-9-]{0,62}\z", RegexOptions.CultureInvariant))
-        {
-            throw new ArgumentException("Camera path must start with a lowercase letter, contain only lowercase letters, digits or hyphens, be at most 63 characters, and not be the reserved name 'all'.", nameof(path));
         }
     }
 
