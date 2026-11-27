@@ -486,7 +486,9 @@ const pinToEdge = group => {
             minimumSize: EDGE_MIN_SIZE,
             collapsedSize: 35,
             // auto-hide 工具窗模式：收起条点 tab = peek 浮层（不挤占网格），只有浮层的 pin 才展开停靠
-            autoHide: true
+            autoHide: true,
+            // 空了整条移除（任意方式清空）
+            autoReveal: true
         })
         edgeGroup = findEdgeGroup(dockview, position)
     }
