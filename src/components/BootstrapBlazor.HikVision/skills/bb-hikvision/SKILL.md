@@ -16,7 +16,7 @@ description: 随 BootstrapBlazor.HikVision NuGet 包提供的 API 参考。需�
 
 `HikVisionWebRtc` 将 MediaMTX 的 WebRTC 播放页面嵌入 16:9 的 iframe，无需安装海康威视 Web 插件。本组件只负责显示播放页面，不读取摄像机凭据、不管理 RTSP 流，也不启动网关。
 
-网关和摄像头可由 `BootstrapBlazor.Rtsp` 包管理：注册 `AddRtspService()` 并配置 `Rtsp:MediaMtxPath` 托管 MediaMTX，再在服务端调用 `IRtspService.AddAsync` 登记摄像头，将返回的播放 URL 传给 `GatewayUrl`。注册、配置和摄像头管理的细节以该包的 `bb-rtsp` skill 为准。
+网关和摄像头可由 `BootstrapBlazor.MediaMtx` 包管理：注册 `AddRtspService()` 并配置 `Rtsp:MediaMtxPath` 托管 MediaMTX，再在服务端调用 `IRtspService.AddAsync` 登记摄像头，将返回的播放 URL 传给 `GatewayUrl`。注册、配置和摄像头管理的细节以该包的 `bb-mediamtx` skill 为准。
 
 ```razor
 @inject IRtspService RtspService
