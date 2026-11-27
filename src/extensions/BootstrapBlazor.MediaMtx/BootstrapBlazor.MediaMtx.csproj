@@ -13,7 +13,13 @@
 
   <ItemGroup>
     <SupportedPlatform Remove="browser" />
+  </ItemGroup>
+
+  <ItemGroup>
     <FrameworkReference Include="Microsoft.AspNetCore.App" />
+  </ItemGroup>
+
+  <ItemGroup>
     <None Remove="readme.md" />
     <None Include="README.MediaMtx.md" Pack="true" PackagePath="" />
   </ItemGroup>
