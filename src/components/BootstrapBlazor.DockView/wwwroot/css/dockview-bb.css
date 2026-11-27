@@ -239,6 +239,12 @@
             stroke: var(--bb-dockview-control-icon-lock-color);
         }
 
+        /* 不可执行（canFloat/canPin/locked）：只置灰，不改光标；点击由 JS 守卫 */
+        .bb-dockview .dv-right-actions-container .bb-dockview-control-icon.bb-disabled > svg > *,
+        .bb-edge-peek-actions .bb-dockview-control-icon.bb-disabled > svg > * {
+            stroke: var(--bb-dockview-control-icon-lock-color);
+        }
+
     .bb-dockview .bb-dockview-control-icon > svg {
         width: var(--bb-dockview-control-icon-width);
         height: var(--bb-dockview-control-icon-width);

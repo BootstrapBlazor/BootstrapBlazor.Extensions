@@ -1,6 +1,6 @@
 import { DockviewComponent } from "./dockview-core.esm.js"
 import { DockviewPanelContent } from "./dockview-content.js"
-import { onAddGroup, addGroupWithPanel, toggleLock, observeFloatingGroupLocationChange, observeOverlayChange, onMaximizedGroupChange } from "./dockview-group.js"
+import { onAddGroup, addGroupWithPanel, toggleLock, observeFloatingGroupLocationChange, observeOverlayChange, onMaximizedGroupChange, refreshActionStates } from "./dockview-group.js"
 import { onAddPanel, onRemovePanel, getPanelsFromOptions, findContentFromPanels, syncLoadTabs } from "./dockview-panel.js"
 import { initDockviewFromConfig, saveConfig } from './dockview-config.js'
 import { syncHiddenSash } from './dockview-extensions.js'
@@ -238,6 +238,10 @@ const initDockview = (dockview, options, template) => {
 
     dockview.onDidAddGroup(onAddGroup);
 
+    // 结构变更都由 core mutation() 收口，onDidMutateLayout 每次恰好一次（拖动期间组件级事件被吞），
+    // 按钮态统一在这里重算，其余入口不重复刷新。
+    dockview.onDidMutateLayout(() => refreshActionStates(dockview));
+
     dockview.onDidMaximizedGroupChange(onMaximizedGroupChange);
 
     dockview.onWillDragPanel(event => {
@@ -333,6 +337,8 @@ const toggleGroupLock = (dockview, options) => {
     dockview.groups.forEach(group => {
         toggleLock(group, group.header.rightActionsContainer, options.lock)
     })
+    // refreshActionStates 重算并派发前端事件（peek 同步）；不回调 C#，防 IsLock 回灌重锁
+    refreshActionStates(dockview)
 }
 
 // 标记视图容器内第一个可见的 .dv-view，供 CSS 去掉隐藏占位列留下的前导分隔线

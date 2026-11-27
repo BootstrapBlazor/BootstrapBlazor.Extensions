@@ -16,7 +16,7 @@ import {
     createDismissableLayer, prefersReducedMotion
 } from './dockview-core.esm.js'
 import { getIcon } from './dockview-icon.js'
-import { unpinFromEdge } from './dockview-group.js'
+import { unpinFromEdge, isLocked } from './dockview-group.js'
 import { saveConfig } from './dockview-config.js'
 
 const PEEK_MS = 150
@@ -221,6 +221,10 @@ class BBAutoHideService {
         unpin.classList.add('bb-edge-peek-pin')
         const close = cloneIcon('.bb-dockview-control-icon-close', 'close')
         close.classList.add('bb-edge-peek-close')
+        // 锁定态双向设置：克隆可能带旧 bb-disabled；点击守卫在回调里
+        const peekLocked = !!isLocked(group)
+        unpin.classList.toggle('bb-disabled', peekLocked)
+        close.classList.toggle('bb-disabled', peekLocked)
         actions.append(unpin, close)
         bar.append(title, actions)
 
@@ -262,12 +266,16 @@ class BBAutoHideService {
 
         unpin.addEventListener('click', () => {
             const target = session.group
+            // 锁定：点击忽略，且不收起 peek
+            if (isLocked(target)) return
             // VS 语义：只取消当前面板所属来源组（钉起时的分组），其它来源组的面板留在边条上
             const originId = session.panel?.params?.edgeOrigin ?? ''
             this._teardown()
             unpinFromEdge(target, originId)
         })
         close.addEventListener('click', () => {
+            // core 的 close/removePanel 无 locked 守卫，这里拦
+            if (isLocked(session.group)) return
             (session.panel || group.activePanel)?.api.close()
         })
 
@@ -294,6 +302,17 @@ class BBAutoHideService {
                 onDismiss: () => { if (this._session === session) this._teardown() }
             })
         )
+
+        // peek 打开期间锁变化：由 refreshActionStates 的前端事件同步（不走 lockChanged，防 IsLock 回灌）
+        const lockHost = group.api.accessor.element
+        const onActionsRefreshed = () => {
+            if (this._session !== session) return
+            const locked = !!isLocked(group)
+            unpin.classList.toggle('bb-disabled', locked)
+            close.classList.toggle('bb-disabled', locked)
+        }
+        lockHost?.addEventListener('bb-dockview-actions-refreshed', onActionsRefreshed)
+        session.disposables.addDisposables({ dispose: () => lockHost?.removeEventListener('bb-dockview-actions-refreshed', onActionsRefreshed) })
 
         this._slideIn(session)
         // 无障碍播报（无 live-region 服务时核心侧是 no-op）

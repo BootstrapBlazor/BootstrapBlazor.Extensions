@@ -240,7 +240,7 @@ const resetActionStates = (group, actionContainer) => {
     if (showLock(dockview, group)) {
         actionContainer.classList.add('bb-show-lock');
     }
-    if (getLockState(dockview, group)) {
+    if (isLocked(group)) {
         toggleLock(group, actionContainer, true, false)
     }
     // 边缘组必须始终留一个"取消钉住"的入口，否则面板可能被永久钉死在侧边
@@ -248,6 +248,8 @@ const resetActionStates = (group, actionContainer) => {
         actionContainer.classList.add('bb-show-pin');
         // toggle 而非 add：组在网格/浮窗/边条之间迁移时会带着旧类，必须清掉
         actionContainer.classList.toggle('bb-pin', getPinState(group));
+        // 与 canPin 同口径（锁定 / 钉起后无网格组）
+        toggleIconDisabled(actionContainer, '.bb-dockview-control-icon-pin, .bb-dockview-control-icon-pushpin', !canPin(group))
     }
     if (!isEdge && showMaximize(dockview, group)) {
         actionContainer.classList.add('bb-show-maximize');
@@ -259,7 +261,11 @@ const resetActionStates = (group, actionContainer) => {
         actionContainer.classList.add('bb-show-float');
         if (getFloatState(group)) {
             actionContainer.classList.add('bb-float');
+            // 与其它结构操作同一锁定口径
+            toggleIconDisabled(actionContainer, '.bb-dockview-control-icon-dock', isLocked(group))
         }
+        // 与 canFloat 同口径
+        toggleIconDisabled(actionContainer, '.bb-dockview-control-icon-float', !canFloat(group))
     }
     if (showUp(group) && !getUpState(group)) {
         actionContainer.classList.add('bb-up')
@@ -270,6 +276,25 @@ const resetActionStates = (group, actionContainer) => {
 const reRenderActionStates = group => {
     const actionContainer = group.header.element.querySelector('.dv-right-actions-container');
     if (actionContainer) resetActionStates(group, actionContainer);
+}
+
+const toggleIconDisabled = (actionContainer, selector, disabled) => {
+    // pin/pushpin 两图标共存，需 querySelectorAll；undefined 会退化成无 force 切换，需 !!disabled
+    actionContainer.querySelectorAll(selector).forEach(icon => icon.classList.toggle('bb-disabled', !!disabled))
+}
+
+// 结构变化后重算全组按钮态；微任务合并批量 mutation
+const refreshActionStates = dockview => {
+    if (!dockview?.params || dockview._isDisposed) return
+    if (dockview.params.actionStatesPending) return
+    dockview.params.actionStatesPending = true
+    queueMicrotask(() => {
+        dockview.params.actionStatesPending = false
+        if (dockview._isDisposed) return
+        dockview.groups.forEach(reRenderActionStates)
+        // 纯前端事件供 peek 同步；不回 C#，防 IsLock 经 update 回灌重锁
+        dockview.element?.dispatchEvent(new Event('bb-dockview-actions-refreshed'))
+    })
 }
 
 const showLock = (dockview, group) => {
@@ -296,6 +321,10 @@ const getLockState = (dockview, group) => {
         ? options.lock
         : group.panels.some(p => p.params.isLock === true);
 }
+
+// 结构操作统一判定：组锁 / 全局锁 / 面板级 isLock
+const isLocked = group => getLockState(group.api.accessor, group)
+
 const showUp = (group) => {
     return group.model.location.type == 'floating'
 }
@@ -328,15 +357,40 @@ const getFloatState = group => group.model.location.type === 'floating';
 const addActionEvent = group => {
     const actionContainer = group.header.element.querySelector('.dv-right-actions-container');
 
+    // core 的 tab 关闭（× / Delete·Backspace）直接 panel.api.close()，无 locked 守卫，捕获阶段拦；
+    // × 排除 C# 标题栏的 .bb-dockview-item-title-icon；EventHandler 注册表不自动清理，off 挂到 group disposables
+    const header = group.header.element
+    const guards = [
+        ['click', '.dv-default-tab-action:not(.bb-dockview-item-title-icon)', e => {
+            if (!isLocked(group)) return
+            e.preventDefault()
+            e.stopPropagation()
+        }],
+        ['keydown', '.dv-tab', e => {
+            // 与 core 同口径：仅 tab 本身聚焦时响应，避免误伤输入框
+            if (e.target !== e.delegateTarget) return
+            if (e.key !== 'Delete' && e.key !== 'Backspace') return
+            if (!isLocked(group)) return
+            e.preventDefault()
+            e.stopPropagation()
+        }]
+    ]
+    guards.forEach(([event, selector, handler]) => EventHandler.on(header, event, selector, handler))
+    group.addDisposables({
+        dispose: () => guards.forEach(([event, selector, handler]) => EventHandler.off(header, event, selector, handler))
+    })
+
     EventHandler.on(actionContainer, 'click', '.bb-dockview-control-icon', e => {
         const ele = e.delegateTarget;
         if (ele.classList.contains('bb-dockview-control-icon-lock')) {
             toggleLock(group, actionContainer, false);
             group.api.accessor._lockChanged.fire({ keys: group.panels.map(panel => panel.params.key), isLock: false });
+            refreshActionStates(group.api.accessor)
         }
         else if (ele.classList.contains('bb-dockview-control-icon-unlock')) {
             toggleLock(group, actionContainer, true);
             group.api.accessor._lockChanged.fire({ keys: group.panels.map(panel => panel.params.key), isLock: true });
+            refreshActionStates(group.api.accessor)
         }
         else if (ele.classList.contains('bb-dockview-control-icon-restore')) {
             toggleFull(group, true);
@@ -400,8 +454,10 @@ const getEdgeSide = group => {
 
 const pinToEdge = group => {
     const dockview = group.api.accessor
-    if (group.locked) return
+    // edge 图钉 = 取消钉起（锁守卫在 unpinFromEdge）
     if (group.model.location.type == 'edge') return unpinFromEdge(group)
+    // 与按钮禁用态同口径
+    if (!canPin(group)) return
 
     // 浮窗先落回网格（复用 dock 的已验证路径），之后按网格组处理
     let floatingSide
@@ -463,6 +519,8 @@ const pinToEdge = group => {
 // 不传则返还整条边条（展开态边条上的组级图钉走这条）。
 const unpinFromEdge = (group, originId) => {
     const dockview = group.api.accessor
+    // 锁定：组头图钉与 peek 图钉共用
+    if (isLocked(group)) return
     const position = group.model.location.position
     const panels = [...group.panels]
     if (panels.length == 0) {
@@ -593,16 +651,31 @@ const float = group => {
     saveConfig(dockview)
 }
 
+const countGridGroupsWithPanels = dockview =>
+    dockview.groups.filter(g => g.panels.length > 0 && g.model.location.type === 'grid').length
+
 const canFloat = group => {
-    if (group.locked) return false;
+    if (isLocked(group)) return false;
     // 边缘组是布局结构，官方明确不支持浮动/最大化
     if (group.model.location.type == 'edge') return false;
     const dockview = group.api.accessor;
-    const gridGroups = dockview.groups.filter(g => g.panels.length > 0 && g.model.location.type === 'grid')
-    if (gridGroups.length <= 1) return false;
+    if (countGridGroupsWithPanels(dockview) <= 1) return false;
     if (group.element.closest('.dv-resize-container')) return
     if (group.element.querySelector('.dv-resize-container')) return
     return true
+}
+
+// 与 canFloat 同不变量：钉起后仍须留有网格组（edge 图钉=取消钉起，不受限）
+const canPin = group => {
+    if (isLocked(group)) return false
+    const type = group.model.location.type
+    if (type == 'edge') return true
+    if (group.panels.length == 0) return false
+    if (type == 'floating' && !findOriginGroup(group)) return false
+    const dockview = group.api.accessor
+    const count = countGridGroupsWithPanels(dockview)
+    // 浮窗先停靠回原组，count+1 计入
+    return type == 'floating' ? count + 1 > 1 : count > 1
 }
 
 const createFloatingGroup = (group, rect) => {
@@ -786,7 +859,7 @@ const setFloatingHeight = (overlay, group, height) => {
 }
 
 const dock = group => {
-    if (group.locked) return;
+    if (isLocked(group)) return;
     const dockview = group.api.accessor
     const originGroup = findOriginGroup(group)
     if (!originGroup) return
@@ -854,7 +927,7 @@ const closeEdgeGroup = (dockview, group) => {
 }
 
 const close = group => {
-    if (group.locked) return
+    if (isLocked(group)) return
     const dockview = group.api.accessor
     if (group.model.location.type == 'edge') {
         closeEdgeGroup(dockview, group)
@@ -912,4 +985,4 @@ const floatingExitMaximized = group => {
     group.setParams({ rect: { ...rect, isMaximized: false } })
 }
 
-export { onAddGroup, addGroupWithPanel, toggleLock, disposeGroup, closeEdgeGroup, observeFloatingGroupLocationChange, observeOverlayChange, onMaximizedGroupChange, unpinFromEdge };
+export { onAddGroup, addGroupWithPanel, toggleLock, disposeGroup, closeEdgeGroup, observeFloatingGroupLocationChange, observeOverlayChange, onMaximizedGroupChange, unpinFromEdge, refreshActionStates, isLocked };
