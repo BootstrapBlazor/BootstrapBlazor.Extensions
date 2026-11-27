@@ -14,7 +14,7 @@ using System.Security.Cryptography;
 
 namespace BootstrapBlazor.Components;
 
-sealed class RtspHostedService(IOptions<RtspOptions> options, ILogger<RtspHostedService> logger, IRtspService service) : IHostedService, IDisposable
+sealed class RtspHostedService(IOptions<RtspOptions> options, ILogger<RtspHostedService> logger, IRtspService service) : BackgroundService
 {
     private const string Loopback = "127.0.0.1";
     private const string ReleaseUrl = "https://github.com/bluenviron/mediamtx/releases";
@@ -24,16 +24,19 @@ sealed class RtspHostedService(IOptions<RtspOptions> options, ILogger<RtspHosted
     private Process? _process;
     private string? _configPath;
 
-    public async Task StartAsync(CancellationToken cancellationToken)
+    /// <summary>
+    /// <inheritdoc/>
+    /// </summary>
+    protected override async Task ExecuteAsync(CancellationToken stoppingToken)
     {
         try
         {
-            if (await StartGatewayAsync(cancellationToken))
+            if (await StartGatewayAsync(stoppingToken))
             {
                 return;
             }
         }
-        catch (OperationCanceledException) when (!cancellationToken.IsCancellationRequested)
+        catch (OperationCanceledException) when (!stoppingToken.IsCancellationRequested)
         {
             logger.LogError("MediaMTX did not become ready within {Timeout} seconds; the RTSP gateway is disabled. Verify the installed MediaMTX version and listener ports. {RestartHint}",
                 _startupTimeout.TotalSeconds, RestartHint);
@@ -46,9 +49,15 @@ sealed class RtspHostedService(IOptions<RtspOptions> options, ILogger<RtspHosted
         await StopGatewayAsync();
     }
 
-    public Task StopAsync(CancellationToken cancellationToken) => StopGatewayAsync();
+    /// <summary>
+    /// <inheritdoc/>
+    /// </summary>
+    public override async Task StopAsync(CancellationToken cancellationToken)
+    {
+        await StopGatewayAsync();
 
-    public void Dispose() => StopGatewayAsync().GetAwaiter().GetResult();
+        await base.StopAsync(cancellationToken);
+    }
 
     private async Task<bool> StartGatewayAsync(CancellationToken cancellationToken)
     {
