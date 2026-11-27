@@ -1,0 +1,13 @@
+@namespace BootstrapBlazor.Components
+@inherits BootstrapComponentBase
+
+@if (PlayerUrl is { } url)
+{
+    <div @attributes="AdditionalAttributes" class="@ClassString" style="@StyleString">
+        <iframe src="@url.AbsoluteUri" title="@Title" class="border-0" allow="autoplay; fullscreen" referrerpolicy="no-referrer"></iframe>
+    </div>
+}
+else
+{
+    <div role="alert">GatewayUrl must be an absolute HTTP or HTTPS player URL without credentials.</div>
+}

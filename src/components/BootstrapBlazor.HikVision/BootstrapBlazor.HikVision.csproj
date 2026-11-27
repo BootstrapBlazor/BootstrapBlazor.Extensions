@@ -1,13 +1,13 @@
 <Project Sdk="Microsoft.NET.Sdk.Razor">
 
   <PropertyGroup>
-    <Version>11.0.1</Version>
+    <Version>11.0.2-beta01</Version>
     <SkillName>bb-hikvision</SkillName>
   </PropertyGroup>
 
   <PropertyGroup>
-    <PackageTags>Bootstrap Blazor WebAssembly wasm UI Components Graph</PackageTags>
-    <Description>Bootstrap UI components extensions of Graph</Description>
+    <PackageTags>Bootstrap Blazor WebAssembly wasm UI Components HikVision WebRTC</PackageTags>
+    <Description>Bootstrap UI components extensions of HikVision</Description>
   </PropertyGroup>
 
   <ItemGroup>
