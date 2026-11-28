@@ -7,10 +7,13 @@ ASP.NET Core 动态 RTSP 摄像头服务。一个托管的 MediaMTX 进程管理
 ## 注册与网关配置
 
 ```csharp
-// 安装与目标系统对应的平台包，三选一：
+// 安装与目标系统及架构对应的平台包，再调用对应的注册方法：
 builder.Services.AddMediaMtxWindows();
-// builder.Services.AddMediaMtxLinux();
-// builder.Services.AddMediaMtxMacOS();
+// builder.Services.AddMediaMtxLinuxX64();
+// builder.Services.AddMediaMtxLinuxArm64();
+// builder.Services.AddMediaMtxLinuxArmV7();
+// builder.Services.AddMediaMtxMacOSX64();
+// builder.Services.AddMediaMtxMacOSArm64();
 ```
 
 ```json
@@ -52,43 +55,24 @@ User Secrets 的 `secrets.json` 使用与 `appsettings.json` 相同的层次结�
 
 对应的环境变量名为 `MediaMtx__Cameras__hikvision__Password`。ASP.NET Core 默认只在 Development 环境加载 User Secrets。
 网关通过子进程环境传递包含凭据的源地址，不会将其写入生成的临时配置文件或日志。
-静态摄像头同样按需使用 RTSP/TCP 拉流；修改摄像头配置后需重启应用。静态路径不能与其他静态路径或用户 JSON 中的路径重复。
+静态摄像头同样按需使用 RTSP/TCP 拉流；修改摄像头配置后需重启应用。
 不再支持原来的全局 `Url`、`UserName`、`Password`。
 平台注册方法同时注册主服务，从 `MediaMtx` 配置节绑定选项，也可通过 `configureOptions` 回调覆盖选项。
-只注册一个平台启动器；未注册时宿主启动失败。平台不匹配时记录警告并跳过网关，宿主仍可启动。
+只注册一个平台启动器；未注册时宿主启动失败。操作系统或系统架构不匹配时记录警告并跳过网关，宿主仍可启动。
 自行实现 `IMediaMtxProcessLauncher` 时，注册该接口并调用 `AddMediaMtxService`；启动器使用宿主提供的 `ProcessStartInfo` 启动并返回进程，宿主负责就绪探测和清理。
 HTTP 和 Control API 使用不同 TCP 端口，ICE 使用 UDP。
 Control API 仅监听回环地址，使用每个宿主实例生成的内部随机密码，不提供浏览器调用入口。
 `IMediaMtxService.SetGatewayStateAsync` 仅供宿主同步网关状态；自定义实现应在密码为 `null` 时
 停止管理请求，并在网关就绪后使用提供的密码认证 Control API 请求。
 
-### 可选的 MediaMTX JSON 配置
+### MediaMTX 配置
 
-默认使用包内的 JSON 配置。需要调整其他 MediaMTX 参数时，可在应用目录创建例如 `mediamtx.settings.json`：
-
-```json
-{
-  "readTimeout": "25s",
-  "writeTimeout": "25s"
-}
-```
-
-在 `MediaMtx` 配置节中设置 `"ConfigurationPath": "mediamtx.settings.json"`，也可使用绝对路径。
-文件必须是 JSON 对象，顶层字段使用 MediaMTX 的配置名称；未指定的字段沿用默认值。
-相对路径以应用目录为基准，指定的文件不存在或内容无效时，网关不会启动。
-部署时需自行将该文件放到指定位置；UI 可以由服务端校验并保存此文件，但本包不提供编辑界面。
-修改文件后需要重启应用，用户文件不会被组件改写。
-
-为保证登记、同机播放和就绪探测，组件会覆盖 `api`、`apiAddress`、`apiEncryption`、
-`authMethod`、`authInternalUsers`、`webrtc`、`webrtcAddress`、`webrtcEncryption`、
-`webrtcLocalUDPAddress`、`webrtcIPsFromInterfaces`、`webrtcAdditionalHosts`、
-`webrtcAllowOrigins` 和 `logDestinations`。
+MediaMTX 的配置由组件生成，不支持用户提供的 MediaMTX JSON 配置文件。
+组件关闭 RTSP、RTMP、HLS、SRT、MoQ 等监听器，并配置本机 Control API 和 WebRTC。
+端口和摄像头通过 `MediaMtx` 选项设置；组件将配置写入临时 YAML 文件供子进程启动，
+摄像头源地址和内部 API 密码仅通过子进程环境传递。正常停止时会清理临时文件，
+强制终止进程时可能无法清理。
 组件将子进程日志限制到标准输出并丢弃，不转发可能含源凭据的输出。
-端口请通过 `MediaMtx` 配置节设置，内部 API 密码只通过进程环境传递。
-启用其他协议或监听器可能扩大网络暴露范围，应由调用方进行访问控制。
-
-运行时会将合并后的配置写入临时文件；不要在用户 JSON 中存放摄像头凭据。
-如果用户配置包含敏感信息，临时文件也会包含这些信息，强制终止进程时可能无法清理。
 
 ## UI 动态登记
 
@@ -200,10 +184,12 @@ HTTP、Control API、UDP ICE 只监听 `127.0.0.1`。默认返回 URL 中的回�
 除主包外，可按服务器系统安装对应的工具包，包含 MediaMTX v1.21.4：
 
 - `BootstrapBlazor.MediaMtx.Windows`：Windows x64。
-- `BootstrapBlazor.MediaMtx.Linux`：Linux x64、arm64、armv7。
-- `BootstrapBlazor.MediaMtx.MacOS`：macOS x64、arm64。
+- Linux：`BootstrapBlazor.MediaMtx.Linux.X64`、`BootstrapBlazor.MediaMtx.Linux.Arm64`、`BootstrapBlazor.MediaMtx.Linux.ArmV7`。
+- macOS：`BootstrapBlazor.MediaMtx.MacOS.X64`、`BootstrapBlazor.MediaMtx.MacOS.Arm64`。
 
-平台包会将该平台所有支持架构的工具复制到输出或发布目录的 `mediamtx-tools` 子目录，并分别在 `mediamtx-tools\windows`、`mediamtx-tools\linux` 或 `mediamtx-tools\macos` 附带 `LICENSE.MediaMTX`；构建和发布不需要为工具指定 `RuntimeIdentifier`。例如 Windows 工具位于 `mediamtx-tools\win-x64\mediamtx.exe`，Linux 工具分别位于 `mediamtx-tools\linux-x64`、`mediamtx-tools\linux-arm64` 和 `mediamtx-tools\linux-arm`。默认启动路径按运行时操作系统及系统架构选择；不支持的架构无法使用内置工具。
+每个 NuGet 包对应 `src/extensions` 下的独立同名工程，仅包含对应架构的工具。NuGet 还原不会将工具复制到应用目录；编译和发布时才复制到目标目录的 `mediamtx-tools` 子目录，并附带 `LICENSE.MediaMTX`。目标文件已存在时不会覆盖；升级工具时，请删除已有的目标文件或使用新的输出目录。复制时只挑选与当前目标 RID 一致的那个架构目录：未指定 `RuntimeIdentifier` 时按本机 RID 判断，`dotnet publish -r linux-arm64` 这类跨平台构建只复制 `linux-arm64`；同时引用多个平台包时，其余平台不会写入应用目录。
+`LICENSE.MediaMTX` 在源码、NuGet 包及应用输出中始终与对应工具位于同一个架构目录。源码和包内使用 `tools\<平台-架构>`，应用输出使用 `mediamtx-tools\<平台-架构>`。
+例如 Windows x64 工具位于 `mediamtx-tools\win-x64\mediamtx.exe`，许可证位于 `mediamtx-tools\win-x64\LICENSE.MediaMTX`；Linux ARMv7 工具位于 `mediamtx-tools\linux-arm\mediamtx`。默认启动路径按运行时操作系统及系统架构选择。
 也可以自行从 [MediaMTX Releases](https://github.com/bluenviron/mediamtx/releases) 下载并配置路径；仍需注册平台启动器或自行实现启动器。压缩包中的 `mediamtx.yml` 不会被使用。
 
 `MediaMtx:MediaMtxPath` 默认为 `mediamtx-tools\<平台-架构>\<可执行文件>`，相对应用目录。

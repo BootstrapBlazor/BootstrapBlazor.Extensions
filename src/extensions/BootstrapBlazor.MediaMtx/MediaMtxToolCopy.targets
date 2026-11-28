@@ -1,0 +1,39 @@
+<Project>
+  <PropertyGroup>
+    <MediaMtxTargetRid Condition="'$(RuntimeIdentifier)' != ''">$(RuntimeIdentifier)</MediaMtxTargetRid>
+    <MediaMtxTargetRid Condition="'$(MediaMtxTargetRid)' == ''">$(NETCoreSdkRuntimeIdentifier)</MediaMtxTargetRid>
+  </PropertyGroup>
+
+  <ItemGroup>
+    <MediaMtxTool Include="$(MSBuildThisFileDirectory)..\tools\$(MediaMtxTargetRid)\**\*"
+                  Condition="'$(MediaMtxTargetRid)' != ''">
+      <DestinationPath>mediamtx-tools\$(MediaMtxTargetRid)\%(RecursiveDir)%(Filename)%(Extension)</DestinationPath>
+    </MediaMtxTool>
+    <MediaMtxTool Include="$(MSBuildThisFileDirectory)..\tools\*\**\*"
+                  Condition="'$(MediaMtxTargetRid)' == ''">
+      <DestinationPath>mediamtx-tools\%(RecursiveDir)%(Filename)%(Extension)</DestinationPath>
+    </MediaMtxTool>
+  </ItemGroup>
+
+  <Target Name="_CopyMediaMtxToolsToOutput" AfterTargets="CopyFilesToOutputDirectory"
+          Condition="'$(DesignTimeBuild)' != 'true' and '$(OutDir)' != '' and '@(MediaMtxTool)' != ''">
+    <ItemGroup>
+      <MediaMtxToolToBuildOutput Include="@(MediaMtxTool)" Condition="!Exists('$(OutDir)%(MediaMtxTool.DestinationPath)')" />
+    </ItemGroup>
+    <Copy SourceFiles="@(MediaMtxToolToBuildOutput)"
+          DestinationFiles="@(MediaMtxToolToBuildOutput->'$(OutDir)%(DestinationPath)')" />
+    <Message Text="[MediaMTX] Copied to build output: @(MediaMtxToolToBuildOutput->'$(OutDir)%(DestinationPath)')"
+             Importance="high" Condition="'@(MediaMtxToolToBuildOutput)' != ''" />
+  </Target>
+
+  <Target Name="_CopyMediaMtxToolsToPublish" AfterTargets="CopyFilesToPublishDirectory"
+          Condition="'$(DesignTimeBuild)' != 'true' and '$(PublishDir)' != '' and '@(MediaMtxTool)' != ''">
+    <ItemGroup>
+      <MediaMtxToolToPublishOutput Include="@(MediaMtxTool)" Condition="!Exists('$(PublishDir)%(MediaMtxTool.DestinationPath)')" />
+    </ItemGroup>
+    <Copy SourceFiles="@(MediaMtxToolToPublishOutput)"
+          DestinationFiles="@(MediaMtxToolToPublishOutput->'$(PublishDir)%(DestinationPath)')" />
+    <Message Text="[MediaMTX] Copied to publish output: @(MediaMtxToolToPublishOutput->'$(PublishDir)%(DestinationPath)')"
+             Importance="high" Condition="'@(MediaMtxToolToPublishOutput)' != ''" />
+  </Target>
+</Project>

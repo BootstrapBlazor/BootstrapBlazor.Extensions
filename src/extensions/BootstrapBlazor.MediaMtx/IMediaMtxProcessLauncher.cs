@@ -15,8 +15,8 @@ namespace BootstrapBlazor.Components;
 public interface IMediaMtxProcessLauncher
 {
     /// <summary>
-    /// <para lang="zh">获得当前操作系统是否受支持。</para>
-    /// <para lang="en">Gets whether the current operating system is supported.</para>
+    /// <para lang="zh">获得当前操作系统和系统架构是否受支持。</para>
+    /// <para lang="en">Gets whether the current operating system and OS architecture are supported.</para>
     /// <para><version>11.0.0</version></para>
     /// </summary>
     bool IsSupported { get; }

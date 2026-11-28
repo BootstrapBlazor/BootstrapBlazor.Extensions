@@ -12,10 +12,13 @@ description: 提供 BootstrapBlazor.MediaMtx 的配置与 API 参考。适用于
 ## 注册与配置
 
 ```csharp
-// 安装与目标系统对应的平台包，三选一：
+// 安装与目标系统及架构对应的平台包，再调用对应的注册方法：
 builder.Services.AddMediaMtxWindows();
-// builder.Services.AddMediaMtxLinux();
-// builder.Services.AddMediaMtxMacOS();
+// builder.Services.AddMediaMtxLinuxX64();
+// builder.Services.AddMediaMtxLinuxArm64();
+// builder.Services.AddMediaMtxLinuxArmV7();
+// builder.Services.AddMediaMtxMacOSX64();
+// builder.Services.AddMediaMtxMacOSArm64();
 ```
 
 ```json
@@ -28,14 +31,13 @@ builder.Services.AddMediaMtxWindows();
 }
 ```
 
-- 主包不附带 MediaMTX。安装并注册 `BootstrapBlazor.MediaMtx.Windows`（x64）、`BootstrapBlazor.MediaMtx.Linux`（x64、arm64、armv7）或 `BootstrapBlazor.MediaMtx.MacOS`（x64、arm64）之一，工具版本为 v1.21.4；也可从 [MediaMTX Releases](https://github.com/bluenviron/mediamtx/releases) 下载并配置路径。
-- 平台包将该平台所有支持架构的工具复制到输出或发布目录的 `mediamtx-tools` 子目录，无需为工具指定 `RuntimeIdentifier`。启动时按运行时操作系统和系统架构选择工具；不支持的架构无法使用内置工具。
+- 主包不附带 MediaMTX。按部署环境选择一个包：`BootstrapBlazor.MediaMtx.Windows`（x64）、`BootstrapBlazor.MediaMtx.Linux.X64`、`BootstrapBlazor.MediaMtx.Linux.Arm64`、`BootstrapBlazor.MediaMtx.Linux.ArmV7`、`BootstrapBlazor.MediaMtx.MacOS.X64` 或 `BootstrapBlazor.MediaMtx.MacOS.Arm64`。工具版本为 v1.21.4；也可从 [MediaMTX Releases](https://github.com/bluenviron/mediamtx/releases) 下载并配置路径。
+- 每个 NuGet 包仅包含对应架构的工具，`LICENSE.MediaMTX` 在源码、包内及应用输出中均与工具位于同一架构目录。还原时不复制到应用目录，编译和发布时只复制到目标目录中缺失的文件，且只复制与当前目标 RID 一致的架构目录（未指定 `RuntimeIdentifier` 时按本机 RID 判断，`dotnet publish -r` 指定的 RID 优先）。升级工具时请删除已有的目标文件或使用新的输出目录。
 - `MediaMtxPath` 默认为应用目录下的 `mediamtx-tools\<平台-架构>\<可执行文件>`，例如 `mediamtx-tools\win-x64\mediamtx.exe`；可通过配置指定其他路径，相对路径以应用目录为基准。Linux/macOS 需要为输出或发布目录中的目标工具设置执行权限。
-- 平台方法同时注册主服务，从 `MediaMtx` 配置节绑定选项，也支持通过 `configureOptions` 回调覆盖选项。自行实现 `IMediaMtxProcessLauncher` 时，注册该接口并调用 `AddMediaMtxService`；启动器使用宿主提供的 `ProcessStartInfo` 启动并返回进程，宿主负责就绪探测和清理。只注册一个启动器；未注册时宿主启动失败，平台不匹配时网关不启动并记录警告，宿主继续启动。
+- 平台方法同时注册主服务，从 `MediaMtx` 配置节绑定选项，也支持通过 `configureOptions` 回调覆盖选项。自行实现 `IMediaMtxProcessLauncher` 时，注册该接口并调用 `AddMediaMtxService`；启动器使用宿主提供的 `ProcessStartInfo` 启动并返回进程，宿主负责就绪探测和清理。只注册一个启动器；未注册时宿主启动失败，操作系统或系统架构不匹配时网关不启动并记录警告，宿主继续启动。
 - WebRTC 页面和 Control API 分别使用 TCP 端口 8889、9997，ICE 使用 UDP 端口 8189；HTTP 与 Control API 端口应不同。
-- `MediaMtx:Cameras` 是以播放路径为键的静态摄像头字典，值提供 `Url` 和可选的 `UserName`、`Password`（值中的 `Path` 被忽略），网关启动时自动登记，无需手动调用 `AddOrUpdateAsync`。密码通过 User Secrets（`secrets.json` 中与 `appsettings.json` 相同的层次结构）或环境变量（如 `MediaMtx__Cameras__hikvision__Password`）提供；静态路径不能与用户 JSON 配置中的路径冲突。修改后重启应用。
-- 可选的 `ConfigurationPath` 指向用户提供的 MediaMTX JSON 对象，相对路径以应用目录为基准；部署时需自行提供该文件。用户配置覆盖包内默认值，但 API、认证、本机 WebRTC 地址和日志输出目标由组件覆盖；字段清单见包内 README。就绪探测在启动期限内重试已认证的 Control API 请求，不依赖子进程日志。文件无效或不存在时网关不启动，修改后需重启应用。
-- 合并配置会写入临时文件，内部 API 密码只通过进程环境传递。用户 JSON 不应包含摄像头凭据；启用其他监听器可能扩大网络暴露范围。
+- `MediaMtx:Cameras` 是以播放路径为键的静态摄像头字典，值提供 `Url` 和可选的 `UserName`、`Password`（值中的 `Path` 被忽略），网关启动时自动登记，无需手动调用 `AddOrUpdateAsync`。密码通过 User Secrets（`secrets.json` 中与 `appsettings.json` 相同的层次结构）或环境变量（如 `MediaMtx__Cameras__hikvision__Password`）提供。修改后重启应用。
+- MediaMTX 配置由组件生成，不支持用户提供的 MediaMTX JSON 配置文件。组件生成临时 YAML，摄像头源地址和内部 API 密码仅通过子进程环境传递；就绪探测使用已认证的 Control API 请求，不依赖子进程日志。
 - 文件不存在时记录警告；端口被占用、进程启动失败、就绪探测失败或超时时记录错误日志。网关不启动，宿主继续启动；网关未运行时管理调用抛出 `InvalidOperationException`。
 - 正常停止宿主时服务会尝试回收自有 MediaMTX 进程。启动时会先结束可执行文件完整路径匹配 `MediaMtx:MediaMtxPath` 的已有实例，并等待退出。同一可执行文件路径应只交给一个宿主管理，否则新宿主启动会中断已有播放。其他路径的进程不受影响；若端口仍被占用，检查占用情况后重启。
 - 本包只支持 MediaMTX，不支持其他 RTSP 转流工具。

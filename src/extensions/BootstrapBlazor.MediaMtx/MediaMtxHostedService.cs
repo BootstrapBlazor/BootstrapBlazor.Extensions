@@ -11,7 +11,8 @@ using System.Diagnostics;
 using System.Net;
 using System.Net.Sockets;
 using System.Security.Cryptography;
-using System.Text.Json.Nodes;
+using System.Text;
+using System.Text.Json;
 
 namespace BootstrapBlazor.Components;
 
@@ -65,7 +66,7 @@ sealed class MediaMtxHostedService(IOptions<MediaMtxOptions> options, ILogger<Me
     {
         if (!launcher.IsSupported)
         {
-            logger.LogWarning("The registered MediaMTX platform launcher does not support this operating system; the gateway is disabled.");
+            logger.LogWarning("The registered MediaMTX platform launcher does not support this operating system or OS architecture; the gateway is disabled.");
             return false;
         }
 
@@ -81,8 +82,8 @@ sealed class MediaMtxHostedService(IOptions<MediaMtxOptions> options, ILogger<Me
         var apiAddress = $"{Loopback}:{settings.ApiPort}";
         var iceAddress = $"{Loopback}:{settings.WebRtcIcePort}";
         var publicUri = settings.GetWebRtcPublicUri();
-        var config = await CreateConfigurationAsync(settings, httpAddress, iceAddress, apiAddress, publicUri, cancellationToken);
-        var cameraSources = ConfigureCameras(config, settings.Cameras, logger);
+        var cameraSources = new Dictionary<string, string>();
+        var config = CreateConfiguration(settings.Cameras, httpAddress, iceAddress, apiAddress, publicUri, cameraSources);
 
         await StopExistingGatewaysAsync(executable, cancellationToken);
 
@@ -97,7 +98,7 @@ sealed class MediaMtxHostedService(IOptions<MediaMtxOptions> options, ILogger<Me
         timeout.CancelAfter(_startupTimeout);
 
         _configPath = Path.GetTempFileName();
-        await File.WriteAllTextAsync(_configPath, config.ToJsonString(), timeout.Token);
+        await File.WriteAllTextAsync(_configPath, config, timeout.Token);
         var process = StartMediaMtx(launcher, executable, _configPath, apiPassword, cameraSources);
         _process = process;
         process.BeginOutputReadLine();
@@ -221,99 +222,65 @@ sealed class MediaMtxHostedService(IOptions<MediaMtxOptions> options, ILogger<Me
         await process.WaitForExitAsync(timeout.Token);
     }
 
-    private static async Task<JsonObject> CreateConfigurationAsync(MediaMtxOptions settings, string httpAddress, string iceAddress,
-        string apiAddress, Uri? publicUri, CancellationToken cancellationToken)
+    private static string CreateConfiguration(Dictionary<string, MediaMtxCameraOptions> cameras, string httpAddress, string iceAddress,
+        string apiAddress, Uri? publicUri, Dictionary<string, string> cameraSources)
     {
-        using var defaultsStream = typeof(MediaMtxHostedService).Assembly.GetManifestResourceStream("BootstrapBlazor.MediaMtx.DefaultConfig.json")
-            ?? throw new InvalidOperationException("The default MediaMTX configuration is missing.");
-        using var reader = new StreamReader(defaultsStream);
-        var defaults = JsonNode.Parse(await reader.ReadToEndAsync())?.AsObject()
-            ?? throw new InvalidOperationException("The default MediaMTX configuration must be a JSON object.");
-        var config = new JsonObject();
-        if (!string.IsNullOrWhiteSpace(settings.ConfigurationPath))
-        {
-            var path = Path.GetFullPath(settings.ConfigurationPath, AppContext.BaseDirectory);
-            config = JsonNode.Parse(await File.ReadAllTextAsync(path, cancellationToken))?.AsObject()
-                ?? throw new InvalidOperationException("The MediaMTX configuration must be a JSON object.");
-        }
+        // JSON-quoted strings are valid YAML scalars and safely escape configuration values.
+        static string Quote(string value) => JsonSerializer.Serialize(value);
 
-        foreach (var item in defaults.ToArray())
-        {
-            if (!config.ContainsKey(item.Key))
-            {
-                defaults.Remove(item.Key);
-                config.Add(item.Key, item.Value);
-            }
-        }
-
-        config["api"] = true;
-        config["apiAddress"] = apiAddress;
-        config["apiEncryption"] = false;
-        config["authMethod"] = "internal";
-        config["authInternalUsers"] = new JsonArray
-        {
-            new JsonObject
-            {
-                ["user"] = "gateway",
-                ["ips"] = new JsonArray(Loopback),
-                ["permissions"] = new JsonArray(new JsonObject { ["action"] = "api" })
-            },
-            new JsonObject
-            {
-                ["user"] = "any",
-                ["permissions"] = new JsonArray(new JsonObject { ["action"] = "read" })
-            }
-        };
-        config["webrtc"] = true;
-        config["webrtcAddress"] = httpAddress;
-        config["webrtcEncryption"] = false;
-        config["webrtcLocalUDPAddress"] = iceAddress;
-        config["webrtcIPsFromInterfaces"] = false;
-        config["webrtcAdditionalHosts"] = new JsonArray(Loopback);
-        var allowedOrigins = new JsonArray($"http://{httpAddress}");
+        var config = new StringBuilder();
+        config.AppendLine("metrics: false")
+            .AppendLine("pprof: false")
+            .AppendLine("playback: false")
+            .AppendLine("rtsp: false")
+            .AppendLine("rtmp: false")
+            .AppendLine("hls: false")
+            .AppendLine("srt: false")
+            .AppendLine("moq: false")
+            .AppendLine("api: true")
+            .AppendLine($"apiAddress: {Quote(apiAddress)}")
+            .AppendLine("apiEncryption: false")
+            .AppendLine("authMethod: internal")
+            .AppendLine("authInternalUsers:")
+            .AppendLine("  - user: gateway")
+            .AppendLine($"    ips: [{Quote(Loopback)}]")
+            .AppendLine("    permissions:")
+            .AppendLine("      - action: api")
+            .AppendLine("  - user: any")
+            .AppendLine("    permissions:")
+            .AppendLine("      - action: read")
+            .AppendLine("webrtc: true")
+            .AppendLine($"webrtcAddress: {Quote(httpAddress)}")
+            .AppendLine("webrtcEncryption: false")
+            .AppendLine($"webrtcLocalUDPAddress: {Quote(iceAddress)}")
+            .AppendLine("webrtcIPsFromInterfaces: false")
+            .AppendLine($"webrtcAdditionalHosts: [{Quote(Loopback)}]")
+            .AppendLine("webrtcAllowOrigins:")
+            .AppendLine($"  - {Quote($"http://{httpAddress}")}");
         if (publicUri is not null)
         {
             var publicOrigin = publicUri.GetLeftPart(UriPartial.Authority);
             if (!string.Equals(publicOrigin, $"http://{httpAddress}", StringComparison.OrdinalIgnoreCase))
             {
-                allowedOrigins.Add(publicOrigin);
+                config.AppendLine($"  - {Quote(publicOrigin)}");
             }
         }
-        config["webrtcAllowOrigins"] = allowedOrigins;
-        config["logDestinations"] = new JsonArray("stdout");
-        return config;
-    }
+        config.AppendLine("logDestinations: [stdout]");
 
-    private static Dictionary<string, string> ConfigureCameras(JsonObject config, Dictionary<string, MediaMtxCameraOptions> cameras, ILogger logger)
-    {
-        var sources = new Dictionary<string, string>();
-        if (cameras.Count == 0)
+        if (cameras.Count > 0)
         {
-            return sources;
-        }
-
-        var paths = config["paths"]?.AsObject() ?? new JsonObject();
-        if (config["paths"] is null)
-        {
-            config["paths"] = paths;
-        }
-
-        foreach (var (path, camera) in cameras)
-        {
-            var source = MediaMtxService.BuildRtspSourceUrl(camera)
-                ?? throw new ArgumentException("Camera URL must be an absolute RTSP or RTSPS URL.", nameof(cameras));
-            paths.Add(path, new JsonObject
+            config.AppendLine("paths:");
+            foreach (var (path, camera) in cameras)
             {
-                ["source"] = camera.Url,
-                ["rtspTransport"] = "tcp",
-                ["sourceOnDemand"] = true
-            });
-            if (!string.IsNullOrEmpty(camera.UserName))
-            {
-                sources.Add($"MTX_PATHS_{path.ToUpperInvariant()}_SOURCE", source);
+                var source = MediaMtxService.BuildRtspSourceUrl(camera)
+                    ?? throw new ArgumentException("Camera URL must be an absolute RTSP or RTSPS URL.", nameof(cameras));
+                config.AppendLine($"  {Quote(path)}:")
+                    .AppendLine("    rtspTransport: tcp")
+                    .AppendLine("    sourceOnDemand: true");
+                cameraSources.Add($"MTX_PATHS_{path.ToUpperInvariant()}_SOURCE", source);
             }
         }
-        return sources;
+        return config.ToString();
     }
 
     private static Process StartMediaMtx(IMediaMtxProcessLauncher launcher, string executable, string configPath,

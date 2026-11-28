@@ -1,0 +1,30 @@
+<Project>
+  <PropertyGroup>
+    <PackageId>$(MSBuildProjectName)</PackageId>
+    <Description>MediaMTX 1.21.4 executable for $(MediaMtxToolRid).</Description>
+    <PackageLicenseExpression>Apache-2.0 AND MIT</PackageLicenseExpression>
+    <PackageTags>BootstrapBlazor MediaMTX $(MediaMtxToolPlatform)</PackageTags>
+  </PropertyGroup>
+
+  <PropertyGroup>
+    <MediaMtxTargetRid Condition="'$(RuntimeIdentifier)' != ''">$(RuntimeIdentifier)</MediaMtxTargetRid>
+    <MediaMtxTargetRid Condition="'$(MediaMtxTargetRid)' == ''">$(NETCoreSdkRuntimeIdentifier)</MediaMtxTargetRid>
+  </PropertyGroup>
+
+  <ItemGroup>
+    <SupportedPlatform Remove="browser" />
+    <ProjectReference Include="$(MSBuildThisFileDirectory)BootstrapBlazor.MediaMtx.csproj" />
+  </ItemGroup>
+
+  <ItemGroup>
+    <None Remove="tools\**\*" />
+    <None Include="$(MSBuildProjectDirectory)\tools\$(MediaMtxToolRid)\*"
+          Pack="true" PackagePath="tools\$(MediaMtxToolRid)\" />
+    <None Update="$(MSBuildProjectDirectory)\tools\$(MediaMtxToolRid)\*"
+          Condition="'$(MediaMtxTargetRid)' == '' or '$(MediaMtxToolRid)' == '$(MediaMtxTargetRid)'"
+          TargetPath="mediamtx-tools\$(MediaMtxToolRid)\%(Filename)%(Extension)"
+          CopyToOutputDirectory="PreserveNewest" CopyToPublishDirectory="PreserveNewest" />
+    <None Include="$(MSBuildThisFileDirectory)MediaMtxToolCopy.targets"
+          Pack="true" PackagePath="buildTransitive\$(MSBuildProjectName).targets" />
+  </ItemGroup>
+</Project>

@@ -29,13 +29,6 @@ public sealed class MediaMtxOptions
     public Dictionary<string, MediaMtxCameraOptions> Cameras { get; set; } = new();
 
     /// <summary>
-    /// <para lang="zh">获得/设置可选的 MediaMTX JSON 配置文件路径。相对路径以应用目录为基准，修改后需重启应用。</para>
-    /// <para lang="en">Gets or sets the optional MediaMTX JSON configuration file path. Relative paths are resolved against the application directory; restart the application after changes.</para>
-    /// <para><version>11.0.0</version></para>
-    /// </summary>
-    public string? ConfigurationPath { get; set; }
-
-    /// <summary>
     /// <para lang="zh">获得/设置 MediaMTX 可执行文件路径，默认按当前系统和架构选择应用目录 mediamtx-tools 子目录下的工具。相对路径以应用目录为基准，文件不存在时不启动网关。</para>
     /// <para lang="en">Gets or sets the MediaMTX executable path. By default, the tool is selected under the application directory's mediamtx-tools subdirectory according to the current OS and architecture. Relative paths are resolved against the application directory; the gateway is not started when the file does not exist.</para>
     /// <para><version>11.0.0</version></para>

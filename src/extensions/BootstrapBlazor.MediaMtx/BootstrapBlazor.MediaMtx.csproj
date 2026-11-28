@@ -20,10 +20,6 @@
   </ItemGroup>
 
   <ItemGroup>
-    <EmbeddedResource Include="MediaMtx.default.json" LogicalName="BootstrapBlazor.MediaMtx.DefaultConfig.json" />
-  </ItemGroup>
-
-  <ItemGroup>
     <None Remove="readme.md" />
     <None Include="README.MediaMtx.md" Pack="true" PackagePath="" />
   </ItemGroup>
