@@ -1,0 +1,27 @@
+<Project Sdk="Microsoft.NET.Sdk">
+
+  <PropertyGroup>
+    <Version>11.0.0-beta01</Version>
+    <SkillName>bb-mediamtx</SkillName>
+  </PropertyGroup>
+
+  <PropertyGroup>
+    <Description>Hosts a MediaMTX RTSP to WebRTC gateway in ASP.NET Core and manages cameras at runtime. Register the matching BootstrapBlazor.MediaMtx platform package or a custom process launcher.</Description>
+    <PackageTags>BootstrapBlazor RTSP WebRTC MediaMTX</PackageTags>
+    <PackageReadmeFile>README.MediaMtx.md</PackageReadmeFile>
+  </PropertyGroup>
+
+  <ItemGroup>
+    <SupportedPlatform Remove="browser" />
+  </ItemGroup>
+
+  <ItemGroup>
+    <FrameworkReference Include="Microsoft.AspNetCore.App" />
+  </ItemGroup>
+
+  <ItemGroup>
+    <None Remove="readme.md" />
+    <None Include="README.MediaMtx.md" Pack="true" PackagePath="" />
+  </ItemGroup>
+
+</Project>
