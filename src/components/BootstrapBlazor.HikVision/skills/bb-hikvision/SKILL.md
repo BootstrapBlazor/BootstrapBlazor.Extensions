@@ -21,7 +21,7 @@ description: 随 BootstrapBlazor.HikVision NuGet 包提供的 API 参考。需�
 
 `HikVisionWebRtc` 将 MediaMTX 的 WebRTC 播放页面嵌入 16:9 的 iframe，无需安装海康威视 Web 插件。组件只显示播放地址，不负责登记摄像头、读取凭据或启动网关。
 
-网关和摄像头可由 `BootstrapBlazor.MediaMtx` 包管理：安装目标平台包并调用对应的 `AddMediaMtxWindows()`、`AddMediaMtxLinux()` 或 `AddMediaMtxMacOS()`。调用页面在服务端自行登记摄像头，再将返回的播放地址传给组件。注册、配置和摄像头管理的细节以该包的 `bb-mediamtx` skill 为准。
+网关和摄像头可由 `BootstrapBlazor.MediaMtx` 包管理：安装与目标系统及架构匹配的平台包，并调用对应的 `AddMediaMtxWindows()`、`AddMediaMtxLinuxX64()`、`AddMediaMtxLinuxArm64()`、`AddMediaMtxLinuxArmV7()`、`AddMediaMtxMacOSX64()` 或 `AddMediaMtxMacOSArm64()`。调用页面在服务端自行登记摄像头，再将返回的播放地址传给组件。注册、配置和摄像头管理的细节以该包的 `bb-mediamtx` skill 为准。
 
 下面的示例同时引用 `BootstrapBlazor.HikVision` 与 `BootstrapBlazor.MediaMtx`，并安装一个平台包；`IMediaMtxService` 由 MediaMtx 包提供，不属于 HikVision 包。
 
@@ -46,19 +46,19 @@ description: 随 BootstrapBlazor.HikVision NuGet 包提供的 API 参考。需�
 
     private async Task PreviewAsync()
     {
-        _webRtcUrl = await MediaMtxService.AddAsync(_camera);
+        _webRtcUrl = await MediaMtxService.AddOrUpdateAsync(_camera);
     }
 }
 ```
 
 - `Url` 是摄像机 RTSP 地址，不应包含用户名或密码；`WebRtcUrl` 是浏览器访问的完整播放页面地址。两者互不替代。
-- 登记由调用页面发起，不要在可能重复执行的预渲染生命周期中调用；同一路径重复登记会报错，已存在的路径可改用 `AddOrUpdateAsync`（`IMediaMtxService` 扩展方法）或 `UpdateAsync` 替换源配置并取得播放地址，替换可能中断该路径的现有播放。
+- 登记由调用页面发起，不要在可能重复执行的预渲染生命周期中调用。`IMediaMtxService.AddOrUpdateAsync` 按 `Path` 登记新路径或更新已有路径，并返回播放地址；更新可能中断该路径的现有播放。
 - `IMediaMtxService` 只能在服务端调用（如 Interactive Server 页面）；`UserName`、`Password` 由服务端管理界面提交原始值，不要写入地址、页面标记或浏览器存储。
 - 关闭页面或移除组件不会删除路径；需要删除时由服务端调用 `RemoveAsync(path)`，这会影响该路径的所有观看者。
 
 ## 播放地址
 
-`AddAsync` 默认返回 `http://127.0.0.1:<WebRtcPort>/<Path>/`；也可配置 `MediaMtx:WebRtcPublicUrl`。网关的 HTTP 和 ICE 端口仅监听回环地址。远程浏览器的 `127.0.0.1` 指向客户端自身，需要另外配置可达的信令和媒体路径、HTTPS 与鉴权，仅替换主机名不够；HTTPS 页面应使用 HTTPS 播放地址。已配置好的远程网关可直接传入完整播放地址：
+`AddOrUpdateAsync` 默认返回 `http://127.0.0.1:<WebRtcPort>/<Path>/`；也可配置 `MediaMtx:WebRtcPublicUrl`。网关的 HTTP 和 ICE 端口仅监听回环地址。远程浏览器的 `127.0.0.1` 指向客户端自身，需要另外配置可达的信令和媒体路径、HTTPS 与鉴权，仅替换主机名不够；HTTPS 页面应使用 HTTPS 播放地址。已配置好的远程网关可直接传入完整播放地址：
 
 ```razor
 <HikVisionWebRtc WebRtcUrl="https://video.example.com/entrance/" />
@@ -83,7 +83,7 @@ description: 随 BootstrapBlazor.HikVision NuGet 包提供的 API 参考。需�
 ## 排错
 
 - 区域空白：先确认渲染出的是 iframe 还是 `role="alert"` 提示，再检查反代响应头、HTTPS 页面是否嵌入了 HTTP 地址。
-- 播放器长时间转圈：网关是否运行、路径是否已登记、摄像机源是否连通；`AddAsync` 成功只表示配置被接受。
+- 播放器长时间转圈：网关是否运行、路径是否已登记、摄像机源是否连通；`AddOrUpdateAsync` 成功只表示配置被接受。
 - 画面正常但无声：确认 `IsMuted`、播放器静音状态和摄像头音频编码。
 
 ## 注意事项
