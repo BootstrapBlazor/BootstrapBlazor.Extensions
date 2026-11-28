@@ -41,8 +41,12 @@ public sealed class MediaMtxOptions
     /// <para><version>11.0.0</version></para>
     /// </summary>
     public string MediaMtxPath { get; set; } = Path.Combine("mediamtx-tools",
-        $"{(OperatingSystem.IsWindows() ? "win" : OperatingSystem.IsMacOS() ? "osx" : "linux")}-{RuntimeInformation.OSArchitecture.ToString().ToLowerInvariant()}",
-        OperatingSystem.IsWindows() ? "mediamtx.exe" : "mediamtx");
+        $"{PlatformName}-{RuntimeInformation.OSArchitecture.ToString().ToLowerInvariant()}",
+        ExecuteableFileName);
+
+    private static string PlatformName => OperatingSystem.IsWindows() ? "win" : OperatingSystem.IsMacOS() ? "osx" : "linux";
+
+    private static string ExecuteableFileName => OperatingSystem.IsWindows() ? "mediamtx.exe" : "mediamtx";
 
     /// <summary>
     /// <para lang="zh">获得/设置 WebRTC 播放页面和信令使用的回环 TCP 端口，默认为 8889。</para>

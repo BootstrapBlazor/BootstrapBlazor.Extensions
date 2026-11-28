@@ -33,7 +33,7 @@ builder.Services.AddMediaMtxWindows();
 - `MediaMtxPath` 默认为应用目录下的 `mediamtx-tools\<平台-架构>\<可执行文件>`，例如 `mediamtx-tools\win-x64\mediamtx.exe`；可通过配置指定其他路径，相对路径以应用目录为基准。Linux/macOS 需要为输出或发布目录中的目标工具设置执行权限。
 - 平台方法同时注册主服务，从 `MediaMtx` 配置节绑定选项，也支持通过 `configureOptions` 回调覆盖选项。自行实现 `IMediaMtxProcessLauncher` 时，注册该接口并调用 `AddMediaMtxService`；启动器使用宿主提供的 `ProcessStartInfo` 启动并返回进程，宿主负责就绪探测和清理。只注册一个启动器；未注册时宿主启动失败，平台不匹配时网关不启动并记录警告，宿主继续启动。
 - WebRTC 页面和 Control API 分别使用 TCP 端口 8889、9997，ICE 使用 UDP 端口 8189；HTTP 与 Control API 端口应不同。
-- `MediaMtx:Cameras` 是以播放路径为键的静态摄像头字典，值提供 `Url` 和可选的 `UserName`、`Password`（值中的 `Path` 被忽略），网关启动时自动登记，无需手动调用 `AddAsync`。密码通过 User Secrets（`secrets.json` 中与 `appsettings.json` 相同的层次结构）或环境变量（如 `MediaMtx__Cameras__hikvision__Password`）提供；静态路径不能与用户 JSON 配置中的路径冲突。修改后重启应用。
+- `MediaMtx:Cameras` 是以播放路径为键的静态摄像头字典，值提供 `Url` 和可选的 `UserName`、`Password`（值中的 `Path` 被忽略），网关启动时自动登记，无需手动调用 `AddOrUpdateAsync`。密码通过 User Secrets（`secrets.json` 中与 `appsettings.json` 相同的层次结构）或环境变量（如 `MediaMtx__Cameras__hikvision__Password`）提供；静态路径不能与用户 JSON 配置中的路径冲突。修改后重启应用。
 - 可选的 `ConfigurationPath` 指向用户提供的 MediaMTX JSON 对象，相对路径以应用目录为基准；部署时需自行提供该文件。用户配置覆盖包内默认值，但 API、认证、本机 WebRTC 地址和日志输出目标由组件覆盖；字段清单见包内 README。就绪探测在启动期限内重试已认证的 Control API 请求，不依赖子进程日志。文件无效或不存在时网关不启动，修改后需重启应用。
 - 合并配置会写入临时文件，内部 API 密码只通过进程环境传递。用户 JSON 不应包含摄像头凭据；启用其他监听器可能扩大网络暴露范围。
 - 文件不存在时记录警告；端口被占用、进程启动失败、就绪探测失败或超时时记录错误日志。网关不启动，宿主继续启动；网关未运行时管理调用抛出 `InvalidOperationException`。
@@ -46,9 +46,9 @@ builder.Services.AddMediaMtxWindows();
 
 - 调用方应校验唯一播放路径 `MediaMtxCameraOptions.Path`：以小写字母开头，只允许小写字母、数字和连字符，最长 63 个字符，不能是 `all`。删除时传入已登记的路径。
 - `Url` 为不含凭据、查询字符串或片段的 RTSP/RTSPS 地址，必须显式指定端口和流路径。`UserName`、`Password` 使用未编码的原始值；提供密码时必须提供用户名。
-- `AddAsync(camera)` 登记新路径并返回播放 URL，可传给 `BootstrapBlazor.HikVision` 的 `HikVisionWebRtc.WebRtcUrl`；路径重复时报错。登记成功只表示配置被接受，并不表示摄像头已连通。
-- `AddOrUpdateAsync(camera)` 是 `IMediaMtxService` 的扩展方法：路径已存在时替换源配置，不存在时登记新路径，并返回播放 URL。替换可能中断该路径的现有播放。
-- `UpdateAsync(camera)` 替换已有路径的源和凭据，可能中断现有播放；`RemoveAsync(path)` 显式删除路径并影响所有观看者。关闭页面不会删除路径。
+- `IMediaMtxService.AddOrUpdateAsync(camera)` 登记新路径或更新已有路径的源和凭据，返回可传给 `BootstrapBlazor.HikVision` 的 `HikVisionWebRtc.WebRtcUrl` 的播放 URL。成功只表示网关接受配置，不代表摄像头已连通；更新可能中断现有播放。
+- 默认服务记住当前网关中已成功登记或更新的路径，后续优先更新；路径状态不一致时以网关为准。
+- `RemoveAsync(path)` 显式删除路径并影响所有观看者。关闭页面不会删除路径。
 - 多路摄像头使用不同路径，共用一个网关；首次观看时通过 RTSP/TCP 按需拉流。动态配置只保存在 MediaMTX 内存中，重启后需由宿主恢复；`Cameras` 中的静态配置会在启动时重新加载。
 - 操作支持 `CancellationToken`；取消或超时后网关可能已经完成变更，应核实状态后再重试。
 - `SetGatewayStateAsync` 仅供宿主同步网关状态，业务代码不要调用。

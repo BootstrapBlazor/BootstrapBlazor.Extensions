@@ -33,7 +33,7 @@ builder.Services.AddMediaMtxWindows();
 }
 ```
 
-`Cameras` 是可选的静态摄像头字典，网关启动时自动登记，无需调用 `AddAsync`。
+`Cameras` 是可选的静态摄像头字典，网关启动时自动登记，无需调用 `AddOrUpdateAsync`。
 键即播放路径，值包含不含凭据的 `Url` 和可选的 `UserName`、`Password`，值中的 `Path` 会被忽略；路径和 URL 规则与动态登记相同。
 密码应通过 User Secrets 或环境变量等安全配置源提供，不要提交到 `appsettings.json`。
 User Secrets 的 `secrets.json` 使用与 `appsettings.json` 相同的层次结构，按路径合并：
@@ -127,15 +127,15 @@ Control API 仅监听回环地址，使用每个宿主实例生成的内部随�
         error = null;
         try
         {
-            playerUrl = await MediaMtx.AddAsync(camera);
+            playerUrl = await MediaMtx.AddOrUpdateAsync(camera);
         }
         catch (ArgumentException)
         {
-            error = "请检查路径、RTSP 地址和用户名。";
+            error = "请检查 RTSP 地址和用户名。";
         }
         catch (HttpRequestException)
         {
-            error = "登记失败，请检查路径是否重复以及网关是否可用。";
+            error = "登记或更新失败，请检查摄像头配置和网关是否可用。";
         }
         catch (InvalidOperationException)
         {
@@ -155,21 +155,19 @@ Control API 仅监听回环地址，使用每个宿主实例生成的内部随�
 ```
 
 页面所在应用同时引用 `BootstrapBlazor.HikVision` 才能使用播放器。
-路径可能已经存在时，可调用扩展方法 `MediaMtx.AddOrUpdateAsync(camera)`：先按更新处理，路径不存在时再登记；
-该方法同样返回播放 URL，替换已有路径可能中断现有播放。
+`IMediaMtxService.AddOrUpdateAsync(camera)` 按 `Path` 登记新路径或更新已有路径的源和凭据。默认服务对未记录的路径优先新增，对已成功登记或更新的路径优先更新；若网关报告路径已存在或不存在，则改用相应的操作。删除成功或网关状态变更后会清除相应记录。更新已有路径可能中断现有播放。
 另一个摄像头使用 `parking` 等不同 Path 即可同时播放。
 Path 必须以小写字母开头，仅包含小写字母、数字和连字符，最长 63 个字符，不允许保留名称 `all`。
 RTSP/RTSPS URL 必须包含显式端口和流路径，不允许内嵌凭据、查询字符串或片段。
 用户名、密码传原始值，服务端负责 URL 编码；提供密码时必须提供用户名。
 示例在每次登记操作结束后清空密码，再次登记时需要重新输入。
 
-`AddAsync` 和 `UpdateAsync` 默认返回 `http://127.0.0.1:<WebRtcPort>/<Path>/`。路径重复时报错，不会覆盖其他摄像头。
+`AddOrUpdateAsync` 默认返回 `http://127.0.0.1:<WebRtcPort>/<Path>/`。
 如果 nginx 已将公开地址反向代理到本机 WebRTC HTTP 端口，可在 `MediaMtx` 配置节设置
 `"WebRtcPublicUrl": "https://example.com/mediamtx/"`，返回的地址将以该基址开头。
 支持带路径前缀的绝对 HTTP/HTTPS 地址，不允许包含凭据、查询字符串或片段；未设置时使用回环地址。
 组件同时允许该地址的来源访问 WebRTC 信令。代理需要正确转发播放页面、WHEP 请求及会话地址；
 路径前缀场景还需正确处理上游 `Location` 响应头。
-`UpdateAsync(camera)` 替换已有路径的源和凭据，路径不存在时报错；变更可能中断现有观看。
 `RemoveAsync(path)` 显式删除路径并影响所有观看者；关闭播放器不会自动删除路径。
 多个观看者共享一路源，未观看时按 MediaMTX 的按需设置停止拉流。
 所有管理调用支持 `CancellationToken`；HTTP 错误保留状态码，但不暴露可能含源凭据的响应正文。
