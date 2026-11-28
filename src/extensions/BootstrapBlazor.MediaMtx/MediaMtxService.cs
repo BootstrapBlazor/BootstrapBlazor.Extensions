@@ -23,10 +23,6 @@ sealed class MediaMtxService(IOptions<MediaMtxOptions> options) : IMediaMtxServi
 
     public async Task SetGatewayStateAsync(string? apiPassword)
     {
-        if (apiPassword is not null && apiPassword.Length == 0)
-        {
-            throw new ArgumentException("The Control API password must not be empty.", nameof(apiPassword));
-        }
         await _gate.WaitAsync();
         try
         {
@@ -42,7 +38,7 @@ sealed class MediaMtxService(IOptions<MediaMtxOptions> options) : IMediaMtxServi
     public async Task<string> AddOrUpdateAsync(MediaMtxCameraOptions camera, CancellationToken cancellationToken = default)
     {
         var path = camera.Path;
-        var source = BuildSource(camera);
+        var source = BuildRtspSourceUrl(camera) ?? throw new ArgumentException("Camera URL must be an absolute RTSP or RTSPS URL.", nameof(camera));
         var playerBaseUrl = options.Value.GetWebRtcPublicUri()?.AbsoluteUri ?? $"http://127.0.0.1:{options.Value.WebRtcPort}/";
         var content = new { source, rtspTransport = "tcp", sourceOnDemand = true };
         await _gate.WaitAsync(cancellationToken);
@@ -139,41 +135,24 @@ sealed class MediaMtxService(IOptions<MediaMtxOptions> options) : IMediaMtxServi
         }
     }
 
-    internal static string BuildSource(MediaMtxCameraOptions camera)
+    internal static string? BuildRtspSourceUrl(MediaMtxCameraOptions camera)
     {
-        var url = camera.Url;
-        if (!Uri.TryCreate(url, UriKind.Absolute, out var source) ||
-            !source.IsWellFormedOriginalString() ||
-            source.Scheme is not ("rtsp" or "rtsps") ||
-            source.Host.Length == 0 ||
-            source.Port is < 1 or > 65535 ||
-            source.AbsolutePath.Length <= 1 ||
-            source.Query.Length != 0 ||
-            source.Fragment.Length != 0)
+        if (!Uri.TryCreate(camera.Url, UriKind.Absolute, out var source) ||
+            source.Scheme is not ("rtsp" or "rtsps") || source.Host.Length == 0)
         {
-            throw InvalidSource();
+            return null;
         }
 
-        var sourceAddress = url.AsSpan(source.Scheme.Length + 3);
-        var pathStart = sourceAddress.IndexOf('/');
-        var authority = sourceAddress[..pathStart];
-        if (authority.Contains('@') || authority.LastIndexOf(':') <= authority.LastIndexOf(']'))
-        {
-            throw InvalidSource();
-        }
+        var url = source.OriginalString;
         if (string.IsNullOrEmpty(camera.UserName))
         {
-            if (!string.IsNullOrEmpty(camera.Password))
-            {
-                throw new ArgumentException("A camera user name is required when a password is set.");
-            }
             return url;
         }
-        return $"{source.Scheme}://{Uri.EscapeDataString(camera.UserName)}:{Uri.EscapeDataString(camera.Password ?? string.Empty)}@{sourceAddress}";
-    }
 
-    private static ArgumentException InvalidSource() =>
-        new("Camera URL must be an absolute rtsp:// or rtsps:// URL with an explicit port and stream path, without credentials, query or fragment.");
+        var authorityStart = url.IndexOf("://", StringComparison.Ordinal) + 3;
+        var credentials = $"{Uri.EscapeDataString(camera.UserName)}:{Uri.EscapeDataString(camera.Password ?? string.Empty)}@";
+        return url.Insert(authorityStart, credentials);
+    }
 
     public void Dispose()
     {

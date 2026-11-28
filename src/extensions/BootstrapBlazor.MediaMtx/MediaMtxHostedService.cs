@@ -82,7 +82,7 @@ sealed class MediaMtxHostedService(IOptions<MediaMtxOptions> options, ILogger<Me
         var iceAddress = $"{Loopback}:{settings.WebRtcIcePort}";
         var publicUri = settings.GetWebRtcPublicUri();
         var config = await CreateConfigurationAsync(settings, httpAddress, iceAddress, apiAddress, publicUri, cancellationToken);
-        var cameraSources = ConfigureCameras(config, settings.Cameras);
+        var cameraSources = ConfigureCameras(config, settings.Cameras, logger);
 
         await StopExistingGatewaysAsync(executable, cancellationToken);
 
@@ -284,7 +284,7 @@ sealed class MediaMtxHostedService(IOptions<MediaMtxOptions> options, ILogger<Me
         return config;
     }
 
-    private static Dictionary<string, string> ConfigureCameras(JsonObject config, Dictionary<string, MediaMtxCameraOptions> cameras)
+    private static Dictionary<string, string> ConfigureCameras(JsonObject config, Dictionary<string, MediaMtxCameraOptions> cameras, ILogger logger)
     {
         var sources = new Dictionary<string, string>();
         if (cameras.Count == 0)
@@ -300,7 +300,8 @@ sealed class MediaMtxHostedService(IOptions<MediaMtxOptions> options, ILogger<Me
 
         foreach (var (path, camera) in cameras)
         {
-            var source = MediaMtxService.BuildSource(camera);
+            var source = MediaMtxService.BuildRtspSourceUrl(camera)
+                ?? throw new ArgumentException("Camera URL must be an absolute RTSP or RTSPS URL.", nameof(cameras));
             paths.Add(path, new JsonObject
             {
                 ["source"] = camera.Url,
