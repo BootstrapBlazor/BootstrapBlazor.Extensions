@@ -5,7 +5,6 @@
 
 using BootstrapBlazor.Components;
 using System.Diagnostics;
-using System.Runtime.InteropServices;
 
 namespace Microsoft.Extensions.DependencyInjection;
 
@@ -33,13 +32,13 @@ public static class MediaMtxWindowsServiceCollectionExtensions
 
     private sealed class MediaMtxWindowsProcessLauncher : IMediaMtxProcessLauncher
     {
-        public bool IsSupported => OperatingSystem.IsWindows() && RuntimeInformation.OSArchitecture == Architecture.X64;
+        public bool IsSupported => OperatingSystem.IsWindows();
 
         public Process Start(ProcessStartInfo startInfo)
         {
             if (!IsSupported)
             {
-                throw new PlatformNotSupportedException("The MediaMTX Windows x64 launcher requires Windows x64.");
+                throw new PlatformNotSupportedException("The MediaMTX Windows launcher requires Windows.");
             }
             return Process.Start(startInfo) ?? throw new InvalidOperationException("Failed to start the MediaMTX process.");
         }

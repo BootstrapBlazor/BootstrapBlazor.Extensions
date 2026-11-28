@@ -5,7 +5,6 @@
 
 using BootstrapBlazor.Components;
 using System.Diagnostics;
-using System.Runtime.InteropServices;
 
 namespace Microsoft.Extensions.DependencyInjection;
 
@@ -24,7 +23,7 @@ public static class MediaMtxLinuxServiceCollectionExtensions
     /// <param name="services"><para lang="zh">宿主服务集合。</para><para lang="en">The host's service collection.</para></param>
     /// <param name="configureOptions"><para lang="zh">可选的网关配置回调。</para><para lang="en">An optional gateway configuration callback.</para></param>
     /// <returns><para lang="zh">宿主服务集合。</para><para lang="en">The host's service collection.</para></returns>
-    public static IServiceCollection AddMediaMtxLinuxArm64(this IServiceCollection services, Action<MediaMtxOptions>? configureOptions = null)
+    public static IServiceCollection AddMediaMtxLinux(this IServiceCollection services, Action<MediaMtxOptions>? configureOptions = null)
     {
         services.AddSingleton<IMediaMtxProcessLauncher, MediaMtxLinuxProcessLauncher>();
 
@@ -33,13 +32,13 @@ public static class MediaMtxLinuxServiceCollectionExtensions
 
     private sealed class MediaMtxLinuxProcessLauncher : IMediaMtxProcessLauncher
     {
-        public bool IsSupported => OperatingSystem.IsLinux() && RuntimeInformation.OSArchitecture == Architecture.Arm64;
+        public bool IsSupported => OperatingSystem.IsLinux();
 
         public Process Start(ProcessStartInfo startInfo)
         {
             if (!IsSupported)
             {
-                throw new PlatformNotSupportedException("The MediaMTX Linux ARM64 launcher requires Linux ARM64.");
+                throw new PlatformNotSupportedException("The MediaMTX Linux launcher requires Linux.");
             }
             return Process.Start(startInfo) ?? throw new InvalidOperationException("Failed to start the MediaMTX process.");
         }
