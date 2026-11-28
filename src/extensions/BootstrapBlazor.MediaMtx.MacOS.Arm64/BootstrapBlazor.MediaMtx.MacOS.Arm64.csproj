@@ -1,0 +1,13 @@
+<Project Sdk="Microsoft.NET.Sdk">
+
+  <PropertyGroup>
+    <Version>11.0.0-beta01</Version>
+  </PropertyGroup>
+
+  <PropertyGroup>
+    <MediaMtxToolPlatform>MacOS</MediaMtxToolPlatform>
+    <MediaMtxToolRid>osx-arm64</MediaMtxToolRid>
+  </PropertyGroup>
+
+  <Import Project="..\BootstrapBlazor.MediaMtx\MediaMtxToolPackage.props" />
+</Project>

@@ -1,31 +1,14 @@
 <Project Sdk="Microsoft.NET.Sdk">
-
+  
   <PropertyGroup>
     <Version>11.0.0-beta01</Version>
   </PropertyGroup>
 
   <PropertyGroup>
-    <Description>MediaMTX 1.21.4 executable for Windows x64.</Description>
-    <PackageLicenseExpression>Apache-2.0 AND MIT</PackageLicenseExpression>
-    <PackageTags>BootstrapBlazor MediaMTX Windows</PackageTags>
+    <MediaMtxToolPlatform>Windows</MediaMtxToolPlatform>
+    <MediaMtxToolRid>win-x64</MediaMtxToolRid>
   </PropertyGroup>
 
-  <ItemGroup>
-    <SupportedPlatform Remove="browser" />
-  </ItemGroup>
-
-  <ItemGroup>
-    <ProjectReference Include="..\BootstrapBlazor.MediaMtx\BootstrapBlazor.MediaMtx.csproj" />
-  </ItemGroup>
-
-  <ItemGroup>
-    <None Remove="tools\**\*;LICENSE.MediaMTX;BootstrapBlazor.MediaMtx.Windows.targets" />
-    <None Include="tools\**\*" Pack="true" PackagePath="tools\" TargetPath="mediamtx-tools\%(RecursiveDir)%(Filename)%(Extension)" CopyToOutputDirectory="PreserveNewest" CopyToPublishDirectory="PreserveNewest" />
-    <None Include="LICENSE.MediaMTX" Pack="true" PackagePath="" TargetPath="mediamtx-tools\windows\LICENSE.MediaMTX" CopyToOutputDirectory="PreserveNewest" CopyToPublishDirectory="PreserveNewest" />
-  </ItemGroup>
-
-  <ItemGroup>
-    <None Include="buildTransitive\BootstrapBlazor.MediaMtx.Windows.targets" Pack="true" PackagePath="buildTransitive\BootstrapBlazor.MediaMtx.Windows.targets" />
-  </ItemGroup>
+  <Import Project="..\BootstrapBlazor.MediaMtx\MediaMtxToolPackage.props" />
 
 </Project>

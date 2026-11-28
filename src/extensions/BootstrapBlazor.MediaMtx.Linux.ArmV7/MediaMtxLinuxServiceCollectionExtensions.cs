@@ -5,40 +5,41 @@
 
 using BootstrapBlazor.Components;
 using System.Diagnostics;
+using System.Runtime.InteropServices;
 
 namespace Microsoft.Extensions.DependencyInjection;
 
 /// <summary>
-/// <para lang="zh">macOS MediaMTX 网关的依赖注入扩展。</para>
-/// <para lang="en">Dependency injection extensions for the macOS MediaMTX gateway.</para>
+/// <para lang="zh">Linux MediaMTX 网关的依赖注入扩展。</para>
+/// <para lang="en">Dependency injection extensions for the Linux MediaMTX gateway.</para>
 /// <para><version>11.0.0</version></para>
 /// </summary>
-public static class MediaMtxMacOSServiceCollectionExtensions
+public static class MediaMtxLinuxServiceCollectionExtensions
 {
     /// <summary>
-    /// <para lang="zh">注册 macOS 进程启动器和 MediaMTX 服务。</para>
-    /// <para lang="en">Registers the macOS process launcher and MediaMTX services.</para>
+    /// <para lang="zh">注册 Linux 进程启动器和 MediaMTX 服务。</para>
+    /// <para lang="en">Registers the Linux process launcher and MediaMTX services.</para>
     /// <para><version>11.0.0</version></para>
     /// </summary>
     /// <param name="services"><para lang="zh">宿主服务集合。</para><para lang="en">The host's service collection.</para></param>
     /// <param name="configureOptions"><para lang="zh">可选的网关配置回调。</para><para lang="en">An optional gateway configuration callback.</para></param>
     /// <returns><para lang="zh">宿主服务集合。</para><para lang="en">The host's service collection.</para></returns>
-    public static IServiceCollection AddMediaMtxMacOS(this IServiceCollection services, Action<MediaMtxOptions>? configureOptions = null)
+    public static IServiceCollection AddMediaMtxLinuxArmV7(this IServiceCollection services, Action<MediaMtxOptions>? configureOptions = null)
     {
-        services.AddSingleton<IMediaMtxProcessLauncher, MediaMtxMacOSProcessLauncher>();
+        services.AddSingleton<IMediaMtxProcessLauncher, MediaMtxLinuxProcessLauncher>();
 
         return services.AddMediaMtxService(configureOptions);
     }
 
-    private sealed class MediaMtxMacOSProcessLauncher : IMediaMtxProcessLauncher
+    private sealed class MediaMtxLinuxProcessLauncher : IMediaMtxProcessLauncher
     {
-        public bool IsSupported => OperatingSystem.IsMacOS();
+        public bool IsSupported => OperatingSystem.IsLinux() && RuntimeInformation.OSArchitecture == Architecture.Arm;
 
         public Process Start(ProcessStartInfo startInfo)
         {
             if (!IsSupported)
             {
-                throw new PlatformNotSupportedException("The MediaMTX macOS launcher requires macOS.");
+                throw new PlatformNotSupportedException("The MediaMTX Linux ARMv7 launcher requires Linux ARM.");
             }
             return Process.Start(startInfo) ?? throw new InvalidOperationException("Failed to start the MediaMTX process.");
         }

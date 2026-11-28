@@ -82,8 +82,11 @@
     <Project Path="src/extensions/BootstrapBlazor.OpcUa/BootstrapBlazor.OpcUa.csproj" />
     <Project Path="src/extensions/BootstrapBlazor.MediaMtx/BootstrapBlazor.MediaMtx.csproj" />
     <Project Path="src/extensions/BootstrapBlazor.MediaMtx.Windows/BootstrapBlazor.MediaMtx.Windows.csproj" />
-    <Project Path="src/extensions/BootstrapBlazor.MediaMtx.Linux/BootstrapBlazor.MediaMtx.Linux.csproj" />
-    <Project Path="src/extensions/BootstrapBlazor.MediaMtx.MacOS/BootstrapBlazor.MediaMtx.MacOS.csproj" />
+    <Project Path="src/extensions/BootstrapBlazor.MediaMtx.Linux.X64/BootstrapBlazor.MediaMtx.Linux.X64.csproj" />
+    <Project Path="src/extensions/BootstrapBlazor.MediaMtx.Linux.Arm64/BootstrapBlazor.MediaMtx.Linux.Arm64.csproj" />
+    <Project Path="src/extensions/BootstrapBlazor.MediaMtx.Linux.ArmV7/BootstrapBlazor.MediaMtx.Linux.ArmV7.csproj" />
+    <Project Path="src/extensions/BootstrapBlazor.MediaMtx.MacOS.X64/BootstrapBlazor.MediaMtx.MacOS.X64.csproj" />
+    <Project Path="src/extensions/BootstrapBlazor.MediaMtx.MacOS.Arm64/BootstrapBlazor.MediaMtx.MacOS.Arm64.csproj" />
     <Project Path="src/extensions/BootstrapBlazor.SignalR.Client/BootstrapBlazor.SignalR.Client.csproj" />
   </Folder>
   <Folder Name="/src/middelware/">
