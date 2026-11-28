@@ -11,15 +11,17 @@ using System.Diagnostics;
 using System.Net;
 using System.Net.Sockets;
 using System.Security.Cryptography;
+using System.Text.Json.Nodes;
 
 namespace BootstrapBlazor.Components;
 
-sealed class RtspHostedService(IOptions<RtspOptions> options, ILogger<RtspHostedService> logger, IRtspService service) : BackgroundService
+sealed class MediaMtxHostedService(IOptions<MediaMtxOptions> options, ILogger<MediaMtxHostedService> logger, IMediaMtxService service, IMediaMtxProcessLauncher launcher) : BackgroundService
 {
     private const string Loopback = "127.0.0.1";
     private const string ReleaseUrl = "https://github.com/bluenviron/mediamtx/releases";
     private const string RestartHint = "Check the port configuration and stop any other process occupying the address, then restart the application.";
     private static readonly TimeSpan _startupTimeout = TimeSpan.FromSeconds(10);
+    private static readonly TimeSpan _probeInterval = TimeSpan.FromMilliseconds(100);
     private static readonly TimeSpan _stopTimeout = TimeSpan.FromSeconds(5);
     private Process? _process;
     private string? _configPath;
@@ -61,6 +63,12 @@ sealed class RtspHostedService(IOptions<RtspOptions> options, ILogger<RtspHosted
 
     private async Task<bool> StartGatewayAsync(CancellationToken cancellationToken)
     {
+        if (!launcher.IsSupported)
+        {
+            logger.LogWarning("The registered MediaMTX platform launcher does not support this operating system; the gateway is disabled.");
+            return false;
+        }
+
         var settings = options.Value;
         var executable = Path.GetFullPath(settings.MediaMtxPath, AppContext.BaseDirectory);
         if (!File.Exists(executable))
@@ -68,6 +76,13 @@ sealed class RtspHostedService(IOptions<RtspOptions> options, ILogger<RtspHosted
             logger.LogWarning("MediaMTX was not found at {MediaMtxPath}; the RTSP gateway is disabled. Download it from {ReleaseUrl}.", executable, ReleaseUrl);
             return false;
         }
+
+        var httpAddress = $"{Loopback}:{settings.WebRtcPort}";
+        var apiAddress = $"{Loopback}:{settings.ApiPort}";
+        var iceAddress = $"{Loopback}:{settings.WebRtcIcePort}";
+        var publicUri = settings.GetWebRtcPublicUri();
+        var config = await CreateConfigurationAsync(settings, httpAddress, iceAddress, apiAddress, publicUri, cancellationToken);
+        var cameraSources = ConfigureCameras(config, settings.Cameras);
 
         await StopExistingGatewaysAsync(executable, cancellationToken);
 
@@ -81,45 +96,60 @@ sealed class RtspHostedService(IOptions<RtspOptions> options, ILogger<RtspHosted
         using var timeout = CancellationTokenSource.CreateLinkedTokenSource(cancellationToken);
         timeout.CancelAfter(_startupTimeout);
 
-        var httpAddress = $"{Loopback}:{settings.WebRtcPort}";
-        var apiAddress = $"{Loopback}:{settings.ApiPort}";
-        var iceAddress = $"{Loopback}:{settings.WebRtcIcePort}";
-        var listeners = $"{httpAddress} (TCP/HTTP), {iceAddress} (UDP/ICE)";
-
-        // Clear default users before applying indexed environment settings; no credentials are written to disk.
         _configPath = Path.GetTempFileName();
-        await File.WriteAllTextAsync(_configPath, "{\"authInternalUsers\":[]}", timeout.Token);
-        var started = new TaskCompletionSource(TaskCreationOptions.RunContinuationsAsynchronously);
-        var process = StartMediaMtx(executable, _configPath, httpAddress, iceAddress, apiAddress, apiPassword, started, listeners);
+        await File.WriteAllTextAsync(_configPath, config.ToJsonString(), timeout.Token);
+        var process = StartMediaMtx(launcher, executable, _configPath, apiPassword, cameraSources);
         _process = process;
         process.BeginOutputReadLine();
         process.BeginErrorReadLine();
 
-        await Task.WhenAny(started.Task, process.WaitForExitAsync(timeout.Token)).WaitAsync(timeout.Token);
-        if (process.HasExited)
+        try
         {
-            logger.LogError("MediaMTX exited before the gateway was ready (exit code {ExitCode}); the RTSP gateway is disabled. Verify the MediaMTX version and that {Listeners} and {ApiAddress} (TCP/Control API) are available. {RestartHint}",
-                process.ExitCode, listeners, apiAddress, RestartHint);
-            return false;
+            var exited = process.WaitForExitAsync(timeout.Token);
+            var ready = WaitForControlApiAsync(apiAddress, apiPassword, timeout.Token);
+            var completed = await Task.WhenAny(ready, exited);
+            await completed;
+            timeout.Token.ThrowIfCancellationRequested();
+            if (process.HasExited)
+            {
+                logger.LogError("MediaMTX exited before the gateway was ready (exit code {ExitCode}); the RTSP gateway is disabled. Verify the MediaMTX version and listener ports. {RestartHint}",
+                    process.ExitCode, RestartHint);
+                return false;
+            }
         }
-
-        using var client = new HttpClient(new HttpClientHandler { UseProxy = false, AllowAutoRedirect = false })
+        finally
         {
-            BaseAddress = new Uri($"http://{apiAddress}/v3/")
-        };
-        using var request = client.CreateAuthorizationRequest(HttpMethod.Get, "info", apiPassword);
-        using var response = await client.SendAsync(request, HttpCompletionOption.ResponseHeadersRead, timeout.Token);
-        if (response.StatusCode != HttpStatusCode.OK)
-        {
-            logger.LogError("MediaMTX's Control API readiness probe at http://{ApiAddress}/v3/info returned HTTP {StatusCode}; expected HTTP 200. The RTSP gateway is disabled.",
-                apiAddress, (int)response.StatusCode);
-            return false;
+            timeout.Cancel();
         }
 
         await service.SetGatewayStateAsync(apiPassword);
         logger.LogInformation("MediaMTX gateway is ready (PID {ProcessId}). Executable: {ExecutablePath}; WebRTC base URL: {PlayerUrl}; ICE (UDP): {IceAddress}.",
             process.Id, executable, $"http://{httpAddress}/", iceAddress);
         return true;
+    }
+
+    private static async Task WaitForControlApiAsync(string apiAddress, string apiPassword, CancellationToken cancellationToken)
+    {
+        using var client = new HttpClient(new HttpClientHandler { UseProxy = false, AllowAutoRedirect = false })
+        {
+            BaseAddress = new Uri($"http://{apiAddress}/v3/")
+        };
+        while (true)
+        {
+            using var request = client.CreateAuthorizationRequest(HttpMethod.Get, "info", apiPassword);
+            try
+            {
+                using var response = await client.SendAsync(request, HttpCompletionOption.ResponseHeadersRead, cancellationToken);
+                if (response.StatusCode == HttpStatusCode.OK)
+                {
+                    return;
+                }
+            }
+            catch (HttpRequestException)
+            {
+            }
+            await Task.Delay(_probeInterval, cancellationToken);
+        }
     }
 
     private bool IsPortAvailable(int port, ProtocolType protocol)
@@ -191,8 +221,102 @@ sealed class RtspHostedService(IOptions<RtspOptions> options, ILogger<RtspHosted
         await process.WaitForExitAsync(timeout.Token);
     }
 
-    private Process StartMediaMtx(string executable, string configPath, string httpAddress, string iceAddress,
-        string apiAddress, string apiPassword, TaskCompletionSource started, string listeners)
+    private static async Task<JsonObject> CreateConfigurationAsync(MediaMtxOptions settings, string httpAddress, string iceAddress,
+        string apiAddress, Uri? publicUri, CancellationToken cancellationToken)
+    {
+        using var defaultsStream = typeof(MediaMtxHostedService).Assembly.GetManifestResourceStream("BootstrapBlazor.MediaMtx.DefaultConfig.json")
+            ?? throw new InvalidOperationException("The default MediaMTX configuration is missing.");
+        using var reader = new StreamReader(defaultsStream);
+        var defaults = JsonNode.Parse(await reader.ReadToEndAsync())?.AsObject()
+            ?? throw new InvalidOperationException("The default MediaMTX configuration must be a JSON object.");
+        var config = new JsonObject();
+        if (!string.IsNullOrWhiteSpace(settings.ConfigurationPath))
+        {
+            var path = Path.GetFullPath(settings.ConfigurationPath, AppContext.BaseDirectory);
+            config = JsonNode.Parse(await File.ReadAllTextAsync(path, cancellationToken))?.AsObject()
+                ?? throw new InvalidOperationException("The MediaMTX configuration must be a JSON object.");
+        }
+
+        foreach (var item in defaults.ToArray())
+        {
+            if (!config.ContainsKey(item.Key))
+            {
+                defaults.Remove(item.Key);
+                config.Add(item.Key, item.Value);
+            }
+        }
+
+        config["api"] = true;
+        config["apiAddress"] = apiAddress;
+        config["apiEncryption"] = false;
+        config["authMethod"] = "internal";
+        config["authInternalUsers"] = new JsonArray
+        {
+            new JsonObject
+            {
+                ["user"] = "gateway",
+                ["ips"] = new JsonArray(Loopback),
+                ["permissions"] = new JsonArray(new JsonObject { ["action"] = "api" })
+            },
+            new JsonObject
+            {
+                ["user"] = "any",
+                ["permissions"] = new JsonArray(new JsonObject { ["action"] = "read" })
+            }
+        };
+        config["webrtc"] = true;
+        config["webrtcAddress"] = httpAddress;
+        config["webrtcEncryption"] = false;
+        config["webrtcLocalUDPAddress"] = iceAddress;
+        config["webrtcIPsFromInterfaces"] = false;
+        config["webrtcAdditionalHosts"] = new JsonArray(Loopback);
+        var allowedOrigins = new JsonArray($"http://{httpAddress}");
+        if (publicUri is not null)
+        {
+            var publicOrigin = publicUri.GetLeftPart(UriPartial.Authority);
+            if (!string.Equals(publicOrigin, $"http://{httpAddress}", StringComparison.OrdinalIgnoreCase))
+            {
+                allowedOrigins.Add(publicOrigin);
+            }
+        }
+        config["webrtcAllowOrigins"] = allowedOrigins;
+        config["logDestinations"] = new JsonArray("stdout");
+        return config;
+    }
+
+    private static Dictionary<string, string> ConfigureCameras(JsonObject config, Dictionary<string, MediaMtxCameraOptions> cameras)
+    {
+        var sources = new Dictionary<string, string>();
+        if (cameras.Count == 0)
+        {
+            return sources;
+        }
+
+        var paths = config["paths"]?.AsObject() ?? new JsonObject();
+        if (config["paths"] is null)
+        {
+            config["paths"] = paths;
+        }
+
+        foreach (var (path, camera) in cameras)
+        {
+            var source = MediaMtxService.BuildSource(camera);
+            paths.Add(path, new JsonObject
+            {
+                ["source"] = camera.Url,
+                ["rtspTransport"] = "tcp",
+                ["sourceOnDemand"] = true
+            });
+            if (!string.IsNullOrEmpty(camera.UserName))
+            {
+                sources.Add($"MTX_PATHS_{path.ToUpperInvariant()}_SOURCE", source);
+            }
+        }
+        return sources;
+    }
+
+    private static Process StartMediaMtx(IMediaMtxProcessLauncher launcher, string executable, string configPath,
+        string apiPassword, Dictionary<string, string> cameraSources)
     {
         var startInfo = new ProcessStartInfo(executable)
         {
@@ -212,42 +336,13 @@ sealed class RtspHostedService(IOptions<RtspOptions> options, ILogger<RtspHosted
                 environment.Remove(key);
             }
         }
-        environment["MTX_API"] = "true";
-        environment["MTX_APIADDRESS"] = apiAddress;
-        environment["MTX_AUTHMETHOD"] = "internal";
-        environment["MTX_AUTHINTERNALUSERS_0_USER"] = "gateway";
         environment["MTX_AUTHINTERNALUSERS_0_PASS"] = apiPassword;
-        environment["MTX_AUTHINTERNALUSERS_0_IPS"] = Loopback;
-        environment["MTX_AUTHINTERNALUSERS_0_PERMISSIONS_0_ACTION"] = "api";
-        environment["MTX_AUTHINTERNALUSERS_1_USER"] = "any";
-        environment["MTX_AUTHINTERNALUSERS_1_PERMISSIONS_0_ACTION"] = "read";
-        environment["MTX_METRICS"] = "false";
-        environment["MTX_PPROF"] = "false";
-        environment["MTX_PLAYBACK"] = "false";
-        environment["MTX_RTSP"] = "false";
-        environment["MTX_RTMP"] = "false";
-        environment["MTX_HLS"] = "false";
-        environment["MTX_SRT"] = "false";
-        environment["MTX_MOQ"] = "false";
-        environment["MTX_WEBRTC"] = "true";
-        environment["MTX_WEBRTCADDRESS"] = httpAddress;
-        environment["MTX_WEBRTCLOCALUDPADDRESS"] = iceAddress;
-        environment["MTX_WEBRTCIPSFROMINTERFACES"] = "false";
-        environment["MTX_WEBRTCADDITIONALHOSTS"] = Loopback;
-        environment["MTX_WEBRTCALLOWORIGINS"] = $"http://{httpAddress}";
-
-        var process = Process.Start(startInfo)!;
-
-        // Confirm these listeners belong to this process. Never forward MediaMTX output, which may contain the source URL.
-        var marker = $"[WebRTC] started with listeners on {listeners}";
-        process.OutputDataReceived += (_, args) =>
+        foreach (var (key, source) in cameraSources)
         {
-            if (args.Data?.EndsWith(marker, StringComparison.Ordinal) == true)
-            {
-                started.TrySetResult();
-            }
-        };
-        return process;
+            environment[key] = source;
+        }
+
+        return launcher.Start(startInfo);
     }
 
     private static bool IsSourceConfiguration(string key)
@@ -262,8 +357,8 @@ sealed class RtspHostedService(IOptions<RtspOptions> options, ILogger<RtspHosted
             name = name["DOTNET_".Length..];
         }
 
-        return name.StartsWith("Rtsp__", StringComparison.OrdinalIgnoreCase) ||
-            name.StartsWith("Rtsp:", StringComparison.OrdinalIgnoreCase);
+        return name.StartsWith("MediaMtx__", StringComparison.OrdinalIgnoreCase) ||
+            name.StartsWith("MediaMtx:", StringComparison.OrdinalIgnoreCase);
     }
 
     private async Task StopGatewayAsync()

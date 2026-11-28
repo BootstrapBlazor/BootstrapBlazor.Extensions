@@ -1,0 +1,10 @@
+{
+  "metrics": false,
+  "pprof": false,
+  "playback": false,
+  "rtsp": false,
+  "rtmp": false,
+  "hls": false,
+  "srt": false,
+  "moq": false
+}

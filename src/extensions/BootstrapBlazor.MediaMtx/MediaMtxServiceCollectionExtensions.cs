@@ -13,25 +13,25 @@ namespace Microsoft.Extensions.DependencyInjection;
 /// <para lang="en">Dependency injection extensions for the RTSP service.</para>
 /// <para><version>11.0.0</version></para>
 /// </summary>
-public static class RtspServiceCollectionExtensions
+public static class MediaMtxServiceCollectionExtensions
 {
     /// <summary>
-    /// <para lang="zh">从 Rtsp 配置节绑定选项，并注册一个由宿主管理的 MediaMTX 网关。默认查找应用目录下的 mediamtx\mediamtx.exe，文件不存在时网关不启动。</para>
-    /// <para lang="en">Binds options from the Rtsp configuration section and registers one MediaMTX gateway managed by the host. By default it looks for mediamtx\mediamtx.exe under the application directory; the gateway is not started when the file does not exist.</para>
+    /// <para lang="zh">从 MediaMtx 配置节绑定选项，并注册摄像头管理服务和托管网关。还需注册平台进程启动器；否则宿主无法启动。</para>
+    /// <para lang="en">Binds options from the MediaMtx configuration section and registers camera management and a hosted gateway. A platform process launcher must also be registered or the host cannot start.</para>
     /// <para><version>11.0.0</version></para>
     /// </summary>
     /// <param name="services"><para lang="zh">宿主服务集合。</para><para lang="en">The host's service collection.</para></param>
     /// <param name="configureOptions"><para lang="zh">可选的回调，用于覆盖从配置节绑定的选项。</para><para lang="en">An optional callback to override options bound from the configuration section.</para></param>
     /// <returns><para lang="zh">宿主服务集合。</para><para lang="en">The host's service collection.</para></returns>
-    public static IServiceCollection AddRtspService(this IServiceCollection services, Action<RtspOptions>? configureOptions = null)
+    public static IServiceCollection AddMediaMtxService(this IServiceCollection services, Action<MediaMtxOptions>? configureOptions = null)
     {
-        var options = services.AddOptions<RtspOptions>().BindConfiguration("Rtsp");
+        var options = services.AddOptions<MediaMtxOptions>().BindConfiguration("MediaMtx");
         if (configureOptions is not null)
         {
             options.Configure(configureOptions);
         }
 
-        services.TryAddSingleton<IRtspService, RtspService>();
-        return services.AddHostedService<RtspHostedService>();
+        services.TryAddSingleton<IMediaMtxService, MediaMtxService>();
+        return services.AddHostedService<MediaMtxHostedService>();
     }
 }

@@ -8,11 +8,11 @@ namespace BootstrapBlazor.Components;
 /// <summary>
 /// <para lang="zh">服务端动态摄像头管理。调用方负责身份认证、权限检查和 RTSP 目标地址的访问策略。</para>
 /// <para lang="en">Server-side dynamic camera management. Callers must enforce authentication, authorization and RTSP destination access policies.</para>
-/// <para lang="zh">网关未运行时（包括 Rtsp:MediaMtxPath 为空或指向的文件不存在），管理方法抛出 <see cref="InvalidOperationException"/>。</para>
-/// <para lang="en">Management methods throw <see cref="InvalidOperationException"/> when the gateway is not running, including when Rtsp:MediaMtxPath is empty or the file does not exist.</para>
+/// <para lang="zh">网关未运行时，管理方法抛出 <see cref="InvalidOperationException"/>。</para>
+/// <para lang="en">Management methods throw <see cref="InvalidOperationException"/> when the gateway is not running.</para>
 /// <para><version>11.0.0</version></para>
 /// </summary>
-public interface IRtspService
+public interface IMediaMtxService
 {
     /// <summary>
     /// <para lang="zh">由宿主设置已就绪网关的 Control API 密码；传入 null 表示网关已停止。</para>
@@ -24,14 +24,14 @@ public interface IRtspService
     Task SetGatewayStateAsync(string? apiPassword);
 
     /// <summary>
-    /// <para lang="zh">登记新的摄像头，返回同机浏览器的播放 URL。路径重复时报错；登记成功不代表源已连通。</para>
-    /// <para lang="en">Registers a new camera and returns its same-machine browser playback URL. Duplicate paths fail; registration does not verify source connectivity.</para>
+    /// <para lang="zh">登记新的摄像头，返回播放 URL；默认使用同机回环地址，可通过 WebRtcPublicUrl 配置反向代理地址。路径重复时报错；登记成功不代表源已连通。</para>
+    /// <para lang="en">Registers a new camera and returns its playback URL, using the loopback address by default or WebRtcPublicUrl for a reverse proxy. Duplicate paths fail; registration does not verify source connectivity.</para>
     /// <para><version>11.0.0</version></para>
     /// </summary>
     /// <param name="camera"><para lang="zh">由管理 UI 提交的摄像头配置。</para><para lang="en">Camera configuration submitted by the management UI.</para></param>
     /// <param name="cancellationToken"><para lang="zh">取消令牌。</para><para lang="en">The cancellation token.</para></param>
-    /// <returns><para lang="zh">同机浏览器的播放 URL。</para><para lang="en">The playback URL for a browser on the same machine.</para></returns>
-    Task<string> AddAsync(RtspCameraOptions camera, CancellationToken cancellationToken = default);
+    /// <returns><para lang="zh">播放 URL。</para><para lang="en">The playback URL.</para></returns>
+    Task<string> AddAsync(MediaMtxCameraOptions camera, CancellationToken cancellationToken = default);
 
     /// <summary>
     /// <para lang="zh">替换已有路径的源配置并返回播放 URL。路径不存在时报错；可能中断该路径的现有播放。</para>
@@ -40,8 +40,8 @@ public interface IRtspService
     /// </summary>
     /// <param name="camera"><para lang="zh">目标路径及其新的完整源配置。</para><para lang="en">The target path and its complete new source configuration.</para></param>
     /// <param name="cancellationToken"><para lang="zh">取消令牌。</para><para lang="en">The cancellation token.</para></param>
-    /// <returns><para lang="zh">同机浏览器的播放 URL。</para><para lang="en">The playback URL for a browser on the same machine.</para></returns>
-    Task<string> UpdateAsync(RtspCameraOptions camera, CancellationToken cancellationToken = default);
+    /// <returns><para lang="zh">播放 URL。</para><para lang="en">The playback URL.</para></returns>
+    Task<string> UpdateAsync(MediaMtxCameraOptions camera, CancellationToken cancellationToken = default);
 
     /// <summary>
     /// <para lang="zh">显式删除摄像头路径，影响所有观看者；路径不存在时报错。</para>

@@ -6,11 +6,11 @@
 namespace BootstrapBlazor.Components;
 
 /// <summary>
-/// <para lang="zh">由服务端 UI 提交的摄像头配置，不应持久化到浏览器或写入日志。</para>
-/// <para lang="en">Camera configuration submitted by a server-side UI. Do not persist it in the browser or write it to logs.</para>
+/// <para lang="zh">由服务端配置或 UI 提供的摄像头配置，不应持久化到浏览器或写入日志。</para>
+/// <para lang="en">Camera configuration supplied by server-side configuration or UI. Do not persist it in the browser or write it to logs.</para>
 /// <para><version>11.0.0</version></para>
 /// </summary>
-public sealed class RtspCameraOptions
+public sealed class MediaMtxCameraOptions
 {
     /// <summary>
     /// <para lang="zh">获得/设置唯一的播放路径，使用小写字母开头，后接小写字母、数字或连字符，最长 63 个字符，不允许保留名称 all。例如：camera01</para>

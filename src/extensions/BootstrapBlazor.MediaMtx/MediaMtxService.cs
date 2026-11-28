@@ -8,7 +8,7 @@ using System.Net.Http.Json;
 
 namespace BootstrapBlazor.Components;
 
-sealed class RtspService(IOptions<RtspOptions> options) : IRtspService, IDisposable
+sealed class MediaMtxService(IOptions<MediaMtxOptions> options) : IMediaMtxService, IDisposable
 {
     private readonly SemaphoreSlim _gate = new(1, 1);
     private readonly HttpClient _client = new(new HttpClientHandler { UseProxy = false, AllowAutoRedirect = false })
@@ -35,10 +35,10 @@ sealed class RtspService(IOptions<RtspOptions> options) : IRtspService, IDisposa
         }
     }
 
-    public Task<string> AddAsync(RtspCameraOptions camera, CancellationToken cancellationToken = default) =>
+    public Task<string> AddAsync(MediaMtxCameraOptions camera, CancellationToken cancellationToken = default) =>
         ConfigureAsync("add", camera, cancellationToken);
 
-    public Task<string> UpdateAsync(RtspCameraOptions camera, CancellationToken cancellationToken = default) =>
+    public Task<string> UpdateAsync(MediaMtxCameraOptions camera, CancellationToken cancellationToken = default) =>
         ConfigureAsync("patch", camera, cancellationToken);
 
     public async Task RemoveAsync(string path, CancellationToken cancellationToken = default)
@@ -46,13 +46,14 @@ sealed class RtspService(IOptions<RtspOptions> options) : IRtspService, IDisposa
         await SendAsync(HttpMethod.Delete, $"config/paths/delete/{path}", null, cancellationToken);
     }
 
-    private async Task<string> ConfigureAsync(string operation, RtspCameraOptions camera, CancellationToken cancellationToken)
+    private async Task<string> ConfigureAsync(string operation, MediaMtxCameraOptions camera, CancellationToken cancellationToken)
     {
         var path = camera.Path;
         var source = BuildSource(camera);
+        var playerBaseUrl = options.Value.GetWebRtcPublicUri()?.AbsoluteUri ?? $"http://127.0.0.1:{options.Value.WebRtcPort}/";
         await SendAsync(operation == "add" ? HttpMethod.Post : HttpMethod.Patch,
             $"config/paths/{operation}/{path}", new { source, rtspTransport = "tcp", sourceOnDemand = true }, cancellationToken);
-        return $"http://127.0.0.1:{options.Value.WebRtcPort}/{path}/";
+        return $"{playerBaseUrl}{path}/";
     }
 
     private async Task SendAsync(HttpMethod method, string route, object? content, CancellationToken cancellationToken)
@@ -83,7 +84,7 @@ sealed class RtspService(IOptions<RtspOptions> options) : IRtspService, IDisposa
         }
     }
 
-    private static string BuildSource(RtspCameraOptions camera)
+    internal static string BuildSource(MediaMtxCameraOptions camera)
     {
         var url = camera.Url;
         if (!Uri.TryCreate(url, UriKind.Absolute, out var source) ||
