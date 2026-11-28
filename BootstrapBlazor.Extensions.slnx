@@ -81,9 +81,6 @@
     <Project Path="src/extensions/BootstrapBlazor.OpcDa/BootstrapBlazor.OpcDa.csproj" />
     <Project Path="src/extensions/BootstrapBlazor.OpcUa/BootstrapBlazor.OpcUa.csproj" />
     <Project Path="src/extensions/BootstrapBlazor.MediaMtx/BootstrapBlazor.MediaMtx.csproj" />
-    <Project Path="src/extensions/BootstrapBlazor.MediaMtx.Windows/BootstrapBlazor.MediaMtx.Windows.csproj" />
-    <Project Path="src/extensions/BootstrapBlazor.MediaMtx.Linux/BootstrapBlazor.MediaMtx.Linux.csproj" />
-    <Project Path="src/extensions/BootstrapBlazor.MediaMtx.MacOS/BootstrapBlazor.MediaMtx.MacOS.csproj" />
     <Project Path="src/extensions/BootstrapBlazor.SignalR.Client/BootstrapBlazor.SignalR.Client.csproj" />
   </Folder>
   <Folder Name="/src/middelware/">

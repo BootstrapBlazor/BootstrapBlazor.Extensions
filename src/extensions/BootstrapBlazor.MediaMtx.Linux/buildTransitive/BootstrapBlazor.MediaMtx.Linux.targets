@@ -1,6 +1,0 @@
-<Project>
-  <ItemGroup Condition="'$(OutputType)' != 'Library'">
-    <None Include="$(MSBuildThisFileDirectory)..\tools\**\*" Link="mediamtx-tools\%(RecursiveDir)%(Filename)%(Extension)" CopyToOutputDirectory="PreserveNewest" CopyToPublishDirectory="PreserveNewest" />
-    <None Include="$(MSBuildThisFileDirectory)..\LICENSE.MediaMTX" Link="mediamtx-tools\linux\LICENSE.MediaMTX" CopyToOutputDirectory="PreserveNewest" CopyToPublishDirectory="PreserveNewest" />
-  </ItemGroup>
-</Project>
