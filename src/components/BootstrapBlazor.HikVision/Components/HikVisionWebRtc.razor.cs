@@ -15,12 +15,12 @@ namespace BootstrapBlazor.Components;
 public partial class HikVisionWebRtc
 {
     /// <summary>
-    /// <para lang="zh">获得/设置浏览器可访问的 MediaMTX 播放页面地址，例如动态登记摄像头后返回的 URL。127.0.0.1 仅适用于浏览器与网关同机。</para>
-    /// <para lang="en">Gets or sets the browser-accessible MediaMTX player URL, such as the URL returned after dynamic camera registration. Loopback addresses require the browser and gateway to run on the same device.</para>
+    /// <para lang="zh">获得/设置浏览器访问的 WebRTC 播放页面地址，例如经 nginx 代理后的完整地址，不应包含凭据。如 http://camera.blazor.zone/hikvision</para>
+    /// <para lang="en">Gets or sets the browser-accessible WebRTC player URL, such as a complete URL behind an nginx proxy, without credentials.</para>
     /// <para><version>11.0.2</version></para>
     /// </summary>
     [Parameter]
-    public string? GatewayUrl { get; set; }
+    public string? WebRtcUrl { get; set; }
 
     /// <summary>
     /// <para lang="zh">获得/设置 播放器的无障碍标题</para>
@@ -46,19 +46,18 @@ public partial class HikVisionWebRtc
         .AddStyleFromAttributes(AdditionalAttributes)
         .Build();
 
-    private Uri? PlayerUrl
-    {
-        get
-        {
-            if (!Uri.TryCreate(GatewayUrl, UriKind.Absolute, out var url) ||
-                url.Scheme is not ("http" or "https") || url.UserInfo.Length != 0)
-            {
-                return null;
-            }
+    private Uri? PlayerUrl => GetPlayerUrl();
 
-            var query = HttpUtility.ParseQueryString(url.Query);
-            query["muted"] = IsMuted ? "true" : "false";
-            return new UriBuilder(url) { Query = query.ToString() }.Uri;
+    private Uri? GetPlayerUrl()
+    {
+        if (!Uri.TryCreate(WebRtcUrl, UriKind.Absolute, out var url) ||
+            url.Scheme is not ("http" or "https") || url.UserInfo.Length != 0)
+        {
+            return null;
         }
+
+        var query = HttpUtility.ParseQueryString(url.Query);
+        query["muted"] = IsMuted ? "true" : "false";
+        return new UriBuilder(url) { Query = query.ToString() }.Uri;
     }
 }
